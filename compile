@@ -1,0 +1,47 @@
+#!/bin/sh
+# MALHEUR - Automatic Malware Analysis on Steroids
+# Copyright (c) 2009 Konrad Rieck (rieck@cs.tu-berlin.de)
+# Berlin Institute of Technology (TU Berlin).
+#
+
+# Get requested configuration
+if test -n "$1" ; then
+   arg=$1
+else
+   arg=`hostname`
+fi
+
+# Apply configuration
+case $arg in
+   bot*|vnc*)
+       echo "# Configuration: VNC/Bot"
+       PKG_CONFIG_PATH="$HOME/usr/lib/pkgconfig" \
+       CC="gcc-4.3" \
+       CFLAGS="-fomit-frame-pointer -pedantic -pipe -O3 -march=opteron" \
+       ./configure --enable-matlab --with-matlab=/home/matrix/matlab \
+                   --enable-openmp \
+                   --prefix=$HOME/usr
+       ;;       
+   twoface*|rieck*)
+       echo "# Configuration: Twoface/Rieck"
+       CC="gcc-mp-4.3" \
+       CFLAGS="-fomit-frame-pointer -pedantic -pipe -O3 -march=nocona" \
+       ./configure --enable-matlab -with-matlab=$HOME/Applications/Matlab \
+       		   --enable-openmp \
+       		   --prefix=/opt/malheur
+       ;;
+   *)    
+       echo "# Configuration: Standard"
+       CFLAGS="-g -pedantic -pipe -O3" \
+       ./configure
+       ;;
+esac
+
+if test $? -gt 0 ; then
+   echo "Error: Configuration failed"
+   exit 1
+fi
+
+# Compile
+make clean 
+make -j 4 

@@ -1,0 +1,30 @@
+#!/bin/sh
+# MALHEUR - Automatic Malware Analysis on Steroids
+# Copyright (c) 2009 Konrad Rieck (rieck@cs.tu-berlin.de)
+# Berlin Institute of Technology (TU Berlin).
+#
+
+export PATH=/opt/local/bin:$PATH:/usr/local/bin
+
+ACLOCAL=aclocal
+AUTOHEADER=autoheader
+AUTOMAKE=automake
+AUTOCONF=autoconf
+LIBTOOLIZE=libtoolize
+
+case `uname -s` in
+  OpenBSD)
+    export AUTOMAKE_VERSION=1.9
+    export AUTOCONF_VERSION=2.59
+    ;;
+esac
+
+echo "Autotools"
+echo " + aclocal..."     && $ACLOCAL -I m4 && \
+echo " + libtoolize..."  && $LIBTOOLIZE --force --copy && \
+echo " + autoheader..."  && $AUTOHEADER -f  && \
+echo " + automake..."    && $AUTOMAKE --foreign --add-missing --copy && \
+echo " + autoconf..."    && $AUTOCONF
+
+echo "Bootstrap complete"
+exit

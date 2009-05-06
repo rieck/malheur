@@ -1,0 +1,5 @@
+#!/bin/sh
+# Shell script to see all compiler warnings
+
+make clean > /dev/null
+make -j4 all > /dev/null

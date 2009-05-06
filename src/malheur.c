@@ -27,16 +27,14 @@ void check_config()
 {
     long l;
     const char *s;
-    int i;
-    
+
+    /* Features */    
     if (config_lookup_int(&cfg, "features.ngram_length", &l) != CONFIG_TRUE)
         fatal("'ngram_length' not defined in configuration group 'features'");
     if (config_lookup_string(&cfg, "features.ngram_delim", &s) != CONFIG_TRUE)
         fatal("'ngram_delim' not defined in configuration group 'features'");
     if (config_lookup_string(&cfg, "features.normalization", &s) != CONFIG_TRUE)
         fatal("'normalization' not defined in configuration 'features'");
-    if (config_lookup_bool(&cfg, "features.lookup_table", &i) != CONFIG_TRUE)
-        fatal("'lookup_table' not defined in configuration 'features'");
 }
 
 /**

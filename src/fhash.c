@@ -19,7 +19,7 @@
 
 /* Hash table */
 static fentry_t *lookup_table   = NULL;
-static int lookup_enabled       = TRUE;
+static int lookup_enabled       = FALSE;
 
 /* External variables */
 extern int verbose;
@@ -73,3 +73,33 @@ fentry_t *fhash_get(feat_t key)
     return f;
 }      
 
+/**
+ * Initialize the feature lookup table
+ */
+void fhash_init()
+{
+    if (lookup_enabled)
+        fhash_destroy();
+
+    lookup_enabled = TRUE;
+} 
+
+/**
+ * Destroy the feature lookup table
+ */
+void fhash_destroy()
+{
+    fentry_t *f;
+    
+    if (!lookup_enabled)
+        return;
+    
+    while(lookup_table) {
+        f = lookup_table;
+        HASH_DEL(lookup_table, f);
+        free(f->data);
+        free(f);
+    }
+    
+    lookup_enabled = FALSE;
+}

@@ -28,5 +28,7 @@ typedef struct {
 
 void fhash_add(feat_t, char *, int);
 fentry_t *fhash_get(feat_t);
+void fhash_init();
+void fhash_destroy();
 
 #endif                          /* FHASH_H */

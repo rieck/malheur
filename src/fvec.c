@@ -14,6 +14,7 @@
 #include "config.h"
 #include "common.h"
 #include "fvec.h"
+#include "fhash.h"
 #include "util.h"
 #include "md5.h"
 
@@ -292,6 +293,8 @@ void extract_wgrams(fvec_t * fv, char *x, int l, int nlen)
         if (n == nlen && i - k > 0) {
             MD5((unsigned char *) (t + k), i - k, buf);
             memcpy(fv->dim + fv->len, buf, sizeof(feat_t));
+            fhash_add(fv->dim[fv->len], (t + k), i - k);
+            
             fv->val[fv->len] = 1;
             k = s + 1, i = s, n = 0;
             fv->len++;
@@ -325,6 +328,8 @@ void extract_ngrams(fvec_t * fv, char *x, int l, int nlen)
 
         MD5((unsigned char *) t, nlen, buf);
         memcpy(fv->dim + fv->len, buf, sizeof(feat_t));
+        fhash_add(fv->dim[fv->len], t, nlen);
+        
         fv->val[fv->len] = 1;
         t++;
         fv->len++;

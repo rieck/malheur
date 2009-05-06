@@ -23,6 +23,21 @@ config_t cfg;
 /* Local variables */
 static char *cfg_file = NULL;
 
+void check_config()
+{
+    long l;
+    const char *s;
+    int i;
+    
+    if (config_lookup_int(&cfg, "features.ngram_length", &l) != CONFIG_TRUE)
+        fatal("'ngram_length' not defined in configuration group 'features'");
+    if (config_lookup_string(&cfg, "features.ngram_delim", &s) != CONFIG_TRUE)
+        fatal("'ngram_delim' not defined in configuration group 'features'");
+    if (config_lookup_string(&cfg, "features.normalization", &s) != CONFIG_TRUE)
+        fatal("'normalization' not defined in configuration 'features'");
+    if (config_lookup_bool(&cfg, "features.lookup_table", &i) != CONFIG_TRUE)
+        fatal("'lookup_table' not defined in configuration 'features'");
+}
 
 /**
  * Print usage of command line tool
@@ -100,6 +115,7 @@ int main(int argc, char **argv)
     if (config_read_file(&cfg, cfg_file) != CONFIG_TRUE)
         fatal("Could not read configuration (%s in line %d).",
               config_error_text(&cfg), config_error_line(&cfg));
+    check_config();              
 
 
     /* Destroy configuration */

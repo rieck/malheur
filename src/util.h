@@ -29,11 +29,11 @@
 #endif
 /* Error message */
 #ifndef error
-#define error(...)     {err_msg("Error", __func__, __VA_ARGS__)}
+#define error(...)     {err_msg("Error", __func__, __VA_ARGS__);}
 #endif
 /* Warning message */
 #ifndef warning
-#define warning(...)   {err_msg("Warning", __func__, __VA_ARGS__)}
+#define warning(...)   {err_msg("Warning", __func__, __VA_ARGS__);}
 #endif
 
 /* Error functions */

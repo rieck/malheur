@@ -6,7 +6,7 @@
 
 bin_PROGRAMS		= malheur
 malheur_SOURCES		= malheur.c malheur.h md5.c md5.h common.h \
-			  util.c util.h
+			  util.c util.h fvec.c fvec.h
 malheur_LDFLAGS		= -static
 
 beautify:       	$(malheur_SOURCES)

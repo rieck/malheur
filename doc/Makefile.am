@@ -2,14 +2,10 @@
 # MALHEUR - Automatic Malware Analysis on Steroids
 # Copyright (c) 2009 Konrad Rieck (rieck@cs.tu-berlin.de)
 # Berlin Institute of Technology (TU Berlin).
-# --
 #
 
-AUTOMAKE_OPTIONS = foreign
-SUBDIRS = src doc
-ACLOCAL_AMFLAGS = -I m4
-EXTRA_DIST = CHANGES README INSTALL COPYING
+malheur_sysconfdir = $(sysconfdir)/malheur
+malheur_sysconf_DATA = malheur.cfg
+EXTRA_DIST = malheur.cfg
 
-mostlyclean-local:
-	rm -f *~
-        
+	

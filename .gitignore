@@ -7,6 +7,7 @@
 /install-sh
 /libtool
 /ltmain.sh
+/malheur-*.tar.gz
 /missing
 /src/*.o
 /src/malheur

@@ -78,7 +78,7 @@ else
 fi
 
 # Check headers
-AC_CHECK_HEADERS([string.h strings.h])
+AC_CHECK_HEADERS([getopt.h string.h strings.h])
 
 # Check functions
 AC_CHECK_FUNC(round, AC_DEFINE(HAVE_FUNC_ROUND, 1, 

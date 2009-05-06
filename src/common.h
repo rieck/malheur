@@ -14,21 +14,25 @@
 #ifndef COMMON_H
 #define COMMON_H
 
+/* Standard system headers */
 #include <sys/time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 
+/* Standard C headers */
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <stdint.h>
 #include <unistd.h>
 #include <errno.h>
-#include <getopt.h>
 #include <math.h>
-#include <assert.h>
 #include <dirent.h>
+#include <assert.h>
 
+#ifdef HAVE_GETOPT_H
+#include <getopt.h>
+#endif
 #ifdef HAVE_STRINGS_H
 #include <strings.h>
 #endif
@@ -36,6 +40,6 @@
 #include <string.h>
 #endif
 
-#include <libconfig.h> 
+#include <libconfig.h>
 
-#endif /* COMMON_H */
+#endif                          /* COMMON_H */

@@ -14,5 +14,9 @@
 #ifndef MALHEUR_H
 #define MALHEUR_H
 
+/* Operation modes: Statistics, classification & clustering */
+typedef enum {
+    STATISTICS, CLASSIFICATION, CLUSTERING
+} malheur_mode_t;
 
 #endif                          /* MALHEUR_H */

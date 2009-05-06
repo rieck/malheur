@@ -11,25 +11,14 @@
  * --
  */
 
-#ifndef FHASH_H
-#define FHASH_H
+#include "config.h"
+#include "common.h"
+#include "fhash.h"
 
-#include "fvec.h"
-#include "uthash.h"
-
-/** 
- * Entry of feature table
+/**
+ * Main function
  */
-typedef struct {
-    feat_t key;            /**< Feature key */
-    char *data;            /**< Feature data */
-    int len;               /**< Length of data */
-    UT_hash_handle hh;     /**< Uthash handle */
-} fentry_t;
-
-void fhash_add(feat_t, char *, int);
-fentry_t *fhash_get(feat_t);
-void fhash_init();
-void fhash_destroy();
-
-#endif                          /* FHASH_H */
+int main(int argc, char **argv)
+{
+    return FALSE;
+} 

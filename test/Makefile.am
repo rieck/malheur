@@ -5,11 +5,9 @@
 # --
 #
 
-AUTOMAKE_OPTIONS = foreign
-SUBDIRS = src doc test
-ACLOCAL_AMFLAGS = -I m4
-EXTRA_DIST = CHANGES README INSTALL COPYING
+INCLUDES 	     = @INCLUDES@ -I$(top_srcdir)/src 
+TESTS    	     = fhash
 
-mostlyclean-local:
-	rm -f *~
-        
+noinst_PROGRAMS      = $(TESTS)
+
+fhash_SOURCES        = fhash.c

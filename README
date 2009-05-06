@@ -4,6 +4,12 @@
  Berlin Institute of Technology (TU Berlin).
  --
  
+ This package provides functionality for automatic analysis and
+ classification of malware behavior. Malicious binaries captured using
+ honeypot techniques are executed in a sandbox environment, such that
+ the monitored behavior is available for analysis.
+
+
  Software dependencies
  --
 

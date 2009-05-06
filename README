@@ -5,9 +5,9 @@
  --
  
  This package provides functionality for automatic analysis and
- classification of malware behavior. Malicious binaries captured using
- honeypot techniques are executed in a sandbox environment, such that
- the monitored behavior is available for analysis.
+ classification of malware behavior. Prerequisite for analysis are
+ reports of monitored malware behavior, for example by means of 
+ honeypot and sandbox techniques.
 
 
  Software dependencies

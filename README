@@ -1,0 +1,24 @@
+
+ MALHEUR - Automatic Malware Analysis on Steroids
+ Copyright (c) 2009 Konrad Rieck (rieck@cs.tu-berlin.de)
+ Berlin Institute of Technology (TU Berlin).
+
+ 
+ Software dependencies
+ --
+
+ Compilation & Installation
+ --
+      $ ./configure [options]
+      $ make
+      $ make check
+      $ make install
+
+ Configuration options
+ --
+     --prefix=PATH           Set directory prefix for installation
+
+        By default Malheur is installed into /usr/local. If you prefer 
+        a different location, use this option to select a different
+        installation directory.
+    

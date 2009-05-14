@@ -72,7 +72,7 @@ void mex_load_mist(MEX_SIGNATURE)
     /* Get output variable */
     out = mxCreateCellMatrix(1, len);
 
-    printf("Loading %d MIST reports with level %d ...\n", len, level);
+    printf("Loading %d MIST reports with level %d and pivot %d ...\n", len, level, pivot);
 
 #ifdef MALHEUR_OPENMP
     #pragma omp parallel for private(fn,a,r)   

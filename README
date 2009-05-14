@@ -12,6 +12,7 @@
 
  Software dependencies
  --
+     >= libconfig-1.3.2
 
  Compilation & Installation
  --

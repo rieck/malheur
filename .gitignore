@@ -1,4 +1,6 @@
 .deps
+*.o
+*.mexmaci
 /aclocal.m4
 /autom4te.cache
 /config.*
@@ -9,8 +11,8 @@
 /ltmain.sh
 /malheur-*.tar.gz
 /missing
-/src/*.o
 /src/malheur
 /stamp-h1
+/test/fhash
 Makefile
 Makefile.in

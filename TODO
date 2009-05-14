@@ -1,0 +1,11 @@
+
+ MALHEUR - Automatic Malware Analysis on Steroids
+ Copyright (c) 2009 Konrad Rieck (rieck@cs.tu-berlin.de)
+ Berlin Institute of Technology (TU Berlin).
+ --
+
+ TODO  
+
+ * Test case for feature (hash) table    
+ * Propert feature extraction with hash table 
+ * Consistency of feature configuration

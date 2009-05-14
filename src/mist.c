@@ -23,9 +23,10 @@ extern int verbose;
  * Loads a report from a file and extracts the specified MIST level
  * @param name report file name 
  * @param level Extraction level
+ * @param pivot Pivot section with level + 1
  * @return report as string
  */
-char *mist_load_report(char *name, int level)
+char *mist_load_report(char *name, int level, int pivot)
 {
     assert(name);
     if (level < 1) 
@@ -58,7 +59,7 @@ char *mist_load_report(char *name, int level)
     fclose(fptr);
 
     /* Truncate MIST level and remove comments */
-    report = mist_trunc_level(report, level);
+    report = mist_trunc_level(report, level, pivot);
     report = realloc(report, strlen(report) + 1);
     if (!report) {
         error("Could not re-allocate MIST report");
@@ -72,12 +73,20 @@ char *mist_load_report(char *name, int level)
  * Truncates a report to a given MIST level and remove comments
  * @param report Report as string
  * @param level MIST level 
+ * @param picot Pivot section with level + 1
  * @return truncated report
  */
-char *mist_trunc_level(char *report, int level)
+char *mist_trunc_level(char *report, int level, int pivot)
 {
-    int l, i, j, len = strlen(report);
+    int l, i, j, k, len = strlen(report);
     for (i = 0, j = 0, l = 0; i < len; i++, j++) {
+        if (l == 0) {
+            for(k = i; k < len && !isdigit(report[++k]););
+            printf("Section %c\n", report[k]);
+            if (report[k] - '0' == pivot)
+                printf("Pivot %d\n", pivot);
+        }
+    
         if (report[i] == MIST_LEVEL) {
             l = (l + 1) % level;
             if (l == 0) {

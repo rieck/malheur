@@ -20,7 +20,7 @@
 #define MIST_COMMENT    '#'
 
 /* Functions */
-char *mist_load_report(char *, int);
-char *mist_trunc_level(char *, int);
+char *mist_load_report(char *, int, int);
+char *mist_trunc_level(char *, int, int);
 
 #endif                          /* MIST_H */

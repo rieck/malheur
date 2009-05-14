@@ -29,6 +29,7 @@
 #include <math.h>
 #include <dirent.h>
 #include <assert.h>
+#include <ctype.h>
 
 #ifdef HAVE_GETOPT_H
 #include <getopt.h>

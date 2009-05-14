@@ -29,6 +29,7 @@
 /* Convenience definitions */
 #define in1     prhs[1]         /* Default input 1 */
 #define in2     prhs[2]         /* Default input 2 */
+#define in3     prhs[3]         /* Default input 3 */
 #define out     plhs[0]         /* Default output */
 
 /*
@@ -47,12 +48,12 @@ void mex_print_version(void)
  */
 void mex_load_mist(MEX_SIGNATURE)
 {
-    int level, i, len, j = 0;
+    int pivot, level, i, len, j = 0;
     char *r, fn[1024];
     mxArray *a;
 
     /* Check input */
-    if (nrhs != 3)
+    if (nrhs != 4)
         error("Number of input arguments is invalid");
     if (nlhs != 1)
         error("Number of output arguments is invalid");
@@ -60,9 +61,12 @@ void mex_load_mist(MEX_SIGNATURE)
         error("First argument is not a cell array of file names");
     if (!mxIsNumeric(in2))
         error("Second argument is not a level number");
+    if (!mxIsNumeric(in3))
+        error("Third argument is not a pivot number");
 
     /* Get input arguments */
     level = (int) mxGetScalar(in2);
+    pivot = (int) mxGetScalar(in3);
     len = mxGetN(in1);
     
     /* Get output variable */
@@ -78,7 +82,7 @@ void mex_load_mist(MEX_SIGNATURE)
         a = mxGetCell(in1, i);
         mxGetString(a, fn, 1023);
         /* Load report */
-        r = mist_load_report(fn, level);
+        r = mist_load_report(fn, level, pivot);
         
 #ifdef MALHEUR_OPENMP        
         #pragma omp critical

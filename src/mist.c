@@ -79,16 +79,14 @@ char *mist_load_report(char *name, int level, int pivot)
 char *mist_trunc_level(char *report, int level, int pivot)
 {
     int l, i, j, k, len = strlen(report);
-    for (i = 0, j = 0, l = 0; i < len; i++, j++) {
-        if (l == 0) {
-            for(k = i; k < len && !isdigit(report[++k]););
-            printf("Section %c\n", report[k]);
-            if (report[k] - '0' == pivot)
-                printf("Pivot %d\n", pivot);
-        }
+    for (i = j = l = 0, k = -1; i < len; i++, j++) {
     
         if (report[i] == MIST_LEVEL) {
-            l = (l + 1) % level;
+            if (k == pivot)
+               l = (l + 1) % (level + 1);            
+            else 
+               l = (l + 1) % level;
+      
             if (l == 0) {
                 while (i < len && report[++i] != MIST_DELIM);
                 if (i == len)
@@ -101,9 +99,19 @@ char *mist_trunc_level(char *report, int level, int pivot)
             if (i == len)
                 break;
         }    
-
-        if (report[i] == MIST_DELIM)
+        
+        if (report[i] == MIST_DELIM) {
             l = 0;
+            k = -1;
+        }    
+
+        if (l == 0 && k == -1) {
+            for(k = i; k < len && !isdigit(report[k]); k++);
+            if (isdigit(report[k + 1]))
+                k = (report[k] - '0') * 16 + report[k + 1] - '0';
+            else    
+                k = (report[k] - '0') * 16 + report[k + 1] - 'a' + 10;           
+        }
 
         if (report[i] == '\0') {
             warning("Report contains \\0 char, replacing with space.");
@@ -113,6 +121,7 @@ char *mist_trunc_level(char *report, int level, int pivot)
 
         report[j] = report[i];
     }
+
 
     /* Terminate string */
     report[j] = '\0';

@@ -9,7 +9,6 @@
  * option) any later version.  This program is distributed without any
  * warranty. See the GNU General Public License for more details. 
  * --
- * $Id$
  */
 
 /* Matlab message identifier */

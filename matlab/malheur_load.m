@@ -15,7 +15,6 @@ function [rep,list] = malheur_load(in, level);
 %     rep:      Cell array of MIST reports 
 %     list:     Cell array of file names
 %
-% $Id$
 
 % Check for input
 if iscellstr(in) 
@@ -36,4 +35,3 @@ end
 
 % Load data
 rep = malheur('load_mist', list, level);
-

@@ -19,7 +19,6 @@ case $arg in
        CC="gcc-4.3" \
        CFLAGS="-fomit-frame-pointer -pedantic -pipe -O3 -march=opteron" \
        ./configure --enable-matlab --with-matlab=/home/matrix/matlab \
-                   --enable-openmp \
                    --prefix=$HOME/usr
        ;;       
    twoface*|rieck*)
@@ -27,7 +26,6 @@ case $arg in
        CC="gcc-mp-4.3" \
        CFLAGS="-fomit-frame-pointer -pedantic -pipe -O3 -march=nocona" \
        ./configure --enable-matlab -with-matlab=$HOME/Applications/Matlab \
-       		   --enable-openmp \
        		   --prefix=/opt/malheur
        ;;
    *)    

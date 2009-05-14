@@ -13,4 +13,3 @@
 %          'load_mist'      - Load MIST reports. See malheur_load.m
 %          'version'        - Print Malheur version
 %
-% $Id$

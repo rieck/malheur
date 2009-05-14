@@ -23,7 +23,7 @@ case $arg in
        ;;       
    twoface*|rieck*)
        echo "# Configuration: Twoface/Rieck"
-       CC="gcc-mp-4.3" \
+       CC="/opt/local/bin/gcc-mp-4.3" \
        CFLAGS="-fomit-frame-pointer -pedantic -pipe -O3 -march=nocona" \
        ./configure --enable-matlab -with-matlab=$HOME/Applications/Matlab \
        		   --prefix=/opt/malheur

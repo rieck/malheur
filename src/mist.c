@@ -105,12 +105,20 @@ char *mist_trunc_level(char *report, int level, int pivot)
             k = -1;
         }    
 
+        /* 
+         * Determine pivot section (level == 0) and no section has 
+         * been detected so far (k == -1)
+         */
         if (l == 0 && k == -1) {
-            for(k = i; k < len && !isdigit(report[k]); k++);
-            if (isdigit(report[k + 1]))
-                k = (report[k] - '0') * 16 + report[k + 1] - '0';
-            else    
-                k = (report[k] - '0') * 16 + report[k + 1] - 'a' + 10;           
+            for(k = i; k + 1 < len && !isdigit(report[k]); k++);
+            
+            /* Dirty hack to efficient parse hexadecimal number */
+            if (k + 1 < len) {
+                if (isdigit(report[k + 1]))
+                    k = (report[k] - '0') * 16 + report[k + 1] - '0';
+                else    
+                    k = (report[k] - '0') * 16 + report[k + 1] - 'a' + 10;           
+            }        
         }
 
         if (report[i] == '\0') {

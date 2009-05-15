@@ -15,6 +15,7 @@
 #include "common.h"
 #include "fvec.h"
 #include "fhash.h"
+#include "fmath.h"
 #include "util.h"
 #include "md5.h"
 
@@ -52,7 +53,7 @@ fvec_t *fvec_create(char *x, int l)
         return NULL;
     }
 
-    /* Initialize Gram */
+    /* Initialize feature vector */
     fv->len = 0;
     fv->dim = (feat_t *) malloc(l * sizeof(feat_t));
     fv->val = (float *) malloc(l * sizeof(float));
@@ -95,11 +96,11 @@ fvec_t *fvec_create(char *x, int l)
     /* Compute embedding */
     config_lookup_string(&cfg, "features.normalization", &em_str);
     if (!strcasecmp(em_str, "bin"))
-        fvec_normalize(fv, NORM_BIN);
+        fvec_norm(fv, NORM_BIN);
     else if (!strcasecmp(em_str, "l2"))
-        fvec_normalize(fv, NORM_L2);
+        fvec_norm(fv, NORM_L2);
     else if (!strcasecmp(em_str, "l1"))
-        fvec_normalize(fv, NORM_L1);
+        fvec_norm(fv, NORM_L1);
 
     return fv;
 }
@@ -167,7 +168,7 @@ fvec_t *fvec_clone(fvec_t * o)
     fvec_t *fv;
     unsigned int i;
 
-    /* Allocate Gram structure */
+    /* Allocate feature vector */
     fv = malloc(sizeof(fvec_t));
     if (!fv) {
         error("Could not create feature vector.");
@@ -195,38 +196,6 @@ fvec_t *fvec_clone(fvec_t * o)
     }
 
     return fv;
-}
-
-/**
- * Computes the embedding from a feature vector of counts
- * @param fv Feature vector 
- * @param n Normalization
- */
-void fvec_normalize(fvec_t * fv, norm_t n)
-{
-    int i = 0;
-    double s = 0;
-
-    assert(fv);
-
-    switch (n) {
-    case NORM_BIN:
-        for (i = 0; i < fv->len; i++)
-            fv->val[i] = 1;
-        break;
-    case NORM_L1:
-        for (i = 0; i < fv->len; i++)
-            s += fv->val[i];
-        for (i = 0; i < fv->len; i++)
-            fv->val[i] /= s;
-        break;
-    case NORM_L2:
-        for (i = 0; i < fv->len; i++)
-            s += fv->val[i] * fv->val[i];
-        for (i = 0; i < fv->len; i++)
-            fv->val[i] /= sqrt(s);
-        break;
-    }
 }
 
 /**

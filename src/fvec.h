@@ -21,13 +21,6 @@ typedef uint64_t feat_t;
 #define DELIM_NOT_INIT    42
   
 /**
- * Normalization types for feature vectors
- */
-typedef enum {
-    NORM_BIN, NORM_L1, NORM_L2
-} norm_t;
-
-/**
  * Sparse feature vector. The vector is stored as a sorted list 
  * of non-zero dimensions containing real numbers. The dimensions
  * are specified as regular indices or alternatively as 64bit
@@ -52,7 +45,6 @@ typedef struct {
 fvec_t *fvec_create(char *, int l);
 void fvec_condense(fvec_t *);
 void fvec_destroy(fvec_t *);
-void fvec_normalize(fvec_t *, norm_t);
 fvec_t *fvec_clone(fvec_t *);
 void fvec_print(fvec_t *);
 

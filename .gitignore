@@ -1,5 +1,6 @@
 .deps
 *.o
+*.a
 *.mexmaci
 /aclocal.m4
 /autom4te.cache
@@ -13,6 +14,6 @@
 /missing
 /src/malheur
 /stamp-h1
-/test/fhash
+/tests/fhash
 Makefile
 Makefile.in

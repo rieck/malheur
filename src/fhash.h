@@ -27,9 +27,12 @@ typedef struct {
     UT_hash_handle hh;     /**< Uthash handle */
 } fentry_t;
 
-void fhash_add(feat_t, char *, int);
+void fhash_put(feat_t, char *, int);
 fentry_t *fhash_get(feat_t);
 void fhash_init();
 void fhash_destroy();
+void fhash_remove(feat_t);
+long fhash_size();
+void fhash_print();
 
 #endif                          /* FHASH_H */

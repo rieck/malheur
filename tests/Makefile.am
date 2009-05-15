@@ -7,7 +7,8 @@
 
 INCLUDES 	     = @INCLUDES@ -I$(top_srcdir)/src 
 TESTS    	     = fhash
+check_PROGRAMS       = fhash
 
-noinst_PROGRAMS      = $(TESTS)
+fhash_SOURCES        = fhash.c 
+fhash_LDADD	     = $(top_builddir)/src/libmalheur.a
 
-fhash_SOURCES        = fhash.c

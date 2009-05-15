@@ -21,7 +21,7 @@ case $arg in
        ./configure --enable-matlab --with-matlab=/home/matrix/matlab \
                    --prefix=$HOME/usr
        ;;       
-   twoface*|rieck*)
+   twoface*|rieck*|gwlan*)
        echo "# Configuration: Twoface/Rieck"
        CC="/opt/local/bin/gcc-mp-4.3" \
        CFLAGS="-fomit-frame-pointer -pedantic -pipe -O3 -march=nocona" \

@@ -133,7 +133,7 @@ AC_CONFIG_FILES([
    src/Makefile \
    doc/Makefile \
    matlab/Makefile \
-   test/Makefile \
+   tests/Makefile \
 ])
 
 AC_OUTPUT_COMMANDS([],[

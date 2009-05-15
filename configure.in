@@ -77,6 +77,15 @@ else
     AC_MSG_ERROR([The math library (libm) is required for compilation])
 fi
 
+# libz library
+AC_CHECK_HEADERS([zlib.h], HEADER_ZLIB="yes")
+AC_CHECK_LIB([z], gzopen, LIBRARY_ZLIB="yes")
+if test "x$LIBRARY_ZLIB" != "x" && test "x$HEADER_ZLIB" != "x" ; then
+    LIBS="-lz $LIBS"    
+else
+    AC_MSG_ERROR([The zlib library (libz) is required for compilation])
+fi
+
 # Check headers
 AC_CHECK_HEADERS([getopt.h string.h strings.h])
 

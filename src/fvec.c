@@ -345,3 +345,75 @@ void decode_delim(const char *s)
         delim[j] = 1;
     }
 }
+
+/**
+ * Saves a feature vector to a file stream
+ * @param f Feature vector
+ * @param z Stream pointer
+ */
+void fvec_save(fvec_t *f, gzFile *z)
+{
+    assert(f && z);
+    int i;
+
+    gzprintf(z, "fvec: len=%lu\n", f->len);
+    for (i = 0; i < f->len; i++)
+        gzprintf(z, "| %llx:%g\n", (unsigned long long) f->dim[i], f->val[i]);
+}
+
+
+
+/**
+ * Loads a feature vector form a file stream
+ * @param z Stream point
+ * @return Feature vector
+ */
+fvec_t *fvec_load(gzFile *z)
+{
+    assert(z);
+    fvec_t *f;
+    char buf[512];
+    int i, r;
+
+    /* Allocate feature vector (zero'd) */
+    f = calloc(1, sizeof(fvec_t));
+    if (!f) {
+        error("Could not create feature vector.");
+        return NULL;
+    }
+
+    gzgets(z, buf, 512);
+    r = sscanf(buf, "fvec: len=%lu\n", (unsigned long *) &f->len);
+    if (r != 1)  {
+        error("Could not parse feature vector");
+        fvec_destroy(f);
+        return NULL;
+    }
+    
+    /* Empty feature vector */
+    if (f->len == 0) 
+        return f;
+
+    /* Allocate arrays */
+    f->dim = (feat_t *) malloc(f->len * sizeof(feat_t));
+    f->val = (float *) malloc(f->len * sizeof(float));
+    if (!f->dim || !f->val) {
+        error("Could not allocate feature vector contents.");
+        fvec_destroy(f);
+        return NULL;
+    }
+
+    /* Load features */
+    for (i = 0; i < f->len; i++) {
+        gzgets(z, buf, 512);
+        r = sscanf(buf, "| %llx:%g\n", (unsigned long long *) &f->dim[i], 
+                   (float *) &f->val[i]);
+        if (r != 2) {
+            error("Could not parse feature vector contents");
+            fvec_destroy(f);
+            return NULL;
+        }
+    }      
+     
+    return f;
+}

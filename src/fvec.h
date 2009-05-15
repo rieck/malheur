@@ -40,12 +40,13 @@ typedef struct {
     unsigned int len;    /**< Length of array */
 } fvec_array_t;
 
-
 /* Functions */
 fvec_t *fvec_create(char *, int l);
 void fvec_condense(fvec_t *);
 void fvec_destroy(fvec_t *);
 fvec_t *fvec_clone(fvec_t *);
 void fvec_print(fvec_t *);
+void fvec_save(fvec_t *, gzFile *);
+fvec_t *fvec_load(gzFile *);
 
 #endif                          /* FVEC_H */

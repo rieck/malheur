@@ -65,3 +65,77 @@ void fvec_mul(fvec_t *fv, double s)
     for (i = 0; i < fv->len; i++)
         fv->val[i] *= s;
 }
+
+/** 
+ * Adds two feature vectors and create a new one (c = a + b * s)
+ * @param fa Feature vector (a)
+ * @param fb Feature vector (b)
+ * @param s Scalar value
+ * @return new feature vector
+ */
+fvec_t *fvec_adds(fvec_t *fa, fvec_t *fb, double s) 
+{
+    unsigned long i = 0, j = 0, len = 0;
+    assert(fa && fb);
+    fvec_t *f;
+    
+    /* Allocate feature vector (zero'd) */
+    f = malloc(sizeof(fvec_t));
+    if (!f) {
+        error("Could not create feature vector.");
+        return NULL;
+    }
+
+    /* Allocate arrays */
+    f->dim = (feat_t *) malloc((fa->len + fb->len) * sizeof(feat_t));
+    f->val = (float *) malloc((fa->len + fb->len) * sizeof(float));
+    if (!f->dim || !f->val) {
+        error("Could not allocate feature vector contents.");
+        fvec_destroy(f);
+        return NULL;
+    }
+
+    /* Loop over features in a and b */
+    while (i < fa->len || j < fb->len) {
+        if (i >= fa->len || fa->dim[i] > fb->dim[j]) {
+            f->dim[len] = fb->dim[j];
+            f->val[len++] = fb->val[j++] * s;
+        } else if (j >= fb->len || fa->dim[i] < fb->dim[j]) {
+            f->dim[len] = fa->dim[i];
+            f->val[len++] = fa->val[i++];
+        } else {
+            f->dim[len] = fa->dim[i];
+            f->val[len++] = fa->val[i++] + fb->val[j++] * s;
+        }
+    }
+
+    /* Copy contents and reallocate */
+    f->len = len;
+    f->dim = (feat_t *) realloc(f->dim, len * sizeof(feat_t));
+    f->val = (float *) realloc(f->val, len * sizeof(feat_t));
+    
+    return f;
+}
+
+
+/** 
+ * Sums up two feature vectors (a = a + b * s). 
+ * @param fa Feature vector (a, destination)
+ * @param fb Feature vector (b, source)
+ * @param s Scalar value
+ */
+void fvec_sum(fvec_t *fa, fvec_t *fb, double s) 
+{
+    fvec_t *fv = fvec_adds(fa, fb, s);
+    
+    /* Free old array */
+    free(fa->dim);
+    free(fa->val);
+    
+    /* Copy new array */
+    fa->dim = fv->dim;
+    fa->val = fv->val;
+    
+    /* Destroy outer structure */
+    free(fv);
+}

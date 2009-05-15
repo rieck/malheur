@@ -40,6 +40,7 @@
 #include <string.h>
 #endif
 
+#include <zlib.h>
 #include <libconfig.h>
 
 #ifndef TRUE

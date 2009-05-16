@@ -3,11 +3,15 @@
  Copyright (c) 2009 Konrad Rieck (rieck@cs.tu-berlin.de)
  Berlin Institute of Technology (TU Berlin).
  --
- 
- This package provides functionality for automatic analysis and
- classification of malware behavior. Prerequisite for analysis are
- reports of monitored malware behavior, for example by means of 
- honeypot and sandbox techniques.
+
+ Malheur is a software suite for automatic analysis of malware. The 
+ suite provides functionality for description, classification and 
+ clustering of malware behavior recorded using sandbox techniques.
+
+ All analysis components have been designed with effectivity and
+ efficiency in mind using modern learning and analysis techniques.
+ As input format Malheur supports generic text and XML reports of 
+ monitored behavior.
 
 
  Software dependencies

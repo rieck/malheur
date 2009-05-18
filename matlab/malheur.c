@@ -29,6 +29,7 @@
 /* Convenience definitions */
 #define in1     prhs[1]         /* Default input 1 */
 #define in2     prhs[2]         /* Default input 2 */
+#define in3     prhs[3]         /* Default input 3 */
 #define out     plhs[0]         /* Default output */
 
 /*
@@ -41,18 +42,70 @@ void mex_print_version(void)
            " Berlin Institute of Technology (TU Berlin).\n", VERSION);
 }
 
+/**
+ * Loads a MIST report from a file and extracts the specified MIST level
+ * @param name report file name 
+ * @param level Extraction level
+ * @param sect Enhanced section or -1 to disable
+ * @return report as string
+ */
+char *mist_load_report(char *name, int level, int sect)
+{
+    if (level < 1) 
+        warning("Level too small. Increasing to 1.");
+
+    /* Open file */
+    FILE *fptr = fopen(name, "r");
+    if (!fptr) {
+        error("Could not open MIST report '%s'", name);
+        return NULL;
+    }
+
+    /* Get length of report */
+    fseek(fptr, 0, SEEK_END);
+    long len = ftell(fptr);
+    fseek(fptr, 0, SEEK_SET);
+
+    /* Allocate and load report data */
+    char *report = malloc(sizeof(char) * (len + 1));
+    if (!report) {
+        error("Could not allocate %ld bytes for MIST report '%s'", len,
+              name);
+        return NULL;
+    }
+    if (fread(report, sizeof(char), len, fptr) != len) {
+        error("Could not load MIST report '%s'", name);
+        free(report);
+        return NULL;
+    }
+    fclose(fptr);
+
+    /* Truncate MIST level and remove comments */
+    if (sect == -1)
+        report = mist_trunc_level(report, level);
+    else
+        report = mist_trunc_level2(report, level, sect);
+    
+    report = realloc(report, strlen(report) + 1);
+    if (!report) {
+        error("Could not re-allocate MIST report");
+        return NULL;
+    }
+    
+    return report;
+}
 
 /*
  * Load MIST reports to a cell array 
  */
 void mex_load_mist(MEX_SIGNATURE)
 {
-    int level, i, len, j = 0;
+    int sect = -1, level, i, len, j = 0;
     char *r, fn[1024];
     mxArray *a;
 
     /* Check input */
-    if (nrhs != 3)
+    if (nrhs < 3)
         error("Number of input arguments is invalid");
     if (nlhs != 1)
         error("Number of output arguments is invalid");
@@ -62,20 +115,26 @@ void mex_load_mist(MEX_SIGNATURE)
         error("Second argument is not a level number");
 
     /* Get input arguments */
+    len = mxGetN(in1);    
     level = (int) mxGetScalar(in2);
-    len = mxGetN(in1);
+
+    /* Get section if specified */
+    if (nrhs > 3) {
+        sect = (int) mxGetScalar(in3);    
+        printf("Enhancing MIST section %d to level %d.\n", sect, level + 1);
+    }    
     
     /* Get output variable */
     out = mxCreateCellMatrix(1, len);
-
     printf("Loading %d MIST reports with level %d ...\n", len, level);
 
     for (i = 0; i < len; i++) {
         /* Get file name */
         a = mxGetCell(in1, i);
         mxGetString(a, fn, 1023);
+
         /* Load report */
-        r = mist_load_report(fn, level);
+        r = mist_load_report(fn, level, sect);
     
         progbar(0, (double) len, (double) j++);
         /* Store report in cell array */
@@ -88,6 +147,7 @@ void mex_load_mist(MEX_SIGNATURE)
     progbar(0.0, 1.0, 1.0);
     printf("\nDone.\n");
 }
+
 
 /*
  * Generic matlab wrapper function to Malheur functionality

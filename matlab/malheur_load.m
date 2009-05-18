@@ -1,15 +1,16 @@
-function [rep,list] = malheur_load(in, level);  
+function [rep,list] = malheur_load(in, level, pivot);  
 %
 % MALHEUR - Automatic Malware Analysis on Steroids
 % Copyright (c) 2009 Konrad Rieck (rieck@cs.tu-berlin.de)
 % Berlin Institute of Technology (TU Berlin).
 % 
 % Synopsis:
-%     [rep,list] = malheur_load(in, level);
+%     [rep,list] = malheur_load(in, level, pivot);
 %
 % Arguments:
 %     in:       cell array of file name or directory name
 %     level:    MIST instruction level
+%     pivot:    Pivot section with level + 1
 %
 % Returns:
 %     rep:      Cell array of MIST reports 
@@ -34,4 +35,4 @@ else
 end
 
 % Load data
-rep = malheur('load_mist', list, level);
+rep = malheur('load_mist', list, level, pivot);

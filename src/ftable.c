@@ -37,6 +37,7 @@ extern config_t cfg;
 void ftable_put(feat_t key, char *x, int l)
 {
     assert(x && l > 0);
+
     fentry_t *f;
     if (!table_enabled)
         return;
@@ -49,8 +50,11 @@ void ftable_put(feat_t key, char *x, int l)
             return;
 
         /* Collision! Remove old */            
-        ftable_remove(key);            
-        collisions++;    
+        #pragma omp critical 
+        {
+            ftable_remove(key);            
+            collisions++;    
+        }
     }
 
     /* Allocate new entry */
@@ -69,12 +73,14 @@ void ftable_put(feat_t key, char *x, int l)
     }
     
     memcpy(f->data, x, l);
-    HASH_ADD(hh, feature_table, key, sizeof(feat_t), f);
-    
-    /* Count insertion */
-    insertions++;
-}      
 
+    #pragma omp critical 
+    {
+        /* Add to hash and count insertion */    
+        HASH_ADD(hh, feature_table, key, sizeof(feat_t), f);
+        insertions++;
+    }
+}      
 
 /**
  * Gets a entry from the lookup table. The returned memory must not 
@@ -137,13 +143,17 @@ void ftable_remove(feat_t key)
 {
     fentry_t *f;
 
+
     /* Find element */
     HASH_FIND(hh, feature_table, &key, sizeof(feat_t), f);
     if (!f)
         return;
     
     /* Remove */
-    HASH_DEL(feature_table, f);
+    #pragma omp critical 
+    {
+        HASH_DEL(feature_table, f);
+    }
 }
 
 /**
@@ -188,3 +198,4 @@ long ftable_size()
         
     return HASH_COUNT(feature_table);
 }
+

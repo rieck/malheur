@@ -44,6 +44,7 @@
 #include <zlib.h>
 #include <libconfig.h>
 
+/* Some useful definitions */
 #ifndef TRUE
 #define TRUE 1
 #endif
@@ -51,5 +52,11 @@
 #ifndef FALSE
 #define FALSE 0
 #endif
+
+#define lock_region \
+    #pragma omp critical\
+    {
+    
+
 
 #endif                          /* COMMON_H */

@@ -28,12 +28,15 @@ static void extract_wgrams(fvec_t *, char *x, int l, int n);
 static void extract_ngrams(fvec_t *, char *x, int l, int n);
 static int compare_feat(const void *, const void *);
 
-/* Delimiter functions */
+/* Delimiter functions and table */
 static void decode_delim(const char *s);
 static char delim[256] = { DELIM_NOT_INIT };
 
 /**
  * Allocate and extract a feature vector from a sequence.
+ * There is a global table of delimiter symbols which is only 
+ * initialized once the first sequence is processed. 
+ * See fvec_reset_delim();
  * @param x Sequence of bytes 
  * @param l Length of sequence
  * @param c Configuration structure
@@ -444,7 +447,9 @@ fvec_t *fvec_load(gzFile *z)
 }
 
 /**
- * Resets delimiters cache
+ * Resets delimiters table. There is a global table of delimiter 
+ * symbols which is only initialized once the first sequence is 
+ * processed. This functions is used to trigger a re-initialization.
  */
 void fvec_reset_delim()
 {

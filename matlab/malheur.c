@@ -70,24 +70,17 @@ void mex_load_mist(MEX_SIGNATURE)
 
     printf("Loading %d MIST reports with level %d ...\n", len, level);
 
-#ifdef MALHEUR_OPENMP
-    #pragma omp parallel for private(fn,a,r)   
-#endif    
     for (i = 0; i < len; i++) {
         /* Get file name */
         a = mxGetCell(in1, i);
         mxGetString(a, fn, 1023);
         /* Load report */
         r = mist_load_report(fn, level);
-        
-#ifdef MALHEUR_OPENMP        
-        #pragma omp critical
-#endif        
-        {
-            progbar(0, (double) len, (double) j++);
-            /* Store report in cell array */
-            mxSetCell(out, i, mxCreateString(r));
-        }
+    
+        progbar(0, (double) len, (double) j++);
+        /* Store report in cell array */
+        mxSetCell(out, i, mxCreateString(r));
+
         /* Free space */    
         free(r);
     }

@@ -14,12 +14,12 @@
 #include "config.h"
 #include "common.h"
 #include "fvec.h"
-#include "fhash.h"
+#include "ftable.h"
 #include "util.h"
 
 /* Hash table */
-static fentry_t *lookup_table      = NULL;
-static int lookup_enabled          = FALSE;
+static fentry_t *feature_table     = NULL;
+static int table_enabled          = FALSE;
 static unsigned long collisions    = 0;
 static unsigned long insertions    = 0;
 
@@ -34,14 +34,14 @@ extern config_t cfg;
  * @param x Byte sequence 
  * @param l Length of sequence
  */
-void fhash_put(feat_t key, char *x, int l)
+void ftable_put(feat_t key, char *x, int l)
 {
     assert(x && l > 0);
     fentry_t *f;
-    if (!lookup_enabled)
+    if (!table_enabled)
         return;
 
-    HASH_FIND(hh, lookup_table, &key, sizeof(feat_t), f);
+    HASH_FIND(hh, feature_table, &key, sizeof(feat_t), f);
     /* Check if bucket is used */
     if (f) {
         /* Already present */
@@ -49,14 +49,14 @@ void fhash_put(feat_t key, char *x, int l)
             return;
 
         /* Collision! Remove old */            
-        fhash_remove(key);            
+        ftable_remove(key);            
         collisions++;    
     }
 
     /* Allocate new entry */
     f = malloc(sizeof(fentry_t));
     if (!f) {
-        error("Could not allocate entry in lookup table.");
+        error("Could not allocate entry in feature table.");
         return;
     }
     
@@ -64,12 +64,12 @@ void fhash_put(feat_t key, char *x, int l)
     f->data = malloc(l);
     f->len = l;
     if (!f->data) {
-        error("Could not allocate entry in lookup table.");
+        error("Could not allocate entry in feature table.");
         return;
     }
     
     memcpy(f->data, x, l);
-    HASH_ADD(hh, lookup_table, key, sizeof(feat_t), f);
+    HASH_ADD(hh, feature_table, key, sizeof(feat_t), f);
     
     /* Count insertion */
     insertions++;
@@ -82,26 +82,26 @@ void fhash_put(feat_t key, char *x, int l)
  * @param f Feature key
  * @return feature table entry
  */
-fentry_t *fhash_get(feat_t key)
+fentry_t *ftable_get(feat_t key)
 {
     fentry_t *f;
     
-    if (!lookup_enabled)
+    if (!table_enabled)
         return NULL;
     
-    HASH_FIND(hh, lookup_table, &key, sizeof(feat_t), f);
+    HASH_FIND(hh, feature_table, &key, sizeof(feat_t), f);
     return f;
 }      
 
 /**
  * Initialize the feature lookup table
  */
-void fhash_init()
+void ftable_init()
 {
-    if (lookup_enabled)
-        fhash_destroy();
+    if (table_enabled)
+        ftable_destroy();
 
-    lookup_enabled = TRUE;
+    table_enabled = TRUE;
     collisions = 0;
     insertions = 0;
 } 
@@ -109,21 +109,21 @@ void fhash_init()
 /**
  * Destroy the feature lookup table
  */
-void fhash_destroy()
+void ftable_destroy()
 {
     fentry_t *f;
     
-    if (!lookup_enabled)
+    if (!table_enabled)
         return;
     
-    while(lookup_table) {
-        f = lookup_table;
-        HASH_DEL(lookup_table, f);
+    while(feature_table) {
+        f = feature_table;
+        HASH_DEL(feature_table, f);
         free(f->data);
         free(f);
     }
     
-    lookup_enabled = FALSE;
+    table_enabled = FALSE;
     collisions = 0;
     insertions = 0;
 }
@@ -133,38 +133,38 @@ void fhash_destroy()
  * Removes an element from the lookup hash
  * @param f Feature to remove
  */
-void fhash_remove(feat_t key)
+void ftable_remove(feat_t key)
 {
     fentry_t *f;
 
     /* Find element */
-    HASH_FIND(hh, lookup_table, &key, sizeof(feat_t), f);
+    HASH_FIND(hh, feature_table, &key, sizeof(feat_t), f);
     if (!f)
         return;
     
     /* Remove */
-    HASH_DEL(lookup_table, f);
+    HASH_DEL(feature_table, f);
 }
 
 /**
  * Print the feature lookup table
  */
-void fhash_print()
+void ftable_print()
 {
     fentry_t *f;
     int i;
     
-    if (!lookup_enabled)
+    if (!table_enabled)
         return;
 
-    printf("feature table [size: %ld, puts: %ld, colls: %ld (%5.2f%%), %p]\n", 
-            fhash_size(), insertions, collisions, 
-            (collisions * 100.0) / insertions, (void *) lookup_table);
+    printf("feature table [size: %ld, puts: %ld, colls: %ld (%g%%), %p]\n", 
+            ftable_size(), insertions, collisions, 
+            (collisions * 100.0) / insertions, (void *) feature_table);
     
     if (verbose < 3)
         return;
         
-    for (f = lookup_table; f != NULL; f = f->hh.next) {
+    for (f = feature_table; f != NULL; f = f->hh.next) {
         printf("  0x%.16llx: ", f->key);
 
         for (i = 0; i < f->len; i++) {
@@ -181,10 +181,10 @@ void fhash_print()
  * Returns the size of the feature lookup table
  * @return size of table
  */
-long fhash_size()
+long ftable_size()
 {
-    if (!lookup_enabled)
+    if (!table_enabled)
         return 0;
         
-    return HASH_COUNT(lookup_table);
+    return HASH_COUNT(feature_table);
 }

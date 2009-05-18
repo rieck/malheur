@@ -48,5 +48,6 @@ fvec_t *fvec_clone(fvec_t *);
 void fvec_print(fvec_t *);
 void fvec_save(fvec_t *, gzFile *);
 fvec_t *fvec_load(gzFile *);
+void fvec_reset_delim();
 
 #endif                          /* FVEC_H */

@@ -14,6 +14,7 @@
 /missing
 /src/malheur
 /stamp-h1
-/tests/fhash
+/tests/ftable
+/tests/fvec
 Makefile
 Makefile.in

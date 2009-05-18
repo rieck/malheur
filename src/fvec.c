@@ -14,7 +14,7 @@
 #include "config.h"
 #include "common.h"
 #include "fvec.h"
-#include "fhash.h"
+#include "ftable.h"
 #include "fmath.h"
 #include "util.h"
 #include "md5.h"
@@ -205,13 +205,38 @@ fvec_t *fvec_clone(fvec_t * o)
 void fvec_print(fvec_t * fv)
 {
     assert(fv);
+    int i, j;
 
-    printf("fvec [dim: %u, ", fv->len);
+    printf("feature vector [len: %u, ", fv->len);
     double mem = sizeof(fvec_t) + fv->len * (sizeof(feat_t) + sizeof(float));
     printf("%.2fkb, %p/%p/%p]\n", mem / 1e3,
            (void *) fv, (void *) fv->dim, (void *) fv->val);
-}
+           
+    if (verbose < 3)
+        return;
+        
+    for (i = 0; i < fv->len; i++) {
+        printf("  0x%.16llx: %6.4f", fv->dim[i], fv->val[i]);
 
+        /* Lookup feature */
+        fentry_t *fe = ftable_get(fv->dim[i]);
+        if (!fe) {
+            printf("\n");
+            continue;
+        }
+    
+        /* Print feature string */
+        printf(" [");
+        for (j = 0; j < fe->len; j++) {
+            if (isprint(fe->data[j]) || fe->data[j] == '%')
+                printf("%c", fe->data[j]);
+            else   
+                printf("%%%.2x", fe->data[j]);
+        }        
+        printf("]\n");
+        
+    }
+}
 
 /**
  * Extract n-grams from a sequence using the provided configuration.
@@ -262,7 +287,7 @@ void extract_wgrams(fvec_t * fv, char *x, int l, int nlen)
         if (n == nlen && i - k > 0) {
             MD5((unsigned char *) (t + k), i - k, buf);
             memcpy(fv->dim + fv->len, buf, sizeof(feat_t));
-            fhash_put(fv->dim[fv->len], (t + k), i - k);
+            ftable_put(fv->dim[fv->len], (t + k), i - k);
             
             fv->val[fv->len] = 1;
             k = s + 1, i = s, n = 0;
@@ -297,7 +322,7 @@ void extract_ngrams(fvec_t * fv, char *x, int l, int nlen)
 
         MD5((unsigned char *) t, nlen, buf);
         memcpy(fv->dim + fv->len, buf, sizeof(feat_t));
-        fhash_put(fv->dim[fv->len], t, nlen);
+        ftable_put(fv->dim[fv->len], t, nlen);
         
         fv->val[fv->len] = 1;
         t++;
@@ -356,9 +381,9 @@ void fvec_save(fvec_t *f, gzFile *z)
     assert(f && z);
     int i;
 
-    gzprintf(z, "fvec: len=%lu\n", f->len);
+    gzprintf(z, "feature vector: len=%lu\n", f->len);
     for (i = 0; i < f->len; i++)
-        gzprintf(z, "| %llx:%g\n", (unsigned long long) f->dim[i], f->val[i]);
+        gzprintf(z, "  %.16llx:%.16g\n", (unsigned long long) f->dim[i], f->val[i]);
 }
 
 
@@ -383,7 +408,7 @@ fvec_t *fvec_load(gzFile *z)
     }
 
     gzgets(z, buf, 512);
-    r = sscanf(buf, "fvec: len=%lu\n", (unsigned long *) &f->len);
+    r = sscanf(buf, "feature vector: len=%lu\n", (unsigned long *) &f->len);
     if (r != 1)  {
         error("Could not parse feature vector");
         fvec_destroy(f);
@@ -406,7 +431,7 @@ fvec_t *fvec_load(gzFile *z)
     /* Load features */
     for (i = 0; i < f->len; i++) {
         gzgets(z, buf, 512);
-        r = sscanf(buf, "| %llx:%g\n", (unsigned long long *) &f->dim[i], 
+        r = sscanf(buf, "  %llx:%g\n", (unsigned long long *) &f->dim[i], 
                    (float *) &f->val[i]);
         if (r != 2) {
             error("Could not parse feature vector contents");
@@ -417,3 +442,12 @@ fvec_t *fvec_load(gzFile *z)
      
     return f;
 }
+
+/**
+ * Resets delimiters cache
+ */
+void fvec_reset_delim()
+{
+    delim[0] = DELIM_NOT_INIT;
+}
+ 

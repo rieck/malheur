@@ -13,7 +13,7 @@
 
 #include "config.h"
 #include "common.h"
-#include "fhash.h"
+#include "ftable.h"
 
 int verbose = 5;
 
@@ -23,6 +23,7 @@ typedef struct {
     char*   s;
 } test_t;
 
+/* Test features */
 test_t tests[] = {
     {    1, "this is a test" },
     {   -1, "another test case" },
@@ -34,36 +35,41 @@ test_t tests[] = {
 };
 
 /* 
- * A simple static test for the feature hash
+ * A simple static test for the feature table
  */
 int test_static() 
 {
     int i, j, k, err = FALSE;
     fentry_t *f;
 
-    /* Initialize hash */
-    fhash_init();
-    for (i = 0; tests[i].s != 0; i++) 
-        fhash_put(tests[i].f, tests[i].s, strlen(tests[i].s) + 1);
+    printf("TEST: Creation and maintenance of feature table.\n"); 
 
-    /* Print table */    
-    fhash_print();    
+    /* Initialize table */
+    ftable_init();
+    for (i = 0; tests[i].s != 0; i++) 
+        ftable_put(tests[i].f, tests[i].s, strlen(tests[i].s) + 1);
 
     /* Randomly query elements */    
     for (j = 0; j < 50; j++) {
         k = rand() % i;
-        f = fhash_get(tests[k].f); 
-        err |= strcmp(f->data, tests[k].s);
+        f = ftable_get(tests[k].f); 
+
+        /* Check for correct feature string */  
+        if (strcmp(f->data, tests[k].s)) {
+            printf("FAIL: %s != %s\n", f->data, tests[k].s);
+            ftable_print();
+            err = TRUE;
+        }    
     }    
     
-    /* Destroy hash */
-    fhash_destroy();
+    /* Destroy table */
+    ftable_destroy();
 
     return err;
 }
 
 /* 
- * A simple stress test for the feature hash
+ * A simple stress test for the feature table
  */
 int test_stress() 
 {
@@ -72,10 +78,12 @@ int test_stress()
     feat_t key;
     char buf[30];
 
-    /* Initialize hash */
-    fhash_init();
+    printf("TEST: Stress test of feature table.\n");
+
+    /* Initialize table */
+    ftable_init();
     
-    for (i = 0; i < 1000; i++) {
+    for (i = 0; i < 2000; i++) {
         /* Create random key and string */
         key = rand() % 100;
         for (j = 0; j < 29; j++)
@@ -85,15 +93,15 @@ int test_stress()
         switch(rand() % 3) {
         case 0:
             /* Insert random string */
-            fhash_put(key, buf, strlen(buf));
+            ftable_put(key, buf, strlen(buf));
             break;
         case 1:
             /* Query for string */
-            f = fhash_get(key);    
+            f = ftable_get(key);    
             break;
         case 2:
             /* Delete random string */
-            fhash_remove(key);            
+            ftable_remove(key);            
             break;
          }   
     }         

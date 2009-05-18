@@ -11,8 +11,8 @@
  * --
  */
 
-#ifndef FHASH_H
-#define FHASH_H
+#ifndef FTABLE_H
+#define FTABLE_H
 
 #include "fvec.h"
 #include "uthash.h"
@@ -27,12 +27,12 @@ typedef struct {
     UT_hash_handle hh;     /**< Uthash handle */
 } fentry_t;
 
-void fhash_put(feat_t, char *, int);
-fentry_t *fhash_get(feat_t);
-void fhash_init();
-void fhash_destroy();
-void fhash_remove(feat_t);
-long fhash_size();
-void fhash_print();
+void ftable_put(feat_t, char *, int);
+fentry_t *ftable_get(feat_t);
+void ftable_init();
+void ftable_destroy();
+void ftable_remove(feat_t);
+long ftable_size();
+void ftable_print();
 
-#endif                          /* FHASH_H */
+#endif                          /* FTABLE_H */

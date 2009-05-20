@@ -19,8 +19,14 @@
 /* External variables */
 extern int verbose;
 
+fvec_t *mist_extract(...) 
+{
+}
+
 /**
- * Truncates a report to a given MIST level and remove comments
+ * Truncates a report to a given MIST level and remove comments. 
+ * The truncated report is likely smaller than the original report. 
+ * Hence, the caller may issue a realloc() to free memory. 
  * @param report Report as string
  * @param level MIST level 
  * @return truncated report
@@ -30,30 +36,29 @@ char *mist_trunc_level(char *report, int level)
     int l, i, j, len = strlen(report);
     for (i = j = l = 0; i < len; i++, j++) {
     
+        /* Determine current level */
         if (report[i] == MIST_LEVEL) {
             l = (l + 1) % level;
             if (l == 0) {
+                /* Skip over remaining levels */
                 while (i < len && report[++i] != MIST_DELIM);
                 if (i == len)
                     break;
             }    
         }
 
+        /* Skip comments */
         if (report[i] == MIST_COMMENT) {
             while (i < len && report[++i] != MIST_DELIM);
             if (i == len)
                 break;
         }    
-        
+
+        /* Check for new line */
         if (report[i] == MIST_DELIM) 
             l = 0;
 
-        if (report[i] == '\0') {
-            warning("Report contains \\0 char, replacing with space.");
-            report[i] = ' ';
-            break;
-        }
-
+        /* Copy contents */
         report[j] = report[i];
     }
 
@@ -85,18 +90,21 @@ char *mist_trunc_level2(char *report, int level, int sect)
                l = (l + 1) % level;
       
             if (l == 0) {
+                /* Skip over remaining levels */            
                 while (i < len && report[++i] != MIST_DELIM);
                 if (i == len)
                     break;
             }    
         }
             
+        /* Skip comments */            
         if (report[i] == MIST_COMMENT) {
             while (i < len && report[++i] != MIST_DELIM);
             if (i == len)
                 break;
         }    
         
+        /* Check for new line */        
         if (report[i] == MIST_DELIM) {
             l = 0;
             k = -1;
@@ -118,12 +126,7 @@ char *mist_trunc_level2(char *report, int level, int sect)
             }        
         }
 
-        if (report[i] == '\0') {
-            warning("Report contains \\0 char, replacing with space.");
-            report[i] = ' ';
-            break;
-        }
-
+        /* Copy contents */
         report[j] = report[i];
     }
 

@@ -21,45 +21,41 @@
 extern int verbose;
 extern config_t cfg;
 
-
 /**
- * Loads a report from a file and extracts features
- * @param name report file name 
- * @param extract extraction function
- * @return feature vector
+ * Loads a textual file into a string. The string is allocated 
+ * and need to be free'd later by the caller.
+ * @param name file name
+ * @return string 
  */
-fvec_t *fio_load_report(char *name, fvec_extract_t extract)
+char *fio_load_file(char *name) 
 {
-    assert(name && extract);
+    assert(name);
+    long len, size = 0;
+    char *str = NULL;
+    struct stat st;    
 
     /* Open file */
     FILE *fptr = fopen(name, "r");
     if (!fptr) {
-        error("Could not open report '%s'", name);
+        error("Could not open file '%s'", name);
         return NULL;
     }
 
-    /* Get length of report */
-    fseek(fptr, 0, SEEK_END);
-    long len = ftell(fptr);
-    fseek(fptr, 0, SEEK_SET);
-
-    /* Allocate and load report data */
-    char *report = malloc(sizeof(char) * (len + 1));
-    if (!report) {
-        error("Could not allocate %ld bytes for report '%s'", len,
-              name);
+    /* Allocate memory */
+    fstat(fileno(fptr), &st);
+    size = st.st_size;
+    str = malloc(sizeof(char) * (size + 1));
+    if (!str) {
+        error("Could not allocate memory");
         return NULL;
     }
-    if (fread(report, sizeof(char), len, fptr) != len) {
-        error("Could not load report '%s'", name);
-        free(report);
-        return NULL;
-    }
-    fclose(fptr);
 
-    fvec_t *f = extract(report, strlen(report));
-    free(report);
-
-    return f;
+    /* Read data */
+    len = fread(str, sizeof(char), size, fptr);
+    
+    if (len != size) 
+        warning("Could not read all data from file '%s'", name);
+    
+    str[len] = '\0';
+    return str;
 }

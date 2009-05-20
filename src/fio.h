@@ -18,6 +18,12 @@
 
 /* Type generic extraction function */
 typedef fvec_t *(*fvec_extract_t)(char *, int);  
-fvec_t *fio_load_file(char *name, fvec_extract_t);
+
+/* Default block size */
+#define FIO_BLOCK               4096
+
+
+/* I/O functions */
+char *fio_load_file(char *name);
 
 #endif                          /* STRIO_H */

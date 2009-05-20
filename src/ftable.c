@@ -52,7 +52,7 @@ void ftable_put(feat_t key, char *x, int l)
         /* Collision! Remove old */            
         #pragma omp critical 
         {
-            ftable_remove(key);            
+            HASH_DEL(feature_table, f);            
             collisions++;    
         }
     }
@@ -175,7 +175,7 @@ void ftable_print()
         return;
         
     for (f = feature_table; f != NULL; f = f->hh.next) {
-        printf("  0x%.16llx: ", f->key);
+        printf("  0x%.16llx: ", (long long unsigned int) f->key);
 
         for (i = 0; i < f->len; i++) {
             if (isprint(f->data[i]) || f->data[i] == '%')

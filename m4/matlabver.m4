@@ -40,7 +40,7 @@ else
     ax_cv_matlab_version=
     # Loop over all known architectures.  The final dot covers
     # Matlab R11 and Matlab V4 for Windows.
-    for ax_arch in alpha glnx86 hp700 hpux ibm_rs sgi sol2 win32 maci . ; do
+    for ax_arch in alpha glnx86 glnxa64 hp700 hpux ibm_rs sgi sol2 win32 maci . ; do
 	ax_matlab_exec=$MATLAB/bin/$ax_arch/matlab$EXEEXT
 	if test -f $ax_matlab_exec ; then
 	    # For Matlab R12, the version number is stored in a
@@ -72,7 +72,7 @@ case $ax_cv_matlab_version in
     ;;
   *)
     if test x$ax_enable_matlab = xyes ; then
-	AC_MSG_ERROR([can not determine Matlab version number])
+	AC_MSG_WARN([can not determine Matlab version number])
     fi
     MATLAB_VERSION=
     MATLAB_MAJOR=

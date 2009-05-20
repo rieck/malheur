@@ -13,6 +13,7 @@ fi
 
 # Apply configuration
 case $arg in
+   # Cluster nodes at Fraunhofer FIRST
    bot*|vnc*)
        echo "# Configuration: VNC/Bot"
        PKG_CONFIG_PATH="$HOME/usr/lib/pkgconfig" \
@@ -20,14 +21,26 @@ case $arg in
        CFLAGS="-fomit-frame-pointer -pedantic -pipe -O3 -march=opteron" \
        ./configure --enable-matlab --with-matlab=/home/matrix/matlab \
                    --prefix=$HOME/usr
+       ;;   
+   # Cluster nodes at Berlin Institute of Technology        
+   node*)
+       echo "# Configuration: Node"
+       PKG_CONFIG_PATH="$HOME/usr/lib/pkgconfig" \
+       CC="gcc" \
+       CPPFLAGS="-I $HOME/usr/include" \
+       CFLAGS="-fomit-frame-pointer -pedantic -pipe -O3 -march=opteron" \
+       ./configure --enable-openmp \
+                   --prefix=$HOME/usr
        ;;       
+   # Konrad's laptop    
    twoface*|rieck*|gwlan*)
        echo "# Configuration: Twoface/Rieck"
        CC="/opt/local/bin/gcc-mp-4.3" \
        CFLAGS="-fomit-frame-pointer -pedantic -pipe -O3 -march=nocona" \
        ./configure --enable-matlab -with-matlab=$HOME/Applications/Matlab \
-       		   --enable-openmp \
-       		   --prefix=/opt/malheur 
+                   --enable-openmp \
+                   --prefix=/opt/malheur
+                                                    
        ;;
    *)    
        echo "# Configuration: Standard"
@@ -40,6 +53,8 @@ if test $? -gt 0 ; then
    echo "Error: Configuration failed"
    exit 1
 fi
+
+read
 
 # Compile
 make clean 

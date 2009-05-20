@@ -219,7 +219,8 @@ void fvec_print(fvec_t * fv)
         return;
         
     for (i = 0; i < fv->len; i++) {
-        printf("  0x%.16llx: %6.4f", fv->dim[i], fv->val[i]);
+        printf("  0x%.16llx: %6.4f", (long long unsigned int) fv->dim[i], 
+               fv->val[i]);
 
         /* Lookup feature */
         fentry_t *fe = ftable_get(fv->dim[i]);

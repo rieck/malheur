@@ -14,6 +14,8 @@
 #ifndef COMMON_H
 #define COMMON_H
 
+#define __USE_POSIX
+
 /* Standard system headers */
 #include <sys/time.h>
 #include <sys/types.h>

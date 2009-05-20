@@ -103,8 +103,8 @@ int test_stress()
             /* Delete random string */
             ftable_remove(key);            
             break;
-         }   
-    }         
+         } 
+    }       
     return err;
 }
 

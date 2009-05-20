@@ -19,10 +19,6 @@
 /* External variables */
 extern int verbose;
 
-fvec_t *mist_extract(...) 
-{
-}
-
 /**
  * Truncates a report to a given MIST level and remove comments. 
  * The truncated report is likely smaller than the original report. 

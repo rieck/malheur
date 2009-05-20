@@ -67,6 +67,9 @@ else
       mexsol)
 	ax_cv_matlab_arch=sol2
 	;;
+      mexa64)
+        ax_cv_matlab_arch=glnxa64  
+        ;;
       *)
 	ax_cv_matlab_arch=unknown
 	;;

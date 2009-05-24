@@ -6,12 +6,11 @@
 #
 
 INCLUDES 	     = @INCLUDES@ -I$(top_srcdir)/src 
-TESTS    	     = ftable fvec
-#check_PROGRAMS       = ftable fvec
-noinst_PROGRAMS	     = ftable fvec
+TESTS    	     = test_ftable test_fvec
+noinst_PROGRAMS	     = test_ftable test_fvec
 
-ftable_SOURCES       = ftable.c tests.h
-ftable_LDADD	     = $(top_builddir)/src/libmalheur.a
+test_ftable_SOURCES  = ftable.c tests.h
+test_ftable_LDADD    = $(top_builddir)/src/libmalheur.a
 
-fvec_SOURCES	     = fvec.c tests.h
-fvec_LDADD	     = $(top_builddir)/src/libmalheur.a
+test_fvec_SOURCES    = fvec.c tests.h
+test_fvec_LDADD	     = $(top_builddir)/src/libmalheur.a

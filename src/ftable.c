@@ -19,7 +19,7 @@
 
 /* Hash table */
 static fentry_t *feature_table     = NULL;
-static int table_enabled          = FALSE;
+static int table_enabled           = FALSE;
 static unsigned long collisions    = 0;
 static unsigned long insertions    = 0;
 
@@ -43,6 +43,7 @@ void ftable_put(feat_t key, char *x, int l)
         return;
 
     HASH_FIND(hh, feature_table, &key, sizeof(feat_t), f);
+    
     /* Check if bucket is used */
     if (f) {
         /* Already present */

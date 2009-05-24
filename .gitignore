@@ -14,7 +14,8 @@
 /missing
 /src/malheur
 /stamp-h1
-/tests/ftable
-/tests/fvec
+/tests/test_*
+/build
+/malheur.xcodeproj
 Makefile
 Makefile.in

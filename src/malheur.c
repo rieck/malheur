@@ -89,7 +89,6 @@ void parse_options(int argc, char **argv)
         }
     }
 
-
     argc -= optind;
     argv += optind;
 
@@ -106,6 +105,7 @@ void parse_options(int argc, char **argv)
  */
 int main(int argc, char **argv)
 {
+    /* Parse options */
     parse_options(argc, argv);
 
     /* Init and load configuration */

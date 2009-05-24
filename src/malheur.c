@@ -23,12 +23,17 @@ config_t cfg;
 /* Local variables */
 static char *cfg_file = NULL;
 
+/**
+ * Checks if the configuration is valid. The function currently checks
+ * if all required parameters are set. Later versions might also set 
+ * default values and only issue warning, if parameters are not available.
+ */
 void check_config()
 {
     long l;
     const char *s;
 
-    /* Features */    
+    /* Check in features setting */    
     if (config_lookup_int(&cfg, "features.ngram_length", &l) != CONFIG_TRUE)
         fatal("'ngram_length' not defined in configuration group 'features'");
     if (config_lookup_string(&cfg, "features.ngram_delim", &s) != CONFIG_TRUE)
@@ -114,7 +119,6 @@ int main(int argc, char **argv)
         fatal("Could not read configuration (%s in line %d).",
               config_error_text(&cfg), config_error_line(&cfg));
     check_config();              
-
 
     /* Destroy configuration */
     config_destroy(&cfg);

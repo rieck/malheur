@@ -31,8 +31,8 @@ void ftable_put(feat_t, char *, int);
 fentry_t *ftable_get(feat_t);
 void ftable_init();
 void ftable_destroy();
-void ftable_remove(feat_t);
 long ftable_size();
 void ftable_print();
+void ftable_remove(feat_t);
 
 #endif                          /* FTABLE_H */

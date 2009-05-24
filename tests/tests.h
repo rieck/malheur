@@ -18,10 +18,18 @@
 #include "common.h"
 #include "util.h"
 
+/* With of text line */
+#define LINE_WIDTH          60
+
 /* Macros for faking a configuration */
 #define config_set_string(c,x,s) \
       config_setting_set_string(config_lookup(c,x),s)
 #define config_set_int(c,x,s) \
       config_setting_set_int(config_lookup(c,x),s)
+
+/* Functions */
+void test_printf(char *fmt, ...);
+void test_return(int, int);
+void test_error(char *fmt, ...);
 
 #endif

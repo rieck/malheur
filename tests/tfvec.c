@@ -38,22 +38,26 @@ test_t tests[] = {
    { " a:a a:a a:a a:a ", " :", 2, 1 },   
    { " a:a a:a a:a a:a ", "",   1, 3 },   
    { " a:a a:b a:c a:d ", "",   1, 6 },      
-   { " a:a a:a a:a a:a ", "",   2, 4 },   
+   { " a:a a:a a:a a:a ", "",   2, 4 },
    { NULL, NULL, 0 }
 };
 
 /* Test file */
-#define TEST_FILE   "test.fv"
+#define TEST_FILE               "test.fv"
+/* Number of stress runs */
+#define STRESS_RUNS             1000
+/* String length */
+#define STR_LENGTH              1024
 
 /* 
  * A simple static test for the feature vectors
  */
 int test_static() 
 {
-    int i, err = FALSE;
+    int i, err = 0;
     fvec_t *f;  
 
-    printf("TEST: Extraction of feature vectors.\n");
+    test_printf("Extraction of feature vectors");
 
     config_set_string(&cfg, "features.normalization", "l1");
 
@@ -67,13 +71,83 @@ int test_static()
         
         /* Check for correct number of dimensions */
         if (f->len != tests[i].len) { 
-            printf("FAIL: len %d != %d\n", f->len, tests[i].len);
-            err = TRUE;
+            test_error("(%d) len %d != %d", i, f->len, tests[i].len);
+            err++;
         }
             
         fvec_destroy(f);
     }
     
+    test_return(err, i);
+    return err;
+}
+
+/* 
+ * A simple stress test for the feature table
+ */
+int test_stress() 
+{
+    int i, j, err = 0;
+    fvec_t *f;  
+    char buf[STR_LENGTH];
+
+    test_printf("Stress test for feature vectors");
+
+    ftable_init();
+    config_set_string(&cfg, "features.normalization", "l1");
+    config_set_string(&cfg, "features.ngram_delim", "0");    
+
+    for (i = 0; i < STRESS_RUNS; i++) {
+        config_set_int(&cfg, "features.ngram_length", rand() % 10 + 1);    
+   
+        /* Create random key and string */
+        for (j = 0; j < STR_LENGTH; j++)
+            buf[j] = rand() % 10 + '0';
+        buf[j] = 0;    
+           
+        /* Extract features */
+        f = fvec_create(buf, strlen(buf));
+        /* Destroy features */            
+        fvec_destroy(f);
+    }
+    
+    ftable_destroy();
+    test_return(err, STRESS_RUNS);
+    return err;
+}
+
+/* 
+ * A simple stress test for the feature table
+ */
+int test_stress_omp() 
+{
+    int i, j, err = 0;
+    fvec_t *f;  
+    char buf[STR_LENGTH];
+
+    test_printf("Stress test for feature vectors (OpenMP)");
+
+    ftable_init();
+    config_set_string(&cfg, "features.normalization", "l1");
+    config_set_string(&cfg, "features.ngram_delim", "0");    
+
+    #pragma omp parallel for 
+    for (i = 0; i < STRESS_RUNS; i++) {
+        config_set_int(&cfg, "features.ngram_length", rand() % 10 + 1);    
+   
+        /* Create random key and string */
+        for (j = 0; j < STR_LENGTH; j++)
+            buf[j] = rand() % 10 + '0';
+        buf[j] = 0;    
+           
+        /* Extract features */
+        f = fvec_create(buf, strlen(buf));
+        /* Destroy features */            
+        fvec_destroy(f);
+    }
+    
+    ftable_destroy();    
+    test_return(err, STRESS_RUNS);
     return err;
 }
 
@@ -83,11 +157,11 @@ int test_static()
  */
 int test_load_save() 
 {
-    int i, j, err = FALSE;
+    int i, j, err = 0;
     fvec_t *f, *g; 
     gzFile *z;
     
-    printf("TEST: Loading and saving of feature vectors. \n");
+    test_printf("Loading and saving of feature vectors");
 
     fvec_reset_delim();
     config_set_string(&cfg, "features.normalization", "l1");
@@ -99,7 +173,7 @@ int test_load_save()
         printf("Could not create file (ignoring)\n");
         return FALSE;
     }
-    
+
     for (i = 0; tests[i].str; i++) {
         f = fvec_create(tests[i].str, strlen(tests[i].str));
         fvec_save(f, z);
@@ -109,41 +183,35 @@ int test_load_save()
 
 
     /* Load and compare feature vectors */
-    z = gzopen(TEST_FILE, "r");
-    
+    z = gzopen(TEST_FILE, "r");    
+
     for (i = 0; tests[i].str; i++) {
         f = fvec_create(tests[i].str, strlen(tests[i].str));
         g = fvec_load(z);
         
-        /* Check length */
-        if (f->len != g->len) {
-            printf("FAIL: len %d != %d\n", f->len, g->len);
-            err = TRUE;
-        }
-       
         /* Check dimensions and values */
-        for (j = 0; j < f->len; j++) {
+        for (j = 0; j < f->len && j < g->len; j++) {
             if (f->dim[j] != g->dim[j]) {
-                printf("FAIL: f->dim[%d] != g->dim[%d]\n", j, j);
+                test_error("(%d) f->dim[%d] != g->dim[%d]", i, j, j);
                 break;
             }    
             if (fabs(f->val[j] - g->val[j]) > 10e-10) {
-                printf("FAIL: f->val[%d] != g->val[%d]\n", j, j);
+                test_error("(%d) f->val[%d] != g->val[%d]", i, j, j);
                 break;
             }                
         }  
-        err |= (j < f->len);
+        err += (j < f->len || j < g->len);
         
         fvec_destroy(f);
         fvec_destroy(g);
     }
-    
+
     gzclose(z);
     unlink(TEST_FILE);
     
+    test_return(err, i);
     return err;
 }
-
 
 /**
  * Main function
@@ -166,6 +234,8 @@ int main(int argc, char **argv)
     config_setting_add(s, "ngram_delim", CONFIG_TYPE_STRING);                           
     
     err |= test_static(); 
+    err |= test_stress();    
+    err |= test_stress_omp();
     err |= test_load_save();
     
     ftable_destroy();

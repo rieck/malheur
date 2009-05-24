@@ -38,8 +38,9 @@
 
 /* Error functions */
 void err_msg(char *, const char *, char *, ...);
-void progbar(double, double, double);
-double timestamp();
+void prog_bar(double, double, double);
+double time_stamp();
+int decode_string(char *);
 
 #ifndef HAVE_FUNC_ROUND
 double log2(double);

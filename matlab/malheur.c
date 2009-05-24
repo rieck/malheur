@@ -136,7 +136,7 @@ void mex_load_mist(MEX_SIGNATURE)
         /* Load report */
         r = mist_load_report(fn, level, sect);
     
-        progbar(0, (double) len, (double) j++);
+        prog_bar(0, (double) len, (double) j++);
         /* Store report in cell array */
         mxSetCell(out, i, mxCreateString(r));
 
@@ -144,7 +144,7 @@ void mex_load_mist(MEX_SIGNATURE)
         free(r);
     }
     
-    progbar(0.0, 1.0, 1.0);
+    prog_bar(0.0, 1.0, 1.0);
     printf("\nDone.\n");
 }
 

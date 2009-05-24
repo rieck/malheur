@@ -51,7 +51,7 @@ void err_msg(char *p, const char *f, char *m, ...)
  * @param max Maximum value
  * @param in Current value
  */
-void progbar(double min, double max, double in)
+void prog_bar(double min, double max, double in)
 {
     int i;
     double perc, ptime = 0;
@@ -61,7 +61,7 @@ void progbar(double min, double max, double in)
 
     if (pb_start == 0 || fabs(in - min) < 1e-12) {
         /* Start of progress */
-        pb_start = timestamp();
+        pb_start = time_stamp();
         for (i = 0; i < PROGBAR_LEN; i++)
             pb_string[i] = PROGBAR_EMPTY;
         descr = "start";
@@ -70,7 +70,7 @@ void progbar(double min, double max, double in)
         /* End of progress */
         for (i = 0; i < PROGBAR_LEN; i++)
             pb_string[i] = PROGBAR_FULL;
-        ptime = timestamp() - pb_start;
+        ptime = time_stamp() - pb_start;
         descr = "total";
         perc = 1.0;
         pb_start = 0;
@@ -82,7 +82,7 @@ void progbar(double min, double max, double in)
                 pb_string[i] = PROGBAR_DONE;
             else
                 pb_string[i] = PROGBAR_FRONT;
-        ptime = (max - in) * (timestamp() - pb_start) / (in - min);
+        ptime = (max - in) * (time_stamp() - pb_start) / (in - min);
         descr = "   in";
     }
 
@@ -100,11 +100,42 @@ void progbar(double min, double max, double in)
  * Return a timestamp of the real time
  * @return time stamp
  */
-double timestamp()
+double time_stamp()
 {
     struct timeval tv;
     gettimeofday(&tv, NULL);
     return tv.tv_sec + tv.tv_usec / 1e6;
+}
+
+/**
+ * Decode a string with URI encoding. The function operates 
+ * in-place. A trailing NULL character is appended to the string.
+ * @param str Stirng to escape.
+ * @return length of decoded sequence
+ */
+int decode_string(char *str) 
+{
+    int j, k, r;
+    char hex[5] = "0x00";
+    
+    /* Loop over string */
+    for (j = 0, k = 0; j < strlen(str); j++, k++) {
+        if (str[j] != '%') {
+            str[k] = str[j];
+        } else {   
+            /* Check for truncated string */
+            if (strlen(str) - j < 2)
+                    break;
+
+            /* Parse hexadecimal number */
+            hex[2] = str[++j];
+            hex[3] = str[++j];
+            sscanf(hex, "%x", (unsigned int *) &r);
+            str[k] = r;
+        }
+    }
+
+    return k;
 }
 
 #ifndef HAVE_FUNC_LOG2

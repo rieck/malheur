@@ -33,18 +33,17 @@ extern config_t cfg;
  * (Synchronized)
  * @param f Feature key
  * @param x Byte sequence 
- * @param l Length of sequence
  */
 void ftable_put(feat_t key, char *x, int l)
 {
     assert(x && l > 0);
     int collision = FALSE;
-
     fentry_t *f;
+    
     if (!table_enabled)
         return;
-
-    #pragma omp critical (table)
+    
+    #pragma omp critical (ftable)
     {
         HASH_FIND(hh, feature_table, &key, sizeof(feat_t), f);
     
@@ -78,7 +77,7 @@ void ftable_put(feat_t key, char *x, int l)
     
     memcpy(f->data, x, l);
 
-    #pragma omp critical (table)
+    #pragma omp critical (ftable)
     {
         /* Add to hash and count insertion */    
         HASH_ADD(hh, feature_table, key, sizeof(feat_t), f);
@@ -95,11 +94,8 @@ void ftable_put(feat_t key, char *x, int l)
 fentry_t *ftable_get(feat_t key)
 {
     fentry_t *f;
-    
-    if (!table_enabled)
-        return NULL;
-    
-    #pragma omp critical (table)
+        
+    #pragma omp critical (ftable)
     {
         HASH_FIND(hh, feature_table, &key, sizeof(feat_t), f);
     }    
@@ -111,7 +107,7 @@ fentry_t *ftable_get(feat_t key)
  */
 void ftable_init()
 {
-    if (table_enabled)
+    if (feature_table)
         ftable_destroy();
 
     table_enabled = TRUE;
@@ -125,10 +121,7 @@ void ftable_init()
 void ftable_destroy()
 {
     fentry_t *f;
-    
-    if (!table_enabled)
-        return;
-    
+        
     while(feature_table) {
         f = feature_table;
         HASH_DEL(feature_table, f);
@@ -149,7 +142,7 @@ void ftable_remove(feat_t key)
 {
     fentry_t *f;
 
-    #pragma omp critical (table)
+    #pragma omp critical (ftable)
     {
         /* Find element */
         HASH_FIND(hh, feature_table, &key, sizeof(feat_t), f);
@@ -169,9 +162,6 @@ void ftable_print()
     fentry_t *f;
     int i;
     
-    if (!table_enabled)
-        return;
-
     printf("feature table [size: %ld, puts: %ld, colls: %ld (%g%%), %p]\n", 
             ftable_size(), insertions, collisions, 
             (collisions * 100.0) / insertions, (void *) feature_table);
@@ -193,14 +183,72 @@ void ftable_print()
 }
 
 /**
- * Returns the size of the feature lookup table. (Not synchronized)
+ * Returns the size of the feature lookup table. (Synchronized)
  * @return size of table
  */
-long ftable_size()
+unsigned long ftable_size()
 {
-    if (!table_enabled)
-        return 0;
+    int cnt = 0;
     
-    return HASH_COUNT(feature_table);
+    #pragma omp critical (ftable) 
+    {
+        cnt = HASH_COUNT(feature_table);
+    }
+    return cnt;
 }
 
+/**
+ * Saves a feature table to a file stream (Not synchronized)
+ * @param z Stream pointer
+ */
+void ftable_save(gzFile *z)
+{
+    fentry_t *f;
+    int i;
+        
+    gzprintf(z, "feature table: len=%lu\n", HASH_COUNT(feature_table));
+    for (f = feature_table; f != NULL; f = f->hh.next) {
+        gzprintf(z, "  %.16llx: ", (long long unsigned int) f->key);
+        for (i = 0; i < f->len; i++) {
+            if (isprint(f->data[i]) || f->data[i] == '%')
+                gzprintf(z, "%c", f->data[i]);
+            else   
+                gzprintf(z, "%%%.2x", f->data[i]);                
+        }        
+        gzprintf(z, "\n");
+    }
+}
+
+/**
+ * Loads a feature table from a file stream (Not synchronized)
+ * @param z Stream pointer
+ */
+void ftable_load(gzFile *z)
+{
+    int i, r;
+    unsigned long len;
+    char buf[512], str[512];
+    feat_t key;
+        
+    gzgets(z, buf, 512);
+    r = sscanf(buf, "feature table: len=%lu\n", (unsigned long *) &len);
+    if (r != 1)  {
+        error("Could not parse feature table");
+        return;
+    }
+    
+    for (i = 0; i < len; i++) {
+        gzgets(z, buf, 512);
+        r = sscanf(buf, "  %llx:%511s\n", (unsigned long long *) &key, (char *) str);
+        if (r != 2) {
+            error("Could not parse feature table contents");
+            return;
+        }
+        
+        /* Decode string */
+        r = decode_string(str);
+        
+        /* Put string to table */                        
+        ftable_put(key, str, r);
+    }
+}

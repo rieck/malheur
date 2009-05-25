@@ -8,7 +8,6 @@
  * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.  This program is distributed without any
  * warranty. See the GNU General Public License for more details. 
- * --
  */
 
 #include "tests.h"
@@ -45,7 +44,7 @@ test_t tests[] = {
 /* Test file */
 #define TEST_FILE               "test.fv"
 /* Number of stress runs */
-#define STRESS_RUNS             1000
+#define STRESS_RUNS             3000
 /* String length */
 #define STR_LENGTH              1024
 
@@ -89,13 +88,14 @@ int test_stress()
 {
     int i, j, err = 0;
     fvec_t *f;  
-    char buf[STR_LENGTH];
+    char buf[STR_LENGTH + 1];
 
     test_printf("Stress test for feature vectors");
 
-    ftable_init();
     config_set_string(&cfg, "features.normalization", "l1");
     config_set_string(&cfg, "features.ngram_delim", "0");    
+
+    ftable_init();
 
     for (i = 0; i < STRESS_RUNS; i++) {
         config_set_int(&cfg, "features.ngram_length", rand() % 10 + 1);    
@@ -112,6 +112,7 @@ int test_stress()
     }
     
     ftable_destroy();
+    
     test_return(err, STRESS_RUNS);
     return err;
 }
@@ -123,13 +124,14 @@ int test_stress_omp()
 {
     int i, j, err = 0;
     fvec_t *f;  
-    char buf[STR_LENGTH];
+    char buf[STR_LENGTH + 1];
 
     test_printf("Stress test for feature vectors (OpenMP)");
 
-    ftable_init();
     config_set_string(&cfg, "features.normalization", "l1");
     config_set_string(&cfg, "features.ngram_delim", "0");    
+
+    ftable_init();
 
     #pragma omp parallel for 
     for (i = 0; i < STRESS_RUNS; i++) {
@@ -146,7 +148,8 @@ int test_stress_omp()
         fvec_destroy(f);
     }
     
-    ftable_destroy();    
+    ftable_destroy();
+    
     test_return(err, STRESS_RUNS);
     return err;
 }
@@ -225,9 +228,6 @@ int main(int argc, char **argv)
     config_setting_t *s = config_setting_add(config_root_setting(&cfg), 
                                              "features", CONFIG_TYPE_GROUP);
 
-    /* Feature table */
-    ftable_init();
-
     /* Add important variables */    
     config_setting_add(s, "normalization", CONFIG_TYPE_STRING);
     config_setting_add(s, "ngram_length", CONFIG_TYPE_INT);
@@ -238,7 +238,6 @@ int main(int argc, char **argv)
     err |= test_stress_omp();
     err |= test_load_save();
     
-    ftable_destroy();
     config_destroy(&cfg);
     return err;
 } 

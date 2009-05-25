@@ -256,9 +256,13 @@ void extract_wgrams(fvec_t * fv, char *x, int l, int nlen)
     unsigned int i, j = l, k = 0, s = 0, n = 0, d;
     unsigned char buf[MD5_DIGEST_LENGTH];    
     char *t = malloc(l + 1);
-
+    fentry_t *cache = NULL;
+    
     assert(fv && x);
 
+    if (ftable_enabled())
+        cache = malloc(l * sizeof(fentry_t));
+    
     /* Find first delimiter symbol */
     for (d = 0; !delim[(unsigned char) d] && d < 256; d++);
 
@@ -291,15 +295,34 @@ void extract_wgrams(fvec_t * fv, char *x, int l, int nlen)
         if (n == nlen && i - k > 0) {
             MD5((unsigned char *) (t + k), i - k, buf);
             memcpy(fv->dim + fv->len, buf, sizeof(feat_t));
-            ftable_put(fv->dim[fv->len], (t + k), i - k);
+
+            /* Cache feature and key */
+            if (ftable_enabled()) {
+                cache[fv->len].len = i - k;
+                cache[fv->len].key = fv->dim[fv->len];
+                cache[fv->len].data = malloc(i - k);
+                memcpy(cache[fv->len].data, (t + k), i - k);
+            }
             
             fv->val[fv->len] = 1;
             k = s + 1, i = s, n = 0;
             fv->len++;
         }
     }
-
     free(t);
+    
+    if (!ftable_enabled())
+        return;
+    
+    /* Add features to hash */
+    #pragma omp critical 
+    {
+        for (i = 0; i < fv->len; i++) {
+            ftable_put(cache[i].key, cache[i].data, cache[i].len);
+            free(cache[i].data);
+        }            
+    }
+    free(cache);
 }
 
 /**
@@ -316,8 +339,12 @@ void extract_ngrams(fvec_t * fv, char *x, int l, int nlen)
     unsigned int i = 0;
     unsigned char buf[MD5_DIGEST_LENGTH];    
     char *t = x;
+    fentry_t *cache = NULL;
 
     assert(fv && x && nlen > 0);
+    
+    if (ftable_enabled())
+        cache = malloc(l * sizeof(fentry_t));
 
     for (i = 1; t < x + l; i++) {
         /* Check for sequence end */
@@ -326,12 +353,32 @@ void extract_ngrams(fvec_t * fv, char *x, int l, int nlen)
 
         MD5((unsigned char *) t, nlen, buf);
         memcpy(fv->dim + fv->len, buf, sizeof(feat_t));
-        ftable_put(fv->dim[fv->len], t, nlen);
+
+        /* Cache feature and key */
+        if (ftable_enabled()) {
+            cache[fv->len].len = nlen;
+            cache[fv->len].key = fv->dim[fv->len];
+            cache[fv->len].data = malloc(nlen);
+            memcpy(cache[fv->len].data, t, nlen);
+        }
         
         fv->val[fv->len] = 1;
         t++;
         fv->len++;
     }
+
+    if (!ftable_enabled())
+        return;
+    
+    /* Add features to hash */
+    #pragma omp critical 
+    {
+        for (i = 0; i < fv->len; i++) {
+            ftable_put(cache[i].key, cache[i].data, cache[i].len);
+            free(cache[i].data);
+        }            
+    }
+    free(cache);
 }      
 
 /**

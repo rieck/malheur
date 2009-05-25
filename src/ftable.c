@@ -30,7 +30,6 @@ extern config_t cfg;
 /**
  * Add a feature and its key to the lookup table. The byte sequence
  * is copied into separate memory which needs to be free'd individually.
- * (Synchronized)
  * @param f Feature key
  * @param x Byte sequence 
  */
@@ -43,19 +42,16 @@ void ftable_put(feat_t key, char *x, int l)
     if (!table_enabled)
         return;
     
-    #pragma omp critical (ftable)
-    {
-        HASH_FIND(hh, feature_table, &key, sizeof(feat_t), f);
-    
-        /* Check for collission */
-        if (f && (l != f->len || memcmp(x, f->data, l))) {
-            /* Collision! Remove old */            
-            HASH_DEL(feature_table, f);            
-            collisions++;    
-            collision = TRUE;
-        }
+    HASH_FIND(hh, feature_table, &key, sizeof(feat_t), f);
+
+    /* Check for collission */
+    if (f && (l != f->len || memcmp(x, f->data, l))) {
+        /* Collision! Remove old */            
+        HASH_DEL(feature_table, f);            
+        collisions++;    
+        collision = TRUE;
     }
-    
+
     /* Already there */
     if (f && !collision)
         return;
@@ -77,33 +73,26 @@ void ftable_put(feat_t key, char *x, int l)
     
     memcpy(f->data, x, l);
 
-    #pragma omp critical (ftable)
-    {
-        /* Add to hash and count insertion */    
-        HASH_ADD(hh, feature_table, key, sizeof(feat_t), f);
-        insertions++;
-    }
+    /* Add to hash and count insertion */    
+    HASH_ADD(hh, feature_table, key, sizeof(feat_t), f);
+    insertions++;
 }      
 
 /**
  * Gets a entry from the lookup table. The returned memory must not 
- * be free'd. (Synchronized)
+ * be free'd.
  * @param f Feature key
  * @return feature table entry
  */
 fentry_t *ftable_get(feat_t key)
 {
     fentry_t *f;
-        
-    #pragma omp critical (ftable)
-    {
-        HASH_FIND(hh, feature_table, &key, sizeof(feat_t), f);
-    }    
+    HASH_FIND(hh, feature_table, &key, sizeof(feat_t), f);
     return f;
 }      
 
 /**
- * Initialize the feature lookup table (Not synchronized)
+ * Initialize the feature lookup table.
  */
 void ftable_init()
 {
@@ -116,7 +105,7 @@ void ftable_init()
 } 
 
 /**
- * Destroy the feature lookup table. (Not synchronized)
+ * Destroy the feature lookup table. 
  */
 void ftable_destroy()
 {
@@ -135,27 +124,25 @@ void ftable_destroy()
 }
 
 /**
- * Removes an element from the lookup hash. (Synchronized)
+ * Removes an element from the lookup hash. 
  * @param f Feature to remove
  */
 void ftable_remove(feat_t key)
 {
     fentry_t *f;
 
-    #pragma omp critical (ftable)
-    {
-        /* Find element */
-        HASH_FIND(hh, feature_table, &key, sizeof(feat_t), f);
-        
-        /* Remove */
-        if (f) 
-            HASH_DEL(feature_table, f);
-    }
+    /* Find element */
+    HASH_FIND(hh, feature_table, &key, sizeof(feat_t), f);
+    if (!f)
+        return;
+
+    /* Remove */    
+    HASH_DEL(feature_table, f);
 }
 
 
 /**
- * Print the feature lookup table. (Not synchronized)
+ * Print the feature lookup table. 
  */
 void ftable_print()
 {
@@ -183,22 +170,16 @@ void ftable_print()
 }
 
 /**
- * Returns the size of the feature lookup table. (Synchronized)
+ * Returns the size of the feature lookup table.
  * @return size of table
  */
 unsigned long ftable_size()
-{
-    int cnt = 0;
-    
-    #pragma omp critical (ftable) 
-    {
-        cnt = HASH_COUNT(feature_table);
-    }
-    return cnt;
+{ 
+    return HASH_COUNT(feature_table);
 }
 
 /**
- * Saves a feature table to a file stream (Not synchronized)
+ * Saves a feature table to a file stream.
  * @param z Stream pointer
  */
 void ftable_save(gzFile *z)
@@ -252,3 +233,12 @@ void ftable_load(gzFile *z)
         ftable_put(key, str, r);
     }
 }
+
+/**
+ * Returns true if the feature table is enabled
+ * @return true if enabled false otherwise
+ */
+int ftable_enabled()
+{
+    return table_enabled;
+} 

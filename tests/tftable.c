@@ -86,7 +86,7 @@ int test_stress()
     int i, j, err = 0;
     fentry_t *f;
     feat_t key;
-    char buf[STR_LENGTH];
+    char buf[STR_LENGTH + 1];
 
     test_printf("Stress test for feature table");
 
@@ -116,48 +116,6 @@ int test_stress()
     ftable_destroy();
     
     test_return(err, STRESS_RUNS);
-    return err;
-}
-
-/* 
- * A simple stress test for the feature table using OpenMP
- */
-int test_stress_omp() 
-{
-    int i, j, err = FALSE;
-    fentry_t *f;
-    feat_t key;
-    char buf[STR_LENGTH];
-    
-    test_printf("Stress test for feature table (OpenMP)");
-    
-    /* Initialize table */
-    ftable_init();
-    
-    #pragma omp parallel for 
-    for (i = 0; i < STRESS_RUNS; i++) {
-        /* Create random key and string */
-        key = rand() % 100;
-        for (j = 0; j < STR_LENGTH; j++)
-            buf[j] = rand() % 10 + '0';
-        buf[j] = 0;    
-        
-        switch(rand() % 2) {
-            case 0:
-                /* Insert random string */
-                ftable_put(key, buf, strlen(buf));
-                break;
-            case 1:
-                /* Query for string */
-                f = ftable_get(key);    
-                break;
-        } 
-    }     
-    
-    /*  Destroy table */
-    ftable_destroy();
-    
-    test_return(0, STRESS_RUNS);
     return err;
 }
 
@@ -221,7 +179,6 @@ int main(int argc, char **argv)
     
     err |= test_static(); 
     err |= test_stress();
-    //err |= test_stress_omp();
     err |= test_load_save();
     
     return err;

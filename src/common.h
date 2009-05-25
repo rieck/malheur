@@ -43,6 +43,7 @@
 #include <string.h>
 #endif
 
+#include <pthread.h>
 #include <zlib.h>
 #include <libconfig.h>
 

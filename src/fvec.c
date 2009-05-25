@@ -244,8 +244,10 @@ void fvec_print(fvec_t * fv)
 
 /**
  * Extract n-grams from a sequence using the provided configuration.
- * The words are represented by 64 bit hash values and stored in 
- * a global sequence hash table
+ * The features (n-grams) are represented by 64 bit hash values.
+ * Optionally, the features are stored in a global table. To improve 
+ * concurrent processing, the features are first collected in a cache
+ * and later flushed into the global feature table.
  * @param fv Feature vector
  * @param x Byte sequence 
  * @param l Length of sequence
@@ -301,7 +303,10 @@ void extract_wgrams(fvec_t * fv, char *x, int l, int nlen)
                 cache[fv->len].len = i - k;
                 cache[fv->len].key = fv->dim[fv->len];
                 cache[fv->len].data = malloc(i - k);
-                memcpy(cache[fv->len].data, (t + k), i - k);
+                if (cache[fv->len].data) 
+                    memcpy(cache[fv->len].data, (t + k), i - k);
+                else    
+                    error("Could not allocate feature data");
             }
             
             fv->val[fv->len] = 1;
@@ -314,21 +319,23 @@ void extract_wgrams(fvec_t * fv, char *x, int l, int nlen)
     if (!ftable_enabled())
         return;
     
-    /* Add features to hash */
+    /* Flush cache and add features to hash */
     #pragma omp critical 
     {
         for (i = 0; i < fv->len; i++) {
             ftable_put(cache[i].key, cache[i].data, cache[i].len);
             free(cache[i].data);
-        }            
+        }    
     }
     free(cache);
 }
 
 /**
  * Extract n-grams from a sequence using the provided configuration.
- * The words are represented by 64 bit hash values and stored in 
- * a global sequence hash table
+ * The features (n-grams) are represented by 64 bit hash values. 
+ * Optionally, the features are stored in a global table. To improve 
+ * concurrent processing, the features are first collected in a cache
+ * and later flushed into the global feature table.
  * @param fv Feature vector
  * @param x Byte sequence 
  * @param l Length of sequence
@@ -359,7 +366,10 @@ void extract_ngrams(fvec_t * fv, char *x, int l, int nlen)
             cache[fv->len].len = nlen;
             cache[fv->len].key = fv->dim[fv->len];
             cache[fv->len].data = malloc(nlen);
-            memcpy(cache[fv->len].data, t, nlen);
+            if (cache[fv->len].data) 
+                memcpy(cache[fv->len].data, t, nlen);
+            else
+                error("Could not allocate feature data");
         }
         
         fv->val[fv->len] = 1;
@@ -370,13 +380,13 @@ void extract_ngrams(fvec_t * fv, char *x, int l, int nlen)
     if (!ftable_enabled())
         return;
     
-    /* Add features to hash */
+    /* Flush cache and add features to hash */
     #pragma omp critical 
     {
         for (i = 0; i < fv->len; i++) {
             ftable_put(cache[i].key, cache[i].data, cache[i].len);
             free(cache[i].data);
-        }            
+        }    
     }
     free(cache);
 }      

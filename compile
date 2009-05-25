@@ -36,7 +36,7 @@ case $arg in
    twoface*|rieck*|gwlan*)
        echo "# Configuration: Twoface/Rieck"
        CC="/opt/local/bin/gcc-mp-4.3" \
-       CFLAGS="-pg -g -pedantic -pipe -O3 -march=nocona" \
+       CFLAGS="-g -pedantic -pipe -O3 -march=nocona" \
        ./configure --enable-matlab -with-matlab=$HOME/Applications/Matlab \
                    --enable-openmp \
                    --prefix=/opt/malheur

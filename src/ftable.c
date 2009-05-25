@@ -28,53 +28,43 @@ extern int verbose;
 extern config_t cfg;
 
 /**
- * Add a feature and its key to the lookup table. The byte sequence
- * is copied into separate memory which needs to be free'd individually.
- * @param f Feature key
- * @param x Byte sequence 
+ * Add a feature and its key to the lookup table. The function clones 
+ * all input arguments, that is new memory is allocated and the data 
+ * is copied. This memory is free'd when destroy the feature table.
+ * @param k Key for feature
+ * @param x Data of feature
+ * @param l Length of feature
  */
-void ftable_put(feat_t key, char *x, int l)
+void ftable_put(feat_t k, char *x, int l)
 {
     assert(x && l > 0);
-    int collision = FALSE;
-    fentry_t *f;
+    fentry_t *g, *h;
     
     if (!table_enabled)
         return;
     
-    HASH_FIND(hh, feature_table, &key, sizeof(feat_t), f);
-
-    /* Check for collission */
-    if (f && (l != f->len || memcmp(x, f->data, l))) {
-        /* Collision! Remove old */            
-        HASH_DEL(feature_table, f);            
-        collisions++;    
-        collision = TRUE;
-    }
-
-    /* Already there */
-    if (f && !collision)
-        return;
-
-    /* Allocate new entry */
-    f = malloc(sizeof(fentry_t));
-    if (!f) {
-        error("Could not allocate entry in feature table.");
+    /* Check for duplicate */
+    HASH_FIND(hh, feature_table, &k, sizeof(feat_t), g);
+    
+    /* Check for collision */
+    if (g) {
+        if (l != g->len || memcmp(x, g->data, l))
+            collisions++;
         return;
     }
     
-    f->key = key; 
-    f->data = malloc(l);
-    f->len = l;
-    if (!f->data) {
-        error("Could not allocate entry in feature table.");
-        return;
-    }
-    
-    memcpy(f->data, x, l);
+    /* Build new entry */
+    h = malloc(sizeof(fentry_t));
+    h->len = l;
+    h->key = k;
+    h->data = malloc(l);
+    if (h->data)
+        memcpy(h->data, x, l);
+    else
+        error("Could not allocate feature data");
 
     /* Add to hash and count insertion */    
-    HASH_ADD(hh, feature_table, key, sizeof(feat_t), f);
+    HASH_ADD(hh, feature_table, key, sizeof(feat_t), h);
     insertions++;
 }      
 

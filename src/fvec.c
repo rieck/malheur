@@ -115,13 +115,9 @@ fvec_t *fvec_create(char *x, int l)
  */
 void fvec_condense(fvec_t * fv)
 {
-    feat_t *p_dim;
-    float *p_val, n = 0;
+    feat_t *p_dim = fv->dim;
+    float n = 0, *p_val = fv->val;
     unsigned int i;
-
-    /* Counting */
-    p_dim = fv->dim;
-    p_val = fv->val;
 
     /* Loop over features */
     for (i = 0; i < fv->len; i++) {
@@ -133,19 +129,41 @@ void fvec_condense(fvec_t * fv)
         if (i < fv->len - 1 && fv->dim[i] == fv->dim[i + 1]) {
             n += fv->val[i];
         } else {
-            /* Write back dim/val and increment pointers */
             *(p_dim++) = fv->dim[i];
             *(p_val++) = fv->val[i] + n;
             n = 0;
         }
     }
 
-    /* Free unused memory through reallocation */
-    if (fv->len > p_dim - fv->dim) {
-        fv->len = p_dim - fv->dim;
-        fv->dim = realloc(fv->dim, fv->len * sizeof(feat_t));
-        fv->val = realloc(fv->val, fv->len * sizeof(float));
+    if (fv->len == p_dim - fv->dim) 
+        return;
+
+    /* Compute new length */
+    fv->len = p_dim - fv->dim;     
+        
+    /*
+     * Explicit reallocation. Don't use realloc(). On some platforms 
+     * realloc() will not shrink memory blocks or copy to smaller sizes.
+     * Consequently, realloc() here results in a huge memory leak. 
+     */
+    p_dim = malloc(fv->len * sizeof(feat_t));
+    p_val = malloc(fv->len * sizeof(float));        
+    if (!p_dim || !p_val) {
+        error("Could not allocate condensed  feature vector");
+        free(p_dim);
+        free(p_val);
+        return;
     }
+
+    /* Copy to new feature vector */
+    memcpy(p_dim, fv->dim, fv->len * sizeof(feat_t));
+    memcpy(p_val, fv->val, fv->len * sizeof(float));
+
+    /* Free old */
+    free(fv->dim); 
+    fv->dim = p_dim; 
+    free(fv->val); 
+    fv->val = p_val;
 }
 
 /**

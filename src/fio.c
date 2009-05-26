@@ -45,7 +45,7 @@ char *fio_load_file(char *path, char *name)
     }
 
     /* Allocate memory */
-    fstat(fileno(fptr), &st);
+    stat(file, &st);
     size = st.st_size;
     str = malloc(sizeof(char) * (size + 1));
     if (!str) {
@@ -55,6 +55,7 @@ char *fio_load_file(char *path, char *name)
 
     /* Read data */
     len = fread(str, sizeof(char), size, fptr);
+    fclose(fptr);
     
     if (len != size) 
         warning("Could not read all data from file '%s'", file);

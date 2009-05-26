@@ -65,7 +65,6 @@ farray_t *farray_create_dir(char *dir)
         /* Load file contents */
         char *x = fio_load_file(dir, dp->d_name);
         a->x[i] = fvec_create(x, strlen(x));
-        fvec_print(a->x[i]);
         free(x);    
         
         /* Extract label from name */

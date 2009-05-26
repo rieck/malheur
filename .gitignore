@@ -2,6 +2,7 @@
 *.o
 *.a
 *.mexmaci
+/m4
 /aclocal.m4
 /autom4te.cache
 /config.*

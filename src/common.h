@@ -14,9 +14,9 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-#define __USE_POSIX
 
-/* Standard system headers */
+#define _BSD_SOURCE		/* For dirent struct under Linux */
+
 #include <sys/time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -55,11 +55,5 @@
 #ifndef FALSE
 #define FALSE 0
 #endif
-
-#define lock_region \
-    #pragma omp critical\
-    {
-    
-
 
 #endif                          /* COMMON_H */

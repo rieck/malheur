@@ -86,6 +86,7 @@ fvec_t *fvec_create(char *x, int l)
             memset(delim, 0, 256);
             decode_delim(dlm_str);
         }
+
         /* Feature extraction */
         extract_wgrams(fv, x, l, nlen);
     }
@@ -253,13 +254,13 @@ void fvec_print(fvec_t * fv)
  * @param l Length of sequence
  * @param n N-gram length
  */
-void extract_wgrams(fvec_t * fv, char *x, int l, int nlen)
+void extract_wgrams(fvec_t *fv, char *x, int l, int nlen)
 {
     unsigned int i, j = l, k = 0, s = 0, n = 0, d;
     unsigned char buf[MD5_DIGEST_LENGTH];    
     char *t = malloc(l + 1);
     fentry_t *cache = NULL;
-    
+     
     assert(fv && x);
 
     if (ftable_enabled())

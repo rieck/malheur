@@ -14,24 +14,75 @@
 #include "config.h"
 #include "common.h"
 #include "farray.h"
+#include "fvec.h"
+#include "fio.h"
 #include "util.h"
+
+/* External variables */
+extern int verbose;
+
 
 /**
  * Extracts an array of feature vectors from a directory. The function 
  * loads and converts files in the given directory. It does not process
- * further subdirectories recursively.
+ * subdirectories recursively.
  * @param dir directory containing file.
  */
-farray_t *farray_extract_dir(char *dir)
+farray_t *farray_create_dir(char *dir)
 {
-    assert(dir);
-    
-    farray_t *a = malloc(sizeof(farray_t));
+    DIR *d;
+    long i = 0;
+    struct dirent *dp;
+
+    farray_t *a = calloc(1, sizeof(farray_t));
     if (!a) {
         error("Could not allocate array of feature vectors");
         return NULL;
     }
+
+    /* Allocate elements of array */
+    a->len = fio_count_files(dir);    
+    a->x = malloc(a->len * sizeof(fvec_t *));
+    a->y = malloc(a->len * sizeof(float));
+    if (!a->x || !a->y) {
+        farray_destroy(a);
+        error("Could not allocate elements of array");
+        return NULL;
+    }
     
+    /* Open directory */    
+    d = opendir(dir);
+    if (!d) {
+        error("Could not open directory '%s'", dir);
+        return NULL;
+    }
+    
+    /* Loop over directory entries */
+    while ((dp = readdir(d)) != NULL) {
+        if (dp->d_type != DT_REG)
+            continue;
+    
+        /* Load file contents */
+        char *x = fio_load_file(dir, dp->d_name);
+        a->x[i] = fvec_create(x, strlen(x));
+        fvec_print(a->x[i]);
+        free(x);    
+        
+        /* Extract label from name */
+        /* XXX */
+        
+        if (verbose > 1)
+            prog_bar(0, a->len, i);
+            
+        i++;
+    }   
+    
+    if (verbose > 1) {
+        prog_bar(0, a->len, i);
+        printf("\n");
+    }
+
+    closedir(d);
     return a;
 }
 

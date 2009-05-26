@@ -27,5 +27,7 @@ typedef struct {
 } farray_t;
 
 /* Feature array functions */
+farray_t *farray_create_dir(char *);
+void farray_destroy(farray_t *);
 
 #endif                          /* FARRAY_H */

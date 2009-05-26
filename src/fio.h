@@ -16,14 +16,11 @@
 
 #include "fvec.h"
 
-/* Type generic extraction function */
-typedef fvec_t *(*fvec_extract_t)(char *, int);  
-
 /* Default block size */
 #define FIO_BLOCK               4096
 
-
 /* I/O functions */
-char *fio_load_file(char *name);
+char *fio_load_file(char *, char *);
+long fio_count_files(char *dir);
 
 #endif                          /* STRIO_H */

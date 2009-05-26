@@ -14,6 +14,7 @@
 #include "config.h"
 #include "malheur.h"
 #include "common.h"
+#include "farray.h"
 #include "util.h"
 
 /* Global variables */
@@ -22,6 +23,8 @@ config_t cfg;
 
 /* Local variables */
 static char *cfg_file = NULL;
+static char *input = NULL;
+static char *output = NULL;
 
 /**
  * Checks if the configuration is valid. The function currently checks
@@ -49,7 +52,7 @@ void check_config()
  */
 void print_usage(int argc, char **argv)
 {
-    printf("Usage: malheur [options]\n"
+    printf("Usage: malheur [options] <input> <output>\n"
            "  -c <file>    Set configuration file.\n"
            "  -v           Increase verbosity.\n"
            "  -V           Print version and copyright.\n"
@@ -97,6 +100,12 @@ void parse_options(int argc, char **argv)
     argc -= optind;
     argv += optind;
 
+    if (argc != 2)
+        fatal("Input and output arguments required");
+
+    input = argv[0];
+    output = argv[1];
+
     /* Sanity checks */
     if (!cfg_file)
         fatal("No configuration specified (Option: -c <file>).");
@@ -119,6 +128,9 @@ int main(int argc, char **argv)
         fatal("Could not read configuration (%s in line %d).",
               config_error_text(&cfg), config_error_line(&cfg));
     check_config();              
+
+    farray_t *a = farray_create_dir(input);
+    farray_destroy(a);
 
     /* Destroy configuration */
     config_destroy(&cfg);

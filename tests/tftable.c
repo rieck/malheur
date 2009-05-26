@@ -19,7 +19,7 @@
 /* Test file */
 #define TEST_FILE               "test.ft"
 /* Number of stress runs */
-#define STRESS_RUNS             50000
+#define STRESS_RUNS             5000
 /* String length */
 #define STR_LENGTH              1024
 

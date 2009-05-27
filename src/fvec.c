@@ -479,7 +479,6 @@ void fvec_save(fvec_t *f, gzFile *z)
 }
 
 
-
 /**
  * Loads a feature vector form a file stream
  * @param z Stream point

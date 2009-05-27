@@ -223,7 +223,7 @@ void farray_print(farray_t *fa)
     /* Count labels */
     for (i = 0; fa->labels[i]; i++);
 
-    printf("feature array [len: %u, labels: %d, ", fa->len, i);
+    printf("feature array [len: %lu, labels: %d, ", fa->len, i);
     printf("%.2fMb, %p/%p/%p]\n", fa->mem / 1e6,
            (void *) fa, (void *) fa->x, (void *) fa->y);
            
@@ -235,4 +235,93 @@ void farray_print(farray_t *fa)
         printf("  label: %s, index %d\n", fa->labels[fa->y[i]], fa->y[i]);        
     }   
 }
+
+/**
+ * Saves an array of feature vectors to a file stream
+ * @param f Array of feature vectors
+ * @param z Stream pointer
+ */
+void farray_save(farray_t *f, gzFile *z)
+{
+    assert(f && z);
+    int i;
+    
+    for (i = 0; f->labels[i]; i++);
+
+    gzprintf(z, "feature array: len=%lu, labels=%d, mem=%lu\n", 
+            f->len, i, f->mem);
+            
+    for (i = 0; i < f->len; i++) {
+        fvec_save(f->x[i], z);
+        gzprintf(z, "  id=%d, label=%s\n", f->y[i], f->labels[f->y[i]]);
+    }    
+}
+
+/**
+ * Loads an array of feature vector form a file stream
+ * @param z Stream point
+ * @return  Array of feature vectors
+*/
+farray_t *farray_load(gzFile *z)
+{
+    assert(z);
+    farray_t *f;
+    char buf[512], str[512];
+    int i, r, l;
+
+    /* Allocate feature array (zero'd) */
+    f = calloc(1, sizeof(farray_t));
+    if (!f) {
+        error("Could not load feature array.");
+        return NULL;
+    }
+
+    gzgets(z, buf, 512);
+    r = sscanf(buf, "feature array: len=%lu, labels=%d, mem=%lu\n", 
+              (unsigned long *) &f->len, (int *) &l,
+              (unsigned long *) &f->mem);
+              
+    if (r != 3)  {
+        error("Could not parse feature array");
+        farray_destroy(f);
+        return NULL;
+    }
+    
+    /* Empty feature array */
+    if (f->len == 0) 
+        return f;
+
+    /* Allocate arrays */
+    f->x = (fvec_t **) calloc(1, f->len * sizeof(fvec_t *));
+    f->y = (int *) calloc(1, f->len * sizeof(int));
+    f->labels = (char **) calloc(1, l * sizeof(char *));
+    if (!f->x || !f->y || !f->labels) {
+        error("Could not allocate feature array contents.");
+        farray_destroy(f);
+        return NULL;
+    }
+
+    /* Load contents */
+    for (i = 0; i < f->len; i++) {
+        /* Load feature vector */
+        f->x[i] = fvec_load(z);
+        
+        /* Load labels */
+        gzgets(z, buf, 512);
+        r = sscanf(buf, "  id=%d, label=%s\n", &l, str);
+        if (r != 2) {
+            error("Could not parse feature vector contents");
+            farray_destroy(f);
+            return NULL;
+        }
+        f->y[i] = l;
+        
+        /* Set label name */
+        if (!f->labels[l])
+            f->labels[l] = strdup(str);
+    }      
+     
+    return f;
+}
+
  

@@ -14,6 +14,7 @@
 #ifndef FARRAY_H
 #define FARRAY_H
 
+#include "zlib.h"
 #include "uthash.h"
 #include "fvec.h"
 
@@ -23,7 +24,7 @@
 typedef struct {
     fvec_t **x;             /**< Array of feature vectors (1 x n) */
     int *y;                 /**< Array of labels (1 x n)*/
-    unsigned int len;       /**< Length of array (n) */
+    unsigned long len;      /**< Length of array (n) */
     unsigned long mem;      /**< Allocated memory */
     char **labels;          /**< Malware labels (null terminated) */    
 } farray_t;
@@ -41,5 +42,7 @@ typedef struct {
 farray_t *farray_extract_dir(char *);
 void farray_destroy(farray_t *);
 void farray_print(farray_t *);
+void farray_save(farray_t *, gzFile *);
+farray_t *farray_load(gzFile *);
 
 #endif                          /* FARRAY_H */

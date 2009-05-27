@@ -30,15 +30,8 @@ typedef struct {
     feat_t *dim;         /**< List of dimensions */
     float *val;          /**< List of values */
     unsigned int len;    /**< Length of list */
+    unsigned long mem;   /**< Allocated memory */
 } fvec_t;
-
-/**
- * Array of feature vectors.
- */
-typedef struct {
-    fvec_t **fvec;       /**< Array of feature vectors */
-    unsigned int len;    /**< Length of array */
-} fvec_array_t;
 
 /* Functions */
 fvec_t *fvec_create(char *, int l);

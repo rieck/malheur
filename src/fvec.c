@@ -97,6 +97,9 @@ fvec_t *fvec_create(char *x, int l)
     /* Condense duplicate features */
     fvec_condense(fv);
 
+    /* Determine memory usage */
+    fv->mem = sizeof(fvec_t) + fv->len * (sizeof(feat_t) + sizeof(float));
+
     /* Compute embedding */
     config_lookup_string(&cfg, "features.normalization", &em_str);
     if (!strcasecmp(em_str, "bin"))
@@ -230,8 +233,7 @@ void fvec_print(fvec_t * fv)
     int i, j;
 
     printf("feature vector [len: %u, ", fv->len);
-    double mem = sizeof(fvec_t) + fv->len * (sizeof(feat_t) + sizeof(float));
-    printf("%.2fkb, %p/%p/%p]\n", mem / 1e3,
+    printf("%.2fkb, %p/%p/%p]\n", fv->mem / 1e3,
            (void *) fv, (void *) fv->dim, (void *) fv->val);
            
     if (verbose < 3)
@@ -257,7 +259,6 @@ void fvec_print(fvec_t * fv)
                 printf("%%%.2x", fe->data[j]);
         }        
         printf("]\n");
-        
     }
 }
 

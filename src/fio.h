@@ -22,5 +22,6 @@
 /* I/O functions */
 char *fio_load_file(char *, char *);
 long fio_count_files(char *dir);
+char *fio_preproc(char *);
 
 #endif                          /* STRIO_H */

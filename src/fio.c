@@ -16,6 +16,7 @@
 #include "fvec.h"
 #include "fio.h"
 #include "util.h"
+#include "mist.h"
 
 /* External variables */
 extern int verbose;
@@ -92,3 +93,25 @@ long fio_count_files(char *dir)
     return e;          
 }
 
+/**
+ * Preprocess input data. The function takes a string as argument and 
+ * preprocesses it according to the given configuration. 
+ * @param x Raw string
+ * @return Preprocessed output.
+ */
+char *fio_preproc(char *x) 
+{
+    const char *fm_str;
+    int level;
+
+    config_lookup_string(&cfg, "input.format", &fm_str);
+    
+    /* MIST transformation */
+    if (!strcasecmp(fm_str, "mist")) {
+        config_lookup_int(&cfg, "input.mist_level", (long *) &level);
+        x = mist_trunc_level(x, level);
+    }    
+
+    return x;
+}
+ 

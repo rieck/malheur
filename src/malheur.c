@@ -18,7 +18,7 @@
 #include "util.h"
 
 /* Global variables */
-int verbose = 1;
+int verbose = 0;
 config_t cfg;
 
 /* Local variables */
@@ -35,6 +35,12 @@ void check_config()
 {
     long l;
     const char *s;
+
+    /* Check in input setting */    
+    if (config_lookup_string(&cfg, "input.format", &s) != CONFIG_TRUE)
+        fatal("'format' not defined in configuration 'input'");        
+    if (config_lookup_int(&cfg, "input.mist_level", &l) != CONFIG_TRUE)
+        fatal("'mist_level' not defined in configuration 'input'");        
 
     /* Check in features setting */    
     if (config_lookup_int(&cfg, "features.ngram_length", &l) != CONFIG_TRUE)
@@ -108,7 +114,10 @@ void parse_options(int argc, char **argv)
 
     /* Sanity checks */
     if (!cfg_file)
-        fatal("No configuration specified (Option: -c <file>).");
+        fatal("No configuration specified (Option: -c <file>).");        
+
+    if (access(input, R_OK))
+        fatal("No read permissions on '%s'.", input); 
 }
 
 /**
@@ -130,6 +139,7 @@ int main(int argc, char **argv)
     check_config();              
 
     farray_t *a = farray_create_dir(input);
+    farray_print(a);
     farray_destroy(a);
 
     /* Destroy configuration */

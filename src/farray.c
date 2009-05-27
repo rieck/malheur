@@ -294,7 +294,7 @@ farray_t *farray_load(gzFile *z)
     /* Allocate arrays */
     f->x = (fvec_t **) calloc(1, f->len * sizeof(fvec_t *));
     f->y = (int *) calloc(1, f->len * sizeof(int));
-    f->labels = (char **) calloc(1, l * sizeof(char *));
+    f->labels = (char **) calloc(1, (l + 1) * sizeof(char *));
     if (!f->x || !f->y || !f->labels) {
         error("Could not allocate feature array contents.");
         farray_destroy(f);

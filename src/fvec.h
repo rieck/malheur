@@ -29,12 +29,12 @@ typedef uint64_t feat_t;
 typedef struct {
     feat_t *dim;         /**< List of dimensions */
     float *val;          /**< List of values */
-    unsigned int len;    /**< Length of list */
+    unsigned long len;   /**< Length of list */
     unsigned long mem;   /**< Allocated memory */
 } fvec_t;
 
 /* Functions */
-fvec_t *fvec_create(char *, int l);
+fvec_t *fvec_extract(char *, int l);
 void fvec_condense(fvec_t *);
 void fvec_destroy(fvec_t *);
 fvec_t *fvec_clone(fvec_t *);
@@ -42,5 +42,6 @@ void fvec_print(fvec_t *);
 void fvec_save(fvec_t *, gzFile *);
 fvec_t *fvec_load(gzFile *);
 void fvec_reset_delim();
+void fvec_shrink(fvec_t *);
 
 #endif                          /* FVEC_H */

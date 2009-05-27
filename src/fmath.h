@@ -25,11 +25,13 @@ typedef enum {
 #define fvec_div(f,s)           fvec_mul(f,1.0/s)
 #define fvec_add(a,b)           fvec_adds(a,b,+1.0)
 #define fvec_sub(a,b)           fvec_adds(a,b,-1.0)
+#define fvec_binarize(a)        fvec_normalize(a, NORM_BIN);
 
 /* Functions */
-void fvec_norm(fvec_t *, norm_t);
 void fvec_mul(fvec_t *, double);
 fvec_t *fvec_adds(fvec_t *, fvec_t *, double);
-void fvec_sum(fvec_t *, fvec_t *, double);
+double fvec_norm1(fvec_t *fv);
+double fvec_norm2(fvec_t *fv);
+void fvec_normalize(fvec_t *, norm_t);
 
 #endif                          /* FMATH_H */

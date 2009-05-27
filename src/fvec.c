@@ -42,7 +42,7 @@ static char delim[256] = { DELIM_NOT_INIT };
  * @param c Configuration structure
  * @return feature vector
  */
-fvec_t *fvec_create(char *x, int l)
+fvec_t *fvec_extract(char *x, int l)
 {
     fvec_t *fv;
     int nlen;
@@ -52,7 +52,7 @@ fvec_t *fvec_create(char *x, int l)
     /* Allocate feature vector */
     fv = malloc(sizeof(fvec_t));
     if (!fv) {
-        error("Could not create feature vector.");
+        error("Could not extract feature vector.");
         return NULL;
     }
 
@@ -97,17 +97,14 @@ fvec_t *fvec_create(char *x, int l)
     /* Condense duplicate features */
     fvec_condense(fv);
 
-    /* Determine memory usage */
-    fv->mem = sizeof(fvec_t) + fv->len * (sizeof(feat_t) + sizeof(float));
-
     /* Compute embedding */
     config_lookup_string(&cfg, "features.normalization", &em_str);
     if (!strcasecmp(em_str, "bin"))
-        fvec_norm(fv, NORM_BIN);
+        fvec_normalize(fv, NORM_BIN);
     else if (!strcasecmp(em_str, "l2"))
-        fvec_norm(fv, NORM_L2);
+        fvec_normalize(fv, NORM_L2);
     else if (!strcasecmp(em_str, "l1"))
-        fvec_norm(fv, NORM_L1);
+        fvec_normalize(fv, NORM_L1);
 
     return fv;
 }
@@ -138,12 +135,24 @@ void fvec_condense(fvec_t * fv)
         }
     }
 
-    if (fv->len == p_dim - fv->dim) 
-        return;
+    /* Update length and memory */
+    fv->len = p_dim - fv->dim;
+    fv->mem = sizeof(fvec_t) + fv->len * (sizeof(feat_t) + sizeof(float));
+ 
+    /* Reallocate memory */
+    fvec_shrink(fv);
+}
 
-    /* Compute new length */
-    fv->len = p_dim - fv->dim;     
-        
+/**
+ * Shrinks the memory of a feature vector. The function reallocates
+ * the memory of features and its values, such that the required space
+ * is reduced to a minimum.
+ */
+void fvec_shrink(fvec_t *fv) 
+{
+    feat_t *p_dim;
+    float *p_val;
+
     /*
      * Explicit reallocation. Don't use realloc(). On some platforms 
      * realloc() will not shrink memory blocks or copy to smaller sizes.
@@ -152,7 +161,7 @@ void fvec_condense(fvec_t * fv)
     p_dim = malloc(fv->len * sizeof(feat_t));
     p_val = malloc(fv->len * sizeof(float));        
     if (!p_dim || !p_val) {
-        error("Could not allocate condensed  feature vector");
+        error("Could not re-allocate feature vector");
         free(p_dim);
         free(p_val);
         return;
@@ -196,7 +205,7 @@ fvec_t *fvec_clone(fvec_t * o)
     /* Allocate feature vector */
     fv = malloc(sizeof(fvec_t));
     if (!fv) {
-        error("Could not create feature vector.");
+        error("Could not clone feature vector.");
         return NULL;
     }
 
@@ -204,6 +213,7 @@ fvec_t *fvec_clone(fvec_t * o)
     fv->len = o->len;
     fv->dim = (feat_t *) malloc(o->len * sizeof(feat_t));
     fv->val = (float *) malloc(o->len * sizeof(float));
+    fv->mem = o->mem;
 
     /* Check for empty sequence */
     if (o->len == 0)
@@ -232,7 +242,7 @@ void fvec_print(fvec_t * fv)
     assert(fv);
     int i, j;
 
-    printf("feature vector [len: %u, ", fv->len);
+    printf("feature vector [len: %lu, ", fv->len);
     printf("%.2fkb, %p/%p/%p]\n", fv->mem / 1e3,
            (void *) fv, (void *) fv->dim, (void *) fv->val);
            
@@ -273,7 +283,7 @@ void fvec_print(fvec_t * fv)
  * @param l Length of sequence
  * @param n N-gram length
  */
-void extract_wgrams(fvec_t *fv, char *x, int l, int nlen)
+static void extract_wgrams(fvec_t *fv, char *x, int l, int nlen)
 {
     unsigned int i, j = l, k = 0, s = 0, n = 0, d;
     unsigned char buf[MD5_DIGEST_LENGTH];    
@@ -361,7 +371,7 @@ void extract_wgrams(fvec_t *fv, char *x, int l, int nlen)
  * @param l Length of sequence
  * @param n N-gram length
  */
-void extract_ngrams(fvec_t * fv, char *x, int l, int nlen) 
+static void extract_ngrams(fvec_t * fv, char *x, int l, int nlen) 
 {
     unsigned int i = 0;
     unsigned char buf[MD5_DIGEST_LENGTH];    
@@ -417,7 +427,7 @@ void extract_ngrams(fvec_t * fv, char *x, int l, int nlen)
  * @param y feature Y
  * @return result as a signed integer
  */
-int compare_feat(const void *x, const void *y)
+static int compare_feat(const void *x, const void *y)
 {
     if (*((feat_t *) x) > *((feat_t *) y))
         return +1;
@@ -430,7 +440,7 @@ int compare_feat(const void *x, const void *y)
  * Decodes a string containing delimiters to a global array
  * @param s String containing delimiters
  */
-void decode_delim(const char *s)
+static void decode_delim(const char *s)
 {
     char buf[5] = "0x00";
     unsigned int i, j;
@@ -462,9 +472,10 @@ void fvec_save(fvec_t *f, gzFile *z)
     assert(f && z);
     int i;
 
-    gzprintf(z, "feature vector: len=%lu\n", f->len);
+    gzprintf(z, "feature vector: len=%lu, mem=%lu\n", f->len, f->mem);
     for (i = 0; i < f->len; i++)
-        gzprintf(z, "  %.16llx:%.16g\n", (unsigned long long) f->dim[i], f->val[i]);
+        gzprintf(z, "  %.16llx:%.16g\n", (unsigned long long) f->dim[i], 
+                                         (float) f->val[i]);
 }
 
 
@@ -484,13 +495,14 @@ fvec_t *fvec_load(gzFile *z)
     /* Allocate feature vector (zero'd) */
     f = calloc(1, sizeof(fvec_t));
     if (!f) {
-        error("Could not create feature vector.");
+        error("Could not load feature vector.");
         return NULL;
     }
 
     gzgets(z, buf, 512);
-    r = sscanf(buf, "feature vector: len=%lu\n", (unsigned long *) &f->len);
-    if (r != 1)  {
+    r = sscanf(buf, "feature vector: len=%lu, mem=%lu\n", 
+              (unsigned long *) &f->len, (unsigned long *) &f->mem);
+    if (r != 2)  {
         error("Could not parse feature vector");
         fvec_destroy(f);
         return NULL;
@@ -513,7 +525,7 @@ fvec_t *fvec_load(gzFile *z)
     for (i = 0; i < f->len; i++) {
         gzgets(z, buf, 512);
         r = sscanf(buf, "  %llx:%g\n", (unsigned long long *) &f->dim[i], 
-                   (float *) &f->val[i]);
+                                       (float *) &f->val[i]);
         if (r != 2) {
             error("Could not parse feature vector contents");
             fvec_destroy(f);

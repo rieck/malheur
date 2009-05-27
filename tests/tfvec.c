@@ -66,7 +66,7 @@ int test_static()
         config_set_int(&cfg, "features.ngram_length", tests[i].nlen);    
    
         /* Extract features */
-        f = fvec_create(tests[i].str, strlen(tests[i].str));
+        f = fvec_extract(tests[i].str, strlen(tests[i].str));
         
         /* Check for correct number of dimensions */
         if (f->len != tests[i].len) { 
@@ -106,7 +106,7 @@ int test_stress()
         buf[j] = 0;    
            
         /* Extract features */
-        f = fvec_create(buf, strlen(buf));
+        f = fvec_extract(buf, strlen(buf));
         /* Destroy features */            
         fvec_destroy(f);
     }
@@ -143,7 +143,7 @@ int test_stress_omp()
         buf[j] = 0;    
            
         /* Extract features */
-        f = fvec_create(buf, strlen(buf));
+        f = fvec_extract(buf, strlen(buf));
         /* Destroy features */            
         fvec_destroy(f);
     }
@@ -178,7 +178,7 @@ int test_load_save()
     }
 
     for (i = 0; tests[i].str; i++) {
-        f = fvec_create(tests[i].str, strlen(tests[i].str));
+        f = fvec_extract(tests[i].str, strlen(tests[i].str));
         fvec_save(f, z);
         fvec_destroy(f);
     }
@@ -189,7 +189,7 @@ int test_load_save()
     z = gzopen(TEST_FILE, "r");    
 
     for (i = 0; tests[i].str; i++) {
-        f = fvec_create(tests[i].str, strlen(tests[i].str));
+        f = fvec_extract(tests[i].str, strlen(tests[i].str));
         g = fvec_load(z);
         
         /* Check dimensions and values */

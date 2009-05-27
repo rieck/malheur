@@ -38,7 +38,7 @@ typedef struct {
 } label_t;
 
 /* Feature array functions */
-farray_t *farray_create_dir(char *);
+farray_t *farray_extract_dir(char *);
 void farray_destroy(farray_t *);
 void farray_print(farray_t *);
 

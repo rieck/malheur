@@ -102,9 +102,9 @@ static void farray_update_file(farray_t *fa, int i, char *dir, char *file)
     /* Load file contents */
     char *x = fio_load_file(dir, file);
     
-    /* Preprocess and create feature vector*/
+    /* Preprocess and extract feature vector*/
     x = fio_preproc(x);
-    fa->x[i] = fvec_create(x, strlen(x));
+    fa->x[i] = fvec_extract(x, strlen(x));
     free(x);
 
     /* Extract label from name */
@@ -117,7 +117,7 @@ static void farray_update_file(farray_t *fa, int i, char *dir, char *file)
  * subdirectories recursively.
  * @param dir directory containing file.
  */
-farray_t *farray_create_dir(char *dir)
+farray_t *farray_extract_dir(char *dir)
 {
     DIR *d;
     long i = 0;

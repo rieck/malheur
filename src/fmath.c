@@ -21,15 +21,14 @@
 extern int verbose;
 
 /**
- * Computes the embedding from a feature vector of counts
+ * Normalize a feature vector to a particular norm value.
  * @param fv Feature vector 
  * @param n Normalization
  */
-void fvec_norm(fvec_t *fv, norm_t n)
+void fvec_normalize(fvec_t *fv, norm_t n)
 {
     int i = 0;
     double s = 0;
-
     assert(fv);
 
     switch (n) {
@@ -38,16 +37,14 @@ void fvec_norm(fvec_t *fv, norm_t n)
             fv->val[i] = 1;
         break;
     case NORM_L1:
-        for (i = 0; i < fv->len; i++)
-            s += fv->val[i];
+        s = fvec_norm1(fv);
         for (i = 0; i < fv->len; i++)
             fv->val[i] /= s;
         break;
     case NORM_L2:
+        s = fvec_norm2(fv);
         for (i = 0; i < fv->len; i++)
-            s += fv->val[i] * fv->val[i];
-        for (i = 0; i < fv->len; i++)
-            fv->val[i] /= sqrt(s);
+            fv->val[i] /= s;
         break;
     }
 }
@@ -109,33 +106,43 @@ fvec_t *fvec_adds(fvec_t *fa, fvec_t *fb, double s)
         }
     }
 
-    /* Copy contents and reallocate */
+    /* Set new length and reallocate */
     f->len = len;
-    f->dim = (feat_t *) realloc(f->dim, len * sizeof(feat_t));
-    f->val = (float *) realloc(f->val, len * sizeof(feat_t));
+    fvec_shrink(f);
     
     return f;
 }
 
-
-/** 
- * Sums up two feature vectors (a = a + b * s). 
- * @param fa Feature vector (a, destination)
- * @param fb Feature vector (b, source)
- * @param s Scalar value
+/**
+ * Computes the l1-norm of the feature vector
+ * @param fv Feature vector 
+ * @return sum of values 
  */
-void fvec_sum(fvec_t *fa, fvec_t *fb, double s) 
+double fvec_norm1(fvec_t *fv)
 {
-    fvec_t *fv = fvec_adds(fa, fb, s);
+    int i = 0;
+    double s = 0;    
+    assert(fv);
+
+    for (i = 0; i < fv->len; i++)
+        s += fv->val[i];
     
-    /* Free old array */
-    free(fa->dim);
-    free(fa->val);
+    return s;
+}
+
+/**
+ * Computes the l2-norm of the feature vector
+ * @param fv Feature vector 
+ * @return sum of values 
+ */
+double fvec_norm2(fvec_t *fv)
+{
+    int i = 0;
+    double s = 0;
+    assert(fv);
+
+    for (i = 0; i < fv->len; i++)
+        s += pow(fv->val[i], 2);
     
-    /* Copy new array */
-    fa->dim = fv->dim;
-    fa->val = fv->val;
-    
-    /* Destroy outer structure */
-    free(fv);
+    return sqrt(s);
 }

@@ -46,7 +46,7 @@ static int label_add(farray_t *fa, char *name)
     HASH_FIND(hn, fa->label_name, name, strlen(name), entry);    
     if (entry) 
         return entry->index;
-        
+
     /* Create new label */
     entry = malloc(sizeof(label_t));
     entry->index = hash_string(name);    
@@ -153,8 +153,7 @@ void farray_add(farray_t *fa, fvec_t *fv, char *label)
  */
 farray_t *farray_extract_dir(char *dir)
 {
-    char *x;
-    struct dirent *dp;
+    int i, n, m;
     assert(dir);
 
     /* Allocate empty array */
@@ -163,7 +162,6 @@ farray_t *farray_extract_dir(char *dir)
         return NULL;
     
     /* Open directory */    
-    long n = fio_count_files(dir);
     DIR *d = opendir(dir);
     if (!d) {
         farray_destroy(fa);
@@ -171,31 +169,49 @@ farray_t *farray_extract_dir(char *dir)
         return NULL;
     }
     
+    /*
+     * Prepare concurrent readdir_r(). There is a race condition in the 
+     * following code. The maximum file length 'm' could have changed 
+     * between the previous call to opendir() and the following call to
+     * pathconf(). I'll take care of this at a later time.
+     */
+    n = fio_count_entries(dir);
+    m = pathconf(dir, _PC_NAME_MAX);
+
     /* Loop over directory entries */
-    while((dp = readdir(d)) != NULL) {
+    #pragma omp parallel for shared(d,fa) 
+    for (i = 0; i < n; i++) {        
+        
+        /* Read directory entry to local buffer */
+        struct dirent *buf, *dp;
+        buf = malloc(offsetof(struct dirent, d_name) + m + 1);                
+        readdir_r(d, buf, &dp);
+
+        /* Skip non-regular entries */
         if (dp->d_type != DT_REG) 
             continue;
     
-        /* Load file contents */
-        x = fio_load_file(dir, dp->d_name);
-    
-        /* Preprocess and extract feature vector*/
-        x = fio_preproc(x);
-        fvec_t *fv = fvec_extract(x, strlen(x));
-        free(x);
+        /* Extract feature vector from file */
+        char *raw = fio_load_file(dir, dp->d_name);
+        raw = fio_preproc(raw);
+        fvec_t *fv = fvec_extract(raw, strlen(raw));
+        char *l = file_suffix(dp->d_name);
 
-        /* Extract label from name */
-        x = file_suffix(dp->d_name);
+        #pragma omp critical
+        {        
+            /* Add feature vector to array */        
+            farray_add(fa, fv, l);
+            if (verbose > 0)
+                prog_bar(0, n, fa->len);
+        }
         
-        /* Add feature vector to array */
-        farray_add(fa, fv, x);
-        
-        if (verbose > 0)
-            prog_bar(0, n, fa->len);
+        /* Clean string and  directory buffer */
+        free(raw);
+        free(buf);
     }   
     if (verbose > 0)
         printf("\n");
-        
+
     closedir(d);
     return fa;
 }

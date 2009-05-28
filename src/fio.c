@@ -44,10 +44,13 @@ char *fio_load_file(char *path, char *name)
     long len, size = 0;
     char *str = NULL, file[1024];
     struct stat st;    
-    
+     
+    #pragma omp critical (snprintf) 
+    {
+        snprintf(file, 1024, "%s/%s", path, name);
+    }
 
     /* Open file */
-    snprintf(file, 1024, "%s/%s", path, name);
     FILE *fptr = fopen(file, "r");
     if (!fptr) {
         error("Could not open file '%s'", file);
@@ -59,7 +62,7 @@ char *fio_load_file(char *path, char *name)
     size = st.st_size;
     str = malloc(sizeof(char) * (size + 1));
     if (!str) {
-        error("Could not allocate memory");
+        error("Could not allocate memory for file data");
         return NULL;
     }
 

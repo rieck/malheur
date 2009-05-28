@@ -187,7 +187,8 @@ farray_t *farray_extract_archive(char *arc)
 {
     struct archive *a;
     struct archive_entry *entry;
-    int fnum, total;
+    int i, fnum, total;
+    char *x, *l;
     assert(arc);
     
     /* Allocate empty array */
@@ -204,30 +205,43 @@ farray_t *farray_extract_archive(char *arc)
     archive_read_open_filename(a, arc, 4096);
 
     /* Read contents */
-    while (archive_read_next_header(a, &entry) == ARCHIVE_OK) {            
-        const struct stat *s = archive_entry_stat(entry);
-        if ((s->st_mode & S_IFMT) != S_IFREG) {
-            archive_read_data_skip(a);
-            continue;
+    #pragma omp parallel for shared(a) private(x,l)
+    for (i = 0; i < total; i++) {
+    
+        #pragma omp critical (farray)
+        {
+            /* Perform reading of archive in critical region */
+            archive_read_next_header(a, &entry);
+            const struct stat *s = archive_entry_stat(entry);
+            if ((s->st_mode & S_IFMT) != S_IFREG) {
+                x = NULL;
+                archive_read_data_skip(a);
+                l = NULL;
+            } else {
+                x = malloc(s->st_size * sizeof(char));            
+                archive_read_data(a, x, s->st_size);
+                l = strdup((char *) archive_entry_pathname(entry));
+            }
         }    
         
-        /* Load file contents */
-        char *x = malloc(s->st_size * sizeof(char));            
-        archive_read_data(a, x, s->st_size);
+        /* Skip non-regular files */
+        if (!x)
+            continue;
 
         /* Preprocess and extract feature vector*/
         x = fio_preproc(x);
         fvec_t *fv = fvec_extract(x, strlen(x));
-        free(x);
-
-        /* Extract label from name */
-        char *st = (char *) archive_entry_pathname(entry);
-        x = file_suffix(st);
         
-        /* Add feature vector to array */
-        farray_add(fa, fv, x);            
-        if (verbose > 0)
-            prog_bar(0, fnum, fa->len);        
+        #pragma omp critical (farray)
+        {
+            /* Add feature vector to array */
+            farray_add(fa, fv, file_suffix(l));            
+            if (verbose > 0)
+                prog_bar(0, fnum, fa->len);        
+        }    
+            
+        free(x);
+        free(l);            
     }
     if (verbose > 0)
         printf("\n");
@@ -290,12 +304,11 @@ farray_t *farray_extract_dir(char *dir)
         char *raw = fio_load_file(dir, dp->d_name);
         raw = fio_preproc(raw);
         fvec_t *fv = fvec_extract(raw, strlen(raw));
-        char *l = file_suffix(dp->d_name);
 
-        #pragma omp critical
+        #pragma omp critical (farray)
         {        
             /* Add feature vector to array */        
-            farray_add(fa, fv, l);
+            farray_add(fa, fv, file_suffix(dp->d_name));
             if (verbose > 0)
                 prog_bar(0, fnum, fa->len);
         }

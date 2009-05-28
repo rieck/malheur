@@ -21,9 +21,8 @@
 
 /* I/O functions */
 char *fio_load_file(char *, char *);
-long fio_count_files(char *dir);
-long fio_count_entries(char *dir);
-long fio_count_archive(char *arc);
+void fio_dir_entries(char *dir, int *, int *);
+void fio_archive_entries(char *arc, int *, int *);
 char *fio_preproc(char *);
 
 #endif                          /* STRIO_H */

@@ -187,7 +187,7 @@ farray_t *farray_extract_archive(char *arc)
 {
     struct archive *a;
     struct archive_entry *entry;
-    unsigned long n = 0;
+    int fnum, total;
     assert(arc);
     
     /* Allocate empty array */
@@ -195,8 +195,9 @@ farray_t *farray_extract_archive(char *arc)
     if (!fa) 
         return NULL;
 
+    fio_archive_entries(arc, &fnum, &total);
+
     /* Open archive */
-    n = fio_count_archive(arc);
     a = archive_read_new();
     archive_read_support_compression_all(a);
     archive_read_support_format_all(a);
@@ -210,6 +211,7 @@ farray_t *farray_extract_archive(char *arc)
             continue;
         }    
         
+        /* Load file contents */
         char *x = malloc(s->st_size * sizeof(char));            
         archive_read_data(a, x, s->st_size);
 
@@ -225,7 +227,7 @@ farray_t *farray_extract_archive(char *arc)
         /* Add feature vector to array */
         farray_add(fa, fv, x);            
         if (verbose > 0)
-            prog_bar(0, n, fa->len);        
+            prog_bar(0, fnum, fa->len);        
     }
     if (verbose > 0)
         printf("\n");
@@ -244,7 +246,7 @@ farray_t *farray_extract_archive(char *arc)
  */
 farray_t *farray_extract_dir(char *dir)
 {
-    int i, n, m;
+    int i, fnum, total, maxlen;
     assert(dir);
 
     /* Allocate empty array */
@@ -262,20 +264,20 @@ farray_t *farray_extract_dir(char *dir)
     
     /*
      * Prepare concurrent readdir_r(). There is a race condition in the 
-     * following code. The maximum file length 'm' could have changed 
+     * following code. The maximum  length 'maxlen' could have changed 
      * between the previous call to opendir() and the following call to
      * pathconf(). I'll take care of this at a later time.
      */
-    n = fio_count_entries(dir);
-    m = pathconf(dir, _PC_NAME_MAX);
+    fio_dir_entries(dir, &fnum, &total);
+    maxlen = pathconf(dir, _PC_NAME_MAX);
 
     /* Loop over directory entries */
     #pragma omp parallel for shared(d,fa) 
-    for (i = 0; i < n; i++) {        
+    for (i = 0; i < total; i++) {        
         
         /* Read directory entry to local buffer */
         struct dirent *buf, *dp;
-        buf = malloc(offsetof(struct dirent, d_name) + m + 1);                
+        buf = malloc(offsetof(struct dirent, d_name) + maxlen + 1);                
         readdir_r(d, buf, &dp);
 
         /* Skip non-regular entries */
@@ -295,7 +297,7 @@ farray_t *farray_extract_dir(char *dir)
             /* Add feature vector to array */        
             farray_add(fa, fv, l);
             if (verbose > 0)
-                prog_bar(0, n, fa->len);
+                prog_bar(0, fnum, fa->len);
         }
         
         /* Clean string and  directory buffer */

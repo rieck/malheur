@@ -81,72 +81,59 @@ char *fio_load_file(char *path, char *name)
 }
 
 /**
- * Returns the number of file entries in a directory. Symlinks,  
- * device nodes, directories and fifos are discarded. The function 
- * ignores errors and returns 0 if a directory is not accessible.
- * @param dir directory containing files
- * @return number of entries with type "regular file"
+ * Returns the number of entries in a directory. 
+ * @param dir Directory to analyse
+ * @param fnum Return pointer for number of regular files
+ * @param total Return pointer for number of total files
  */
-long fio_count_files(char *dir)
+void fio_dir_entries(char *dir, int *fnum, int *total)
 {
-    long e = 0;
     struct dirent *dp;
     DIR *d;
 
+    *fnum = 0;
+    *total = 0;
+
     d = opendir(dir);
-    while (d && (dp = readdir(d)) != NULL)
+    while (d && (dp = readdir(d)) != NULL) {
         if (dp->d_type == DT_REG)
-            e++;            
+            ++*fnum;
+        ++*total;           
+    }            
     closedir(d);
-    
-    return e;          
 }
 
 /**
- * Returns the number of entries in a directory.  The function ignores 
- * errors and returns 0 if a directory is not accessible.
- * @param dir directory containing files
- * @return number of all entries 
- */
-long fio_count_entries(char *dir)
-{
-    long e = 0;
-    struct dirent *dp;
-    DIR *d;
-
-    d = opendir(dir);
-    while((dp = readdir(d)) != NULL)
-        e++;        
-    closedir(d);
-    
-    return e;          
-}
-
-/**
- * Returns the number of entries in an archive. 
+ * Returns the number of file entries in an archive.
  * @param arc archive containing files
- * @return number of entries
- */ 
-long fio_count_archive(char *arc) 
+ * @param fnum Return pointer for number of regular files
+ * @param total Return pointer for number of total files
+ */
+void fio_archive_entries(char *arc, int *fnum, int *total) 
 {
     struct archive *a;
     struct archive_entry *entry;
-    unsigned long n = 0;
     assert(arc);
+    
+    *fnum = 0;
+    *total = 0;
     
     /* Open archive */
     a = archive_read_new();
     archive_read_support_compression_all(a);
     archive_read_support_format_all(a);
     archive_read_open_filename(a, arc, 4096);
+    
+    /* Jump through archive */
     while (archive_read_next_header(a, &entry) == ARCHIVE_OK) {
+        const struct stat *s = archive_entry_stat(entry);
+        if ((s->st_mode & S_IFMT) == S_IFREG)      
+            ++*fnum;
+        ++*total;    
         archive_read_data_skip(a);
-        n++;
     }
     archive_read_finish(a);
-    
-    return n;
-}    
+}  
 
 /**
  * Preprocess input format according to configuration. The function takes 

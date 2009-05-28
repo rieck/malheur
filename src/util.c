@@ -138,6 +138,45 @@ int decode_string(char *str)
     return k;
 }
 
+/**
+ * Extracts the suffix from a file name. If the file does not
+ * have a suffix, the function returns "unknown". 
+ */ 
+char *file_suffix(char *file)
+{
+    char *name = file + strlen(file) - 1;
+
+    /* Determine dot in file name */
+    while (name != file && *name != '.') 
+        name--;
+
+    /* Check for files with no suffix */
+    if (name == file)
+        name = "unknown";
+    else
+        name++;
+        
+    return name;
+}
+
+/**
+ * Returns a simple and weak hash for a string. The function has been
+ * copied form the Web and is ascribed to D.J. Bernstein. It is sometimes
+ * denoted as k=33 hash, as we have (x << 5 + x) = x * 32.
+ * @param str String
+ * @return weak hash value
+ */
+ int hash_string(char *str)
+{
+    int c, hash = 5381;
+
+    while ((c = *str++)) 
+        hash = ((hash << 5) + hash) ^ c; 
+
+    return hash;
+}
+
+
 #ifndef HAVE_FUNC_LOG2
 /** 
  * Logarithm of x to base 2

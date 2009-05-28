@@ -18,31 +18,42 @@
 #include "uthash.h"
 #include "fvec.h"
 
+/* Allocate memory in blocks of this size */
+#define BLOCK_SIZE          (4096 / sizeof(farray_t))
+
+/**
+ * Entry for label hash table. 
+ */
+typedef struct {
+    char *name;                  /**< Label name (key 1)*/
+    int index;                   /**< Label index (key 2)*/
+    UT_hash_handle hname;        /**< Uthash handle 1 */
+    UT_hash_handle hindex;       /**< Uthash handle 2 */
+} label_t;
+
 /**
  * Array of feature vectors.
  */
 typedef struct {
-    fvec_t **x;             /**< Array of feature vectors (1 x n) */
-    int *y;                 /**< Array of labels (1 x n)*/
-    unsigned long len;      /**< Length of array (n) */
-    unsigned long mem;      /**< Allocated memory */
-    char **labels;          /**< Malware labels (null terminated) */    
+    fvec_t **x;                 /**< Array of feature vectors */
+    int *y;                     /**< Array of label indices */
+    unsigned long len;          /**< Length of array */
+    unsigned long mem;          /**< Allocated memory in bytes */
+    
+    label_t *label_name;        /**< Table of label names */
+    label_t *label_index;       /**< Table of label indices */
 } farray_t;
 
-/**
- * Helper for hash table of labels
- */
-typedef struct {
-    char *name;             /**< Label name */
-    int index;               /**< Label number */
-    UT_hash_handle hh;      /**< Uthash handle */
-} label_t;
+
 
 /* Feature array functions */
-farray_t *farray_extract_dir(char *);
+farray_t *farray_create();
+void fattay_add(farray_t *, fvec_t *, char *);
 void farray_destroy(farray_t *);
 void farray_print(farray_t *);
 void farray_save(farray_t *, gzFile *);
 farray_t *farray_load(gzFile *);
+
+farray_t *farray_extract_dir(char *);
 
 #endif                          /* FARRAY_H */

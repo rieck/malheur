@@ -29,10 +29,10 @@ typedef uint64_t feat_t;
  * hash values. 
  */
 typedef struct {
-    feat_t *dim;         /**< List of dimensions */
-    float *val;          /**< List of values */
-    unsigned long len;   /**< Length of list */
-    unsigned long mem;   /**< Allocated memory */
+    feat_t *dim;            /**< List of dimensions */
+    float *val;             /**< List of values */
+    unsigned long len;      /**< Length of list */
+    unsigned long mem;      /**< Allocated memory in bytes */
 } fvec_t;
 
 /* Functions */

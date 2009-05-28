@@ -21,94 +21,117 @@
 /* External variables */
 extern int verbose;
 
-/* Global variables */
-static label_t *label_hash = NULL;
-static int label_index = 0;
-
 /**
- * Extracts the label from a file name and add its to hash table
- * of labels. The function also assigns a unique index to each label
- * that later acts as an index for it. If the file name does not have
- * a suffix, the label name is "unknown".
- * @param file File name to extract label from
- * @return Associated index of label
+ * Adds a label to the table of labels stored in an array.
+ * @param name label name
+ * @return index of label 
  */ 
-static int label_hash_add(char *file)
+static int label_add(farray_t *fa, char *name)
 {
     label_t *entry;
-    char *name = file + strlen(file) - 1;
-
-    /* Determine dot in file name */
-    while (name != file && *name != '.') 
-        name--;
-
-    /* Check for files with no suffix */
-    if (name == file)
-        name = "unknown";
-    else
-        name++;
+    assert(fa && name);
 
     /* Check if label is known */
-    HASH_FIND(hh, label_hash, name, strlen(name), entry);    
-    if (!entry) {
-        /* Insert new label */
-        entry = malloc(sizeof(label_t));
-        entry->name = strdup(name); 
-        entry->index = label_index++;
-        HASH_ADD_KEYPTR(hh, label_hash, entry->name, 
-                        strlen(entry->name), entry); 
-    }
-    
+    HASH_FIND(hname, fa->label_name, name, strlen(name), entry);    
+    if (entry) 
+        return entry->index;
+        
+    /* Create new label */
+    entry = malloc(sizeof(label_t));
+    entry->name = strdup(name); 
+    entry->index = hash_string(name);
+             
+    /* Add label to both tables */
+    HASH_ADD(hindex, fa->label_index, index, 
+             sizeof(int), entry);
+    HASH_ADD_KEYPTR(hname, fa->label_name, entry->name, 
+                    strlen(entry->name), entry);     
+                    
+    /* Update memory */
+    fa->mem += sizeof(label_t) + sizeof(name);
+
+    /* Return new index */
     return entry->index;
 }
 
 /**
- * Condenses the label hash table into an array of label names, where 
- * each label is located at its associated index. The array is terminated
- * using a NULL pointer.
- * @return array of label names
+ * Creates and allocates an empty array of feature vectors
+ * @return empty array
  */
-static char **label_hash_condense()
+farray_t *farray_create()
 {
-    int n = HASH_COUNT(label_hash);
-    assert(n == label_index);
-
-    /* Allocate list of label names */
-    char **labels = malloc((n + 1) * sizeof(char *));
-    label_t *current_label;
-    
-    /* Loop over hash table */
-    while(label_hash) {
-        current_label = label_hash;        
-        HASH_DEL(label_hash, current_label);
-        labels[current_label->index] = current_label->name;
-        free(current_label);           
+    farray_t *fa = calloc(1, sizeof(farray_t));
+    if (!fa) {
+        error("Could not allocate array of feature vectors");
+        return NULL;
     }
+
+    /* Init elements of array */
+    fa->len = 0;
+    fa->mem = sizeof(farray_t);
     
-    /* Null terminated */
-    labels[n] = NULL;
-    return labels;
+    return fa;
+} 
+
+
+/**
+ * Destroys an array of feature vectors
+ * @param a array of feature vectors
+ */
+void farray_destroy(farray_t *fa)
+{
+    if (!fa)
+        return;
+    
+    /* Free feature vectors */
+    if (fa->x) {
+        for (int i = 0; i < fa->len; i++)
+            fvec_destroy(fa->x[i]);
+        free(fa->x);
+    }
+
+    /* Free label indices */
+    if (fa->y)
+        free(fa->y);
+        
+    /* Free lable table */
+    while(fa->label_name) {
+        label_t *current = fa->label_name;        
+        HASH_DELETE(hname, fa->label_name, current);
+        free(current->name);
+        free(current);           
+    }    
+       
+    free(fa);
 }
 
 /**
- * Update the content of the array with a new file
- * @param fa Array of feature vectors
- * @param i Free index in array
- * @param dir Directory to read from
- * @param file File to read in 
+ * Adds a feature vector to the array
+ * @param x Feature vector 
+ * @param y Label of feature vector 
  */
-static void farray_update_file(farray_t *fa, int i, char *dir, char *file)
+void farray_add(farray_t *fa, fvec_t *fv, char *label)
 {
-    /* Load file contents */
-    char *x = fio_load_file(dir, file);
-    
-    /* Preprocess and extract feature vector*/
-    x = fio_preproc(x);
-    fa->x[i] = fvec_extract(x, strlen(x));
-    free(x);
+    assert(fa && fv && label);
 
-    /* Extract label from name */
-    fa->y[i] = label_hash_add(file);
+    /* Expand size of array */
+    if (fa->len % BLOCK_SIZE == 0) {
+        int l = fa->len + BLOCK_SIZE;
+        fa->x = realloc(fa->x, l * sizeof(fvec_t *));
+        fa->y = realloc(fa->y, l * sizeof(int));
+        fa->mem += BLOCK_SIZE * (sizeof(fvec_t *) + sizeof(int));
+        if (!fa->x || !fa->y) {
+            error("Could not re-size feature array.");
+            farray_destroy(fa);
+            return;
+        }
+    }
+    
+    /* Update table */
+    fa->x[fa->len] = fv;
+    fa->y[fa->len] = label_add(fa, label);
+    fa->len++;    
+    fa->mem += fv->mem;
 }
 
 /**
@@ -119,31 +142,18 @@ static void farray_update_file(farray_t *fa, int i, char *dir, char *file)
  */
 farray_t *farray_extract_dir(char *dir)
 {
-    DIR *d;
-    long i = 0;
+    char *x;
     struct dirent *dp;
-
     assert(dir);
 
-    farray_t *fa = calloc(1, sizeof(farray_t));
-    if (!fa) {
-        error("Could not allocate array of feature vectors");
+    /* Allocate empty array */
+    farray_t *fa = farray_create();
+    if (!fa) 
         return NULL;
-    }
-
-    /* Allocate elements of array */
-    fa->len = fio_count_files(dir);    
-    fa->x = malloc(fa->len * sizeof(fvec_t *));
-    fa->y = malloc(fa->len * sizeof(int));
-    fa->mem = sizeof(farray_t) + fa->len * (sizeof(fvec_t) + sizeof(int));    
-    if (!fa->x || !fa->y) {
-        farray_destroy(fa);
-        error("Could not allocate elements of array");
-        return NULL;
-    }
     
     /* Open directory */    
-    d = opendir(dir);
+    long n = fio_count_files(dir);
+    DIR *d = opendir(dir);
     if (!d) {
         farray_destroy(fa);
         error("Could not open directory '%s'", dir);
@@ -155,60 +165,28 @@ farray_t *farray_extract_dir(char *dir)
         if (dp->d_type != DT_REG) 
             continue;
     
-        /* Update array */
-        farray_update_file(fa, i, dir, dp->d_name);
-     
-        /* Update memory and index */
-        fa->mem += fa->x[i]->mem;
-        i++;
-
-        if (verbose > 0)
-            prog_bar(0, fa->len, i);
-    }   
+        /* Load file contents */
+        x = fio_load_file(dir, dp->d_name);
     
+        /* Preprocess and extract feature vector*/
+        x = fio_preproc(x);
+        fvec_t *fv = fvec_extract(x, strlen(x));
+        free(x);
+
+        /* Extract label from name */
+        x = file_suffix(dp->d_name);
+        
+        /* Add feature vector to array */
+        farray_add(fa, fv, x);
+        
+        if (verbose > 0)
+            prog_bar(0, n, fa->len);
+    }   
     if (verbose > 0)
         printf("\n");
+        
     closedir(d);
-
-    /* Retrieve label array */
-    fa->labels = label_hash_condense();
-
-    /* Update memory usage */
-    for (i = 0; fa->labels[i]; i++)
-        fa->mem += sizeof(char *) + strlen(fa->labels[i]);
-
     return fa;
-}
-
-/**
- * Destroys an array of feature vectors
- * @param a array of feature vectors
- */
-void farray_destroy(farray_t *fa)
-{
-    int i;    
-    if (!fa)
-        return;
-    
-    /* Free vectors */
-    if (fa->x) {
-        for (i = 0; i < fa->len; i++)
-            fvec_destroy(fa->x[i]);
-        free(fa->x);
-    }
-
-    /* Free classes */
-    if (fa->labels) {
-        for (i = 0; fa->labels[i]; i++)
-            free(fa->labels[i]);
-        free(fa->labels);
-    }    
-
-    /* Free labels */
-    if (fa->y)
-        free(fa->y);
-       
-    free(fa);
 }
 
 /**
@@ -219,11 +197,10 @@ void farray_print(farray_t *fa)
 {
     assert(fa);
     int i;
-    
-    /* Count labels */
-    for (i = 0; fa->labels[i]; i++);
+    label_t *entry;
 
-    printf("feature array [len: %lu, labels: %d, ", fa->len, i);
+    printf("feature array [len: %lu, labels: %d, ", fa->len, 
+           HASH_CNT(hname, fa->label_name));
     printf("%.2fMb, %p/%p/%p]\n", fa->mem / 1e6,
            (void *) fa, (void *) fa->x, (void *) fa->y);
            
@@ -232,28 +209,29 @@ void farray_print(farray_t *fa)
     
     for (i = 0; i < fa->len; i++) {
         fvec_print(fa->x[i]);
-        printf("  label: %s, index %d\n", fa->labels[fa->y[i]], fa->y[i]);        
+        HASH_FIND(hindex, fa->label_index, &fa->y[i], sizeof(int), entry);    
+        printf("  label: %s, index %d\n", entry->name, fa->y[i]);        
     }   
 }
 
 /**
  * Saves an array of feature vectors to a file stream
- * @param f Array of feature vectors
+ * @param fa Array of feature vectors
  * @param z Stream pointer
  */
-void farray_save(farray_t *f, gzFile *z)
+void farray_save(farray_t *fa, gzFile *z)
 {
-    assert(f && z);
+    assert(fa && z);
     int i;
-    
-    for (i = 0; f->labels[i]; i++);
+    label_t *entry;
 
     gzprintf(z, "feature array: len=%lu, labels=%d, mem=%lu\n", 
-            f->len, i, f->mem);
+            fa->len, HASH_CNT(hname, fa->label_name), fa->mem);
             
-    for (i = 0; i < f->len; i++) {
-        fvec_save(f->x[i], z);
-        gzprintf(z, "  id=%d, label=%s\n", f->y[i], f->labels[f->y[i]]);
+    for (i = 0; i < fa->len; i++) {
+        fvec_save(fa->x[i], z);
+        HASH_FIND(hindex, fa->label_index, &fa->y[i], sizeof(int), entry);   
+        gzprintf(z, "  label=%s\n", entry->name);
     }    
 }
 
@@ -265,62 +243,42 @@ void farray_save(farray_t *f, gzFile *z)
 farray_t *farray_load(gzFile *z)
 {
     assert(z);
-    farray_t *f;
     char buf[512], str[512];
-    int i, r, l;
+    long len, mem;
+    int lab, r, i;
 
-    /* Allocate feature array (zero'd) */
-    f = calloc(1, sizeof(farray_t));
-    if (!f) {
-        error("Could not load feature array.");
+    /* Allocate feature array */
+    farray_t *f = farray_create();
+    if (!f) 
         return NULL;
-    }
 
     gzgets(z, buf, 512);
     r = sscanf(buf, "feature array: len=%lu, labels=%d, mem=%lu\n", 
-              (unsigned long *) &f->len, (int *) &l,
-              (unsigned long *) &f->mem);
-              
+              (unsigned long *) &len, (int *) &lab, 
+              (unsigned long *) &mem);              
     if (r != 3)  {
         error("Could not parse feature array");
         farray_destroy(f);
         return NULL;
     }
     
-    /* Empty feature array */
-    if (f->len == 0) 
-        return f;
-
-    /* Allocate arrays */
-    f->x = (fvec_t **) calloc(1, f->len * sizeof(fvec_t *));
-    f->y = (int *) calloc(1, f->len * sizeof(int));
-    f->labels = (char **) calloc(1, (l + 1) * sizeof(char *));
-    if (!f->x || !f->y || !f->labels) {
-        error("Could not allocate feature array contents.");
-        farray_destroy(f);
-        return NULL;
-    }
-
     /* Load contents */
-    for (i = 0; i < f->len; i++) {
+    for (i = 0; i < len; i++) {
         /* Load feature vector */
-        f->x[i] = fvec_load(z);
+        fvec_t *fv = fvec_load(z);
         
         /* Load labels */
         gzgets(z, buf, 512);
-        r = sscanf(buf, "  id=%d, label=%s\n", &l, str);
-        if (r != 2) {
+        r = sscanf(buf, "  label=%s\n", str);
+        if (r != 1) {
             error("Could not parse feature vector contents");
             farray_destroy(f);
             return NULL;
         }
-        f->y[i] = l;
         
-        /* Set label name */
-        if (!f->labels[l])
-            f->labels[l] = strdup(str);
-    }      
-     
+        /* Add to array */
+        farray_add(f, fv, str); 
+    }           
     return f;
 }
 

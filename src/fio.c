@@ -11,6 +11,15 @@
  * --
  */
 
+/**
+ * @defgroup fio Preprocessing and I/O functions
+ * The module contains a set of generic functions for reading and 
+ * writing to files, as well as preprocessing routines converting 
+ * between input formats.
+ * @author Konrad Rieck (rieck@cs.tu-berlin.de)
+ * @{
+ */
+
 #include "config.h"
 #include "common.h"
 #include "fvec.h"
@@ -94,8 +103,8 @@ long fio_count_files(char *dir)
 }
 
 /**
- * Preprocess input data. The function takes a string as argument and 
- * preprocesses it according to the given configuration. 
+ * Preprocess input format according to configuration. The function takes 
+ * a raw string and formats it according to the given configuration. 
  * @param x Raw string
  * @return Preprocessed output.
  */
@@ -114,4 +123,6 @@ char *fio_preproc(char *x)
 
     return x;
 }
+
+/** @} */
  

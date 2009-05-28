@@ -10,6 +10,15 @@
  * warranty. See the GNU General Public License for more details. 
  * --
  */
+ 
+/** 
+ * @defgroup fmath Math for feature vectors
+ * This module contains standard mathematical functions defined over
+ * sparse feature vectors. In favor of a generic interface, only assorted
+ * functions are implemented that provide linear-time processing.
+ * @author Konrad Rieck (rieck@cs.tu-berlin.de)
+ * @{
+ */
 
 #include "config.h"
 #include "common.h"
@@ -21,47 +30,59 @@
 extern int verbose;
 
 /**
- * Normalize a feature vector to a particular norm value.
- * @param fv Feature vector 
+ * Normalize a feature vector to a norm.
+ * @param f Feature vector 
  * @param n Normalization
  */
-void fvec_normalize(fvec_t *fv, norm_t n)
+void fvec_normalize(fvec_t *f, norm_t n)
 {
     int i = 0;
     double s = 0;
-    assert(fv);
+    assert(f);
 
     switch (n) {
     case NORM_BIN:
-        for (i = 0; i < fv->len; i++)
-            fv->val[i] = 1;
+        for (i = 0; i < f->len; i++)
+            f->val[i] = 1;
         break;
     case NORM_L1:
-        s = fvec_norm1(fv);
-        for (i = 0; i < fv->len; i++)
-            fv->val[i] /= s;
+        s = fvec_norm1(f);
+        for (i = 0; i < f->len; i++)
+            f->val[i] /= s;
         break;
     case NORM_L2:
-        s = fvec_norm2(fv);
-        for (i = 0; i < fv->len; i++)
-            fv->val[i] /= s;
+        s = fvec_norm2(f);
+        for (i = 0; i < f->len; i++)
+            f->val[i] /= s;
         break;
     }
 }
 
 /**
- * Multiplies vector with a scalar
- * @param fv Feature vector 
+ * Multiplies vector with a scalar (f = s * f)
+ * @param f Feature vector 
  * @param s Scalar value
  */
-void fvec_mul(fvec_t *fv, double s)
+inline void fvec_mul(fvec_t *f, double s)
 {
     int i = 0;
-    assert(fv);
+    assert(f);
 
-    for (i = 0; i < fv->len; i++)
-        fv->val[i] *= s;
+    for (i = 0; i < f->len; i++)
+        f->val[i] *= s;
 }
+
+/**
+ * Divides vector by a scalar (f = 1/s * f)
+ * @param f Feature vector 
+ * @param s Scalar value
+ */
+inline void fvec_div(fvec_t *f, double s)
+{
+    fvec_mul(f, 1/s);
+}
+
+
 
 /** 
  * Adds two feature vectors and create a new one (c = a + b * s)
@@ -70,7 +91,7 @@ void fvec_mul(fvec_t *fv, double s)
  * @param s Scalar value
  * @return new feature vector
  */
-fvec_t *fvec_adds(fvec_t *fa, fvec_t *fb, double s) 
+inline fvec_t *fvec_adds(fvec_t *fa, fvec_t *fb, double s) 
 {
     unsigned long i = 0, j = 0, len = 0;
     assert(fa && fb);
@@ -113,36 +134,61 @@ fvec_t *fvec_adds(fvec_t *fa, fvec_t *fb, double s)
     return f;
 }
 
+/** 
+ * Adds two feature vectors and create a new one (c = a + b)
+ * @param fa Feature vector (a)
+ * @param fb Feature vector (b)
+ * @return new feature vector
+ */
+inline fvec_t *fvec_add(fvec_t *fa, fvec_t *fb)
+{   
+    return fvec_adds(fa, fb, 1.0);
+} 
+
+
+/** 
+ * Substractes two feature vectors and create a new one (c = a - b)
+ * @param fa Feature vector (a)
+ * @param fb Feature vector (b)
+ * @return new feature vector
+ */
+inline fvec_t *fvec_sub(fvec_t *fa, fvec_t *fb) 
+{
+    return fvec_adds(fa, fb, -1.0);
+}
+
 /**
- * Computes the l1-norm of the feature vector
- * @param fv Feature vector 
+ * Computes the l1-norm of the feature vector (n = ||f||_1)
+ * @param f Feature vector 
  * @return sum of values 
  */
-double fvec_norm1(fvec_t *fv)
+inline double fvec_norm1(fvec_t *f)
 {
     int i = 0;
     double s = 0;    
-    assert(fv);
+    assert(f);
 
-    for (i = 0; i < fv->len; i++)
-        s += fv->val[i];
+    for (i = 0; i < f->len; i++)
+        s += f->val[i];
     
     return s;
 }
 
 /**
- * Computes the l2-norm of the feature vector
- * @param fv Feature vector 
+ * Computes the l2-norm of the feature vector (n = ||f||_2)
+ * @param f Feature vector 
  * @return sum of values 
  */
-double fvec_norm2(fvec_t *fv)
+inline double fvec_norm2(fvec_t *f)
 {
     int i = 0;
     double s = 0;
-    assert(fv);
+    assert(f);
 
-    for (i = 0; i < fv->len; i++)
-        s += pow(fv->val[i], 2);
+    for (i = 0; i < f->len; i++)
+        s += pow(f->val[i], 2);
     
     return sqrt(s);
 }
+
+/** }@ */

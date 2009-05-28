@@ -27,8 +27,8 @@
 typedef struct {
     char name[64];               /**< Label name (key 1)*/
     int index;                   /**< Label index (key 2)*/
-    UT_hash_handle hname;        /**< Uthash handle 1 */
-    UT_hash_handle hindex;       /**< Uthash handle 2 */
+    UT_hash_handle hn;           /**< Uthash handle 1 */
+    UT_hash_handle hi;           /**< Uthash handle 2 */
 } label_t;
 
 /**
@@ -43,7 +43,6 @@ typedef struct {
     label_t *label_name;        /**< Table of label names */
     label_t *label_index;       /**< Table of label indices */
 } farray_t;
-
 
 
 /* Feature array functions */

@@ -10,6 +10,19 @@
  * warranty. See the GNU General Public License for more details. 
  * --
  */
+ 
+/** 
+ * @defgroup fvec Feature vector
+ * Generic implementation of a feature vector. A feature vector contains 
+ * a sparse representation of non-zero dimensions in the feature space. 
+ * This allows for operating with vectors of high and even infinite 
+ * dimensionality, as long as the association between dimensions and 
+ * non-zero values is sparse. The dimensions are indexed by 64bit hash 
+ * values (MD5) and sorted to allow for efficiently processing and 
+ * comparing vectors.  
+ * @author Konrad Rieck (rieck@cs.tu-berlin.de)
+ * @{
+ */
 
 #include "config.h"
 #include "common.h"
@@ -32,6 +45,41 @@ static int compare_feat(const void *, const void *);
 static void decode_delim(const char *s);
 static char delim[256] = { DELIM_NOT_INIT };
 
+
+/** 
+ * Condense a feature vector by counting duplicate features.
+ * @param fv Feature vector
+ */
+static void fvec_condense(fvec_t * fv)
+{
+    feat_t *p_dim = fv->dim;
+    float n = 0, *p_val = fv->val;
+    unsigned int i;
+
+    /* Loop over features */
+    for (i = 0; i < fv->len; i++) {
+        /* Skip zero values */
+        if (fabs(fv->val[i]) < 1e-12)
+            continue;
+
+        /* Check for duplicate dims */
+        if (i < fv->len - 1 && fv->dim[i] == fv->dim[i + 1]) {
+            n += fv->val[i];
+        } else {
+            *(p_dim++) = fv->dim[i];
+            *(p_val++) = fv->val[i] + n;
+            n = 0;
+        }
+    }
+
+    /* Update length and memory */
+    fv->len = p_dim - fv->dim;
+    fv->mem = sizeof(fvec_t) + fv->len * (sizeof(feat_t) + sizeof(float));
+ 
+    /* Reallocate memory */
+    fvec_shrink(fv);
+}
+
 /**
  * Allocate and extract a feature vector from a sequence.
  * There is a global table of delimiter symbols which is only 
@@ -39,7 +87,6 @@ static char delim[256] = { DELIM_NOT_INIT };
  * See fvec_reset_delim();
  * @param x Sequence of bytes 
  * @param l Length of sequence
- * @param c Configuration structure
  * @return feature vector
  */
 fvec_t *fvec_extract(char *x, int l)
@@ -107,40 +154,6 @@ fvec_t *fvec_extract(char *x, int l)
         fvec_normalize(fv, NORM_L1);
 
     return fv;
-}
-
-/** 
- * Condense a feature vector by counting duplicate features.
- * @param fv Feature vector
- */
-void fvec_condense(fvec_t * fv)
-{
-    feat_t *p_dim = fv->dim;
-    float n = 0, *p_val = fv->val;
-    unsigned int i;
-
-    /* Loop over features */
-    for (i = 0; i < fv->len; i++) {
-        /* Skip zero values */
-        if (fabs(fv->val[i]) < 1e-12)
-            continue;
-
-        /* Check for duplicate dims */
-        if (i < fv->len - 1 && fv->dim[i] == fv->dim[i + 1]) {
-            n += fv->val[i];
-        } else {
-            *(p_dim++) = fv->dim[i];
-            *(p_val++) = fv->val[i] + n;
-            n = 0;
-        }
-    }
-
-    /* Update length and memory */
-    fv->len = p_dim - fv->dim;
-    fv->mem = sizeof(fvec_t) + fv->len * (sizeof(feat_t) + sizeof(float));
- 
-    /* Reallocate memory */
-    fvec_shrink(fv);
 }
 
 /**
@@ -235,16 +248,15 @@ fvec_t *fvec_clone(fvec_t * o)
 
 /**
  * Print the content of a feature vector
- * @param f feature vector
+ * @param fv feature vector
  */
 void fvec_print(fvec_t * fv)
 {
     assert(fv);
     int i, j;
 
-    printf("feature vector [len: %lu, ", fv->len);
-    printf("%.2fkb, %p/%p/%p]\n", fv->mem / 1e3,
-           (void *) fv, (void *) fv->dim, (void *) fv->val);
+    printf("feature vector [len: %lu, %.2fkb, %p/%p/%p]\n", fv->len, 
+           fv->mem / 1e3, (void *) fv, (void *) fv->dim, (void *) fv->val);
            
     if (verbose < 3)
         return;
@@ -281,7 +293,7 @@ void fvec_print(fvec_t * fv)
  * @param fv Feature vector
  * @param x Byte sequence 
  * @param l Length of sequence
- * @param n N-gram length
+ * @param nlen N-gram length
  */
 static void extract_wgrams(fvec_t *fv, char *x, int l, int nlen)
 {
@@ -369,9 +381,9 @@ static void extract_wgrams(fvec_t *fv, char *x, int l, int nlen)
  * @param fv Feature vector
  * @param x Byte sequence 
  * @param l Length of sequence
- * @param n N-gram length
+ * @param nlen N-gram length
  */
-static void extract_ngrams(fvec_t * fv, char *x, int l, int nlen) 
+static void extract_ngrams(fvec_t *fv, char *x, int l, int nlen) 
 {
     unsigned int i = 0;
     unsigned char buf[MD5_DIGEST_LENGTH];    
@@ -422,7 +434,7 @@ static void extract_ngrams(fvec_t * fv, char *x, int l, int nlen)
 }      
 
 /**
- * Compares two features
+ * Compares two features values (hashs)
  * @param x feature X
  * @param y feature Y
  * @return result as a signed integer
@@ -544,4 +556,6 @@ void fvec_reset_delim()
 {
     delim[0] = DELIM_NOT_INIT;
 }
+
+/** @} */ 
  

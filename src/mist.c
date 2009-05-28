@@ -11,6 +11,14 @@
  * --
  */
 
+/**
+ * @defgroup mist Functions for MIST reports
+ * The module contains functions for processing of so-called MIST 
+ * reports as developed at University of Mannheim.
+ * @author Konrad Rieck (rieck@cs.tu-berlin.de)
+ * @{
+ */
+
 #include "config.h"
 #include "common.h"
 #include "mist.h"
@@ -20,7 +28,7 @@
 extern int verbose;
 
 /**
- * Truncates a report to a given MIST level and remove comments. 
+ * Truncates a report to a given MIST level and removes comments. 
  * The truncated report is likely smaller than the original report. 
  * Hence, the caller may issue a realloc() to free memory. 
  * @param report Report as string
@@ -131,3 +139,5 @@ char *mist_trunc_level2(char *report, int level, int sect)
     report[j] = '\0';
     return report;
 }
+
+/** @} */

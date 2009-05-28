@@ -11,6 +11,20 @@
  * --
  */
 
+/** 
+ * @defgroup ftable Feature lookup table
+ * Lookup table for extracted features. The extracted feature, such as
+ * substrings and n-grams, a stored in sparse feature vectors with each
+ * feature represented by hash value. This global hash table is used
+ * to efficiently lookup the original feature for a given hash. The table
+ * keeps also track of counting insertions and collisions, such that 
+ * the quality of the hashing can be assessed. Maintaining a global hash 
+ * table impacts performance when using OpenMP, thus it is adviced to 
+ * disable the table if not required. 
+ * @author Konrad Rieck (rieck@cs.tu-berlin.de)
+ * @{
+ */
+
 #include "config.h"
 #include "common.h"
 #include "fvec.h"
@@ -69,9 +83,9 @@ void ftable_put(feat_t k, char *x, int l)
 }      
 
 /**
- * Gets a entry from the lookup table. The returned memory must not 
+ * Gets an entry from the lookup table. The returned memory must not 
  * be free'd.
- * @param f Feature key
+ * @param key Feature key
  * @return feature table entry
  */
 fentry_t *ftable_get(feat_t key)
@@ -115,7 +129,7 @@ void ftable_destroy()
 
 /**
  * Removes an element from the lookup hash. 
- * @param f Feature to remove
+ * @param key Feature to remove
  */
 void ftable_remove(feat_t key)
 {
@@ -232,3 +246,5 @@ int ftable_enabled()
 {
     return table_enabled;
 } 
+
+/** @} */

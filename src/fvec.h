@@ -37,7 +37,6 @@ typedef struct {
 
 /* Functions */
 fvec_t *fvec_extract(char *, int l);
-void fvec_condense(fvec_t *);
 void fvec_destroy(fvec_t *);
 fvec_t *fvec_clone(fvec_t *);
 void fvec_print(fvec_t *);

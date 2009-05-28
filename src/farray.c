@@ -11,6 +11,17 @@
  * --
  */
 
+/** 
+ * @defgroup farray Array of feature vectors
+ * Generic array of feature vectors. This module contains functions 
+ * maintenance of feature vectors in an array along with a set of 
+ * textual labels, such as AV labels. Moreover, functionality is provided
+ * for extraction of feature vectors from directories and compressed
+ * archives of malware reports.
+ * @author Konrad Rieck (rieck@cs.tu-berlin.de)
+ * @{
+ */
+
 #include "config.h"
 #include "common.h"
 #include "farray.h"
@@ -32,7 +43,7 @@ static int label_add(farray_t *fa, char *name)
     assert(fa && name);
 
     /* Check if label is known */
-    HASH_FIND(hname, fa->label_name, name, strlen(name), entry);    
+    HASH_FIND(hn, fa->label_name, name, strlen(name), entry);    
     if (entry) 
         return entry->index;
         
@@ -43,8 +54,8 @@ static int label_add(farray_t *fa, char *name)
     entry->name[sizeof(entry->name) - 1] = 0;
              
     /* Add label to both tables */
-    HASH_ADD(hindex, fa->label_index, index, sizeof(int), entry);
-    HASH_ADD(hname, fa->label_name, name, strlen(name), entry);     
+    HASH_ADD(hi, fa->label_index, index, sizeof(int), entry);
+    HASH_ADD(hn, fa->label_name, name, strlen(entry->name), entry);     
                     
     /* Update memory */
     fa->mem += sizeof(label_t) + sizeof(name);
@@ -75,7 +86,7 @@ farray_t *farray_create()
 
 /**
  * Destroys an array of feature vectors
- * @param a array of feature vectors
+ * @param fa array of feature vectors
  */
 void farray_destroy(farray_t *fa)
 {
@@ -96,8 +107,8 @@ void farray_destroy(farray_t *fa)
     /* Free lable table */
     while(fa->label_name) {
         label_t *current = fa->label_name;        
-        HASH_DELETE(hname, fa->label_name, current);
-        HASH_DELETE(hindex, fa->label_index, current);
+        HASH_DELETE(hn, fa->label_name, current);
+        HASH_DELETE(hi, fa->label_index, current);
         free(current);           
     }    
        
@@ -106,8 +117,9 @@ void farray_destroy(farray_t *fa)
 
 /**
  * Adds a feature vector to the array
- * @param x Feature vector 
- * @param y Label of feature vector 
+ * @param fa Feature array
+ * @param fv Feature vector 
+ * @param label Label of feature vector 
  */
 void farray_add(farray_t *fa, fvec_t *fv, char *label)
 {
@@ -190,7 +202,7 @@ farray_t *farray_extract_dir(char *dir)
 
 /**
  * Prints a feature array
- * @param feature array
+ * @param fa feature array
  */
 void farray_print(farray_t *fa)
 {
@@ -198,9 +210,8 @@ void farray_print(farray_t *fa)
     int i;
     label_t *entry;
 
-    printf("feature array [len: %lu, labels: %d, ", fa->len, 
-           HASH_CNT(hname, fa->label_name));
-    printf("%.2fMb, %p/%p/%p]\n", fa->mem / 1e6,
+    printf("feature array [len: %lu, labels: %d, %.2fMb, %p/%p/%p]\n", 
+           fa->len, HASH_CNT(hn, fa->label_name), fa->mem / 1e6,
            (void *) fa, (void *) fa->x, (void *) fa->y);
            
     if (verbose < 2)
@@ -208,7 +219,7 @@ void farray_print(farray_t *fa)
     
     for (i = 0; i < fa->len; i++) {
         fvec_print(fa->x[i]);
-        HASH_FIND(hindex, fa->label_index, &fa->y[i], sizeof(int), entry);    
+        HASH_FIND(hi, fa->label_index, &fa->y[i], sizeof(int), entry);    
         printf("  label: %s, index %d\n", entry->name, fa->y[i]);        
     }   
 }
@@ -225,11 +236,11 @@ void farray_save(farray_t *fa, gzFile *z)
     label_t *entry;
 
     gzprintf(z, "feature array: len=%lu, labels=%d, mem=%lu\n", 
-            fa->len, HASH_CNT(hname, fa->label_name), fa->mem);
+            fa->len, HASH_CNT(hn, fa->label_name), fa->mem);
             
     for (i = 0; i < fa->len; i++) {
         fvec_save(fa->x[i], z);
-        HASH_FIND(hindex, fa->label_index, &fa->y[i], sizeof(int), entry);   
+        HASH_FIND(hi, fa->label_index, &fa->y[i], sizeof(int), entry);   
         gzprintf(z, "  label=%s\n", entry->name);
     }    
 }
@@ -280,4 +291,8 @@ farray_t *farray_load(gzFile *z)
     }           
     return f;
 }
+
+/** }@ */
+
+
  

@@ -6,6 +6,6 @@
 
 malheur_sysconfdir = $(sysconfdir)/malheur
 malheur_sysconf_DATA = malheur.cfg
-EXTRA_DIST = malheur.cfg
+EXTRA_DIST = malheur.cfg doxygen.cfg
 
 	

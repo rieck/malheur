@@ -20,6 +20,9 @@
  * @{
  */
 
+#include <archive.h>
+#include <archive_entry.h>
+
 #include "config.h"
 #include "common.h"
 #include "fvec.h"
@@ -101,6 +104,32 @@ long fio_count_files(char *dir)
     closedir(d);
     return e;          
 }
+
+/**
+ * Returns the number of entries in an archive. 
+ * @param arc archive containing files
+ * @return number of entries
+ */ 
+long fio_count_archive(char *arc) 
+{
+    struct archive *a;
+    struct archive_entry *entry;
+    unsigned long n = 0;
+    assert(arc);
+    
+    /* Open archive */
+    a = archive_read_new();
+    archive_read_support_compression_all(a);
+    archive_read_support_format_all(a);
+    archive_read_open_filename(a, arc, 4096);
+    while (archive_read_next_header(a, &entry) == ARCHIVE_OK) {
+        archive_read_data_skip(a);
+        n++;
+    }
+    archive_read_finish(a);
+    
+    return n;
+}    
 
 /**
  * Preprocess input format according to configuration. The function takes 

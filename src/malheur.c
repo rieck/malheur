@@ -138,23 +138,9 @@ int main(int argc, char **argv)
               config_error_text(&cfg), config_error_line(&cfg));
     check_config();              
 
-    farray_t *a = farray_extract_dir(input);
-    farray_print(a);
-    
-    gzFile *z = gzopen("/tmp/test.gz", "w9");
-    farray_save(a, z);
+    farray_t *a = farray_extract(input);
+    farray_print(a);    
     farray_destroy(a);    
-    gzclose(z);
-    
-    z = gzopen("/tmp/test.gz", "r");
-    a = farray_load(z);
-    gzclose(z);
-    farray_print(a);
-
-    z = gzopen("/tmp/test1.gz", "w9");
-    farray_save(a, z);
-    farray_destroy(a);    
-    gzclose(z);
 
     /* Destroy configuration */
     config_destroy(&cfg);

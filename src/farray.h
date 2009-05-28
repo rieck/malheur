@@ -52,6 +52,8 @@ void farray_destroy(farray_t *);
 void farray_print(farray_t *);
 void farray_save(farray_t *, gzFile *);
 farray_t *farray_load(gzFile *);
+farray_t *farray_extract(char *path);
 farray_t *farray_extract_dir(char *);
+farray_t *farray_extract_archive(char *);
 
 #endif                          /* FARRAY_H */

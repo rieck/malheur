@@ -23,6 +23,7 @@
 char *fio_load_file(char *, char *);
 long fio_count_files(char *dir);
 long fio_count_entries(char *dir);
+long fio_count_archive(char *arc);
 char *fio_preproc(char *);
 
 #endif                          /* STRIO_H */

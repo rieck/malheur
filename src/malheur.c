@@ -138,8 +138,8 @@ int main(int argc, char **argv)
               config_error_text(&cfg), config_error_line(&cfg));
     check_config();              
 
-    farray_t *a = farray_extract_dir(input);
-    farray_print(a);
+    farray_t *a = farray_extract(input);
+    farray_print(a);    
     farray_destroy(a);    
 
     /* Destroy configuration */

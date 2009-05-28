@@ -22,6 +22,9 @@
  * @{
  */
 
+#include <archive.h>
+#include <archive_entry.h>
+
 #include "config.h"
 #include "common.h"
 #include "farray.h"
@@ -150,10 +153,94 @@ void farray_add(farray_t *fa, fvec_t *fv, char *label)
 }
 
 /**
+ * Extracts an array of feature vectors from an archive or directory.
+ * @param arc archive containing files.
+ * @return array of feature vectors
+ */
+farray_t *farray_extract(char *path)
+{
+    struct stat st; 
+    assert(path);
+        
+    if (stat(path, &st)) {
+        error("Could not access file '%s'", path);
+        return NULL;
+    }    
+    
+    if ((st.st_mode & S_IFMT) == S_IFREG) 
+        return farray_extract_archive(path);
+    if ((st.st_mode & S_IFMT) == S_IFDIR)
+        return farray_extract_dir(path);
+        
+    error("Unsupported file type of input '%s'", path);
+    return NULL;
+}
+
+/**
+ * Extracts an array of feature vectors from an archive. The function 
+ * loads and converts files from the given archive. It does not process
+ * subdirectories recursively.
+ * @param arc archive containing files.
+ * @return array of feature vectors
+ */
+farray_t *farray_extract_archive(char *arc)
+{
+    struct archive *a;
+    struct archive_entry *entry;
+    unsigned long n = 0;
+    assert(arc);
+    
+    /* Allocate empty array */
+    farray_t *fa = farray_create();
+    if (!fa) 
+        return NULL;
+
+    /* Open archive */
+    n = fio_count_archive(arc);
+    a = archive_read_new();
+    archive_read_support_compression_all(a);
+    archive_read_support_format_all(a);
+    archive_read_open_filename(a, arc, 4096);
+
+    /* Read contents */
+    while (archive_read_next_header(a, &entry) == ARCHIVE_OK) {            
+        const struct stat *s = archive_entry_stat(entry);
+        if ((s->st_mode & S_IFMT) != S_IFREG) {
+            archive_read_data_skip(a);
+            continue;
+        }    
+        
+        char *x = malloc(s->st_size * sizeof(char));            
+        archive_read_data(a, x, s->st_size);
+
+        /* Preprocess and extract feature vector*/
+        x = fio_preproc(x);
+        fvec_t *fv = fvec_extract(x, strlen(x));
+        free(x);
+
+        /* Extract label from name */
+        char *st = (char *) archive_entry_pathname(entry);
+        x = file_suffix(st);
+        
+        /* Add feature vector to array */
+        farray_add(fa, fv, x);            
+        if (verbose > 0)
+            prog_bar(0, n, fa->len);        
+    }
+    if (verbose > 0)
+        printf("\n");
+
+    /* Close archive */
+    archive_read_finish(a);
+    return fa;
+}
+
+/**
  * Extracts an array of feature vectors from a directory. The function 
- * loads and converts files in the given directory. It does not process
+ * loads and converts files from the given directory. It does not process
  * subdirectories recursively.
  * @param dir directory containing file.
+ * @return array of feature vectors
  */
 farray_t *farray_extract_dir(char *dir)
 {

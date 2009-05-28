@@ -188,8 +188,10 @@ farray_t *farray_extract_dir(char *dir)
         readdir_r(d, buf, &dp);
 
         /* Skip non-regular entries */
-        if (dp->d_type != DT_REG) 
+        if (dp->d_type != DT_REG) {
+            free(buf);
             continue;
+        }    
     
         /* Extract feature vector from file */
         char *raw = fio_load_file(dir, dp->d_name);

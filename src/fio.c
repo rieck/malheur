@@ -75,11 +75,11 @@ char *fio_load_file(char *path, char *name)
 }
 
 /**
- * Returns the number of file entries in a directory. Symlinks are 
- * not considered as regular files (otherwise dereferncing would be 
- * necessary).
+ * Returns the number of file entries in a directory. Symlinks,  
+ * device nodes, directories and fifos are discarded. The function 
+ * ignores errors and returns 0 if a directory is not accessible.
  * @param dir directory containing files
- * @return entries with type "regular file"
+ * @return number of entries with type "regular file"
  */
 long fio_count_files(char *dir)
 {
@@ -87,18 +87,32 @@ long fio_count_files(char *dir)
     struct dirent *dp;
     DIR *d;
 
-    /* Open directory */
     d = opendir(dir);
-    if (!d) {
-        error("Could not open directory '%s'", dir);
-        return 0;
-    }
-
-    while ((dp = readdir(d)) != NULL)
+    while (d && (dp = readdir(d)) != NULL)
         if (dp->d_type == DT_REG)
-            e++;
-            
+            e++;            
     closedir(d);
+    
+    return e;          
+}
+
+/**
+ * Returns the number of entries in a directory.  The function ignores 
+ * errors and returns 0 if a directory is not accessible.
+ * @param dir directory containing files
+ * @return number of all entries 
+ */
+long fio_count_entries(char *dir)
+{
+    long e = 0;
+    struct dirent *dp;
+    DIR *d;
+
+    d = opendir(dir);
+    while((dp = readdir(d)) != NULL)
+        e++;        
+    closedir(d);
+    
     return e;          
 }
 

@@ -76,7 +76,7 @@ char *fio_load_file(char *path, char *name)
     if (len != size) 
         warning("Could not read all data from file '%s'", file);
     
-    str[len] = '\0';
+    str[size + 1] = '\0';
     return str;
 }
 

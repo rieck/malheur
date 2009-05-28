@@ -140,6 +140,11 @@ int main(int argc, char **argv)
 
     farray_t *a = farray_extract(input);
     farray_print(a);    
+    
+    gzFile *z = gzopen(output, "wb9");
+    farray_save(a, z);
+    gzclose(z);
+    
     farray_destroy(a);    
 
     /* Destroy configuration */

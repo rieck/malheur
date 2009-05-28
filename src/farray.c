@@ -212,8 +212,9 @@ farray_t *farray_extract_archive(char *arc)
         }    
         
         /* Load file contents */
-        char *x = malloc(s->st_size * sizeof(char));            
+        char *x = malloc(s->st_size * sizeof(char) + 1);            
         archive_read_data(a, x, s->st_size);
+        x[s->st_size * sizeof(char) + 1] = 0;
 
         /* Preprocess and extract feature vector*/
         x = fio_preproc(x);
@@ -272,7 +273,7 @@ farray_t *farray_extract_dir(char *dir)
     maxlen = pathconf(dir, _PC_NAME_MAX);
 
     /* Loop over directory entries */
-    #pragma omp parallel for shared(d,fa) 
+    #pragma omp parallel for shared(d,fa)
     for (i = 0; i < total; i++) {        
         
         /* Read directory entry to local buffer */

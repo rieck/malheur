@@ -42,7 +42,6 @@ void prog_bar(double, double, double);
 double time_stamp();
 int decode_string(char *);
 char *file_suffix(char *file);
-int hash_string(char *);
 
 #ifndef HAVE_FUNC_ROUND
 double log2(double);

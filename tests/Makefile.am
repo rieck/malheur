@@ -6,11 +6,14 @@
 #
 
 INCLUDES             = @INCLUDES@ -I$(top_srcdir)/src 
-TESTS                = test_ftable test_fvec
-noinst_PROGRAMS	     = test_ftable test_fvec
+TESTS                = test_ftable test_fvec test_farray
+noinst_PROGRAMS	     = test_ftable test_fvec test_farray
 
 test_ftable_SOURCES  = tftable.c tests.c tests.h
 test_ftable_LDADD    = $(top_builddir)/src/libmalheur.a
 
 test_fvec_SOURCES    = tfvec.c tests.c tests.h
 test_fvec_LDADD	     = $(top_builddir)/src/libmalheur.a
+
+test_farray_SOURCES   = tfarray.c tests.c tests.h
+test_farray_LDADD     = $(top_builddir)/src/libmalheur.a

@@ -2,6 +2,18 @@
  MALHEUR - Automatic Malware Analysis on Steroids
  Copyright (c) 2009 Konrad Rieck (rieck@cs.tu-berlin.de)
  Berlin Institute of Technology (TU Berlin).
+
+                       ___    __                              
+   ------------------ /\_ \  /\ \ ------------  ---  ---------
+     ___ ___      __  \//\ \ \ \ \___      __   __  __  _ __  
+   /' __` __`\  /'__`\  \ \ \ \ \  _ `\  /'__`\/\ \/\ \/\`'__\
+   /\ \/\ \/\ \/\ \_\.\_ \_\ \_\ \ \ \ \/\  __/\ \ \_\ \ \ \/ 
+   \ \_\ \_\ \_\ \__/.\_\/\____\\ \_\ \_\ \____\\ \____/\ \_\ 
+    \/_/\/_/\/_/\/__/\/_/\/____/ \/_/\/_/\/____/ \/___/  \/_/ 
+   ---------------------------------  ---  -----(c) l.gelberg-
+
+
+ Introduction 
  --
 
  Malheur is a software suite for automatic analysis of malware. The 
@@ -27,6 +39,7 @@
       $ make
       $ make check
       $ make install
+
 
  Configuration options
  --

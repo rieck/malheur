@@ -25,7 +25,7 @@
  * Entry for label hash table. 
  */
 typedef struct {
-    char *name;                  /**< Label name (key 1)*/
+    char name[64];               /**< Label name (key 1)*/
     int index;                   /**< Label index (key 2)*/
     UT_hash_handle hname;        /**< Uthash handle 1 */
     UT_hash_handle hindex;       /**< Uthash handle 2 */

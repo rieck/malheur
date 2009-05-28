@@ -38,14 +38,13 @@ static int label_add(farray_t *fa, char *name)
         
     /* Create new label */
     entry = malloc(sizeof(label_t));
-    entry->name = strdup(name); 
-    entry->index = hash_string(name);
+    entry->index = hash_string(name);    
+    strncpy(entry->name, name, sizeof(entry->name)); 
+    entry->name[sizeof(entry->name) - 1] = 0;
              
     /* Add label to both tables */
-    HASH_ADD(hindex, fa->label_index, index, 
-             sizeof(int), entry);
-    HASH_ADD_KEYPTR(hname, fa->label_name, entry->name, 
-                    strlen(entry->name), entry);     
+    HASH_ADD(hindex, fa->label_index, index, sizeof(int), entry);
+    HASH_ADD(hname, fa->label_name, name, strlen(name), entry);     
                     
     /* Update memory */
     fa->mem += sizeof(label_t) + sizeof(name);
@@ -98,7 +97,7 @@ void farray_destroy(farray_t *fa)
     while(fa->label_name) {
         label_t *current = fa->label_name;        
         HASH_DELETE(hname, fa->label_name, current);
-        free(current->name);
+        HASH_DELETE(hindex, fa->label_index, current);
         free(current);           
     }    
        
@@ -281,5 +280,4 @@ farray_t *farray_load(gzFile *z)
     }           
     return f;
 }
-
  

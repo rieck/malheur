@@ -214,7 +214,7 @@ farray_t *farray_extract_archive(char *arc)
         /* Load file contents */
         char *x = malloc(s->st_size * sizeof(char) + 1);            
         archive_read_data(a, x, s->st_size);
-        x[s->st_size * sizeof(char) + 1] = 0;
+        x[s->st_size * sizeof(char)] = 0;
 
         /* Preprocess and extract feature vector*/
         x = fio_preproc(x);

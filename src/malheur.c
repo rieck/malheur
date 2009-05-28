@@ -117,7 +117,7 @@ void parse_options(int argc, char **argv)
         fatal("No configuration specified (Option: -c <file>).");        
 
     if (access(input, R_OK))
-        fatal("No read permissions on '%s'.", input); 
+        fatal("Could not access '%s'.", input); 
 }
 
 /**

@@ -47,12 +47,11 @@ typedef struct {
 
 /* Feature array functions */
 farray_t *farray_create();
-void fattay_add(farray_t *, fvec_t *, char *);
+void farray_add(farray_t *, fvec_t *, char *);
 void farray_destroy(farray_t *);
 void farray_print(farray_t *);
 void farray_save(farray_t *, gzFile *);
 farray_t *farray_load(gzFile *);
-
 farray_t *farray_extract_dir(char *);
 
 #endif                          /* FARRAY_H */

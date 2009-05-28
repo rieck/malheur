@@ -15,7 +15,7 @@
 #include "fmath.h"
 
 /* Global variables */
-int verbose = 1;
+int verbose = 2;
 config_t cfg;
 
 /* Test file */
@@ -144,17 +144,21 @@ int test_load_save()
     gzclose(z);
     unlink(TEST_FILE);
     
+    /* Compare each vector mathematically */
     for (i = 0; i < fa->len; i++) {
         fvec_t *c = fvec_sub(fa->x[i], fb->x[i]);
         err += fvec_norm1(fa->x[i]) < 10e-9;
         fvec_destroy(c);
     }
 
+    err += fa->len != fb->len;
+    err += fa->mem != fb->mem;
+
     /* Destroy features */            
     farray_destroy(fa);
     farray_destroy(fb);
     
-    test_return(err, NUM_VECTORS);
+    test_return(err, NUM_VECTORS + 2);
     return err;
 }
 

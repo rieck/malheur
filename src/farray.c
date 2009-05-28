@@ -27,6 +27,7 @@
 #include "farray.h"
 #include "fvec.h"
 #include "fio.h"
+#include "md5.h"
 #include "util.h"
 
 /* External variables */
@@ -41,6 +42,7 @@ static int label_add(farray_t *fa, char *name)
 {
     label_t *entry;
     assert(fa && name);
+    unsigned char buf[MD5_DIGEST_LENGTH];
 
     /* Check if label is known */
     HASH_FIND(hn, fa->label_name, name, strlen(name), entry);    
@@ -49,9 +51,11 @@ static int label_add(farray_t *fa, char *name)
         
     /* Create new label */
     entry = malloc(sizeof(label_t));
-    entry->index = hash_string(name);    
     strncpy(entry->name, name, sizeof(entry->name)); 
     entry->name[sizeof(entry->name) - 1] = 0;
+    
+    MD5((unsigned char *) entry->name, strlen(entry->name), buf);
+    memcpy(&entry->index, buf, sizeof(unsigned int));    
              
     /* Add label to both tables */
     HASH_ADD(hi, fa->label_index, index, sizeof(int), entry);
@@ -220,7 +224,7 @@ void farray_print(farray_t *fa)
     for (i = 0; i < fa->len; i++) {
         fvec_print(fa->x[i]);
         HASH_FIND(hi, fa->label_index, &fa->y[i], sizeof(int), entry);    
-        printf("  label: %s, index %d\n", entry->name, fa->y[i]);        
+        printf("  label: %s, index %u\n", entry->name, fa->y[i]);        
     }   
 }
 

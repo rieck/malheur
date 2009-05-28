@@ -26,7 +26,7 @@
  */
 typedef struct {
     char name[64];               /**< Label name (key 1)*/
-    int index;                   /**< Label index (key 2)*/
+    unsigned int index;          /**< Label index (key 2)*/
     UT_hash_handle hn;           /**< Uthash handle 1 */
     UT_hash_handle hi;           /**< Uthash handle 2 */
 } label_t;

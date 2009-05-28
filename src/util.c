@@ -159,24 +159,6 @@ char *file_suffix(char *file)
     return name;
 }
 
-/**
- * Returns a simple and weak hash for a string. The function has been
- * copied form the Web and is ascribed to D.J. Bernstein. It is sometimes
- * denoted as k=33 hash, as we have (x << 5 + x) = x * 32.
- * @param str String
- * @return weak hash value
- */
- int hash_string(char *str)
-{
-    int c, hash = 5381;
-
-    while ((c = *str++)) 
-        hash = ((hash << 5) + hash) ^ c; 
-
-    return hash;
-}
-
-
 #ifndef HAVE_FUNC_LOG2
 /** 
  * Logarithm of x to base 2

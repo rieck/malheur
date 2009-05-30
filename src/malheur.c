@@ -61,10 +61,10 @@ void print_usage(int argc, char **argv)
 {
     printf("Usage: malheur [options] <task> <input>\n"
            "Tasks:\n"
-           "  examine         Examine behavior reports and generate statistics\n"
-           "  prototype       Extract prototypes from behavior reports using labels\n"
-           "  learn-classes   Learn a classification of behavior reports using labels\n"
-           "  learn-clusters  Learn a clustering of behavior reports without labels\n"
+           "  examine         Examine reports and generate statistics\n"
+           "  prototype       Extract prototypes from reports using labels\n"
+           "  learn-classes   Learn a classification of reports using labels\n"
+           "  learn-clusters  Learn a clustering of reports without labels\n"
            "Options:\n"
            "  -c <file>       Set configuration file.\n"
            "  -o <file>       Set output file.\n"           
@@ -102,7 +102,6 @@ void parse_options(int argc, char **argv)
         case 'o':
             output_file = optarg;
             break;
-            
         case 'V':
             print_version();
             exit(EXIT_SUCCESS);
@@ -119,7 +118,7 @@ void parse_options(int argc, char **argv)
     argv += optind;
 
     if (argc != 2)
-        fatal("Task, input and output arguments are required");
+        fatal("<task> and <input> arguments are required");
 
     /* Argument: Task */
     if (!strcasecmp(argv[0], "examine"))

@@ -136,6 +136,10 @@ if test "x$MATLAB_TOOLS" = "xyes" && test "x$HAVE_MATLAB" = "xno" ; then
 fi 
 AM_CONDITIONAL(MATLAB_TOOLS, test "x$MATLAB_TOOLS" = "xyes")
 
+
+# Prepare sysconfdir
+eval "eval SYSCONFDIR=$sysconfdir"
+AC_SUBST([SYSCONFDIR])
 AC_SUBST([INCLUDES])
 
 AC_CONFIG_FILES([ 
@@ -144,6 +148,7 @@ AC_CONFIG_FILES([
    doc/Makefile \
    matlab/Makefile \
    tests/Makefile \
+   src/malheur.h \
 ])
 
 AC_OUTPUT_COMMANDS([],[

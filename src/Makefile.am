@@ -4,6 +4,7 @@
 # Berlin Institute of Technology (TU Berlin).
 #
 
+EXTRA_DIST		= malheur.h.in
 
 noinst_LIBRARIES	= libmalheur.a			  
 libmalheur_a_SOURCES	= md5.c md5.h common.h util.c util.h fvec.c \
@@ -11,7 +12,7 @@ libmalheur_a_SOURCES	= md5.c md5.h common.h util.c util.h fvec.c \
                           fmath.c fmath.h fio.c fio.h farray.c farray.h
 
 bin_PROGRAMS		= malheur
-malheur_SOURCES		= $(libmalheur_a_SOURCES) malheur.c malheur.h
+malheur_SOURCES		= $(libmalheur_a_SOURCES) malheur.c
 malheur_LDFLAGS		= -static
 
 beautify:       	$(libmalheur_a_SOURCES) $(malheur_SOURCES)

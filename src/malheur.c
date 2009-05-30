@@ -22,10 +22,10 @@ int verbose = 0;
 config_t cfg;
 
 /* Local variables */
-static char *cfg_file = NULL;
+static char *config_file = CONFIG_FILE;
+static char *output_file = OUTPUT_FILE;
 static char *input = NULL;
-static char *output = NULL;
-static malheur_task_t task = ANALYSE;
+static malheur_task_t task = PROTOTYPE;
 
 /**
  * Checks if the configuration is valid. The function currently checks
@@ -59,11 +59,18 @@ void check_config()
  */
 void print_usage(int argc, char **argv)
 {
-    printf("Usage: malheur [options] <task> <input> <output>\n"
-           "  -c <file>    Set configuration file.\n"
-           "  -v           Increase verbosity.\n"
-           "  -V           Print version and copyright.\n"
-           "  -h           Print this help screen.\n");
+    printf("Usage: malheur [options] <task> <input>\n"
+           "Tasks:\n"
+           "  examine         Examine behavior reports and generate statistics\n"
+           "  prototype       Extract prototypes from behavior reports using labels\n"
+           "  learn-classes   Learn a classification of behavior reports using labels\n"
+           "  learn-clusters  Learn a clustering of behavior reports without labels\n"
+           "Options:\n"
+           "  -c <file>       Set configuration file.\n"
+           "  -o <file>       Set output file.\n"           
+           "  -v              Increase verbosity.\n"
+           "  -V              Print version and copyright.\n"
+           "  -h              Print this help screen.\n");
 }
 
 /**
@@ -90,8 +97,12 @@ void parse_options(int argc, char **argv)
             verbose++;
             break;
         case 'c':
-            cfg_file = optarg;
+            config_file = optarg;
             break;
+        case 'o':
+            output_file = optarg;
+            break;
+            
         case 'V':
             print_version();
             exit(EXIT_SUCCESS);
@@ -107,12 +118,14 @@ void parse_options(int argc, char **argv)
     argc -= optind;
     argv += optind;
 
-    if (argc != 3)
+    if (argc != 2)
         fatal("Task, input and output arguments are required");
 
     /* Argument: Task */
-    if (!strcasecmp(argv[0], "analyse"))
-        task = ANALYSE;
+    if (!strcasecmp(argv[0], "examine"))
+        task = EXAMINE;
+    else if (!strcasecmp(argv[0], "prototype"))
+        task = PROTOTYPE;
     else if (!strcasecmp(argv[0], "learn-classes"))
         task = LEARN_CLASSES;
     else if (!strcasecmp(argv[0], "learn-clusters"))
@@ -124,14 +137,6 @@ void parse_options(int argc, char **argv)
     input = argv[1];
     if (access(input, R_OK))
         fatal("Could not access '%s'.", input); 
-
-    /* Argument: Output */
-    output = argv[2];
-
-    /* Sanity checks */
-    if (!cfg_file)
-        fatal("No configuration specified (Option: -c <file>).");        
-
 }
 
 /**
@@ -146,7 +151,7 @@ static void malheur_init(int argc, char **argv)
 
     /* Init and load configuration */
     config_init(&cfg);
-    if (config_read_file(&cfg, cfg_file) != CONFIG_TRUE)
+    if (config_read_file(&cfg, config_file) != CONFIG_TRUE)
         fatal("Could not read configuration (%s in line %d).",
               config_error_text(&cfg), config_error_line(&cfg));
     check_config();              
@@ -173,7 +178,9 @@ int main(int argc, char **argv)
 
     /* Perform task */
     switch (task) {
-    case ANALYSE:
+    case EXAMINE:
+        break;
+    case PROTOTYPE:
         break;
     case LEARN_CLASSES:
         break;

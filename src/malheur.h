@@ -14,9 +14,9 @@
 #ifndef MALHEUR_H
 #define MALHEUR_H
 
-/* Operation modes: Statistics, classification & clustering */
+/* Operation tasks of Malheur  */
 typedef enum {
-    STATISTICS, CLASSIFICATION, CLUSTERING
-} malheur_mode_t;
+    ANALYSE, LEARN_CLASSES, LEARN_CLUSTERS
+} malheur_task_t;
 
 #endif                          /* MALHEUR_H */

@@ -25,6 +25,7 @@ config_t cfg;
 static char *cfg_file = NULL;
 static char *input = NULL;
 static char *output = NULL;
+static malheur_task_t task = ANALYSE;
 
 /**
  * Checks if the configuration is valid. The function currently checks
@@ -58,7 +59,7 @@ void check_config()
  */
 void print_usage(int argc, char **argv)
 {
-    printf("Usage: malheur [options] <input> <output>\n"
+    printf("Usage: malheur [options] <task> <input> <output>\n"
            "  -c <file>    Set configuration file.\n"
            "  -v           Increase verbosity.\n"
            "  -V           Print version and copyright.\n"
@@ -106,27 +107,39 @@ void parse_options(int argc, char **argv)
     argc -= optind;
     argv += optind;
 
-    if (argc != 2)
-        fatal("Input and output arguments required");
+    if (argc != 3)
+        fatal("Task, input and output arguments are required");
 
-    input = argv[0];
-    output = argv[1];
+    /* Argument: Task */
+    if (!strcasecmp(argv[0], "analyse"))
+        task = ANALYSE;
+    else if (!strcasecmp(argv[0], "learn-classes"))
+        task = LEARN_CLASSES;
+    else if (!strcasecmp(argv[0], "learn-clusters"))
+        task = LEARN_CLUSTERS;
+    else
+        fatal("Unknown analysis task '%s' for Malheur", argv[0]);
+
+    /* Argument: Input */
+    input = argv[1];
+    if (access(input, R_OK))
+        fatal("Could not access '%s'.", input); 
+
+    /* Argument: Output */
+    output = argv[2];
 
     /* Sanity checks */
     if (!cfg_file)
         fatal("No configuration specified (Option: -c <file>).");        
 
-    if (access(input, R_OK))
-        fatal("Could not access '%s'.", input); 
 }
 
 /**
- * Main function of Malheur
+ * Initialize malheur tool
  * @param argc Number of arguments
  * @param argv Argument values
- * @return Exit code
  */
-int main(int argc, char **argv)
+static void malheur_init(int argc, char **argv)
 {
     /* Parse options */
     parse_options(argc, argv);
@@ -137,13 +150,37 @@ int main(int argc, char **argv)
         fatal("Could not read configuration (%s in line %d).",
               config_error_text(&cfg), config_error_line(&cfg));
     check_config();              
+}
 
-    farray_t *a = farray_extract(input);
-    farray_print(a);    
-    farray_destroy(a);    
-
+/**
+ * Exits the malheur tool.
+ */
+static void malheur_exit()
+{
     /* Destroy configuration */
     config_destroy(&cfg);
+}
+ 
+/**
+ * Main function of Malheur
+ * @param argc Number of arguments
+ * @param argv Argument values
+ * @return Exit code
+ */
+int main(int argc, char **argv)
+{
+    malheur_init(argc, argv);
 
+    /* Perform task */
+    switch (task) {
+    case ANALYSE:
+        break;
+    case LEARN_CLASSES:
+        break;
+    case LEARN_CLUSTERS:
+        break;
+    }
+
+    malheur_exit();
     return EXIT_SUCCESS;
 }

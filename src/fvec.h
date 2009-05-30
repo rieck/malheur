@@ -32,11 +32,13 @@ typedef struct {
     feat_t *dim;            /**< List of dimensions */
     float *val;             /**< List of values */
     unsigned long len;      /**< Length of list */
+    unsigned long total;    /**< Total features in sequence */
     unsigned long mem;      /**< Allocated memory in bytes */
-} fvec_t;
+    char *src;              /**< Source of features, e.g. file */
+} fvec_t;  
 
 /* Functions */
-fvec_t *fvec_extract(char *, int l);
+fvec_t *fvec_extract(char *, int l, char *);
 void fvec_destroy(fvec_t *);
 fvec_t *fvec_clone(fvec_t *);
 void fvec_print(fvec_t *);

@@ -10,7 +10,7 @@
  * warranty. See the GNU General Public License for more details. 
  * --
  */
- 
+
 /** 
  * @defgroup fvec Feature vector
  * Generic implementation of a feature vector. A feature vector contains 
@@ -74,7 +74,7 @@ static void fvec_condense(fvec_t * fv)
 
     /* Update length and memory */
     fv->len = p_dim - fv->dim;
-    fv->mem = sizeof(fvec_t) + fv->len * (sizeof(feat_t) + sizeof(float));
+    fv->mem += fv->len * (sizeof(feat_t) + sizeof(float));
  
     /* Reallocate memory */
     fvec_shrink(fv);
@@ -87,9 +87,10 @@ static void fvec_condense(fvec_t * fv)
  * See fvec_reset_delim();
  * @param x Sequence of bytes 
  * @param l Length of sequence
+ * @param s Source of features, e.g. file name
  * @return feature vector
  */
-fvec_t *fvec_extract(char *x, int l)
+fvec_t *fvec_extract(char *x, int l, char *s)
 {
     fvec_t *fv;
     int nlen;
@@ -97,7 +98,7 @@ fvec_t *fvec_extract(char *x, int l)
     assert(x && l >= 0);
 
     /* Allocate feature vector */
-    fv = malloc(sizeof(fvec_t));
+    fv = calloc(1, sizeof(fvec_t));
     if (!fv) {
         error("Could not extract feature vector.");
         return NULL;
@@ -105,8 +106,16 @@ fvec_t *fvec_extract(char *x, int l)
 
     /* Initialize feature vector */
     fv->len = 0;
+    fv->total = 0;
     fv->dim = (feat_t *) malloc(l * sizeof(feat_t));
     fv->val = (float *) malloc(l * sizeof(float));
+    fv->mem = sizeof(fvec_t);
+    
+    /* Set source */
+    if (s) {
+        fv->src = strdup(s);
+        fv->mem += strlen(s);
+    }
 
     /* Check for empty sequence */
     if (l == 0)
@@ -142,6 +151,7 @@ fvec_t *fvec_extract(char *x, int l)
     qsort(fv->dim, fv->len, sizeof(feat_t), compare_feat);
 
     /* Condense duplicate features */
+    fv->total = fv->len;
     fvec_condense(fv);
 
     /* Compute embedding */
@@ -201,6 +211,8 @@ void fvec_destroy(fvec_t * fv)
         free(fv->dim);
     if (fv->val)
         free(fv->val);
+    if (fv->src)
+        free(fv->src);
     free(fv);
 }
 
@@ -216,7 +228,7 @@ fvec_t *fvec_clone(fvec_t * o)
     unsigned int i;
 
     /* Allocate feature vector */
-    fv = malloc(sizeof(fvec_t));
+    fv = calloc(1, sizeof(fvec_t));
     if (!fv) {
         error("Could not clone feature vector.");
         return NULL;
@@ -224,14 +236,18 @@ fvec_t *fvec_clone(fvec_t * o)
 
     /* Clone structure */
     fv->len = o->len;
-    fv->dim = (feat_t *) malloc(o->len * sizeof(feat_t));
-    fv->val = (float *) malloc(o->len * sizeof(float));
+    fv->total = o->total;
     fv->mem = o->mem;
+
+    if (o->src)
+        fv->src = strdup(o->src);
 
     /* Check for empty sequence */
     if (o->len == 0)
         return fv;
 
+    fv->dim = (feat_t *) malloc(o->len * sizeof(feat_t));
+    fv->val = (float *) malloc(o->len * sizeof(float));
     if (!fv->dim || !fv->val) {
         error("Could not allocate feature vector.");
         fvec_destroy(fv);
@@ -255,8 +271,12 @@ void fvec_print(fvec_t * fv)
     assert(fv);
     int i, j;
 
-    printf("feature vector [len: %lu, %.2fkb, %p/%p/%p]\n", fv->len, 
-           fv->mem / 1e3, (void *) fv, (void *) fv->dim, (void *) fv->val);
+    printf("feature vector [len: %lu, total: %lu, %.2fkb, %p/%p/%p]\n", 
+           fv->len, fv->total, fv->mem / 1e3, (void *) fv, 
+           (void *) fv->dim, (void *) fv->val);
+
+    if (fv->src)
+        printf("  src: '%s'\n", fv->src);
            
     if (verbose < 3)
         return;
@@ -484,7 +504,8 @@ void fvec_save(fvec_t *f, gzFile *z)
     assert(f && z);
     int i;
 
-    gzprintf(z, "feature vector: len=%lu, mem=%lu\n", f->len, f->mem);
+    gzprintf(z, "feature vector: len=%lu, total=%lu, mem=%lu, src=%s\n", 
+             f->len, f->total, f->mem, f->src);
     for (i = 0; i < f->len; i++)
         gzprintf(z, "  %.16llx:%.16g\n", (unsigned long long) f->dim[i], 
                                          (float) f->val[i]);
@@ -500,7 +521,7 @@ fvec_t *fvec_load(gzFile *z)
 {
     assert(z);
     fvec_t *f;
-    char buf[512];
+    char buf[512], str[512];
     int i, r;
 
     /* Allocate feature vector (zero'd) */
@@ -511,13 +532,20 @@ fvec_t *fvec_load(gzFile *z)
     }
 
     gzgets(z, buf, 512);
-    r = sscanf(buf, "feature vector: len=%lu, mem=%lu\n", 
-              (unsigned long *) &f->len, (unsigned long *) &f->mem);
-    if (r != 2)  {
+    r = sscanf(buf, "feature vector: len=%lu, total=%lu, mem=%lu, src=%s\n", 
+              (unsigned long *) &f->len, (unsigned long *) &f->total,
+              (unsigned long *) &f->mem, str);
+    if (r != 4)  {
         error("Could not parse feature vector");
         fvec_destroy(f);
         return NULL;
     }
+
+    /* Set source */
+    if (!strcmp(str, "(null)")) 
+        f->src = NULL;
+    else
+        f->src = strdup(str);
     
     /* Empty feature vector */
     if (f->len == 0) 

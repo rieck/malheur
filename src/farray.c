@@ -73,9 +73,10 @@ static int label_add(farray_t *fa, char *name)
 
 /**
  * Creates and allocates an empty array of feature vectors
+ * @param s Source of array, e.g. directory
  * @return empty array
  */
-farray_t *farray_create()
+farray_t *farray_create(char *s)
 {
     farray_t *fa = calloc(1, sizeof(farray_t));
     if (!fa) {
@@ -86,6 +87,12 @@ farray_t *farray_create()
     /* Init elements of array */
     fa->len = 0;
     fa->mem = sizeof(farray_t);
+    
+    /* Set source */
+    if (s) {
+        fa->src = strdup(s);
+        fa->mem += strlen(s);
+    }    
     
     return fa;
 } 
@@ -107,9 +114,10 @@ void farray_destroy(farray_t *fa)
         free(fa->x);
     }
 
-    /* Free label indices */
     if (fa->y)
         free(fa->y);
+    if (fa->src)
+        free(fa->src);
         
     /* Free lable table */
     while(fa->label_name) {
@@ -192,7 +200,7 @@ farray_t *farray_extract_archive(char *arc)
     assert(arc);
     
     /* Allocate empty array */
-    farray_t *fa = farray_create();
+    farray_t *fa = farray_create(arc);
     if (!fa) 
         return NULL;
 
@@ -225,12 +233,12 @@ farray_t *farray_extract_archive(char *arc)
         }    
         
         /* Skip non-regular files */
-        if (!x)
+        if (!x && !l)
             continue;
 
         /* Preprocess and extract feature vector*/
         x = fio_preproc(x);
-        fvec_t *fv = fvec_extract(x, strlen(x));
+        fvec_t *fv = fvec_extract(x, strlen(x), l);
         
         #pragma omp critical (farray)
         {
@@ -264,7 +272,7 @@ farray_t *farray_extract_dir(char *dir)
     assert(dir);
 
     /* Allocate empty array */
-    farray_t *fa = farray_create();
+    farray_t *fa = farray_create(dir);
     if (!fa) 
         return NULL;
     
@@ -303,7 +311,7 @@ farray_t *farray_extract_dir(char *dir)
         /* Extract feature vector from file */
         char *raw = fio_load_file(dir, dp->d_name);
         raw = fio_preproc(raw);
-        fvec_t *fv = fvec_extract(raw, strlen(raw));
+        fvec_t *fv = fvec_extract(raw, strlen(raw), dp->d_name);
 
         #pragma omp critical (farray)
         {        
@@ -338,6 +346,9 @@ void farray_print(farray_t *fa)
            fa->len, HASH_CNT(hn, fa->label_name), fa->mem / 1e6,
            (void *) fa, (void *) fa->x, (void *) fa->y);
            
+    if (fa->src)
+        printf("  src: '%s'\n", fa->src);
+           
     if (verbose < 2)
         return;
     
@@ -359,8 +370,8 @@ void farray_save(farray_t *fa, gzFile *z)
     int i;
     label_t *entry;
 
-    gzprintf(z, "feature array: len=%lu, labels=%d, mem=%lu\n", 
-            fa->len, HASH_CNT(hn, fa->label_name), fa->mem);
+    gzprintf(z, "feature array: len=%lu, labels=%d, mem=%lu, src=%s\n", 
+            fa->len, HASH_CNT(hn, fa->label_name), fa->mem, fa->src);
             
     for (i = 0; i < fa->len; i++) {
         fvec_save(fa->x[i], z);
@@ -382,19 +393,25 @@ farray_t *farray_load(gzFile *z)
     int lab, r, i;
 
     /* Allocate feature array */
-    farray_t *f = farray_create();
+    farray_t *f = farray_create(NULL);
     if (!f) 
         return NULL;
 
     gzgets(z, buf, 512);
-    r = sscanf(buf, "feature array: len=%lu, labels=%d, mem=%lu\n", 
+    r = sscanf(buf, "feature array: len=%lu, labels=%d, mem=%lu, src=%s\n", 
               (unsigned long *) &len, (int *) &lab, 
-              (unsigned long *) &mem);              
-    if (r != 3)  {
+              (unsigned long *) &mem, str);              
+    if (r != 4)  {
         error("Could not parse feature array");
         farray_destroy(f);
         return NULL;
     }
+       
+    /* Set source */
+    if (strcmp(str, "(null)"))  {
+        f->src = strdup(str);
+        f->mem += strlen(str);
+    }    
     
     /* Load contents */
     for (i = 0; i < len; i++) {

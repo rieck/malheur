@@ -42,11 +42,12 @@ typedef struct {
     
     label_t *label_name;        /**< Table of label names */
     label_t *label_index;       /**< Table of label indices */
+    char *src;                  /**< Source of array, e.g. dir */
 } farray_t;
 
 
 /* Feature array functions */
-farray_t *farray_create();
+farray_t *farray_create(char *);
 void farray_add(farray_t *, fvec_t *, char *);
 void farray_destroy(farray_t *);
 void farray_print(farray_t *);

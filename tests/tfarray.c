@@ -15,7 +15,7 @@
 #include "fmath.h"
 
 /* Global variables */
-int verbose = 2;
+int verbose = 1;
 config_t cfg;
 
 /* Test file */
@@ -41,7 +41,7 @@ int test_stress()
 
     for (i = 0; i < STRESS_RUNS; i++) {
         /* Create array */
-        fa = farray_create();
+        fa = farray_create("test");
         
         for (j = 0; j < NUM_VECTORS; j++) {
             for (k = 0; k < STR_LENGTH; k++)
@@ -49,7 +49,7 @@ int test_stress()
             buf[k] = 0;    
             
             /* Extract features */
-            f = fvec_extract(buf, strlen(buf));
+            f = fvec_extract(buf, strlen(buf), "test");
 
             /* Get label */
             snprintf(label, 32, "label%.2d", rand() % 10);
@@ -78,7 +78,7 @@ int test_stress_omp()
 
     for (i = 0; i < STRESS_RUNS; i++) {
         /* Create array */
-        farray_t *fa = farray_create();
+        farray_t *fa = farray_create("test");
         
         #pragma omp parallel for
         for (j = 0; j < NUM_VECTORS; j++) {
@@ -87,7 +87,7 @@ int test_stress_omp()
             buf[k] = 0;    
             
             /* Extract features */
-            fvec_t *f = fvec_extract(buf, strlen(buf));
+            fvec_t *f = fvec_extract(buf, strlen(buf), "test");
 
             #pragma omp critical 
             {
@@ -118,14 +118,14 @@ int test_load_save()
     test_printf("Loading and saving of feature arrays");
 
     /* Create array */
-    farray_t *fa = farray_create();
+    farray_t *fa = farray_create("test");
     for (j = 0; j < NUM_VECTORS; j++) {
         for (k = 0; k < STR_LENGTH; k++)
             buf[k] = rand() % 10 + '0';
         buf[k] = 0;    
             
         /* Extract features and add to array */
-        fvec_t *f = fvec_extract(buf, strlen(buf));
+        fvec_t *f = fvec_extract(buf, strlen(buf), "test");
         snprintf(label, 32, "label%.2d", rand() % 10);
         farray_add(fa, f, label);
     }    

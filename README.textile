@@ -1,0 +1,37 @@
+h1. Malheur
+
+<pre><code>
+                       ___    __                              
+   ------------------ /\_ \  /\ \ ------------  ---  ---------
+     ___ ___      __  \//\ \ \ \ \___      __   __  __  _ __  
+   /' __` __`\  /'__`\  \ \ \ \ \  _ `\  /'__`\/\ \/\ \/\`'__\
+   /\ \/\ \/\ \/\ \_\.\_ \_\ \_\ \ \ \ \/\  __/\ \ \_\ \ \ \/ 
+   \ \_\ \_\ \_\ \__/.\_\/\____\\ \_\ \_\ \____\\ \____/\ \_\ 
+    \/_/\/_/\/_/\/__/\/_/\/____/ \/_/\/_/\/____/ \/___/  \/_/ 
+   ---------------------------------  ---  -----(c) l.gelberg-
+</code></pre>
+
+By Konrad Rieck, Berlin Institute of Technology (TU Berlin).
+
+Malheur is a software suite for automatic analysis of malware. The suite provides functionality for description, classification and clustering of malware behavior recorded using sandbox techniques. The components of Malheur have been designed with effectivity and efficiency in mind using modern learning and analysis techniques, such as sparse feature vectors and linear models. As input format Malheur supports generic text and XML reports of monitored behavior. 
+
+Malheur is currently in a *pre-alpha* stage. Check back later.
+
+h2. Dependencies
+
+* @libconfig@: version >= 1.3.20, see http://www.hyperrealm.com/libconfig/
+* @libarchive@:  version >= 2.70, see http://people.freebsd.org/~kientzle/libarchive/
+* @zlib@: version >= 1.2.3, see http://www.zlib.net/
+
+h2. Compilation and Installation
+
+<pre><code>
+   $ ./configure [options]
+   $ make
+   $ make check
+   $ make install
+</code></pre>
+
+* @--prefix=PATH@<br>By default Malheur is installed into /usr/local. If you prefer a different location, use this option to select a different installation directory.
+* @--enable-openmp@<br>This option enables support for OpenMP in Malheur. Several functions of the malware analysis have been augmented with OpenMP directives, such that they can be executed in parallel and benefit from multi-core architectures.
+* @--enable-matlab@ and @--with-matlab-dir=PATH@<br>Some functions of Malheur are available in Matlab .mex files which allows for using the implemented analysis methods directly from within Matlab. 

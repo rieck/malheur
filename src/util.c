@@ -36,11 +36,10 @@ void err_msg(char *p, const char *f, char *m, ...)
     vsnprintf(s, 256, m, ap);
     va_end(ap);
 
-    fprintf(stderr, "%7s: %s\n", p, s);
-    fprintf(stderr, "\t [func: %s", f);
+    fprintf(stderr, "%s: %s", p, s);
     if (errno)
-        fprintf(stderr, ", msg: %s", strerror(errno));
-    fprintf(stderr, "]\n");
+        fprintf(stderr, ": %s", strerror(errno));
+    fprintf(stderr, " [%s]\n", f);
 
     errno = 0;
 }
@@ -90,7 +89,7 @@ void prog_bar(double min, double max, double in)
     int secs = floor(ptime - mins * 60);
     pb_string[PROGBAR_LEN] = 0;
 
-    printf("\r    [%s] %5.1f%%  %s %.2dm %.2ds", pb_string,
+    printf("\r  [%s] %5.1f%%  %s %.2dm %.2ds", pb_string,
            perc * 100, descr, mins, secs);
     fflush(stdout);
     fflush(stderr);

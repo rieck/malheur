@@ -15,6 +15,7 @@
 #include "malheur.h"
 #include "common.h"
 #include "farray.h"
+#include "ftable.h"
 #include "util.h"
 
 /* Global variables */
@@ -26,6 +27,7 @@ static char *config_file = CONFIG_FILE;
 static char *output_file = OUTPUT_FILE;
 static char *input = NULL;
 static malheur_task_t task = PROTOTYPE;
+static int lookup_table = FALSE;
 
 /**
  * Checks if the configuration is valid. The function currently checks
@@ -34,6 +36,8 @@ static malheur_task_t task = PROTOTYPE;
  */
 void check_config()
 {
+    int i;
+    double f;
     long l;
     const char *s;
 
@@ -50,6 +54,12 @@ void check_config()
         fatal("'ngram_delim' not defined in configuration group 'features'");
     if (config_lookup_string(&cfg, "features.normalization", &s) != CONFIG_TRUE)
         fatal("'normalization' not defined in configuration 'features'");
+
+    /* Check in analysis setting */    
+    if (config_lookup_float(&cfg, "analysis.prototype_radius", &f) != CONFIG_TRUE)
+        fatal("'prototype_radius' not defined in configuration group 'analysis'");
+    if (config_lookup_bool(&cfg, "analysis.prototype_labels", &i) != CONFIG_TRUE)
+        fatal("'prototype_labels' not defined in configuration group 'analysis'");
 }
 
 /**
@@ -67,7 +77,8 @@ void print_usage(int argc, char **argv)
            "  learn-clusters  Learn a clustering of reports without labels\n"
            "Options:\n"
            "  -c <file>       Set configuration file.\n"
-           "  -o <file>       Set output file.\n"           
+           "  -o <file>       Set output file.\n"     
+           "  -l              Enable feature lookup table.\n"
            "  -v              Increase verbosity.\n"
            "  -V              Print version and copyright.\n"
            "  -h              Print this help screen.\n");
@@ -91,7 +102,7 @@ void print_version()
 void parse_options(int argc, char **argv)
 {
     int ch;
-    while ((ch = getopt(argc, argv, "c:hvV")) != -1) {
+    while ((ch = getopt(argc, argv, "lo:c:hvV")) != -1) {
         switch (ch) {
         case 'v':
             verbose++;
@@ -101,6 +112,9 @@ void parse_options(int argc, char **argv)
             break;
         case 'o':
             output_file = optarg;
+            break;
+        case 'l':
+            lookup_table = TRUE;
             break;
         case 'V':
             print_version();
@@ -135,7 +149,7 @@ void parse_options(int argc, char **argv)
     /* Argument: Input */
     input = argv[1];
     if (access(input, R_OK))
-        fatal("Could not access '%s'.", input); 
+        fatal("Could not access '%s'", input); 
 }
 
 /**
@@ -151,9 +165,12 @@ static void malheur_init(int argc, char **argv)
     /* Init and load configuration */
     config_init(&cfg);
     if (config_read_file(&cfg, config_file) != CONFIG_TRUE)
-        fatal("Could not read configuration (%s in line %d).",
+        fatal("Could not read configuration (%s in line %d)",
               config_error_text(&cfg), config_error_line(&cfg));
-    check_config();              
+    check_config();          
+    
+    if (lookup_table)
+        ftable_init();
 }
 
 /**
@@ -161,6 +178,9 @@ static void malheur_init(int argc, char **argv)
  */
 static void malheur_exit()
 {
+    if (lookup_table)
+        ftable_destroy();
+
     /* Destroy configuration */
     config_destroy(&cfg);
 }
@@ -173,11 +193,15 @@ static void malheur_exit()
  */
 int main(int argc, char **argv)
 {
+    farray_t *fa;
     malheur_init(argc, argv);
 
     /* Perform task */
     switch (task) {
     case EXAMINE:
+        fa = farray_extract(input);
+        farray_print(fa);
+        farray_destroy(fa);
         break;
     case PROTOTYPE:
         break;

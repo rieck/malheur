@@ -100,7 +100,7 @@ inline fvec_t *fvec_adds(fvec_t *fa, fvec_t *fb, double s)
     /* Allocate feature vector (zero'd) */
     f = malloc(sizeof(fvec_t));
     if (!f) {
-        error("Could not create feature vector.");
+        error("Could not create feature vector");
         return NULL;
     }
 
@@ -108,7 +108,7 @@ inline fvec_t *fvec_adds(fvec_t *fa, fvec_t *fb, double s)
     f->dim = (feat_t *) malloc((fa->len + fb->len) * sizeof(feat_t));
     f->val = (float *) malloc((fa->len + fb->len) * sizeof(float));
     if (!f->dim || !f->val) {
-        error("Could not allocate feature vector contents.");
+        error("Could not allocate feature vector contents");
         fvec_destroy(f);
         return NULL;
     }

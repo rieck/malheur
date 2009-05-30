@@ -17,11 +17,11 @@
 #include "config.h"
 
 /* Progress bar stuff */
-#define PROGBAR_LEN     48
-#define PROGBAR_EMPTY   '.'
+#define PROGBAR_LEN     52
+#define PROGBAR_EMPTY   ':'
 #define PROGBAR_FULL    '#'
-#define PROGBAR_DONE    '='
-#define PROGBAR_FRONT   '>'
+#define PROGBAR_DONE    '#'
+#define PROGBAR_FRONT   '#'
 
 /* Fatal message */
 #ifndef fatal

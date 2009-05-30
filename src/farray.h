@@ -22,14 +22,14 @@
 #define BLOCK_SIZE          (4096 / sizeof(farray_t))
 
 /**
- * Entry for label hash table. 
+ * Entry for class hash table. 
  */
 typedef struct {
-    char name[64];               /**< Label name (key 1)*/
-    unsigned int index;          /**< Label index (key 2)*/
+    char name[64];               /**< Class name (key 1)*/
+    unsigned int index;          /**< Class index (key 2)*/
     UT_hash_handle hn;           /**< Uthash handle 1 */
     UT_hash_handle hi;           /**< Uthash handle 2 */
-} label_t;
+} class_t;
 
 /**
  * Array of feature vectors.
@@ -40,8 +40,8 @@ typedef struct {
     unsigned long len;          /**< Length of array */
     unsigned long mem;          /**< Allocated memory in bytes */
     
-    label_t *label_name;        /**< Table of label names */
-    label_t *label_index;       /**< Table of label indices */
+    class_t *class_name;        /**< Table of class names */
+    class_t *class_index;       /**< Table of class indices */
     char *src;                  /**< Source of array, e.g. dir */
 } farray_t;
 

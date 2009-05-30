@@ -100,7 +100,7 @@ fvec_t *fvec_extract(char *x, int l, char *s)
     /* Allocate feature vector */
     fv = calloc(1, sizeof(fvec_t));
     if (!fv) {
-        error("Could not extract feature vector.");
+        error("Could not extract feature vector");
         return NULL;
     }
 
@@ -122,7 +122,7 @@ fvec_t *fvec_extract(char *x, int l, char *s)
         return fv;
 
     if (!fv->dim || !fv->val) {
-        error("Could not allocate feature vector.");
+        error("Could not allocate feature vector");
         fvec_destroy(fv);
         return NULL;
     }
@@ -230,7 +230,7 @@ fvec_t *fvec_clone(fvec_t * o)
     /* Allocate feature vector */
     fv = calloc(1, sizeof(fvec_t));
     if (!fv) {
-        error("Could not clone feature vector.");
+        error("Could not clone feature vector");
         return NULL;
     }
 
@@ -249,7 +249,7 @@ fvec_t *fvec_clone(fvec_t * o)
     fv->dim = (feat_t *) malloc(o->len * sizeof(feat_t));
     fv->val = (float *) malloc(o->len * sizeof(float));
     if (!fv->dim || !fv->val) {
-        error("Could not allocate feature vector.");
+        error("Could not allocate feature vector");
         fvec_destroy(fv);
         return NULL;
     }
@@ -271,10 +271,9 @@ void fvec_print(fvec_t * fv)
     assert(fv);
     int i, j;
 
-    printf("feature vector [len: %lu, total: %lu, %.2fkb, %p/%p/%p]\n", 
-           fv->len, fv->total, fv->mem / 1e3, (void *) fv, 
-           (void *) fv->dim, (void *) fv->val);
-
+    printf("feature vector\n  len: %lu, total: %lu, mem: %.2fkb\n", 
+           fv->len, fv->total, fv->mem / 1e3);
+        
     if (fv->src)
         printf("  src: '%s'\n", fv->src);
            
@@ -282,7 +281,7 @@ void fvec_print(fvec_t * fv)
         return;
         
     for (i = 0; i < fv->len; i++) {
-        printf("  0x%.16llx: %6.4f", (long long unsigned int) fv->dim[i], 
+        printf("    0x%.16llx: %6.4f", (long long unsigned int) fv->dim[i], 
                fv->val[i]);
 
         /* Lookup feature */
@@ -527,7 +526,7 @@ fvec_t *fvec_load(gzFile *z)
     /* Allocate feature vector (zero'd) */
     f = calloc(1, sizeof(fvec_t));
     if (!f) {
-        error("Could not load feature vector.");
+        error("Could not load feature vector");
         return NULL;
     }
 
@@ -555,7 +554,7 @@ fvec_t *fvec_load(gzFile *z)
     f->dim = (feat_t *) malloc(f->len * sizeof(feat_t));
     f->val = (float *) malloc(f->len * sizeof(float));
     if (!f->dim || !f->val) {
-        error("Could not allocate feature vector contents.");
+        error("Could not allocate feature vector contents");
         fvec_destroy(f);
         return NULL;
     }

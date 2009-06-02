@@ -15,12 +15,15 @@
 #define MIST_H
 
 /** Delimiters for instructions */
-#define MIST_DELIM      '\n'
+#define MIST_NEWLINE    '\n'
 #define MIST_LEVEL      ':'
 #define MIST_COMMENT    '#'
+#define MIST_INSTRUCT   '*'
 
 /* Functions */
+char *mist_preproc(char *report);
+char *mist_trunc_report(char *, int);
+char *mist_trunc_thread(char *, int);
 char *mist_trunc_level(char *, int);
-char *mist_trunc_level2(char *, int, int);
 
 #endif                          /* MIST_H */

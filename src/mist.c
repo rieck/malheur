@@ -26,6 +26,95 @@
 
 /* External variables */
 extern int verbose;
+extern config_t cfg;
+
+/**
+ * Preprocesses a MIST report
+ * @param report Report as string
+ * @return preprocessed report
+ */
+char *mist_preproc(char *report)
+{
+    long level, report_len, thread_len;
+
+    /* Get MIST configuration */
+    config_lookup_int(&cfg, "input.mist_level", (long *) &level);  
+    config_lookup_int(&cfg, "input.mist_report_len", (long *) &report_len);
+    config_lookup_int(&cfg, "input.mist_thread_len", (long *) &thread_len);
+
+    report = mist_trunc_report(report, report_len);
+    report = mist_trunc_thread(report, thread_len);
+    report = mist_trunc_level(report, level);
+
+    printf("%s\n", report);
+    return report;
+}
+
+
+char *mist_trunc_report(char *report, int len)
+{
+    long j, i, k = 0;
+    
+    if (len <= 0)
+        return report;
+
+    for (i = j = 0; i < strlen(report); i++) {
+        /* Check for new line */
+        if (report[i] != MIST_NEWLINE)
+            continue;
+        /* Count instructions */
+        if (report[j] == MIST_INSTRUCT)
+            k++;
+        /* Stop after len instructions */
+        if (k >= len) 
+            break;
+            
+        j = i + 1;    
+    }
+    
+    /* Terminate string */
+    report[i] = '\0';
+
+    return report;
+}
+
+char *mist_trunc_thread(char *report, int len)
+{
+    long j, i, k = 0, l = 0, n = strlen(report);
+    
+    if (len <= 0)
+        return report;
+
+    for (i = j = l = 0; i < n; i++, j++) {
+        /* Check for new line */
+        if (report[i] == MIST_NEWLINE) {
+            /* Count instructions */
+            if (report[l] == MIST_INSTRUCT)
+                k++;
+            if (report[l] == MIST_COMMENT)
+                k = 0;
+                
+            if (k >= len) {
+                /* Skip over remaining instructions */
+                while (i < n && report[++i] != MIST_COMMENT);
+                if (i == n)
+                    break;
+                i--;
+                k = 0;
+            }
+                
+            l = i + 1;
+        }   
+        
+         report[j] = report[i]; 
+    }
+    
+    /* Terminate string */
+    report[j] = '\0';
+
+    return report;
+}
+
 
 /**
  * Truncates a report to a given MIST level and removes comments. 
@@ -38,14 +127,19 @@ extern int verbose;
 char *mist_trunc_level(char *report, int level)
 {
     int l, i, j, len = strlen(report);
-    for (i = j = l = 0; i < len; i++, j++) {
     
+    /* Skip if level 0 */
+    if (level <= 0)
+        return report;
+    
+    /* Loop over file */
+    for (i = j = l = 0; i < len; i++, j++) {
         /* Determine current level */
         if (report[i] == MIST_LEVEL) {
             l = (l + 1) % level;
             if (l == 0) {
                 /* Skip over remaining levels */
-                while (i < len && report[++i] != MIST_DELIM);
+                while (i < len && report[++i] != MIST_NEWLINE);
                 if (i == len)
                     break;
             }    
@@ -53,82 +147,14 @@ char *mist_trunc_level(char *report, int level)
 
         /* Skip comments */
         if (report[i] == MIST_COMMENT) {
-            while (i < len && report[++i] != MIST_DELIM);
+            while (i < len && report[++i] != MIST_NEWLINE);
             if (i == len)
                 break;
         }    
 
         /* Check for new line */
-        if (report[i] == MIST_DELIM) 
+        if (report[i] == MIST_NEWLINE) 
             l = 0;
-
-        /* Copy contents */
-        report[j] = report[i];
-    }
-
-
-    /* Terminate string */
-    report[j] = '\0';
-    return report;
-}
-
-
-/**
- * Truncates a report to a given MIST level using an enhanced section. 
- * This function extracts a MIST level but extends a specified MIST
- * section to (level + 1).
- * @param report Report as string
- * @param level MIST level 
- * @param sect Enhanced section with level + 1
- * @return truncated report
- */
-char *mist_trunc_level2(char *report, int level, int sect)
-{
-    int l, i, j, k, len = strlen(report);
-    for (i = j = l = 0, k = -1; i < len; i++, j++) {
-    
-        if (report[i] == MIST_LEVEL) {
-            if (k == sect)
-               l = (l + 1) % (level + 1);            
-            else 
-               l = (l + 1) % level;
-      
-            if (l == 0) {
-                /* Skip over remaining levels */            
-                while (i < len && report[++i] != MIST_DELIM);
-                if (i == len)
-                    break;
-            }    
-        }
-            
-        /* Skip comments */            
-        if (report[i] == MIST_COMMENT) {
-            while (i < len && report[++i] != MIST_DELIM);
-            if (i == len)
-                break;
-        }    
-        
-        /* Check for new line */        
-        if (report[i] == MIST_DELIM) {
-            l = 0;
-            k = -1;
-        }    
-
-        /* 
-         * Determine enhanced section (level == 0) and no section has 
-         * been detected so far (k == -1)
-         */
-        if (l == 0 && k == -1) {
-            for(k = i; k + 1 < len && !isdigit(report[k]); k++);
-            
-            /* Dirty hack to efficiently parse hexadecimal number */
-            if (k + 1 < len) {
-                if (isdigit(report[k + 1]))
-                    k = (report[k] - '0') * 16 + report[k + 1] - '0';
-                else    
-                    k = (report[k] - '0') * 16 + report[k + 1] - 'a' + 10;           
-            }        
-        }
 
         /* Copy contents */
         report[j] = report[i];

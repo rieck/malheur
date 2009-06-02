@@ -144,14 +144,12 @@ void fio_archive_entries(char *arc, int *fnum, int *total)
 char *fio_preproc(char *x) 
 {
     const char *fm_str;
-    int level;
 
     config_lookup_string(&cfg, "input.format", &fm_str);
     
     /* MIST transformation */
     if (!strcasecmp(fm_str, "mist")) {
-        config_lookup_int(&cfg, "input.mist_level", (long *) &level);
-        x = mist_trunc_level(x, level);
+        x = mist_preproc(x);
     }    
 
     return x;

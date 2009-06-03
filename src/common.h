@@ -15,6 +15,7 @@
 #define COMMON_H
 
 #define __USE_BSD		/* Also for dirent under Linux */
+#define _BSD_SOURCE     /* For setdup under Linux */
 #define __USE_POSIX		/* For readdir_r under Linux */
 
 #include <sys/time.h>

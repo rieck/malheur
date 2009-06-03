@@ -7,7 +7,7 @@
 
 INCLUDES 		= @INCLUDES@ -I$(top_srcdir)/src -I$(top_srcdir)
 MEXFLAGS 		= @MEXFLAGS@ -inline $(INCLUDES) -v \
-           	 	  CC='$(CC)' LD='$(CC) $(CFLAGS) -fPIC' \
+           	 	  CC='$(CC)' LD='$(CC) $(CFLAGS) -fPIC $(LIBS)' \
               		  CFLAGS='-fPIC -D_GNU_SOURCE -pthread $(CFLAGS)'
 MEXLDADD		= $(top_builddir)/src/libmalheur.a              		  
 

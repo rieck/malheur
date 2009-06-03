@@ -15,6 +15,7 @@
 #define error(...) mexErrMsgIdAndTxt("malheur:generic", __VA_ARGS__)
 
 #include <mex.h>
+#include <libconfig.h>
 #include "config.h"
 #include "mist.h"
 #include "util.h"
@@ -33,6 +34,11 @@
 #define out     plhs[0]         /* Default output */
 
 /*
+ * Global configuration
+ */
+config_t *cfg = NULL; 
+
+/*
  * Print library version
  */
 void mex_print_version(void)
@@ -46,10 +52,9 @@ void mex_print_version(void)
  * Loads a MIST report from a file and extracts the specified MIST level
  * @param name report file name 
  * @param level Extraction level
- * @param sect Enhanced section or -1 to disable
  * @return report as string
  */
-char *mist_load_report(char *name, int level, int sect)
+char *mist_load_report(char *name, int level)
 {
     if (level < 1) 
         warning("Level too small. Increasing to 1.");
@@ -81,11 +86,7 @@ char *mist_load_report(char *name, int level, int sect)
     fclose(fptr);
 
     /* Truncate MIST level and remove comments */
-    if (sect == -1)
-        report = mist_trunc_level(report, level);
-    else
-        report = mist_trunc_level2(report, level, sect);
-    
+    report = mist_trunc_level(report, level);
     report = realloc(report, strlen(report) + 1);
     if (!report) {
         error("Could not re-allocate MIST report");
@@ -100,7 +101,7 @@ char *mist_load_report(char *name, int level, int sect)
  */
 void mex_load_mist(MEX_SIGNATURE)
 {
-    int sect = -1, level, i, len, j = 0;
+    int level, i, len, j = 0;
     char *r, fn[1024];
     mxArray *a;
 
@@ -117,12 +118,6 @@ void mex_load_mist(MEX_SIGNATURE)
     /* Get input arguments */
     len = mxGetN(in1);    
     level = (int) mxGetScalar(in2);
-
-    /* Get section if specified */
-    if (nrhs > 3) {
-        sect = (int) mxGetScalar(in3);    
-        printf("Enhancing MIST section %d to level %d.\n", sect, level + 1);
-    }    
     
     /* Get output variable */
     out = mxCreateCellMatrix(1, len);
@@ -134,7 +129,7 @@ void mex_load_mist(MEX_SIGNATURE)
         mxGetString(a, fn, 1023);
 
         /* Load report */
-        r = mist_load_report(fn, level, sect);
+        r = mist_load_report(fn, level);
     
         prog_bar(0, (double) len, (double) j++);
         /* Store report in cell array */

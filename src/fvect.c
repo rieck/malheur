@@ -12,7 +12,7 @@
  */
 
 /** 
- * @defgroup fvec Feature vector
+ * @defgroup fvect Feature vector
  * Generic implementation of a feature vector. A feature vector contains 
  * a sparse representation of non-zero dimensions in the feature space. 
  * This allows for operating with vectors of high and even infinite 
@@ -26,7 +26,7 @@
 
 #include "config.h"
 #include "common.h"
-#include "fvec.h"
+#include "fvect.h"
 #include "ftable.h"
 #include "fmath.h"
 #include "util.h"
@@ -37,8 +37,8 @@ extern int verbose;
 extern config_t cfg;
 
 /* Local functions */
-static void extract_wgrams(fvec_t *, char *x, int l, int n);
-static void extract_ngrams(fvec_t *, char *x, int l, int n);
+static void extract_wgrams(fvect_t *, char *x, int l, int n);
+static void extract_ngrams(fvect_t *, char *x, int l, int n);
 static int compare_feat(const void *, const void *);
 
 /* Delimiter functions and table */
@@ -50,7 +50,7 @@ static char delim[256] = { DELIM_NOT_INIT };
  * Condense a feature vector by counting duplicate features.
  * @param fv Feature vector
  */
-static void fvec_condense(fvec_t * fv)
+static void fvect_condense(fvect_t * fv)
 {
     feat_t *p_dim = fv->dim;
     float n = 0, *p_val = fv->val;
@@ -77,28 +77,28 @@ static void fvec_condense(fvec_t * fv)
     fv->mem += fv->len * (sizeof(feat_t) + sizeof(float));
  
     /* Reallocate memory */
-    fvec_shrink(fv);
+    fvect_shrink(fv);
 }
 
 /**
  * Allocate and extract a feature vector from a sequence.
  * There is a global table of delimiter symbols which is only 
  * initialized once the first sequence is processed. 
- * See fvec_reset_delim();
+ * See fvect_reset_delim();
  * @param x Sequence of bytes 
  * @param l Length of sequence
  * @param s Source of features, e.g. file name
  * @return feature vector
  */
-fvec_t *fvec_extract(char *x, int l, char *s)
+fvect_t *fvect_extract(char *x, int l, char *s)
 {
-    fvec_t *fv;
+    fvect_t *fv;
     int nlen;
     const char *dlm_str, *em_str;
     assert(x && l >= 0);
 
     /* Allocate feature vector */
-    fv = calloc(1, sizeof(fvec_t));
+    fv = calloc(1, sizeof(fvect_t));
     if (!fv) {
         error("Could not extract feature vector");
         return NULL;
@@ -109,7 +109,7 @@ fvec_t *fvec_extract(char *x, int l, char *s)
     fv->total = 0;
     fv->dim = (feat_t *) malloc(l * sizeof(feat_t));
     fv->val = (float *) malloc(l * sizeof(float));
-    fv->mem = sizeof(fvec_t);
+    fv->mem = sizeof(fvect_t);
     
     /* Set source */
     if (s) {
@@ -123,7 +123,7 @@ fvec_t *fvec_extract(char *x, int l, char *s)
 
     if (!fv->dim || !fv->val) {
         error("Could not allocate feature vector");
-        fvec_destroy(fv);
+        fvect_destroy(fv);
         return NULL;
     }
 
@@ -152,16 +152,16 @@ fvec_t *fvec_extract(char *x, int l, char *s)
 
     /* Condense duplicate features */
     fv->total = fv->len;
-    fvec_condense(fv);
+    fvect_condense(fv);
 
     /* Compute embedding */
     config_lookup_string(&cfg, "features.normalization", &em_str);
     if (!strcasecmp(em_str, "bin"))
-        fvec_normalize(fv, NORM_BIN);
+        fvect_normalize(fv, NORM_BIN);
     else if (!strcasecmp(em_str, "l2"))
-        fvec_normalize(fv, NORM_L2);
+        fvect_normalize(fv, NORM_L2);
     else if (!strcasecmp(em_str, "l1"))
-        fvec_normalize(fv, NORM_L1);
+        fvect_normalize(fv, NORM_L1);
 
     return fv;
 }
@@ -171,7 +171,7 @@ fvec_t *fvec_extract(char *x, int l, char *s)
  * the memory of features and its values, such that the required space
  * is reduced to a minimum.
  */
-void fvec_shrink(fvec_t *fv) 
+void fvect_shrink(fvect_t *fv) 
 {
     feat_t *p_dim;
     float *p_val;
@@ -205,7 +205,7 @@ void fvec_shrink(fvec_t *fv)
  * Destroys a feature vector 
  * @param fv Feature vector
  */
-void fvec_destroy(fvec_t * fv)
+void fvect_destroy(fvect_t * fv)
 {
     if (fv->dim)
         free(fv->dim);
@@ -221,14 +221,14 @@ void fvec_destroy(fvec_t * fv)
  * @param o Feature vector
  * @return Cloned feature vector
  */
-fvec_t *fvec_clone(fvec_t * o)
+fvect_t *fvect_clone(fvect_t * o)
 {
     assert(o);
-    fvec_t *fv;
+    fvect_t *fv;
     unsigned int i;
 
     /* Allocate feature vector */
-    fv = calloc(1, sizeof(fvec_t));
+    fv = calloc(1, sizeof(fvect_t));
     if (!fv) {
         error("Could not clone feature vector");
         return NULL;
@@ -250,7 +250,7 @@ fvec_t *fvec_clone(fvec_t * o)
     fv->val = (float *) malloc(o->len * sizeof(float));
     if (!fv->dim || !fv->val) {
         error("Could not allocate feature vector");
-        fvec_destroy(fv);
+        fvect_destroy(fv);
         return NULL;
     }
 
@@ -266,7 +266,7 @@ fvec_t *fvec_clone(fvec_t * o)
  * Print the content of a feature vector
  * @param fv feature vector
  */
-void fvec_print(fvec_t * fv)
+void fvect_print(fvect_t * fv)
 {
     assert(fv);
     int i, j;
@@ -314,7 +314,7 @@ void fvec_print(fvec_t * fv)
  * @param l Length of sequence
  * @param nlen N-gram length
  */
-static void extract_wgrams(fvec_t *fv, char *x, int l, int nlen)
+static void extract_wgrams(fvect_t *fv, char *x, int l, int nlen)
 {
     unsigned int i, j = l, k = 0, s = 0, n = 0, d;
     unsigned char buf[MD5_DIGEST_LENGTH];    
@@ -402,7 +402,7 @@ static void extract_wgrams(fvec_t *fv, char *x, int l, int nlen)
  * @param l Length of sequence
  * @param nlen N-gram length
  */
-static void extract_ngrams(fvec_t *fv, char *x, int l, int nlen) 
+static void extract_ngrams(fvect_t *fv, char *x, int l, int nlen) 
 {
     unsigned int i = 0;
     unsigned char buf[MD5_DIGEST_LENGTH];    
@@ -498,7 +498,7 @@ static void decode_delim(const char *s)
  * @param f Feature vector
  * @param z Stream pointer
  */
-void fvec_save(fvec_t *f, gzFile *z)
+void fvect_save(fvect_t *f, gzFile *z)
 {
     assert(f && z);
     int i;
@@ -516,15 +516,15 @@ void fvec_save(fvec_t *f, gzFile *z)
  * @param z Stream point
  * @return Feature vector
  */
-fvec_t *fvec_load(gzFile *z)
+fvect_t *fvect_load(gzFile *z)
 {
     assert(z);
-    fvec_t *f;
+    fvect_t *f;
     char buf[512], str[512];
     int i, r;
 
     /* Allocate feature vector (zero'd) */
-    f = calloc(1, sizeof(fvec_t));
+    f = calloc(1, sizeof(fvect_t));
     if (!f) {
         error("Could not load feature vector");
         return NULL;
@@ -536,7 +536,7 @@ fvec_t *fvec_load(gzFile *z)
               (unsigned long *) &f->mem, str);
     if (r != 4)  {
         error("Could not parse feature vector");
-        fvec_destroy(f);
+        fvect_destroy(f);
         return NULL;
     }
 
@@ -555,7 +555,7 @@ fvec_t *fvec_load(gzFile *z)
     f->val = (float *) malloc(f->len * sizeof(float));
     if (!f->dim || !f->val) {
         error("Could not allocate feature vector contents");
-        fvec_destroy(f);
+        fvect_destroy(f);
         return NULL;
     }
 
@@ -566,7 +566,7 @@ fvec_t *fvec_load(gzFile *z)
                                        (float *) &f->val[i]);
         if (r != 2) {
             error("Could not parse feature vector contents");
-            fvec_destroy(f);
+            fvect_destroy(f);
             return NULL;
         }
     }      
@@ -579,7 +579,7 @@ fvec_t *fvec_load(gzFile *z)
  * symbols which is only initialized once the first sequence is 
  * processed. This functions is used to trigger a re-initialization.
  */
-void fvec_reset_delim()
+void fvect_reset_delim()
 {
     delim[0] = DELIM_NOT_INIT;
 }

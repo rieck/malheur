@@ -12,7 +12,7 @@
  */
 
 /**
- * @defgroup fio Preprocessing and I/O functions
+ * @defgroup data Data preprocessing and I/O functions
  * The module contains a set of generic functions for reading and 
  * writing to files, as well as preprocessing routines converting 
  * between input formats.
@@ -25,8 +25,8 @@
 
 #include "config.h"
 #include "common.h"
-#include "fvec.h"
-#include "fio.h"
+#include "fvect.h"
+#include "data.h"
 #include "util.h"
 #include "mist.h"
 
@@ -41,7 +41,7 @@ extern config_t cfg;
  * @param name file name
  * @return string 
  */
-char *fio_load_file(char *path, char *name) 
+char *data_load_file(char *path, char *name) 
 {
     assert(name);
     long len, size = 0;
@@ -86,7 +86,7 @@ char *fio_load_file(char *path, char *name)
  * @param fnum Return pointer for number of regular files
  * @param total Return pointer for number of total files
  */
-void fio_dir_entries(char *dir, int *fnum, int *total)
+void data_dir_entries(char *dir, int *fnum, int *total)
 {
     struct dirent *dp;
     DIR *d;
@@ -109,7 +109,7 @@ void fio_dir_entries(char *dir, int *fnum, int *total)
  * @param fnum Return pointer for number of regular files
  * @param total Return pointer for number of total files
  */
-void fio_archive_entries(char *arc, int *fnum, int *total) 
+void data_archive_entries(char *arc, int *fnum, int *total) 
 {
     struct archive *a;
     struct archive_entry *entry;
@@ -141,7 +141,7 @@ void fio_archive_entries(char *arc, int *fnum, int *total)
  * @param x Raw string
  * @return Preprocessed output.
  */
-char *fio_preproc(char *x) 
+char *data_preproc(char *x) 
 {
     const char *fm_str;
 

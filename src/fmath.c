@@ -22,7 +22,7 @@
 
 #include "config.h"
 #include "common.h"
-#include "fvec.h"
+#include "fvect.h"
 #include "fmath.h"
 #include "util.h"
 
@@ -34,7 +34,7 @@ extern int verbose;
  * @param f Feature vector 
  * @param n Normalization
  */
-void fvec_normalize(fvec_t *f, norm_t n)
+void fvect_normalize(fvect_t *f, norm_t n)
 {
     int i = 0;
     double s = 0;
@@ -46,12 +46,12 @@ void fvec_normalize(fvec_t *f, norm_t n)
             f->val[i] = 1;
         break;
     case NORM_L1:
-        s = fvec_norm1(f);
+        s = fvect_norm1(f);
         for (i = 0; i < f->len; i++)
             f->val[i] /= s;
         break;
     case NORM_L2:
-        s = fvec_norm2(f);
+        s = fvect_norm2(f);
         for (i = 0; i < f->len; i++)
             f->val[i] /= s;
         break;
@@ -63,7 +63,7 @@ void fvec_normalize(fvec_t *f, norm_t n)
  * @param f Feature vector 
  * @param s Scalar value
  */
-inline void fvec_mul(fvec_t *f, double s)
+inline void fvect_mul(fvect_t *f, double s)
 {
     int i = 0;
     assert(f);
@@ -77,9 +77,9 @@ inline void fvec_mul(fvec_t *f, double s)
  * @param f Feature vector 
  * @param s Scalar value
  */
-inline void fvec_div(fvec_t *f, double s)
+inline void fvect_div(fvect_t *f, double s)
 {
-    fvec_mul(f, 1/s);
+    fvect_mul(f, 1/s);
 }
 
 
@@ -91,14 +91,14 @@ inline void fvec_div(fvec_t *f, double s)
  * @param s Scalar value
  * @return new feature vector
  */
-inline fvec_t *fvec_adds(fvec_t *fa, fvec_t *fb, double s) 
+inline fvect_t *fvect_adds(fvect_t *fa, fvect_t *fb, double s) 
 {
     unsigned long i = 0, j = 0, len = 0;
     assert(fa && fb);
-    fvec_t *f;
+    fvect_t *f;
     
     /* Allocate feature vector (zero'd) */
-    f = malloc(sizeof(fvec_t));
+    f = malloc(sizeof(fvect_t));
     if (!f) {
         error("Could not create feature vector");
         return NULL;
@@ -109,7 +109,7 @@ inline fvec_t *fvec_adds(fvec_t *fa, fvec_t *fb, double s)
     f->val = (float *) malloc((fa->len + fb->len) * sizeof(float));
     if (!f->dim || !f->val) {
         error("Could not allocate feature vector contents");
-        fvec_destroy(f);
+        fvect_destroy(f);
         return NULL;
     }
 
@@ -129,7 +129,7 @@ inline fvec_t *fvec_adds(fvec_t *fa, fvec_t *fb, double s)
 
     /* Set new length and reallocate */
     f->len = len;
-    fvec_shrink(f);
+    fvect_shrink(f);
     
     return f;
 }
@@ -140,9 +140,9 @@ inline fvec_t *fvec_adds(fvec_t *fa, fvec_t *fb, double s)
  * @param fb Feature vector (b)
  * @return new feature vector
  */
-inline fvec_t *fvec_add(fvec_t *fa, fvec_t *fb)
+inline fvect_t *fvect_add(fvect_t *fa, fvect_t *fb)
 {   
-    return fvec_adds(fa, fb, 1.0);
+    return fvect_adds(fa, fb, 1.0);
 } 
 
 
@@ -152,9 +152,9 @@ inline fvec_t *fvec_add(fvec_t *fa, fvec_t *fb)
  * @param fb Feature vector (b)
  * @return new feature vector
  */
-inline fvec_t *fvec_sub(fvec_t *fa, fvec_t *fb) 
+inline fvect_t *fvect_sub(fvect_t *fa, fvect_t *fb) 
 {
-    return fvec_adds(fa, fb, -1.0);
+    return fvect_adds(fa, fb, -1.0);
 }
 
 /**
@@ -162,7 +162,7 @@ inline fvec_t *fvec_sub(fvec_t *fa, fvec_t *fb)
  * @param f Feature vector 
  * @return sum of values 
  */
-inline double fvec_norm1(fvec_t *f)
+inline double fvect_norm1(fvect_t *f)
 {
     int i = 0;
     double s = 0;    
@@ -179,7 +179,7 @@ inline double fvec_norm1(fvec_t *f)
  * @param f Feature vector 
  * @return sum of values 
  */
-inline double fvec_norm2(fvec_t *f)
+inline double fvect_norm2(fvect_t *f)
 {
     int i = 0;
     double s = 0;

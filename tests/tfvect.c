@@ -11,7 +11,7 @@
  */
 
 #include "tests.h"
-#include "fvec.h"
+#include "fvect.h"
 #include "ftable.h"
 
 /* Global variables */
@@ -54,19 +54,19 @@ test_t tests[] = {
 int test_static() 
 {
     int i, err = 0;
-    fvec_t *f;  
+    fvect_t *f;  
 
     test_printf("Extraction of feature vectors");
 
     config_set_string(&cfg, "features.normalization", "l1");
 
     for (i = 0; tests[i].str; i++) {
-        fvec_reset_delim();
+        fvect_reset_delim();
         config_set_string(&cfg, "features.ngram_delim", tests[i].dlm);    
         config_set_int(&cfg, "features.ngram_length", tests[i].nlen);    
    
         /* Extract features */
-        f = fvec_extract(tests[i].str, strlen(tests[i].str), "test");
+        f = fvect_extract(tests[i].str, strlen(tests[i].str), "test");
         
         /* Check for correct number of dimensions */
         if (f->len != tests[i].len) { 
@@ -74,7 +74,7 @@ int test_static()
             err++;
         }
             
-        fvec_destroy(f);
+        fvect_destroy(f);
     }
     
     test_return(err, i);
@@ -87,7 +87,7 @@ int test_static()
 int test_stress() 
 {
     int i, j, err = 0;
-    fvec_t *f;  
+    fvect_t *f;  
     char buf[STR_LENGTH + 1];
 
     test_printf("Stress test for feature vectors");
@@ -106,9 +106,9 @@ int test_stress()
         buf[j] = 0;    
            
         /* Extract features */
-        f = fvec_extract(buf, strlen(buf), "test");
+        f = fvect_extract(buf, strlen(buf), "test");
         /* Destroy features */            
-        fvec_destroy(f);
+        fvect_destroy(f);
     }
     
     ftable_destroy();
@@ -123,7 +123,7 @@ int test_stress()
 int test_stress_omp() 
 {
     int i, j, err = 0;
-    fvec_t *f;  
+    fvect_t *f;  
     char buf[STR_LENGTH + 1];
 
     test_printf("Stress test for feature vectors (OpenMP)");
@@ -143,9 +143,9 @@ int test_stress_omp()
         buf[j] = 0;    
            
         /* Extract features */
-        f = fvec_extract(buf, strlen(buf), "test");
+        f = fvect_extract(buf, strlen(buf), "test");
         /* Destroy features */            
-        fvec_destroy(f);
+        fvect_destroy(f);
     }
     
     ftable_destroy();
@@ -161,12 +161,12 @@ int test_stress_omp()
 int test_load_save() 
 {
     int i, j, err = 0;
-    fvec_t *f, *g; 
+    fvect_t *f, *g; 
     gzFile *z;
     
     test_printf("Loading and saving of feature vectors");
 
-    fvec_reset_delim();
+    fvect_reset_delim();
     config_set_string(&cfg, "features.normalization", "l1");
     config_set_string(&cfg, "features.ngram_delim", " ");
     config_set_int(&cfg, "features.ngram_length", 2);
@@ -178,9 +178,9 @@ int test_load_save()
     }
 
     for (i = 0; tests[i].str; i++) {
-        f = fvec_extract(tests[i].str, strlen(tests[i].str), "test");
-        fvec_save(f, z);
-        fvec_destroy(f);
+        f = fvect_extract(tests[i].str, strlen(tests[i].str), "test");
+        fvect_save(f, z);
+        fvect_destroy(f);
     }
     gzclose(z);
 
@@ -189,8 +189,8 @@ int test_load_save()
     z = gzopen(TEST_FILE, "r");    
 
     for (i = 0; tests[i].str; i++) {
-        f = fvec_extract(tests[i].str, strlen(tests[i].str), "test");
-        g = fvec_load(z);
+        f = fvect_extract(tests[i].str, strlen(tests[i].str), "test");
+        g = fvect_load(z);
         
         /* Check dimensions and values */
         for (j = 0; j < f->len && j < g->len; j++) {
@@ -205,8 +205,8 @@ int test_load_save()
         }  
         err += (j < f->len || j < g->len);
         
-        fvec_destroy(f);
-        fvec_destroy(g);
+        fvect_destroy(f);
+        fvect_destroy(g);
     }
 
     gzclose(z);

@@ -7,9 +7,9 @@
 EXTRA_DIST		= malheur.h.in
 
 noinst_LIBRARIES	= libmalheur.a			  
-libmalheur_a_SOURCES	= md5.c md5.h common.h util.c util.h fvec.c \
-                          fvec.h uthash.h ftable.c ftable.h mist.c mist.h \
-                          fmath.c fmath.h fio.c fio.h farray.c farray.h \
+libmalheur_a_SOURCES	= md5.c md5.h common.h util.c util.h fvect.c \
+                          fvect.h uthash.h ftable.c ftable.h mist.c mist.h \
+                          fmath.c fmath.h data.c data.h farray.c farray.h \
                           proto.c proto.h
 
 bin_PROGRAMS		= malheur

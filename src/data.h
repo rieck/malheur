@@ -14,15 +14,15 @@
 #ifndef FIO_H
 #define FIO_H
 
-#include "fvec.h"
+#include "fvect.h"
 
 /* Default block size */
 #define FIO_BLOCK               4096
 
 /* I/O functions */
-char *fio_load_file(char *, char *);
-void fio_dir_entries(char *dir, int *, int *);
-void fio_archive_entries(char *arc, int *, int *);
-char *fio_preproc(char *);
+char *data_load_file(char *, char *);
+void data_dir_entries(char *dir, int *, int *);
+void data_archive_entries(char *arc, int *, int *);
+char *data_preproc(char *);
 
 #endif                          /* STRIO_H */

@@ -33,7 +33,7 @@ config_t cfg;
 int test_stress() 
 {
     int i, j, k, err = 0;
-    fvec_t *f;
+    fvect_t *f;
     farray_t *fa;
     char buf[STR_LENGTH + 1], label[32];
 
@@ -49,7 +49,7 @@ int test_stress()
             buf[k] = 0;    
             
             /* Extract features */
-            f = fvec_extract(buf, strlen(buf), "test");
+            f = fvect_extract(buf, strlen(buf), "test");
 
             /* Get label */
             snprintf(label, 32, "label%.2d", rand() % 10);
@@ -87,7 +87,7 @@ int test_stress_omp()
             buf[k] = 0;    
             
             /* Extract features */
-            fvec_t *f = fvec_extract(buf, strlen(buf), "test");
+            fvect_t *f = fvect_extract(buf, strlen(buf), "test");
 
             #pragma omp critical 
             {
@@ -125,7 +125,7 @@ int test_load_save()
         buf[k] = 0;    
             
         /* Extract features and add to array */
-        fvec_t *f = fvec_extract(buf, strlen(buf), "test");
+        fvect_t *f = fvect_extract(buf, strlen(buf), "test");
         snprintf(label, 32, "label%.2d", rand() % 10);
         farray_add(fa, f, label);
     }    
@@ -146,9 +146,9 @@ int test_load_save()
     
     /* Compare each vector mathematically */
     for (i = 0; i < fa->len; i++) {
-        fvec_t *c = fvec_sub(fa->x[i], fb->x[i]);
-        err += fvec_norm1(fa->x[i]) < 10e-9;
-        fvec_destroy(c);
+        fvect_t *c = fvect_sub(fa->x[i], fb->x[i]);
+        err += fvect_norm1(fa->x[i]) < 10e-9;
+        fvect_destroy(c);
     }
 
     err += fa->len != fb->len;

@@ -14,7 +14,7 @@
 #ifndef FMATH_H
 #define FMATH_H
 
-#include "fvec.h"
+#include "fvect.h"
 
 /** Normalization types for feature vectors */
 typedef enum {
@@ -22,13 +22,13 @@ typedef enum {
 } norm_t;
 
 /* Functions */
-void fvec_mul(fvec_t *, double);
-void fved_div(fvec_t *, double);
-fvec_t *fvec_adds(fvec_t *, fvec_t *, double);
-fvec_t *fvec_add(fvec_t *, fvec_t *); 
-fvec_t *fvec_sub(fvec_t *, fvec_t *);
-double fvec_norm1(fvec_t *fv);
-double fvec_norm2(fvec_t *fv);
-void fvec_normalize(fvec_t *, norm_t);
+void fvect_mul(fvect_t *, double);
+void fved_div(fvect_t *, double);
+fvect_t *fvect_adds(fvect_t *, fvect_t *, double);
+fvect_t *fvect_add(fvect_t *, fvect_t *); 
+fvect_t *fvect_sub(fvect_t *, fvect_t *);
+double fvect_norm1(fvect_t *fv);
+double fvect_norm2(fvect_t *fv);
+void fvect_normalize(fvect_t *, norm_t);
 
 #endif                          /* FMATH_H */

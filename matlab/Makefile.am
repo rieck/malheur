@@ -11,10 +11,10 @@ MEXFLAGS 		= @MEXFLAGS@ -inline $(INCLUDES) -v \
               		  CFLAGS='-fPIC -D_GNU_SOURCE -pthread $(CFLAGS)'
 MEXLDADD		= $(top_builddir)/src/libmalheur.a              		  
 
-EXTRA_DIST		= malheur.m malheur.c mal_mist_load.m 
+EXTRA_DIST		= malheur.m malheur.c mal_load_mist.m 
 
 if MATLAB_TOOLS
-matlab_DATA             = malheur.m malheur_load.m
+matlab_DATA             = malheur.m mal_load_mist.m
 matlabarch_SCRIPTS      = malheur.$(MEXEXT)
 endif
 

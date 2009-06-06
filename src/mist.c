@@ -34,18 +34,17 @@ extern config_t cfg;
  */
 char *mist_preproc(char *report)
 {
-    long level, report_len, thread_len;
+    long level, rlen, tlen;
 
     /* Get MIST configuration */
     config_lookup_int(&cfg, "input.mist_level", (long *) &level);  
-    config_lookup_int(&cfg, "input.mist_report_len", (long *) &report_len);
-    config_lookup_int(&cfg, "input.mist_thread_len", (long *) &thread_len);
+    config_lookup_int(&cfg, "input.mist_report_len", (long *) &rlen);
+    config_lookup_int(&cfg, "input.mist_thread_len", (long *) &tlen);
 
-    report = mist_trunc_report(report, report_len);
-    report = mist_trunc_thread(report, thread_len);
+    report = mist_trunc_report(report, rlen);
+    report = mist_trunc_thread(report, tlen);
     report = mist_trunc_level(report, level);
 
-    printf("%s\n", report);
     return report;
 }
 

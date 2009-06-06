@@ -20,6 +20,7 @@
 #include "config.h"
 #include "mist.h"
 #include "util.h"
+#include "data.h"
 #include "strings.h"
 
 /* Mex signature */
@@ -37,7 +38,7 @@
 /*
  * Global configuration
  */
-config_t *cfg = NULL; 
+config_t cfg;
 
 /*
  * Print library version
@@ -49,98 +50,67 @@ void mex_print_version(void)
            " Berlin Institute of Technology (TU Berlin).\n", VERSION);
 }
 
-/**
- * Loads a MIST report from a file and extracts the specified MIST level
- * @param name report file name 
- * @param level Extraction level
- * @return report as string
- */
-char *mist_load_report(char *name, int level)
-{
-    if (level < 1) 
-        warning("Level too small. Increasing to 1.");
-
-    /* Open file */
-    FILE *fptr = fopen(name, "r");
-    if (!fptr) {
-        error("Could not open MIST report '%s'", name);
-        return NULL;
-    }
-
-    /* Get length of report */
-    fseek(fptr, 0, SEEK_END);
-    long len = ftell(fptr);
-    fseek(fptr, 0, SEEK_SET);
-
-    /* Allocate and load report data */
-    char *report = malloc(sizeof(char) * (len + 1));
-    if (!report) {
-        error("Could not allocate %ld bytes for MIST report '%s'", len,
-              name);
-        return NULL;
-    }
-    if (fread(report, sizeof(char), len, fptr) != len) {
-        error("Could not load MIST report '%s'", name);
-        free(report);
-        return NULL;
-    }
-    fclose(fptr);
-
-    /* Truncate MIST level and remove comments */
-    report = mist_trunc_level(report, level);
-    report = realloc(report, strlen(report) + 1);
-    if (!report) {
-        error("Could not re-allocate MIST report");
-        return NULL;
-    }
-    
-    return report;
-}
-
 /*
  * Load MIST reports to a cell array 
  */
 void mex_load_mist(MEX_SIGNATURE)
 {
-    int level, i, len, j = 0;
     char *r, fn[1024];
+    long level, i, len, rlen, tlen;
     mxArray *a;
 
     /* Check input */
-    if (nrhs < 3)
-        error("Number of input arguments is invalid");
-    if (nlhs != 1)
-        error("Number of output arguments is invalid");
+    if (nrhs != 2 || nlhs != 1)
+        error("Number of input/output arguments is invalid");
     if (!mxIsCell(in1))
         error("First argument is not a cell array of file names");
-    if (!mxIsNumeric(in2))
-        error("Second argument is not a level number");
+    if (!mxIsChar(in2))
+        error("Second argument is not a filename");
 
     /* Get input arguments */
     len = mxGetN(in1);    
-    level = (int) mxGetScalar(in2);
+    mxGetString(in2, fn, 1023);
+
+    /* Init and load configuration */
+    config_init(&cfg);
+    if (config_read_file(&cfg, fn) != CONFIG_TRUE)
+        error("Could not read configuration (%s in line %d)",
+              config_error_text(&cfg), config_error_line(&cfg));
+    
+    /* Check configuration */
+    char *err = check_config(&cfg);
+    if (err)
+        error(err);
+    
+    /* Get MIST configuration */
+    config_lookup_int(&cfg, "input.mist_level", (long *) &level);  
+    config_lookup_int(&cfg, "input.mist_report_len", (long *) &rlen);
+    config_lookup_int(&cfg, "input.mist_thread_len", (long *) &tlen);
+    printf("Loading %d MIST reports (level: %d, rlen: %d, tlen: %d)\n", 
+           len, level, rlen, tlen);
     
     /* Get output variable */
     out = mxCreateCellMatrix(1, len);
-    printf("Loading %d MIST reports with level %d ...\n", len, level);
-
     for (i = 0; i < len; i++) {
         /* Get file name */
         a = mxGetCell(in1, i);
         mxGetString(a, fn, 1023);
 
         /* Load report */
-        r = mist_load_report(fn, level);
+        r = data_load_file(fn, NULL);
+        r = mist_preproc(r);
     
-        prog_bar(0, (double) len, (double) j++);
         /* Store report in cell array */
         mxSetCell(out, i, mxCreateString(r));
+        prog_bar(0, (double) len, (double) i);
 
         /* Free space */    
         free(r);
     }
     
     prog_bar(0.0, 1.0, 1.0);
+    config_destroy(&cfg);
+    
     printf("\nDone.\n");
 }
 

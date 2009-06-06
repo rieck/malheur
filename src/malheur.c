@@ -26,41 +26,8 @@ config_t cfg;
 static char *config_file = CONFIG_FILE;
 static char *output_file = OUTPUT_FILE;
 static char *input = NULL;
-static malheur_task_t task = PROTOTYPE;
+static task_t task = PROTOTYPE;
 static int lookup_table = FALSE;
-
-/**
- * Checks if the configuration is valid. The function currently checks
- * if all required parameters are set. Later versions might also set 
- * default values and only issue warning, if parameters are not available.
- */
-void check_config()
-{
-    int i;
-    double f;
-    long l;
-    const char *s;
-
-    /* Check in input setting */    
-    if (config_lookup_string(&cfg, "input.format", &s) != CONFIG_TRUE)
-        fatal("'format' not defined in configuration 'input'");        
-    if (config_lookup_int(&cfg, "input.mist_level", &l) != CONFIG_TRUE)
-        fatal("'mist_level' not defined in configuration 'input'");        
-
-    /* Check in features setting */    
-    if (config_lookup_int(&cfg, "features.ngram_length", &l) != CONFIG_TRUE)
-        fatal("'ngram_length' not defined in configuration group 'features'");
-    if (config_lookup_string(&cfg, "features.ngram_delim", &s) != CONFIG_TRUE)
-        fatal("'ngram_delim' not defined in configuration group 'features'");
-    if (config_lookup_string(&cfg, "features.normalization", &s) != CONFIG_TRUE)
-        fatal("'normalization' not defined in configuration 'features'");
-
-    /* Check in analysis setting */    
-    if (config_lookup_float(&cfg, "analysis.prototype_radius", &f) != CONFIG_TRUE)
-        fatal("'prototype_radius' not defined in configuration group 'analysis'");
-    if (config_lookup_bool(&cfg, "analysis.prototype_labels", &i) != CONFIG_TRUE)
-        fatal("'prototype_labels' not defined in configuration group 'analysis'");
-}
 
 /**
  * Print usage of command line tool
@@ -167,8 +134,13 @@ static void malheur_init(int argc, char **argv)
     if (config_read_file(&cfg, config_file) != CONFIG_TRUE)
         fatal("Could not read configuration (%s in line %d)",
               config_error_text(&cfg), config_error_line(&cfg));
-    check_config();          
     
+    /* Check configuration */
+    char *err = check_config(&cfg);
+    if (err)
+        fatal(err);
+    
+    /* Init feature lookup table */
     if (lookup_table)
         ftable_init();
 }

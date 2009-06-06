@@ -37,20 +37,23 @@ extern config_t cfg;
 /**
  * Loads a textual file into a string. The string is allocated 
  * and need to be free'd later by the caller.
- * @param path Path to file or empty
- * @param name file name
+ * @param path Path to file
+ * @param name file name or NULL
  * @return string 
  */
 char *data_load_file(char *path, char *name) 
 {
-    assert(name);
+    assert(path);
     long len, size = 0;
     char *str = NULL, file[1024];
     struct stat st;    
      
     #pragma omp critical (snprintf) 
     {
-        snprintf(file, 1024, "%s/%s", path, name);
+        if (name)
+            snprintf(file, 1024, "%s/%s", path, name);
+        else
+            snprintf(file, 1024, "%s", path);
     }
 
     /* Open file */

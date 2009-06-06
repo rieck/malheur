@@ -36,12 +36,13 @@
 #define warning(...)   {err_msg("Warning", __func__, __VA_ARGS__);} 
 #endif
 
-/* Error functions */
+/* Utility functions functions */
 void err_msg(char *, const char *, char *, ...);
 void prog_bar(double, double, double);
 double time_stamp();
 int decode_string(char *);
 char *file_suffix(char *file);
+char *check_config(config_t *cfg);
 
 #ifndef HAVE_FUNC_ROUND
 double log2(double);

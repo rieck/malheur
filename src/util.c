@@ -20,6 +20,48 @@ static char pb_string[PROGBAR_LEN + 1];
 /** Start timestamp measured */
 static double pb_start = 0;
 
+
+/**
+ * Checks if the configuration is valid. The function currently checks
+ * if all required parameters are set. Later versions might also set 
+ * default values and only issue warning, if parameters are not available.
+ * @param cfg configuration
+ * @return error message or NULL
+ */
+char *check_config(config_t *cfg)
+{
+    int i;
+    double f;
+    long l;
+    const char *s;
+
+    /* Check in input setting */    
+    if (config_lookup_string(cfg, "input.format", &s) != CONFIG_TRUE)
+        return "'format' not defined in configuration 'input'";        
+    if (config_lookup_int(cfg, "input.mist_level", &l) != CONFIG_TRUE)
+        return "'mist_level' not defined in configuration 'input'";   
+    if (config_lookup_int(cfg, "input.mist_report_len", &l) != CONFIG_TRUE)
+        return "'mist_report_len' not defined in configuration 'input'";   
+    if (config_lookup_int(cfg, "input.mist_thread_len", &l) != CONFIG_TRUE)
+        return "'mist_thread_len' not defined in configuration 'input'";   
+
+    /* Check in features setting */    
+    if (config_lookup_int(cfg, "features.ngram_length", &l) != CONFIG_TRUE)
+        return "'ngram_length' not defined in configuration group 'features'";
+    if (config_lookup_string(cfg, "features.ngram_delim", &s) != CONFIG_TRUE)
+        return "'ngram_delim' not defined in configuration group 'features'";
+    if (config_lookup_string(cfg, "features.normalization", &s) != CONFIG_TRUE)
+        return "'normalization' not defined in configuration 'features'";
+
+    /* Check in analysis setting */    
+    if (config_lookup_float(cfg, "analysis.prototype_radius", &f) != CONFIG_TRUE)
+        return "'prototype_radius' not defined in configuration group 'analysis'";
+    if (config_lookup_bool(cfg, "analysis.prototype_labels", &i) != CONFIG_TRUE)
+        return "'prototype_labels' not defined in configuration group 'analysis'";
+
+    return NULL;
+}
+
 /**
  * Print a formated error/warning message. See the macros error and 
  * warning in util.h

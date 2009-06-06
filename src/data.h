@@ -14,11 +14,6 @@
 #ifndef FIO_H
 #define FIO_H
 
-#include "fvect.h"
-
-/* Default block size */
-#define FIO_BLOCK               4096
-
 /* I/O functions */
 char *data_load_file(char *, char *);
 void data_dir_entries(char *dir, int *, int *);

@@ -42,6 +42,10 @@ else
     # Matlab R11 and Matlab V4 for Windows.
     for ax_arch in alpha glnx86 glnxa64 hp700 hpux ibm_rs sgi sol2 win32 maci . ; do
 	ax_matlab_exec=$MATLAB/bin/$ax_arch/matlab$EXEEXT
+        if ! test -f $ax_matlab_exec ; then
+            ax_matlab_exec=$MATLAB/bin/$ax_arch/MATLAB$EXEEXT
+        fi
+	
 	if test -f $ax_matlab_exec ; then
 	    # For Matlab R12, the version number is stored in a
 	    # shared library.

@@ -1,5 +1,5 @@
 *.a
-*.mexmaci
+*.mex*
 *.o
 .deps
 /aclocal.m4

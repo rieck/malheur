@@ -28,9 +28,9 @@ case $arg in
        PKG_CONFIG_PATH="$HOME/usr/lib/pkgconfig" \
        CC="gcc" \
        CPPFLAGS="-I $HOME/usr/include" \
-       CFLAGS="-fomit-frame-pointer -pedantic -pipe -O3 -march=opteron" \
+       CFLAGS="-fomit-frame-pointer -pedantic -pipe -O3 -march=native" \
        ./configure --enable-openmp \
-                  --enable-matlab -with-matlab=/usr/local/matlab2009a \
+                   --enable-matlab -with-matlab=/usr/local/matlab2009a \
                    --prefix=$HOME/usr
        ;;       
    # Konrad's laptop    

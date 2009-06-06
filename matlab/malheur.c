@@ -15,6 +15,7 @@
 #define error(...) mexErrMsgIdAndTxt("malheur:generic", __VA_ARGS__)
 
 #include <mex.h>
+#include <string.h>
 #include <libconfig.h>
 #include "config.h"
 #include "mist.h"

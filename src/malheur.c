@@ -26,7 +26,7 @@ config_t cfg;
 static char *config_file = CONFIG_FILE;
 static char *output_file = OUTPUT_FILE;
 static char *input = NULL;
-static task_t task = PROTOTYPE;
+static malheur_task_t task = PROTOTYPE;
 static int lookup_table = FALSE;
 
 /**

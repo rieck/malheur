@@ -11,10 +11,8 @@
  * --
  */
 
-/* Matlab message identifier */
-#define error(...) mexErrMsgIdAndTxt("malheur:generic", __VA_ARGS__)
-
 #include <mex.h>
+#include <stdarg.h>
 #include <string.h>
 #include <libconfig.h>
 #include "config.h"
@@ -50,6 +48,24 @@ void mex_print_version(void)
            " Berlin Institute of Technology (TU Berlin).\n", VERSION);
 }
 
+/**
+ * Print a formated error/warning message.  
+ * @param m Format string
+ */
+void mex_error(char *m, ...)
+{
+    va_list ap;
+    char s[256] = { " " };
+
+    config_destroy(&cfg);
+
+    va_start(ap, m);
+    vsnprintf(s, 256, m, ap);
+    va_end(ap);
+
+    mexErrMsgIdAndTxt("malheur:generic", s);
+}
+
 /*
  * Load MIST reports to a cell array 
  */
@@ -60,12 +76,12 @@ void mex_load_mist(MEX_SIGNATURE)
     mxArray *a;
 
     /* Check input */
-    if (nrhs != 2 || nlhs != 1)
-        error("Number of input/output arguments is invalid");
+    if (nrhs != 3 || nlhs != 1) 
+        mex_error("Number of input/output arguments is invalid");
     if (!mxIsCell(in1))
-        error("First argument is not a cell array of file names");
+        mex_error("First argument is not a cell array of file names");
     if (!mxIsChar(in2))
-        error("Second argument is not a filename");
+        mex_error("Second argument is not a filename");
 
     /* Get input arguments */
     len = mxGetN(in1);    
@@ -73,14 +89,15 @@ void mex_load_mist(MEX_SIGNATURE)
 
     /* Init and load configuration */
     config_init(&cfg);
-    if (config_read_file(&cfg, fn) != CONFIG_TRUE)
-        error("Could not read configuration (%s in line %d)",
-              config_error_text(&cfg), config_error_line(&cfg));
+    if (config_read_file(&cfg, fn) != CONFIG_TRUE) {
+        mex_error("Could not read configuration (%s in line %d)",
+                  config_error_text(&cfg), config_error_line(&cfg));
+    }          
     
     /* Check configuration */
     char *err = check_config(&cfg);
-    if (err)
-        error(err);
+    if (err) 
+        mex_error(err); 
     
     /* Get MIST configuration */
     config_lookup_int(&cfg, "input.mist_level", (long *) &level);  
@@ -129,7 +146,7 @@ void mexFunction(MEX_SIGNATURE)
 
     /* Get command */
     if (mxGetString(prhs[0], cmd, 255)) 
-        error("Invalid Malheur command");
+        mex_error("Invalid Malheur command");
 
     /* Process commands */    
     if (!strcasecmp(cmd, "version")) {
@@ -137,6 +154,6 @@ void mexFunction(MEX_SIGNATURE)
     } else if (!strcasecmp(cmd, "load_mist")) {
         mex_load_mist(nlhs, plhs, nrhs, prhs);
     } else {
-        error("Unknown Malheur command");
+        mex_error("Unknown Malheur command");
     }
 }

@@ -137,7 +137,7 @@ static void malheur_init(int argc, char **argv)
     
     /* Check configuration */
     char *err = check_config(&cfg);
-    if (err)
+    if (err) 
         fatal(err);
     
     /* Init feature lookup table */

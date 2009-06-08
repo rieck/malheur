@@ -14,7 +14,8 @@
 #ifndef FVEC_H
 #define FVEC_H
 
-#include "zlib.h"
+#include <zlib.h>
+#include <stdint.h>
 
 /** Data type for a feature */
 typedef uint64_t feat_t;

@@ -22,6 +22,43 @@ static double pb_start = 0;
 
 
 /**
+ * Print the Malheur configuration is valid. 
+ * @param cfg configuration
+ */
+void print_config(config_t *cfg)
+{
+    int b;
+    double f;
+    long i, j, k;
+    const char *s, *t;
+
+    printf("Malheur configuration\n");
+
+    /* Input section */
+    config_lookup_string(cfg, "input.format", &s);
+    printf("  input.format:           %s\n", s);
+    
+    config_lookup_int(cfg, "input.mist_level", &i);
+    config_lookup_int(cfg, "input.mist_report_len", &j);
+    config_lookup_int(cfg, "input.mist_thread_len", &k);   
+    printf("  input.mist_*:           level=%ld, report_len=%ld, "
+           "thread_len=%ld\n", i, j, k);
+
+    /* Feature section */
+    config_lookup_int(cfg, "features.ngram_length", &i);
+    config_lookup_string(cfg, "features.ngram_delim", &s);
+    config_lookup_string(cfg, "features.normalization", &t);
+    printf("  features.ngram_*:       len=%ld, delim=%s\n", i, s);
+    printf("  features.normalization: %s\n", t);
+
+    /* Analysis setting */    
+    config_lookup_float(cfg, "analysis.prototype_radius", &f);
+    config_lookup_bool(cfg, "analysis.prototype_labels", &b);
+    printf("  analysis.prototype_*:   radius=%g, labels=%s\n", f, 
+           b ? "true" : "false");
+}
+
+/**
  * Checks if the configuration is valid. The function currently checks
  * if all required parameters are set. Later versions might also set 
  * default values and only issue warning, if parameters are not available.

@@ -151,21 +151,18 @@ static double fvect_dot_bsearch(fvect_t *fa, fvect_t *fb)
  * Dot product between arrays of feature vectors (s = <a,b>). 
  * @param fa Array of feature vectors (a)
  * @param fb Array of feature vectors (b)
- * @return matrix of dot products 
+ * @param d matrix of dot products (a_len * b_len)
  */
-double *farray_dot(farray_t *fa, farray_t *fb)
+void farray_dot(farray_t *fa, farray_t *fb, double *d)
 {
     assert(fa && fb);
     long i, r = 0;
     
-    double *d = malloc(fa->len * fb->len * sizeof(double));
-    if (!d) {
-        error("Could not allocate double matrix\n");
-        return NULL;
-    }
-    
-    if (verbose > 0)
+    if (verbose > 0) {
+        printf("Computing dot product (%lu x %lu matrix, %.2fMb).\n", 
+               fa->len, fb->len, (fa->len * fb->len * sizeof(double)) / 1e6);    
         prog_bar(0, 1, 0);
+    }
     
     if (fa == fb) {
         #pragma omp parallel for shared(d)
@@ -201,8 +198,6 @@ double *farray_dot(farray_t *fa, farray_t *fb)
     }
     if (verbose > 0)
         printf("\n");
-    
-    return d;
 }
 
 /** 

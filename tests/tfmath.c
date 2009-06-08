@@ -158,14 +158,14 @@ int test_stress_add()
 /* 
  * A simple stress test for feature arrays
  */
-int test_stress_add_array() 
+int test_stress_dot_array() 
 {
     int i, j, k, err = 0;
     fvect_t *f;
     farray_t *fa;
     char buf[STR_LENGTH + 1], label[32];
 
-    test_printf("Stress test for addition of feature arrays");
+    test_printf("Stress test for dot product of feature arrays");
 
     for (i = 0; i < STRESS_RUNS; i++) {
         /* Create array */
@@ -186,7 +186,9 @@ int test_stress_add_array()
             farray_add(fa, f, label);
         }    
            
-        double *d = farray_dot(fa, fa);
+        double *d = malloc(NUM_VECTORS * NUM_VECTORS * sizeof(double));
+        farray_dot(fa, fa, d);
+
         for (j = 0; j < fa->len ; j++) {
             double n = sqrt(d[j * fa->len + j]);
             err += fabs(fvect_norm2(fa->x[j]) - n) > 1e-6;
@@ -248,14 +250,14 @@ int test_stress_dot()
 /* 
  * A simple stress test for feature arrays
  */
-int test_stress_dot_array() 
+int test_stress_add_array() 
 {
     int i, j, k, err = 0;
     fvect_t *f;
     farray_t *fa;
     char buf[STR_LENGTH + 1], label[32];
 
-    test_printf("Stress test for dot product of feature arrays");
+    test_printf("Stress test for addition of feature arrays");
 
     for (i = 0; i < STRESS_RUNS; i++) {
         /* Create array */

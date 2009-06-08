@@ -36,6 +36,6 @@ double fvect_norm1(fvect_t *);
 double fvect_norm2(fvect_t *);
 void fvect_normalize(fvect_t *, norm_t);
 void fvect_sparsify(fvect_t *);
-double *farray_dot(farray_t *, farray_t *);
+void farray_dot(farray_t *, farray_t *, double *);
 
 #endif                          /* FMATH_H */

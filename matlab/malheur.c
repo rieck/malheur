@@ -20,6 +20,7 @@
 #include "util.h"
 #include "data.h"
 #include "strings.h"
+#include "fmath.h"
 
 /* Mex signature */
 #ifndef MEX_SIGNATURE
@@ -37,6 +38,7 @@
  * Global configuration
  */
 config_t cfg;
+int verbose = 1;
 
 /*
  * Print library version
@@ -72,16 +74,16 @@ void mex_error(char *m, ...)
 void mex_load_mist(MEX_SIGNATURE)
 {
     char *r, fn[1024];
-    long level, i, len, rlen, tlen;
+    long i, len;
     mxArray *a;
 
     /* Check input */
-    if (nrhs != 3 || nlhs != 1) 
+    if (nrhs != 1 + 2 || nlhs != 1) 
         mex_error("Number of input/output arguments is invalid");
     if (!mxIsCell(in1))
         mex_error("First argument is not a cell array of file names");
     if (!mxIsChar(in2))
-        mex_error("Second argument is not a filename");
+        mex_error("Second argument is not a config filename");
 
     /* Get input arguments */
     len = mxGetN(in1);    
@@ -98,16 +100,12 @@ void mex_load_mist(MEX_SIGNATURE)
     char *err = check_config(&cfg);
     if (err) 
         mex_error(err); 
-    
-    /* Get MIST configuration */
-    config_lookup_int(&cfg, "input.mist_level", (long *) &level);  
-    config_lookup_int(&cfg, "input.mist_report_len", (long *) &rlen);
-    config_lookup_int(&cfg, "input.mist_thread_len", (long *) &tlen);
-    printf("Loading %d MIST reports (level: %d, rlen: %d, tlen: %d)\n", 
-           len, level, rlen, tlen);
-    
+    if (verbose)
+        print_config(&cfg);
+        
     /* Get output variable */
     out = mxCreateCellMatrix(1, len);
+    printf("Loading %d MIST reports ...\n", len);
     for (i = 0; i < len; i++) {
         /* Get file name */
         a = mxGetCell(in1, i);
@@ -133,6 +131,55 @@ void mex_load_mist(MEX_SIGNATURE)
 
 
 /*
+ * Extract features and compute pairwise dot product 
+ */
+void mex_dot_product(MEX_SIGNATURE)
+{
+    char cf[1024], df[1024];
+
+    /* Check input */
+    if (nrhs != 1 + 2 || nlhs != 1) 
+        mex_error("Number of input/output arguments is invalid");
+    if (!mxIsChar(in1))
+        mex_error("First argument is not a dirname/archive");
+    if (!mxIsChar(in2))
+        mex_error("Second argument is not a config filename");
+
+    /* Get input arguments */
+    mxGetString(in1, df, 1023);
+    mxGetString(in2, cf, 1023);
+
+    /* Init and load configuration */
+    config_init(&cfg);
+    if (config_read_file(&cfg, cf) != CONFIG_TRUE) {
+        mex_error("Could not read configuration (%s in line %d)",
+                  config_error_text(&cfg), config_error_line(&cfg));
+    }          
+    
+    /* Check configuration */
+    char *err = check_config(&cfg);
+    if (err) 
+        mex_error(err); 
+    if (verbose)
+        print_config(&cfg);
+
+    /* Extract features */
+    farray_t *fa = farray_extract(df);
+    if (!fa)
+        mex_error("Could not load data from '%s'", df);
+
+    out = mxCreateNumericMatrix(fa->len, fa->len, mxDOUBLE_CLASS, mxREAL);    
+    farray_dot(fa, fa, (double *) mxGetPr(out));
+    
+    /* Clean up */
+    farray_destroy(fa);
+    config_destroy(&cfg);    
+    
+    printf("Done.\n");
+}
+
+
+/*
  * Generic matlab wrapper function to Malheur functionality
  */
 void mexFunction(MEX_SIGNATURE)
@@ -153,6 +200,8 @@ void mexFunction(MEX_SIGNATURE)
         mex_print_version();           
     } else if (!strcasecmp(cmd, "load_mist")) {
         mex_load_mist(nlhs, plhs, nrhs, prhs);
+    } else if (!strcasecmp(cmd, "dot_product")) {
+        mex_dot_product(nlhs, plhs, nrhs, prhs);
     } else {
         mex_error("Unknown Malheur command");
     }

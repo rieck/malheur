@@ -170,22 +170,27 @@ farray_t *farray_extract(char *path)
 {
     struct stat st; 
     assert(path);
+    farray_t *fa = NULL;
         
     if (stat(path, &st)) {
         error("Could not access file '%s'", path);
         return NULL;
     }    
 
-    if (verbose >= 0)
-        printf("Extracting feature vectors from '%s'.\n", path);
+    if (verbose > 0)
+        printf("Extracting features from '%s'.\n", path);
     
     if ((st.st_mode & S_IFMT) == S_IFREG) 
-        return farray_extract_archive(path);
-    if ((st.st_mode & S_IFMT) == S_IFDIR)
-        return farray_extract_dir(path);
-        
-    error("Unsupported file type of input '%s'", path);
-    return NULL;
+        fa = farray_extract_archive(path);
+    else if ((st.st_mode & S_IFMT) == S_IFDIR)
+        fa = farray_extract_dir(path);
+    else
+        error("Unsupported file type of input '%s'", path);
+    
+    if (verbose > 0)
+        printf("\n");
+
+    return fa;
 }
 
 /**
@@ -255,8 +260,6 @@ farray_t *farray_extract_archive(char *arc)
         free(x);
         free(l);            
     }
-    if (verbose > 0)
-        printf("\n");
 
     /* Close archive */
     archive_read_finish(a);
@@ -330,8 +333,6 @@ farray_t *farray_extract_dir(char *dir)
         free(raw);
         free(buf);
     }   
-    if (verbose > 0)
-        printf("\n");
 
     closedir(d);
     return fa;

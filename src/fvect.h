@@ -45,6 +45,6 @@ void fvect_print(fvect_t *);
 void fvect_save(fvect_t *, gzFile *);
 fvect_t *fvect_load(gzFile *);
 void fvect_reset_delim();
-void fvect_shrink(fvect_t *);
+void fvect_realloc(fvect_t *);
 
 #endif                          /* FVEC_H */

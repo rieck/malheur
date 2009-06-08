@@ -72,12 +72,11 @@ static void fvect_condense(fvect_t * fv)
         }
     }
 
-    /* Update length and memory */
+    /* Update length */
     fv->len = p_dim - fv->dim;
-    fv->mem += fv->len * (sizeof(feat_t) + sizeof(float));
  
     /* Reallocate memory */
-    fvect_shrink(fv);
+    fvect_realloc(fv);
 }
 
 /**
@@ -153,6 +152,7 @@ fvect_t *fvect_extract(char *x, int l, char *s)
     /* Condense duplicate features */
     fv->total = fv->len;
     fvect_condense(fv);
+    fv->mem += fv->len * (sizeof(feat_t) + sizeof(float));
 
     /* Compute embedding */
     config_lookup_string(&cfg, "features.normalization", &em_str);
@@ -171,7 +171,7 @@ fvect_t *fvect_extract(char *x, int l, char *s)
  * the memory of features and its values, such that the required space
  * is reduced to a minimum.
  */
-void fvect_shrink(fvect_t *fv) 
+void fvect_realloc(fvect_t *fv) 
 {
     feat_t *p_dim;
     float *p_val;
@@ -195,10 +195,11 @@ void fvect_shrink(fvect_t *fv)
     memcpy(p_val, fv->val, fv->len * sizeof(float));
 
     /* Free old */
-    free(fv->dim); 
-    fv->dim = p_dim; 
+    free(fv->dim);
     free(fv->val); 
     fv->val = p_val;
+    fv->dim = p_dim; 
+
 }
 
 /**

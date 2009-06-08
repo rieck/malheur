@@ -63,7 +63,7 @@ void fvect_normalize(fvect_t *f, norm_t n)
  * @param f Feature vector 
  * @param s Scalar value
  */
-inline void fvect_mul(fvect_t *f, double s)
+void fvect_mul(fvect_t *f, double s)
 {
     int i = 0;
     assert(f);
@@ -77,12 +77,102 @@ inline void fvect_mul(fvect_t *f, double s)
  * @param f Feature vector 
  * @param s Scalar value
  */
-inline void fvect_div(fvect_t *f, double s)
+void fvect_div(fvect_t *f, double s)
 {
     fvect_mul(f, 1/s);
 }
 
 
+/** 
+ * Dot product between two feature vectors (s = <a,b>). The function 
+ * uses a loop to sum over all dimensions.
+ * @param fa Feature vector (a)
+ * @param fb Feature vector (b)
+ * @return s Inner product
+ */
+static double fvect_dot_loop(fvect_t *fa, fvect_t *fb) 
+{
+    unsigned long i = 0, j = 0;
+    double s = 0;
+
+    /* Loop over features in a and b */
+    while (i < fa->len && j < fb->len) {
+        if (fa->dim[i] > fb->dim[j]) {
+            j++;
+        } else if (fa->dim[i] < fb->dim[j]) {
+            i++;
+        } else {
+            s += fa->val[i++] * fb->val[j++];
+        }
+    }
+    
+    return s;
+}
+
+/** 
+ * Dot product between two feature vectors (s = <a,b>). The function 
+ * uses a binary search to sum over all dimensions.
+ * @param fa Feature vector (a)
+ * @param fb Feature vector (b)
+ * @return s Inner product
+ */
+static double fvect_dot_bsearch(fvect_t *fa, fvect_t *fb) 
+{
+    unsigned long i = 0, j = 0, p, q, k;
+    double s = 0;
+
+    /* Check if fa is larger than fb */
+    if (fa->len < fb->len) {
+        fvect_t *tmp = fa;
+        fa = fb, fb = tmp;
+    }
+
+    /* Loop over dimensions fb */
+    for (i = 0, j = 0; j < fb->len; j++) {
+        /* Binary search */
+        p = i, q = fa->len;
+        do {
+            k = i, i = ((q - p) >> 1) + p;
+            if (fa->dim[i] > fb->dim[j]) {
+                q = i;
+            } else if (fa->dim[i] < fb->dim[j]) {
+                p = i;
+            } else {
+                s += fa->val[i] * fb->val[j];
+                break;
+            }
+        } while (i != k);
+    }
+
+    return s;
+}
+
+/** 
+ * Dot product between two feature vectors (s = <a,b>). The function 
+ * uses a loop or a binary search to sum over all dimensions depending
+ * on the size of the considered vectors.
+ * @param fa Feature vector (a)
+ * @param fb Feature vector (b)
+ * @return s Inner product
+ */
+double fvect_dot(fvect_t *fa, fvect_t *fb) 
+{
+    assert(fa && fb);
+    double a, b;
+ 
+    /* Sort vectors according to size */
+    if (fa->len > fb->len) {
+        a = fa->len, b = fb->len;
+    } else {
+        b = fa->len, a = fb->len;
+    }
+    
+    /* Choose dot functions */
+    if (a + b > ceil(b * log2(a)))
+        return fvect_dot_bsearch(fa, fb);
+    else
+        return fvect_dot_loop(fa, fb);
+}
 
 /** 
  * Adds two feature vectors and create a new one (c = a + b * s)
@@ -91,18 +181,22 @@ inline void fvect_div(fvect_t *f, double s)
  * @param s Scalar value
  * @return new feature vector
  */
-inline fvect_t *fvect_adds(fvect_t *fa, fvect_t *fb, double s) 
+fvect_t *fvect_adds(fvect_t *fa, fvect_t *fb, double s) 
 {
     unsigned long i = 0, j = 0, len = 0;
     assert(fa && fb);
     fvect_t *f;
     
     /* Allocate feature vector (zero'd) */
-    f = malloc(sizeof(fvect_t));
+    f = calloc(1, sizeof(fvect_t));
     if (!f) {
         error("Could not create feature vector");
         return NULL;
     }
+
+    f->mem = sizeof(fvect_t);
+    f->total = fa->total + fb->total;
+    f->src = NULL;
 
     /* Allocate arrays */
     f->dim = (feat_t *) malloc((fa->len + fb->len) * sizeof(feat_t));
@@ -112,13 +206,13 @@ inline fvect_t *fvect_adds(fvect_t *fa, fvect_t *fb, double s)
         fvect_destroy(f);
         return NULL;
     }
-
+    
     /* Loop over features in a and b */
-    while (i < fa->len || j < fb->len) {
-        if (i >= fa->len || fa->dim[i] > fb->dim[j]) {
+    while (i < fa->len && j < fb->len) {
+        if (fa->dim[i] > fb->dim[j]) {
             f->dim[len] = fb->dim[j];
             f->val[len++] = fb->val[j++] * s;
-        } else if (j >= fb->len || fa->dim[i] < fb->dim[j]) {
+        } else if (fa->dim[i] < fb->dim[j]) {
             f->dim[len] = fa->dim[i];
             f->val[len++] = fa->val[i++];
         } else {
@@ -126,10 +220,23 @@ inline fvect_t *fvect_adds(fvect_t *fa, fvect_t *fb, double s)
             f->val[len++] = fa->val[i++] + fb->val[j++] * s;
         }
     }
+    
+    /* Loop over remaining features  */
+    while (j < fb->len) {
+        f->dim[len] = fb->dim[j];
+        f->val[len++] = fb->val[j++] * s;
+    } 
+    while (i < fa->len) {
+        f->dim[len] = fa->dim[i];
+        f->val[len++] = fa->val[i++];
+    }
 
     /* Set new length and reallocate */
     f->len = len;
-    fvect_shrink(f);
+    f->mem += f->len * (sizeof(feat_t) + sizeof(float));
+
+    /* Reallocate memory */
+    fvect_realloc(f);
     
     return f;
 }
@@ -140,7 +247,7 @@ inline fvect_t *fvect_adds(fvect_t *fa, fvect_t *fb, double s)
  * @param fb Feature vector (b)
  * @return new feature vector
  */
-inline fvect_t *fvect_add(fvect_t *fa, fvect_t *fb)
+fvect_t *fvect_add(fvect_t *fa, fvect_t *fb)
 {   
     return fvect_adds(fa, fb, 1.0);
 } 
@@ -152,7 +259,7 @@ inline fvect_t *fvect_add(fvect_t *fa, fvect_t *fb)
  * @param fb Feature vector (b)
  * @return new feature vector
  */
-inline fvect_t *fvect_sub(fvect_t *fa, fvect_t *fb) 
+fvect_t *fvect_sub(fvect_t *fa, fvect_t *fb) 
 {
     return fvect_adds(fa, fb, -1.0);
 }
@@ -162,7 +269,7 @@ inline fvect_t *fvect_sub(fvect_t *fa, fvect_t *fb)
  * @param f Feature vector 
  * @return sum of values 
  */
-inline double fvect_norm1(fvect_t *f)
+double fvect_norm1(fvect_t *f)
 {
     int i = 0;
     double s = 0;    
@@ -179,7 +286,7 @@ inline double fvect_norm1(fvect_t *f)
  * @param f Feature vector 
  * @return sum of values 
  */
-inline double fvect_norm2(fvect_t *f)
+double fvect_norm2(fvect_t *f)
 {
     int i = 0;
     double s = 0;
@@ -189,6 +296,39 @@ inline double fvect_norm2(fvect_t *f)
         s += pow(f->val[i], 2);
     
     return sqrt(s);
+}
+
+/**
+ * Sparsifies a feature vector by removing zero dimensions 
+ * @parma f Feature vectore
+ */
+void fvect_sparsify(fvect_t *f)
+{
+    int i, j = 0;
+    
+    for (i = 0, j = 0; i < f->len; i++) {
+        /* Skip over values close to zero */
+        if (fabs(f->val[i]) < 10e-8)
+            continue;
+        
+        /* Copy contents */
+        if (i != j) {
+            f->val[j] = f->val[i];
+            f->dim[j] = f->dim[i];
+        }    
+        j++;
+    }    
+    
+    /* No change in size? */
+    if (f->len == j)
+        return;
+    
+    /* Update length and memory */
+    f->mem -= (f->len - j) * (sizeof(feat_t) + sizeof(float)); 
+    f->len = j;   
+    
+    /* Reallocate memory */
+    fvect_realloc(f);
 }
 
 /** }@ */

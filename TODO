@@ -6,7 +6,5 @@
 
  TODO  
 
- * Test case for new math functions
- * Test case for loading and saving of feature vectors
- * Test case for extraction of features
- * Consistency of feature configuration
+ * mal_dot_product: Return labels to feature array
+ * Consistency of feature configuration (he?!)

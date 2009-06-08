@@ -15,27 +15,29 @@
 #include "fmath.h"
 
 /* Global variables */
-int verbose = 5;
+int verbose = 0;
 config_t cfg;
 
 /* String length */
 #define STR_LENGTH              2000
 /* Number of vector */
-#define NUM_VECTORS             1000
+#define NUM_VECTORS             200 
+/* Number of stress runs */
+#define STRESS_RUNS             5
 
 /* Test structure */
 typedef struct {
     char *x;
     char *y;
-    double res;
+    float res;
 } test_t;
 
 /* Addition test cases */
 test_t test_add[] = {
-    {"aa0bb0cc", "aa0bb0cc", 2},
-    {"aa0bb0cc", "xx0bb0cc", 2},
-    {"aa0bb0cc", "xx0yy0cc", 2},
-    {"aa0bb0cc", "xx0yy0zz", 2},
+    {"aa0bb0cc", "aa0bb0cc", 2.0},
+    {"aa0bb0cc", "xx0bb0cc", 2.0},
+    {"aa0bb0cc", "xx0yy0cc", 2.0},
+    {"aa0bb0cc", "xx0yy0zz", 2.0},
     {"", "xx0yy0zz", 1},
     {"aa0bb0cc", "", 1},
     {NULL, NULL, 0}
@@ -70,8 +72,9 @@ int test_static_add()
         fx = fvect_extract(test_add[i].x, strlen(test_add[i].x), "test");
         fy = fvect_extract(test_add[i].y, strlen(test_add[i].y), "test");
 
+        /* Add test vectors */
         fz = fvect_add(fx, fy);
-        err += fabs(fvect_norm1(fz) - test_add[i].res) > 10e-8;
+        err += fabs(fvect_norm1(fz) - test_add[i].res) > 1e-7;
 
         fvect_destroy(fz);        
         fvect_destroy(fx);
@@ -97,8 +100,9 @@ int test_static_dot()
         fx = fvect_extract(test_dot[i].x, strlen(test_dot[i].x), "test");
         fy = fvect_extract(test_dot[i].y, strlen(test_dot[i].y), "test");
 
+        /* Compute dot product */
         double d = fvect_dot(fx, fy);
-        err += fabs(d - test_dot[i].res) > 10e-6;
+        err += fabs(d - test_dot[i].res) > 1e-6;
 
         fvect_destroy(fx);
         fvect_destroy(fy);
@@ -135,7 +139,7 @@ int test_stress_add()
         fy = fvect_add(fz, fx);
         fvect_destroy(fz);
 
-        err += fabs(fvect_norm1(fy) - 2.0) > 10e-6;
+        err += fabs(fvect_norm1(fy) - 2.0) > 1e-7;
         
         /* Substract fx from fz */
         fz = fvect_sub(fy, fx);
@@ -150,6 +154,54 @@ int test_stress_add()
     test_return(err, i);
     return err;
 }
+
+/* 
+ * A simple stress test for feature arrays
+ */
+int test_stress_add_array() 
+{
+    int i, j, k, err = 0;
+    fvect_t *f;
+    farray_t *fa;
+    char buf[STR_LENGTH + 1], label[32];
+
+    test_printf("Stress test for addition of feature arrays");
+
+    for (i = 0; i < STRESS_RUNS; i++) {
+        /* Create array */
+        fa = farray_create("test");
+        
+        for (j = 0; j < NUM_VECTORS; j++) {
+            for (k = 0; k < STR_LENGTH; k++)
+                buf[k] = rand() % 10 + '0';
+            buf[k] = 0;    
+            
+            /* Extract features */
+            f = fvect_extract(buf, strlen(buf), "test");
+
+            /* Get label */
+            snprintf(label, 32, "label%.2d", rand() % 10);
+            
+            /* Add to array */
+            farray_add(fa, f, label);
+        }    
+           
+        double *d = farray_dot(fa, fa);
+        for (j = 0; j < fa->len ; j++) {
+            double n = sqrt(d[j * fa->len + j]);
+            err += fabs(fvect_norm2(fa->x[j]) - n) > 1e-6;
+        }
+        
+        free(d);
+                      
+        /* Destroy features */            
+        farray_destroy(fa);
+    }
+    
+    test_return(err, NUM_VECTORS * STRESS_RUNS);
+    return err;
+}
+
 
 /* 
  * A stres test for the addition of feature vectors
@@ -179,8 +231,8 @@ int test_stress_dot()
 
         double nx = fvect_dot(fx, fx);
         double ny = fvect_dot(fy, fy);
-        err += fabs(fvect_norm2(fx) - sqrt(nx)) > 10e-8;
-        err += fabs(fvect_norm2(fy) - sqrt(ny)) > 10e-8;
+        err += fabs(fvect_norm2(fx) - sqrt(nx)) > 1e-7;
+        err += fabs(fvect_norm2(fy) - sqrt(ny)) > 1e-7;
         err += fabs(fvect_dot(fx, fy) > nx + ny);
 
         /* Clean up */
@@ -192,6 +244,49 @@ int test_stress_dot()
     return err;
 }
 
+
+/* 
+ * A simple stress test for feature arrays
+ */
+int test_stress_dot_array() 
+{
+    int i, j, k, err = 0;
+    fvect_t *f;
+    farray_t *fa;
+    char buf[STR_LENGTH + 1], label[32];
+
+    test_printf("Stress test for dot product of feature arrays");
+
+    for (i = 0; i < STRESS_RUNS; i++) {
+        /* Create array */
+        fa = farray_create("test");
+        
+        for (j = 0; j < NUM_VECTORS; j++) {
+            for (k = 0; k < STR_LENGTH; k++)
+                buf[k] = rand() % 10 + '0';
+            buf[k] = 0;    
+            
+            /* Extract features */
+            f = fvect_extract(buf, strlen(buf), "test");
+
+            /* Get label */
+            snprintf(label, 32, "label%.2d", rand() % 10);
+            
+            /* Add to array */
+            farray_add(fa, f, label);
+        }    
+           
+        fvect_t *f = farray_sum(fa);
+        err += fabs(fvect_norm1(f) - NUM_VECTORS) > 1e-5;
+                      
+        /* Destroy features */            
+        fvect_destroy(f);
+        farray_destroy(fa);
+    }
+    
+    test_return(err, STRESS_RUNS);
+    return err;
+}
 
 
 /**
@@ -217,9 +312,11 @@ int main(int argc, char **argv)
     config_set_int(&cfg, "features.ngram_length", 1);    
     
     err |= test_static_add(); 
-    err |= test_static_dot(); 
     err |= test_stress_add();
+    err |= test_stress_add_array();
+    err |= test_static_dot(); 
     err |= test_stress_dot();
+    err |= test_stress_dot_array();
 
     config_destroy(&cfg);
     return err;

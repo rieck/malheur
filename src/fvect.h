@@ -38,6 +38,7 @@ typedef struct {
 } fvect_t;  
 
 /* Functions */
+fvect_t *fvect_zero();
 fvect_t *fvect_extract(char *, int l, char *);
 void fvect_destroy(fvect_t *);
 fvect_t *fvect_clone(fvect_t *);

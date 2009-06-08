@@ -148,6 +148,64 @@ static double fvect_dot_bsearch(fvect_t *fa, fvect_t *fb)
 }
 
 /** 
+ * Dot product between arrays of feature vectors (s = <a,b>). 
+ * @param fa Array of feature vectors (a)
+ * @param fb Array of feature vectors (b)
+ * @return matrix of dot products 
+ */
+double *farray_dot(farray_t *fa, farray_t *fb)
+{
+    assert(fa && fb);
+    long i, r = 0;
+    
+    double *d = malloc(fa->len * fb->len * sizeof(double));
+    if (!d) {
+        error("Could not allocate double matrix\n");
+        return NULL;
+    }
+    
+    if (verbose > 0)
+        prog_bar(0, 1, 0);
+    
+    if (fa == fb) {
+        #pragma omp parallel for shared(d)
+        for (i = 0; i < fa->len; i++) {
+            for (int j = i; j < fb->len; j++) {
+                d[i * fb->len + j] = fvect_dot(fa->x[i], fb->x[j]);
+                d[j * fb->len + i] = d[i * fb->len + j];                
+            }
+            
+            if (verbose > 0) {
+                #pragma omp critical
+                {
+                    r += fb->len - i;
+                    prog_bar(0, (fa->len * fa->len + fa->len) / 2.0, r);
+                }
+            }    
+        }    
+    } else {
+        #pragma omp parallel for shared(d)
+        for (i = 0; i < fa->len; i++) {
+            for (int j = 0; j < fb->len; j++) {
+                d[i * fb->len + j] = fvect_dot(fa->x[i], fb->x[j]);
+            }
+            
+            if (verbose > 0) {
+                #pragma omp critical
+                {
+                    r += fb->len;
+                    prog_bar(0, fa->len * fb->len, r);
+                }
+            }
+        }    
+    }
+    if (verbose > 0)
+        printf("\n");
+    
+    return d;
+}
+
+/** 
  * Dot product between two feature vectors (s = <a,b>). The function 
  * uses a loop or a binary search to sum over all dimensions depending
  * on the size of the considered vectors.
@@ -265,6 +323,70 @@ fvect_t *fvect_sub(fvect_t *fa, fvect_t *fb)
 }
 
 /**
+ * Adds all feature vectors to a linear combination
+ * @param fa Array of feature vector
+ * @param s Array of scalar values
+ * @return Linear combination
+ */
+fvect_t *farray_sums(farray_t *fa, double *s)
+{
+    fvect_t *g, *f = fvect_zero();
+    int i;
+            
+    for (i = 0; i < fa->len; i++) {
+        /* Skip zero elements */
+        if (fabs(s[i]) < 1e-8)
+            continue;
+            
+        /* Add elements */
+        g = fvect_adds(f, fa->x[i], s[i]);
+        fvect_destroy(f);
+        f = g;
+    }
+    
+    return f;
+} 
+
+/**
+ * Adds all feature vectors to a linear combination
+ * @param fa Array of feature vector
+ * @return Linear combination
+ */
+fvect_t *farray_sum(farray_t *fa)
+{
+    int i;
+
+    double *s = malloc(fa->len * sizeof(double));
+    for (i = 0; i < fa->len; i++)
+        s[i] = 1.0;
+    
+    fvect_t *f = farray_sums(fa, s);
+    
+    free(s);
+    return f;
+} 
+
+/**
+ * Computers the mean vector of the given array of feature vector
+ * @param fa Array of feature vector
+ * @return Mean vector
+ */
+fvect_t *farray_mean(farray_t *fa)
+{
+    int i;
+
+    double *s = malloc(fa->len * sizeof(double));
+    for (i = 0; i < fa->len; i++)
+        s[i] = 1.0 / fa->len;
+    
+    fvect_t *f = farray_sums(fa, s);
+    
+    free(s);
+    return f;
+} 
+
+
+/**
  * Computes the l1-norm of the feature vector (n = ||f||_1)
  * @param f Feature vector 
  * @return sum of values 
@@ -308,7 +430,7 @@ void fvect_sparsify(fvect_t *f)
     
     for (i = 0, j = 0; i < f->len; i++) {
         /* Skip over values close to zero */
-        if (fabs(f->val[i]) < 10e-8)
+        if (fabs(f->val[i]) < 1e-9)
             continue;
         
         /* Copy contents */

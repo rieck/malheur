@@ -15,6 +15,7 @@
 #define FMATH_H
 
 #include "fvect.h"
+#include "farray.h"
 
 /** Normalization types for feature vectors */
 typedef enum {
@@ -27,10 +28,14 @@ void fved_div(fvect_t *, double);
 fvect_t *fvect_adds(fvect_t *, fvect_t *, double);
 fvect_t *fvect_add(fvect_t *, fvect_t *); 
 fvect_t *fvect_sub(fvect_t *, fvect_t *);
+fvect_t *farray_sums(farray_t *, double *);
+fvect_t *farray_sum(farray_t *);
+fvect_t *farray_mean(farray_t *);
 double fvect_dot(fvect_t *, fvect_t *);
 double fvect_norm1(fvect_t *);
 double fvect_norm2(fvect_t *);
 void fvect_normalize(fvect_t *, norm_t);
-void fvect_sparsify(fvect_t *f);
+void fvect_sparsify(fvect_t *);
+double *farray_dot(farray_t *, farray_t *);
 
 #endif                          /* FMATH_H */

@@ -80,6 +80,15 @@ static void fvect_condense(fvect_t * fv)
 }
 
 /**
+ * Allocate an empty feature vector
+ * @return feature vector
+ */
+fvect_t *fvect_zero()
+{
+    return fvect_extract("", 0, "zero");
+}
+
+/**
  * Allocate and extract a feature vector from a sequence.
  * There is a global table of delimiter symbols which is only 
  * initialized once the first sequence is processed. 

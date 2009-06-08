@@ -15,7 +15,7 @@
 #include "fmath.h"
 
 /* Global variables */
-int verbose = 1;
+int verbose = 0;
 config_t cfg;
 
 /* Test file */

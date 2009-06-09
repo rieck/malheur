@@ -130,7 +130,7 @@ void data_archive_entries(char *arc, int *fnum, int *total)
     /* Jump through archive */
     while (archive_read_next_header(a, &entry) == ARCHIVE_OK) {
         const struct stat *s = archive_entry_stat(entry);
-        if ((s->st_mode & S_IFMT) == S_IFREG)      
+        if (S_ISREG(s->st_mode))      
             ++*fnum;
         ++*total;    
         archive_read_data_skip(a);

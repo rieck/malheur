@@ -180,9 +180,9 @@ farray_t *farray_extract(char *path)
     if (verbose > 0)
         printf("Extracting features from '%s'.\n", path);
     
-    if ((st.st_mode & S_IFMT) == S_IFREG) 
+    if (S_ISREG(st.st_mode)) 
         fa = farray_extract_archive(path);
-    else if ((st.st_mode & S_IFMT) == S_IFDIR)
+    else if (S_ISDIR(st.st_mode))
         fa = farray_extract_dir(path);
     else
         error("Unsupported file type of input '%s'", path);
@@ -230,7 +230,7 @@ farray_t *farray_extract_archive(char *arc)
             /* Perform reading of archive in critical region */
             archive_read_next_header(a, &entry);
             const struct stat *s = archive_entry_stat(entry);
-            if ((s->st_mode & S_IFMT) != S_IFREG) {
+            if (!S_ISREG(s->st_mode)) {
                 x = NULL;
                 archive_read_data_skip(a);
                 l = NULL;

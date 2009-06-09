@@ -27,7 +27,6 @@ static double pb_start = 0;
  */
 void print_config(config_t *cfg)
 {
-    int b;
     double f;
     long i, j, k;
     const char *s, *t;
@@ -53,9 +52,9 @@ void print_config(config_t *cfg)
 
     /* Analysis setting */    
     config_lookup_float(cfg, "analysis.prototype_radius", &f);
-    config_lookup_bool(cfg, "analysis.prototype_labels", &b);
+    config_lookup_int(cfg, "analysis.prototype_labels", &i);
     printf("  analysis.prototype_*:   radius=%g, labels=%s\n", f, 
-           b ? "true" : "false");
+           i ? "true" : "false");
 }
 
 /**
@@ -67,7 +66,6 @@ void print_config(config_t *cfg)
  */
 char *check_config(config_t *cfg)
 {
-    int i;
     double f;
     long l;
     const char *s;
@@ -93,7 +91,7 @@ char *check_config(config_t *cfg)
     /* Check in analysis setting */    
     if (config_lookup_float(cfg, "analysis.prototype_radius", &f) != CONFIG_TRUE)
         return "'prototype_radius' not defined in configuration group 'analysis'";
-    if (config_lookup_bool(cfg, "analysis.prototype_labels", &i) != CONFIG_TRUE)
+    if (config_lookup_int(cfg, "analysis.prototype_labels", &l) != CONFIG_TRUE)
         return "'prototype_labels' not defined in configuration group 'analysis'";
 
     return NULL;

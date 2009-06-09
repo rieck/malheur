@@ -11,15 +11,19 @@
  * --
  */
 
+#include "config.h"
+
 #include <mex.h>
 #include <stdarg.h>
 #include <string.h>
 #include <libconfig.h>
-#include "config.h"
+#include <strings.h>
+
 #include "mist.h"
+#include "uthash.h"
 #include "util.h"
 #include "data.h"
-#include "strings.h"
+#include "farray.h"
 #include "fmath.h"
 
 /* Mex signature */
@@ -29,16 +33,29 @@
 #endif   
 
 /* Convenience definitions */
+#define cmd     prhs[0]
 #define in1     prhs[1]         /* Default input 1 */
 #define in2     prhs[2]         /* Default input 2 */
 #define in3     prhs[3]         /* Default input 3 */
-#define out     plhs[0]         /* Default output */
+#define out1    plhs[0]         /* Default output 1 */
+#define out2    plhs[1]         /* Default output 2 */
+#define out3    plhs[2]         /* Default output 3 */
 
 /*
  * Global configuration
  */
 config_t cfg;
 int verbose = 1;
+
+/*
+ * Helper function to initialize scalar values 
+ */
+static mxArray* mxCreateScalar(double x) {
+    mxArray *a = mxCreateDoubleMatrix(1, 1, mxREAL);
+    double *ptr = mxGetPr(a);
+    ptr[0] = x;
+    return a;
+}
 
 /*
  * Print library version
@@ -104,7 +121,7 @@ void mex_load_mist(MEX_SIGNATURE)
         print_config(&cfg);
         
     /* Get output variable */
-    out = mxCreateCellMatrix(1, len);
+    out1 = mxCreateCellMatrix(1, len);
     printf("Loading %d MIST reports ...\n", len);
     for (i = 0; i < len; i++) {
         /* Get file name */
@@ -116,7 +133,7 @@ void mex_load_mist(MEX_SIGNATURE)
         r = mist_preproc(r);
     
         /* Store report in cell array */
-        mxSetCell(out, i, mxCreateString(r));
+        mxSetCell(out1, i, mxCreateString(r));
         prog_bar(0, (double) len, (double) i);
 
         /* Free space */    
@@ -136,9 +153,13 @@ void mex_load_mist(MEX_SIGNATURE)
 void mex_dot_product(MEX_SIGNATURE)
 {
     char cf[1024], df[1024];
+    int i;
+    mxArray *a;
+    class_t *c;
+    const char *fields[] = { "label", "name" };
 
     /* Check input */
-    if (nrhs != 1 + 2 || nlhs != 1) 
+    if (nrhs != 1 + 2 || nlhs < 1) 
         mex_error("Number of input/output arguments is invalid");
     if (!mxIsChar(in1))
         mex_error("First argument is not a dirname/archive");
@@ -168,8 +189,28 @@ void mex_dot_product(MEX_SIGNATURE)
     if (!fa)
         mex_error("Could not load data from '%s'", df);
 
-    out = mxCreateNumericMatrix(fa->len, fa->len, mxDOUBLE_CLASS, mxREAL);    
-    farray_dot(fa, fa, (double *) mxGetPr(out));
+    out1 = mxCreateNumericMatrix(fa->len, fa->len, mxDOUBLE_CLASS, mxREAL);    
+    farray_dot(fa, fa, (double *) mxGetPr(out1));
+    
+    /* Copy labels */
+    if (nlhs > 1) {
+        out2 = mxCreateNumericMatrix(1, fa->len, mxDOUBLE_CLASS, mxREAL);
+        double *y = mxGetPr(out2);
+        for (i = 0; i < fa->len; i++)
+            y[i] = fa->y[i];
+    }
+    
+    /* Copy label names */
+    if (nlhs > 2) {
+        int n = HASH_CNT(hn, fa->class_name);
+        out3 = mxCreateStructMatrix(1, n, 2, fields);
+        for(i = 0, c = fa->class_name; c; i++, c = c->hn.next) {
+            a = mxCreateScalar(c->index);
+            mxSetField(out3, i, "label", a);
+            a = mxCreateString(c->name);
+            mxSetField(out3, i, "name", a);            
+        }
+    }
     
     /* Clean up */
     farray_destroy(fa);
@@ -184,7 +225,7 @@ void mex_dot_product(MEX_SIGNATURE)
  */
 void mexFunction(MEX_SIGNATURE)
 {
-    char cmd[256];
+    char buf[256];
 
     if (nrhs == 0) {
         mex_print_version();
@@ -192,15 +233,15 @@ void mexFunction(MEX_SIGNATURE)
     }
 
     /* Get command */
-    if (mxGetString(prhs[0], cmd, 255)) 
+    if (mxGetString(cmd, buf, 255)) 
         mex_error("Invalid Malheur command");
 
     /* Process commands */    
-    if (!strcasecmp(cmd, "version")) {
+    if (!strcasecmp(buf, "version")) {
         mex_print_version();           
-    } else if (!strcasecmp(cmd, "load_mist")) {
+    } else if (!strcasecmp(buf, "load_mist")) {
         mex_load_mist(nlhs, plhs, nrhs, prhs);
-    } else if (!strcasecmp(cmd, "dot_product")) {
+    } else if (!strcasecmp(buf, "dot_product")) {
         mex_dot_product(nlhs, plhs, nrhs, prhs);
     } else {
         mex_error("Unknown Malheur command");

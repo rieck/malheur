@@ -8,12 +8,12 @@ function [rep,list] = mal_load_mist(in, cfg)
 %     [rep,list] = mal_load_mist(in, cfg);
 %
 % Arguments:
-%     in:       Cell array of file name or directory name
-%     cfg:      Malheur configuration file 
+%     in:         Cell array of file name or directory name
+%     cfg:        Malheur configuration file 
 %
 % Returns:
-%     rep:      Cell array of MIST reports 
-%     list:     Cell array of file names
+%     rep:        Cell array of MIST reports 
+%     list:       Cell array of file names
 %
 
 % Check for input

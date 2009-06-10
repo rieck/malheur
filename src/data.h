@@ -19,5 +19,6 @@ char *data_load_file(char *, char *);
 void data_dir_entries(char *dir, int *, int *);
 void data_archive_entries(char *arc, int *, int *);
 char *data_preproc(char *);
+void data_save_kernel(double *, farray_t *, char *);
 
 #endif                          /* STRIO_H */

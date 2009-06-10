@@ -26,6 +26,8 @@
 #include "config.h"
 #include "common.h"
 #include "fvect.h"
+#include "farray.h"
+#include "fmath.h"
 #include "data.h"
 #include "util.h"
 #include "mist.h"
@@ -156,6 +158,36 @@ char *data_preproc(char *x)
     }    
 
     return x;
+}
+
+/**
+ * Saves a kernel matrix to a compressed file
+ * @param d Pointer to matrix
+ * @param f Feature vector array
+ * @param n File name 
+ */
+void data_save_kernel(double *d, farray_t *f, char *file)
+{
+    assert(d && f && file);
+    int i,j;
+
+    if (verbose > 0)
+        printf("Saving kernel matrix to '%s'.\n", file);
+
+    gzFile *z = gzopen(file, "w");
+    if (!z) {
+        error("Could not create file '%s'.", file);
+        return;
+    }    
+    
+    for (i = 0; i < f->len; i++) {
+        gzprintf(z, "%s:", f->x[i]->src);
+        for (j = 0; j < f->len; j++)
+            gzprintf(z, " %g", d[i * f->len + j]);
+        gzprintf(z, "\n");
+    }
+    
+    gzclose(z);
 }
 
 /** @} */

@@ -16,6 +16,7 @@
 #include "common.h"
 #include "farray.h"
 #include "ftable.h"
+#include "fmath.h"
 #include "util.h"
 
 /* Global variables */
@@ -102,10 +103,10 @@ void parse_options(int argc, char **argv)
         fatal("<task> and <input> arguments are required");
 
     /* Argument: Task */
-    if (!strcasecmp(argv[0], "examine"))
-        task = EXAMINE;
-    else if (!strcasecmp(argv[0], "prototype"))
+    if (!strcasecmp(argv[0], "prototype"))
         task = PROTOTYPE;
+    else if (!strcasecmp(argv[0], "kernel"))
+        task = KERNEL;
     else if (!strcasecmp(argv[0], "learn-classes"))
         task = LEARN_CLASSES;
     else if (!strcasecmp(argv[0], "learn-clusters"))
@@ -117,6 +118,31 @@ void parse_options(int argc, char **argv)
     input = argv[1];
     if (access(input, R_OK))
         fatal("Could not access '%s'", input); 
+}
+
+/**
+ * Computes a kernel matrix and saves the result to afile
+ */
+static void malheur_kernel()
+{
+        /* Load data */
+        farray_t *fa = farray_extract(input);
+        
+        /* Normalize */
+        farray_normalize(fa, NORM_L2);
+        
+        /* Compute similarity matrix */
+        double *d = malloc(fa->len * fa->len * sizeof(double));
+        if (!d)
+            fatal("Could not allocate similarity matrix");
+        farray_dot(fa, fa, d);
+        
+        /* Save matrix */
+        data_save_kernel(d, fa, OUTPUT_FILE);
+
+        /* Clean up */
+        free(d);
+        farray_destroy(fa);
 }
 
 /**
@@ -165,15 +191,12 @@ static void malheur_exit()
  */
 int main(int argc, char **argv)
 {
-    farray_t *fa;
     malheur_init(argc, argv);
 
     /* Perform task */
     switch (task) {
-    case EXAMINE:
-        fa = farray_extract(input);
-        farray_print(fa);
-        farray_destroy(fa);
+    case KERNEL:
+        malheur_kernel();
         break;
     case PROTOTYPE:
         break;

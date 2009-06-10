@@ -59,6 +59,20 @@ void fvect_normalize(fvect_t *f, norm_t n)
 }
 
 /**
+ * Normalize a feature vector array to a norm.
+ * @param f Feature vector array
+ * @param n Normalization
+ */
+void farray_normalize(farray_t *f, norm_t n)
+{
+    int i;
+    assert(f);
+    
+    for (i = 0; i < f->len; i++)
+        fvect_normalize(f->x[i], n);
+}
+
+/**
  * Multiplies vector with a scalar (f = s * f)
  * @param f Feature vector 
  * @param s Scalar value

@@ -40,6 +40,7 @@
 #define out1    plhs[0]         /* Default output 1 */
 #define out2    plhs[1]         /* Default output 2 */
 #define out3    plhs[2]         /* Default output 3 */
+#define out4    plhs[3]         /* Default output 4 */
 
 /*
  * Global configuration
@@ -210,6 +211,14 @@ void mex_dot_product(MEX_SIGNATURE)
             a = mxCreateString(c->name);
             mxSetField(out3, i, "name", a);            
         }
+    }
+
+    /* Copy sources */
+    if (nlhs > 3) {
+        out4 = mxCreateCellMatrix(1, fa->len);
+        for (i = 0; i < fa->len; i++) 
+            if (fa->x[i]->src)
+                mxSetCell(out4, i, mxCreateString(fa->x[i]->src));
     }
     
     /* Clean up */

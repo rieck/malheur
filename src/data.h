@@ -14,6 +14,8 @@
 #ifndef FIO_H
 #define FIO_H
 
+#include "farray.h"
+
 /* I/O functions */
 char *data_load_file(char *, char *);
 void data_dir_entries(char *dir, int *, int *);

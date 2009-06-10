@@ -19,7 +19,7 @@
 
 /* Operation tasks of Malheur  */
 typedef enum {
-    EXAMINE, PROTOTYPE, LEARN_CLASSES, LEARN_CLUSTERS
+    KERNEL, PROTOTYPE, LEARN_CLASSES, LEARN_CLUSTERS
 } malheur_task_t;
 
 #endif                          /* MALHEUR_H */

@@ -6,4 +6,6 @@
 
  TODO  
 
- * Consistency of feature configuration (he?!)
+ * Prototype extraction
+ * Clustering with and without prototypes
+ * Classification using liblinear / libsvm

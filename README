@@ -30,9 +30,9 @@
 
  Dependencies
  --
-     >= libconfig-1.3.2
-     >= libarchive-2.70
-     zlib
+      >= libconfig-1.3.2
+      >= libarchive-2.70
+      zlib
 
  Compilation & Installation
  --

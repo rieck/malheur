@@ -18,6 +18,7 @@
 #include "ftable.h"
 #include "fmath.h"
 #include "util.h"
+#include "data.h"
 
 /* Global variables */
 int verbose = 0;

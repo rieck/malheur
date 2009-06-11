@@ -28,4 +28,25 @@
 extern int verbose;
 
 
+/**
+ * Extracts a set of prototypes
+ * @param a Array of feature vectors
+ * @param p Prototypes
+ */
+proto_t *proto_extract(farray_t *fa) 
+{
+    assert(fa);
+
+    proto_t *p = malloc(sizeof(proto_t));
+    if (!p) {
+        error("Could not allocate prototype structure");
+        return NULL;
+    }
+    
+    p->assign = calloc(1, fa->len * sizeof(int));
+    p->len = fa->len;
+    
+    return p;
+} 
+
 /** @} */

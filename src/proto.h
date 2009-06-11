@@ -14,4 +14,12 @@
 #ifndef PROTO_H
 #define PROTO_H
 
+#include "farray.h"
+
+typedef struct {
+    farray_t *vectors;      /* Array of prototype vectors */
+    int *assign;            /* Assignments of prototypes */
+    unsigned long len;      /* Length of assignments */
+} proto_t;
+
 #endif                          /* PROTO_H */

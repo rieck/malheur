@@ -36,7 +36,7 @@ typedef struct {
  */
 typedef struct {
     fvect_t **x;                /**< Array of feature vectors */
-    int *y;                     /**< Array of label indices */
+    unsigned int *y;            /**< Array of label indices */
     unsigned long len;          /**< Length of array */
     unsigned long mem;          /**< Allocated memory in bytes */
     

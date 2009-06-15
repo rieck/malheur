@@ -42,7 +42,7 @@ extern int verbose;
  * @param name label name
  * @return index of class 
  */ 
-static int label_add(farray_t *fa, char *name)
+static unsigned int label_add(farray_t *fa, char *name)
 {
     class_t *entry;
     assert(fa && name);
@@ -62,7 +62,7 @@ static int label_add(farray_t *fa, char *name)
     memcpy(&entry->index, buf, sizeof(unsigned int));    
              
     /* Add label to both tables */
-    HASH_ADD(hi, fa->class_index, index, sizeof(int), entry);
+    HASH_ADD(hi, fa->class_index, index, sizeof(unsigned int), entry);
     HASH_ADD(hn, fa->class_name, name, strlen(entry->name), entry);     
                     
     /* Update memory */

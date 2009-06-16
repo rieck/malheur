@@ -40,7 +40,7 @@ void print_usage(int argc, char **argv)
 {
     printf("Usage: malheur [options] <task> <input>\n"
            "Tasks:\n"
-           "  examine         Examine reports and generate statistics\n"
+           "  kernel          Compute a kernel matrix from reports\n"
            "  prototype       Extract prototypes from reports using labels\n"
            "  learn-classes   Learn a classification of reports using labels\n"
            "  learn-clusters  Learn a clustering of reports without labels\n"

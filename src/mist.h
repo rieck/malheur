@@ -25,5 +25,6 @@ char *mist_preproc(char *report);
 char *mist_trunc_report(char *, int);
 char *mist_trunc_thread(char *, int);
 char *mist_trunc_level(char *, int);
+char *mist_trim(char *);
 
 #endif                          /* MIST_H */

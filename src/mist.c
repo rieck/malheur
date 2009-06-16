@@ -27,6 +27,7 @@
 extern int verbose;
 extern config_t cfg;
 
+
 /**
  * Preprocesses a MIST report
  * @param report Report as string
@@ -35,15 +36,19 @@ extern config_t cfg;
 char *mist_preproc(char *report)
 {
     long level, rlen, tlen;
-
+    
     /* Get MIST configuration */
     config_lookup_int(&cfg, "input.mist_level", (long *) &level);  
     config_lookup_int(&cfg, "input.mist_report_len", (long *) &rlen);
     config_lookup_int(&cfg, "input.mist_thread_len", (long *) &tlen);
 
+    /* Truncate report */
     report = mist_trunc_report(report, rlen);
     report = mist_trunc_thread(report, tlen);
     report = mist_trunc_level(report, level);
+    report = mist_trim(report);
+    
+    printf(">>%s<<", report);
 
     return report;
 }
@@ -104,7 +109,8 @@ char *mist_trunc_thread(char *report, int len)
             l = i + 1;
         }   
         
-         report[j] = report[i]; 
+        /* Copy contents */
+        report[j] = report[i]; 
     }
     
     /* Terminate string */
@@ -142,14 +148,7 @@ char *mist_trunc_level(char *report, int level)
                     break;
             }    
         }
-
-        /* Skip comments */
-        if (report[i] == MIST_COMMENT) {
-            while (i < len && report[++i] != MIST_NEWLINE);
-            if (i == len)
-                break;
-        }    
-
+  
         /* Check for new line */
         if (report[i] == MIST_NEWLINE) 
             l = 0;
@@ -163,5 +162,29 @@ char *mist_trunc_level(char *report, int level)
     report[j] = '\0';
     return report;
 }
+
+char *mist_trim(char *report)
+{
+    int i, j, len = strlen(report);
+        
+    /* Loop over file */
+    for (i = j = 0; i < len; i++, j++) {
+        /* Skip blank lines and comments */
+        if (report[i] == MIST_NEWLINE || report[i] == MIST_COMMENT) {
+            while (i < len && report[++i] != MIST_NEWLINE);
+            if (i == len)
+                break;
+        }    
+
+        /* Copy contents */
+        report[j] = report[i];
+    }
+
+
+    /* Terminate string */
+    report[j] = '\0';
+    return report;
+}
+
 
 /** @} */

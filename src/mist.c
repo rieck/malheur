@@ -27,6 +27,39 @@
 extern int verbose;
 extern config_t cfg;
 
+static int mist_read_line(char **ptr, char *buffer)
+{
+    /* Read line */
+    int r = sscanf(*ptr, "%1023[^\n]", buffer); 
+                
+    /* Empty line */
+    if (r < 1) 
+        buffer[0] = 0;
+
+    /* Move line */
+    *ptr += strlen(buffer) + 1;
+
+    return (r != -1);
+}
+
+static char *mist_copy_instr(char *ptr, char *line, int level)
+{
+    int i, l = 0;
+    for (i = 0; i < strlen(line); i++) {
+        if (line[i] == MIST_LEVEL)
+            l++;
+        if (l >= level)
+            break;
+    
+        ptr[i] = line[i];
+    }
+
+    /* Add carriage return */    
+    ptr[i] = '\n';
+        
+    /* Update pointer */
+    return ptr + i + 1;
+}
 
 /**
  * Preprocesses a MIST report
@@ -35,152 +68,40 @@ extern config_t cfg;
  */
 char *mist_preproc(char *report)
 {
-    long level, rlen, tlen;
+    long level, rlen, tlen, ti = 0, ri = 0;
+    char *read_ptr = report, *write_ptr = report, line[1024];
     
     /* Get MIST configuration */
     config_lookup_int(&cfg, "input.mist_level", (long *) &level);  
     config_lookup_int(&cfg, "input.mist_report_len", (long *) &rlen);
     config_lookup_int(&cfg, "input.mist_thread_len", (long *) &tlen);
 
-    /* Truncate report */
-    report = mist_trunc_report(report, rlen);
-    report = mist_trunc_thread(report, tlen);
-    report = mist_trunc_level(report, level);
-    report = mist_trim(report);
-
-    return report;
-}
-
-
-char *mist_trunc_report(char *report, int len)
-{
-    long j, i, k = 0;
-    
-    if (len <= 0)
-        return report;
-
-    for (i = j = 0; i < strlen(report); i++) {
-        /* Check for new line */
-        if (report[i] != MIST_NEWLINE)
-            continue;
-        /* Count instructions */
-        if (report[j] == MIST_INSTRUCT)
-            k++;
-        /* Stop after len instructions */
-        if (k >= len) 
+    /* Process MIST file */
+    while(mist_read_line(&read_ptr, line)) {   
+        switch(line[0]) {
+        
+        /* Instruction in MIST format */
+        case MIST_INSTRUCT:
+            if (ti < tlen) {
+                write_ptr = mist_copy_instr(write_ptr, line, level);
+                ri++; ti++;
+            }
             break;
             
-        j = i + 1;    
-    }
-    
-    /* Terminate string */
-    report[i] = '\0';
-
-    return report;
-}
-
-char *mist_trunc_thread(char *report, int len)
-{
-    long j, i, k = 0, l = 0, n = strlen(report);
-    
-    if (len <= 0)
-        return report;
-
-    for (i = j = l = 0; i < n; i++, j++) {
-        /* Check for new line */
-        if (report[i] == MIST_NEWLINE) {
-            /* Count instructions */
-            if (report[l] == MIST_INSTRUCT)
-                k++;
-            if (report[l] == MIST_COMMENT)
-                k = 0;
-                
-            if (k >= len) {
-                /* Skip over remaining instructions */
-                while (i < n && report[++i] != MIST_COMMENT);
-                if (i == n)
-                    break;
-                i--;
-                k = 0;
-            }
-                
-            l = i + 1;
-        }   
-        
-        /* Copy contents */
-        report[j] = report[i]; 
-    }
-    
-    /* Terminate string */
-    report[j] = '\0';
-
-    return report;
-}
-
-
-/**
- * Truncates a report to a given MIST level and removes comments. 
- * The truncated report is likely smaller than the original report. 
- * Hence, the caller may issue a realloc() to free memory. 
- * @param report Report as string
- * @param level MIST level 
- * @return truncated report
- */
-char *mist_trunc_level(char *report, int level)
-{
-    int l, i, j, len = strlen(report);
-    
-    /* Skip if level 0 */
-    if (level <= 0)
-        return report;
-    
-    /* Loop over file */
-    for (i = j = l = 0; i < len; i++, j++) {
-        /* Determine current level */
-        if (report[i] == MIST_LEVEL) {
-            l = (l + 1) % level;
-            if (l == 0) {
-                /* Skip over remaining levels */
-                while (i < len && report[++i] != MIST_NEWLINE);
-                if (i == len)
-                    break;
-            }    
+        /* Comment in MIST format */
+        case MIST_COMMENT:
+            /* Reset threat counter on new thread */
+            if (strstr(line, MIST_THREAD)) 
+                ti = 0;
+            break;
         }
-  
-        /* Check for new line */
-        if (report[i] == MIST_NEWLINE) 
-            l = 0;
-
-        /* Copy contents */
-        report[j] = report[i];
-    }
-
-
-    /* Terminate string */
-    report[j] = '\0';
-    return report;
-}
-
-char *mist_trim(char *report)
-{
-    int i, j, len = strlen(report);
         
-    /* Loop over file */
-    for (i = j = 0; i < len; i++, j++) {
-        /* Skip blank lines and comments */
-        if (report[i] == MIST_NEWLINE || report[i] == MIST_COMMENT) {
-            while (i < len && report[++i] != MIST_NEWLINE);
-            if (i == len)
-                break;
-        }    
-
-        /* Copy contents */
-        report[j] = report[i];
-    }
-
-
+        if (ri >= rlen)
+            break;
+    } 
+    
     /* Terminate string */
-    report[j] = '\0';
+    *write_ptr = 0;                
     return report;
 }
 

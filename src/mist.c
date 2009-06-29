@@ -29,17 +29,21 @@ extern config_t cfg;
 
 static int mist_read_line(char **ptr, char *buffer)
 {
-    /* Read line */
-    int r = sscanf(*ptr, "%1023[^\n]", buffer); 
-                
-    /* Empty line */
-    if (r < 1) 
-        buffer[0] = 0;
+    int i = 0;
 
+    /* Copy line */
+    for (i = 0; i < 1024; i++) {
+        if ((*ptr)[i] == 0)
+            return FALSE;
+        if ((*ptr)[i] == '\n')
+            break;
+        buffer[i] = (*ptr)[i];
+    }
+    buffer[i] = 0;
+                
     /* Move line */
     *ptr += strlen(buffer) + 1;
-
-    return (r != -1);
+    return TRUE;
 }
 
 static char *mist_copy_instr(char *ptr, char *line, int level)
@@ -54,7 +58,7 @@ static char *mist_copy_instr(char *ptr, char *line, int level)
         ptr[i] = line[i];
     }
 
-    /* Add carriage return */    
+    /* Add a carriage return */    
     ptr[i] = '\n';
         
     /* Update pointer */
@@ -82,7 +86,7 @@ char *mist_preproc(char *report)
         
         /* Instruction in MIST format */
         case MIST_INSTRUCT:
-            if (ti < tlen) {
+            if (tlen == 0 || ti < tlen) {
                 write_ptr = mist_copy_instr(write_ptr, line, level);
                 ri++; ti++;
             }
@@ -96,12 +100,14 @@ char *mist_preproc(char *report)
             break;
         }
         
-        if (ri >= rlen)
+        if (rlen > 0 && ri >= rlen)
             break;
     } 
     
     /* Terminate string */
-    *write_ptr = 0;                
+    *write_ptr = 0;      
+    
+    //printf(">>%s<<\n", report);
     return report;
 }
 

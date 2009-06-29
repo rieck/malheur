@@ -139,7 +139,7 @@ static void malheur_kernel()
         farray_dot(fa, fa, d);
         
         /* Save matrix */
-        data_save_kernel(d, fa, OUTPUT_FILE);
+        data_save_kernel(d, fa, output_file);
 
         /* Clean up */
         free(d);

@@ -105,9 +105,7 @@ char *mist_preproc(char *report)
     } 
     
     /* Terminate string */
-    *write_ptr = 0;      
-    
-    //printf(">>%s<<\n", report);
+    *write_ptr = 0;          
     return report;
 }
 

@@ -47,8 +47,6 @@ char *mist_preproc(char *report)
     report = mist_trunc_thread(report, tlen);
     report = mist_trunc_level(report, level);
     report = mist_trim(report);
-    
-    printf(">>%s<<", report);
 
     return report;
 }

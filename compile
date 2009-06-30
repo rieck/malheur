@@ -11,6 +11,8 @@ else
    arg=`hostname`
 fi
 
+make distclean
+
 # Apply configuration
 case $arg in
    # Cluster nodes at Fraunhofer FIRST

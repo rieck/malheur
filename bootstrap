@@ -19,6 +19,8 @@ case `uname -s` in
     ;;
 esac
 
+rm -f aclocal.m4
+
 echo "Autotools"
 echo " + aclocal..."     && $ACLOCAL -I m4 && \
 echo " + libtoolize..."  && $LIBTOOLIZE --force --copy && \

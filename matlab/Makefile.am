@@ -7,9 +7,9 @@
 
 INCLUDES 		= @INCLUDES@ -I$(top_srcdir)/src -I$(top_srcdir)
 MEXFLAGS 		= @MEXFLAGS@ -inline $(INCLUDES) -v \
-           	 	  CC='$(CC)' LD='$(CC) -fPIC' \
+           	 	  CC='$(CC)' LD='$(CC) -fPIC $(CFLAGS)' \
               		  CFLAGS='-fPIC -D_GNU_SOURCE -pthread $(CFLAGS)'
-MEXLDADD		= $(top_builddir)/src/libmalheur.a              		  
+MEXLDADD		= $(top_builddir)/src/libmalheur.a $(LIBS)
 
 EXTRA_DIST		= malheur.m malheur.c mal_load_mist.m \
 			  mal_dot_product.m

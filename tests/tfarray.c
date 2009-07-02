@@ -175,10 +175,12 @@ int main(int argc, char **argv)
     config_setting_t *s = config_setting_add(config_root_setting(&cfg), 
                                              "features", CONFIG_TYPE_GROUP);
 
-    /* Add important variables */    
+    /* Add important variables */   
+    config_setting_add(s, "embedding", CONFIG_TYPE_STRING);
     config_setting_add(s, "normalization", CONFIG_TYPE_STRING);
     config_setting_add(s, "ngram_length", CONFIG_TYPE_INT);
-    config_setting_add(s, "ngram_delim", CONFIG_TYPE_STRING);                           
+    config_setting_add(s, "ngram_delim", CONFIG_TYPE_STRING);
+    config_set_string(&cfg, "features.embedding", "cnt");    
     config_set_string(&cfg, "features.normalization", "l1");
     config_set_string(&cfg, "features.ngram_delim", "0");    
     config_set_int(&cfg, "features.ngram_length", 4);    

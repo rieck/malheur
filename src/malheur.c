@@ -128,10 +128,7 @@ static void malheur_kernel()
 {
         /* Load data */
         farray_t *fa = farray_extract(input);
-        
-        /* Normalize */
-        farray_normalize(fa, NORM_L2);
-        
+                
         /* Compute similarity matrix */
         double *d = malloc(fa->len * fa->len * sizeof(double));
         if (!d)

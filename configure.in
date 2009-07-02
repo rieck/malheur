@@ -4,12 +4,12 @@
 #
  
 # Malheur version
-AC_INIT([malheur], [0.1.2], [rieck@cs.tu-berlin.de])
+AC_INIT([malheur], [0.2.0], [rieck@cs.tu-berlin.de])
 
 # Defines (suitable for loading and saving versioned files)
 AC_DEFINE(MALHEUR_MAJOR, 0, Major version number)
-AC_DEFINE(MALHEUR_MINOR, 1, Minor version number)
-AC_DEFINE(MALHEUR_PATCH, 2, Patch version number)
+AC_DEFINE(MALHEUR_MINOR, 2, Minor version number)
+AC_DEFINE(MALHEUR_PATCH, 0, Patch version number)
 
 echo
 echo " :: MALHEUR - Automatic Malware Analysis on Steroids"

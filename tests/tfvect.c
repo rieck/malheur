@@ -57,9 +57,7 @@ int test_static()
     fvect_t *f;  
 
     test_printf("Extraction of feature vectors");
-
-    config_set_string(&cfg, "features.normalization", "l1");
-
+    
     for (i = 0; tests[i].str; i++) {
         fvect_reset_delim();
         config_set_string(&cfg, "features.ngram_delim", tests[i].dlm);    
@@ -92,7 +90,6 @@ int test_stress()
 
     test_printf("Stress test for feature vectors");
 
-    config_set_string(&cfg, "features.normalization", "l1");
     config_set_string(&cfg, "features.ngram_delim", "0");    
 
     ftable_init();
@@ -128,7 +125,6 @@ int test_stress_omp()
 
     test_printf("Stress test for feature vectors (OpenMP)");
 
-    config_set_string(&cfg, "features.normalization", "l1");
     config_set_string(&cfg, "features.ngram_delim", "0");    
 
     ftable_init();
@@ -167,7 +163,6 @@ int test_load_save()
     test_printf("Loading and saving of feature vectors");
 
     fvect_reset_delim();
-    config_set_string(&cfg, "features.normalization", "l1");
     config_set_string(&cfg, "features.ngram_delim", " ");
     config_set_int(&cfg, "features.ngram_length", 2);
 
@@ -229,9 +224,13 @@ int main(int argc, char **argv)
                                              "features", CONFIG_TYPE_GROUP);
 
     /* Add important variables */    
+    config_setting_add(s, "embedding", CONFIG_TYPE_STRING);
     config_setting_add(s, "normalization", CONFIG_TYPE_STRING);
     config_setting_add(s, "ngram_length", CONFIG_TYPE_INT);
     config_setting_add(s, "ngram_delim", CONFIG_TYPE_STRING);                           
+    
+    config_set_string(&cfg, "features.embedding", "cnt");
+    config_set_string(&cfg, "features.normalization", "l1");
     
     err |= test_static(); 
     err |= test_stress();    

@@ -19,8 +19,13 @@
 
 /** Normalization types for feature vectors */
 typedef enum {
-    NORM_BIN, NORM_L1, NORM_L2
+    NORM_L1, NORM_L2
 } norm_t;
+
+/** Embedding types for feature vectors */
+typedef enum {
+    EMBED_BIN, EMBED_CNT
+} embed_t;
 
 /* Functions */
 void fvect_mul(fvect_t *, double);

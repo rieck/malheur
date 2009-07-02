@@ -46,8 +46,10 @@ void print_config(config_t *cfg)
     /* Feature section */
     config_lookup_int(cfg, "features.ngram_length", &i);
     config_lookup_string(cfg, "features.ngram_delim", &s);
-    config_lookup_string(cfg, "features.normalization", &t);
     printf("  features.ngram_*:       len=%ld, delim=%s\n", i, s);
+    config_lookup_string(cfg, "features.embedding", &t);
+    printf("  features.embedding:     %s\n", t);
+    config_lookup_string(cfg, "features.normalization", &t);
     printf("  features.normalization: %s\n", t);
 
     /* Analysis setting */    
@@ -261,3 +263,4 @@ long round(double x)
     return (long) f;
 }
 #endif
+

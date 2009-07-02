@@ -41,10 +41,6 @@ void fvect_normalize(fvect_t *f, norm_t n)
     assert(f);
 
     switch (n) {
-    case NORM_BIN:
-        for (i = 0; i < f->len; i++)
-            f->val[i] = 1;
-        break;
     case NORM_L1:
         s = fvect_norm1(f);
         for (i = 0; i < f->len; i++)

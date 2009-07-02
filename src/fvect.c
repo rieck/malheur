@@ -50,7 +50,7 @@ static char delim[256] = { DELIM_NOT_INIT };
  * Condense a feature vector by counting duplicate features.
  * @param fv Feature vector
  */
-static void fvect_condense(fvect_t * fv)
+static void fvect_condense(fvect_t * fv, embed_t e)
 {
     feat_t *p_dim = fv->dim;
     float n = 0, *p_val = fv->val;
@@ -64,7 +64,14 @@ static void fvect_condense(fvect_t * fv)
 
         /* Check for duplicate dims */
         if (i < fv->len - 1 && fv->dim[i] == fv->dim[i + 1]) {
-            n += fv->val[i];
+            switch (e) {
+            case EMBED_CNT:
+                n += fv->val[i];
+                break;
+            case EMBED_BIN:
+                n = fmax(n, fv->val[i]);
+                break;
+            }
         } else {
             *(p_dim++) = fv->dim[i];
             *(p_val++) = fv->val[i] + n;
@@ -74,9 +81,10 @@ static void fvect_condense(fvect_t * fv)
 
     /* Update length */
     fv->len = p_dim - fv->dim;
+    fv->mem += fv->len * (sizeof(feat_t) + sizeof(float));
  
     /* Reallocate memory */
-    fvect_realloc(fv);
+    fvect_realloc(fv);    
 }
 
 /**
@@ -102,7 +110,7 @@ fvect_t *fvect_extract(char *x, int l, char *s)
 {
     fvect_t *fv;
     int nlen;
-    const char *dlm_str, *em_str;
+    const char *dlm_str, *cfg_str;
     assert(x && l >= 0);
 
     /* Allocate feature vector */
@@ -154,23 +162,34 @@ fvect_t *fvect_extract(char *x, int l, char *s)
         /* Feature extraction */
         extract_wgrams(fv, x, l, nlen);
     }
+    fv->total = fv->len;
     
     /* Sort extracted features */
     qsort(fv->dim, fv->len, sizeof(feat_t), compare_feat);
 
-    /* Condense duplicate features */
-    fv->total = fv->len;
-    fvect_condense(fv);
-    fv->mem += fv->len * (sizeof(feat_t) + sizeof(float));
+    /* Compute embedding and condense */
+    config_lookup_string(&cfg, "features.embedding", &cfg_str);
+    if (!strcasecmp(cfg_str, "cnt")) {
+        fvect_condense(fv, EMBED_CNT);
+    } else if (!strcasecmp(cfg_str, "bin")) {
+        fvect_condense(fv, EMBED_BIN);
+    } else {
+        warning("Unknown embedding '%s', using 'cnt'.", cfg_str);
+        fvect_condense(fv, EMBED_CNT);
+    }
 
-    /* Compute embedding */
-    config_lookup_string(&cfg, "features.normalization", &em_str);
-    if (!strcasecmp(em_str, "bin"))
-        fvect_normalize(fv, NORM_BIN);
-    else if (!strcasecmp(em_str, "l2"))
+    /* Compute normalization */
+    config_lookup_string(&cfg, "features.normalization", &cfg_str);
+    if (!strcasecmp(cfg_str, "l2")) {
         fvect_normalize(fv, NORM_L2);
-    else if (!strcasecmp(em_str, "l1"))
+    } else if (!strcasecmp(cfg_str, "l1")) {
         fvect_normalize(fv, NORM_L1);
+    } else if (!strcasecmp(cfg_str, "none")) {
+        /* Nothing */
+    } else {
+        warning("Unknown normalization '%s', using 'cnt'.", cfg_str);
+        fvect_normalize(fv, NORM_L1);
+    }
 
     return fv;
 }

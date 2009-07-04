@@ -164,6 +164,9 @@ static void malheur_init(int argc, char **argv)
     if (err) 
         fatal(err);
     
+    if (verbose > 1)
+        print_config(&cfg);
+    
     /* Init feature lookup table */
     if (lookup_table)
         ftable_init();

@@ -77,8 +77,8 @@ char *mist_preproc(char *report)
     
     /* Get MIST configuration */
     config_lookup_int(&cfg, "input.mist_level", (long *) &level);  
-    config_lookup_int(&cfg, "input.mist_report_len", (long *) &rlen);
-    config_lookup_int(&cfg, "input.mist_thread_len", (long *) &tlen);
+    config_lookup_int(&cfg, "input.mist_rlen", (long *) &rlen);
+    config_lookup_int(&cfg, "input.mist_tlen", (long *) &tlen);
 
     /* Process MIST file */
     while(mist_read_line(&read_ptr, line)) {   

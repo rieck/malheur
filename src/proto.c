@@ -27,7 +27,6 @@
 /* External variables */
 extern int verbose;
 
-
 /**
  * Extracts a set of prototypes
  * @param a Array of feature vectors

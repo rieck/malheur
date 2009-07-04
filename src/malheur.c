@@ -14,6 +14,7 @@
 #include "config.h"
 #include "malheur.h"
 #include "common.h"
+#include "mconfig.h"
 #include "farray.h"
 #include "ftable.h"
 #include "fmath.h"
@@ -160,12 +161,9 @@ static void malheur_init(int argc, char **argv)
               config_error_text(&cfg), config_error_line(&cfg));
     
     /* Check configuration */
-    char *err = check_config(&cfg);
-    if (err) 
-        fatal(err);
-    
+    config_check(&cfg);
     if (verbose > 1)
-        print_config(&cfg);
+        config_print(&cfg);
     
     /* Init feature lookup table */
     if (lookup_table)

@@ -11,6 +11,7 @@
  */
 
 #include "tests.h"
+#include "mconfig.h"
 #include "fvect.h"
 #include "ftable.h"
 
@@ -61,7 +62,7 @@ int test_static()
     for (i = 0; tests[i].str; i++) {
         fvect_reset_delim();
         config_set_string(&cfg, "features.ngram_delim", tests[i].dlm);    
-        config_set_int(&cfg, "features.ngram_length", tests[i].nlen);    
+        config_set_int(&cfg, "features.ngram_len", tests[i].nlen);    
    
         /* Extract features */
         f = fvect_extract(tests[i].str, strlen(tests[i].str), "test");
@@ -95,7 +96,7 @@ int test_stress()
     ftable_init();
 
     for (i = 0; i < STRESS_RUNS; i++) {
-        config_set_int(&cfg, "features.ngram_length", rand() % 10 + 1);    
+        config_set_int(&cfg, "features.ngram_len", rand() % 10 + 1);    
    
         /* Create random key and string */
         for (j = 0; j < STR_LENGTH; j++)
@@ -131,7 +132,7 @@ int test_stress_omp()
 
     #pragma omp parallel for 
     for (i = 0; i < STRESS_RUNS; i++) {
-        config_set_int(&cfg, "features.ngram_length", rand() % 10 + 1);    
+        config_set_int(&cfg, "features.ngram_len", rand() % 10 + 1);    
    
         /* Create random key and string */
         for (j = 0; j < STR_LENGTH; j++)
@@ -164,7 +165,7 @@ int test_load_save()
 
     fvect_reset_delim();
     config_set_string(&cfg, "features.ngram_delim", " ");
-    config_set_int(&cfg, "features.ngram_length", 2);
+    config_set_int(&cfg, "features.ngram_len", 2);
 
     /* Create and save feature vectors */
     if (!(z = gzopen(TEST_FILE, "wb9"))) {
@@ -220,18 +221,8 @@ int main(int argc, char **argv)
     
     /* Create config */
     config_init(&cfg);
-    config_setting_t *s = config_setting_add(config_root_setting(&cfg), 
-                                             "features", CONFIG_TYPE_GROUP);
-
-    /* Add important variables */    
-    config_setting_add(s, "embedding", CONFIG_TYPE_STRING);
-    config_setting_add(s, "normalization", CONFIG_TYPE_STRING);
-    config_setting_add(s, "ngram_length", CONFIG_TYPE_INT);
-    config_setting_add(s, "ngram_delim", CONFIG_TYPE_STRING);                           
-    
-    config_set_string(&cfg, "features.embedding", "cnt");
-    config_set_string(&cfg, "features.normalization", "l1");
-    
+    config_check(&cfg);
+        
     err |= test_static(); 
     err |= test_stress();    
     err |= test_stress_omp();

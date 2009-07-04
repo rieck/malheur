@@ -20,6 +20,7 @@
 #include <strings.h>
 
 #include "mist.h"
+#include "mconfig.h"
 #include "uthash.h"
 #include "util.h"
 #include "data.h"
@@ -115,11 +116,9 @@ void mex_load_mist(MEX_SIGNATURE)
     }          
     
     /* Check configuration */
-    char *err = check_config(&cfg);
-    if (err) 
-        mex_error(err); 
+    config_check(&cfg);
     if (verbose)
-        print_config(&cfg);
+        config_print(&cfg);
         
     /* Get output variable */
     out1 = mxCreateCellMatrix(1, len);
@@ -179,11 +178,9 @@ void mex_dot_product(MEX_SIGNATURE)
     }          
     
     /* Check configuration */
-    char *err = check_config(&cfg);
-    if (err) 
-        mex_error(err); 
+    config_check(&cfg);
     if (verbose)
-        print_config(&cfg);
+        config_print(&cfg);
 
     /* Extract features */
     farray_t *fa = farray_extract(df);

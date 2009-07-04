@@ -144,7 +144,7 @@ fvect_t *fvect_extract(char *x, int l, char *s)
     }
 
     /* Get n-gram length */
-    config_lookup_int(&cfg, "features.ngram_length", (long *) &nlen);
+    config_lookup_int(&cfg, "features.ngram_len", (long *) &nlen);
 
     /* Construct delimiter lookup table */
     config_lookup_string(&cfg, "features.ngram_delim", &dlm_str);    
@@ -168,7 +168,7 @@ fvect_t *fvect_extract(char *x, int l, char *s)
     qsort(fv->dim, fv->len, sizeof(feat_t), compare_feat);
 
     /* Compute embedding and condense */
-    config_lookup_string(&cfg, "features.embedding", &cfg_str);
+    config_lookup_string(&cfg, "features.vect_embed", &cfg_str);
     if (!strcasecmp(cfg_str, "cnt")) {
         fvect_condense(fv, EMBED_CNT);
     } else if (!strcasecmp(cfg_str, "bin")) {
@@ -179,7 +179,7 @@ fvect_t *fvect_extract(char *x, int l, char *s)
     }
 
     /* Compute normalization */
-    config_lookup_string(&cfg, "features.normalization", &cfg_str);
+    config_lookup_string(&cfg, "features.vect_norm", &cfg_str);
     if (!strcasecmp(cfg_str, "l2")) {
         fvect_normalize(fv, NORM_L2);
     } else if (!strcasecmp(cfg_str, "l1")) {

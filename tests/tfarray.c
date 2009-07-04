@@ -11,6 +11,7 @@
  */
 
 #include "tests.h"
+#include "mconfig.h"
 #include "farray.h"
 #include "fmath.h"
 
@@ -147,7 +148,7 @@ int test_load_save()
     /* Compare each vector mathematically */
     for (i = 0; i < fa->len; i++) {
         fvect_t *c = fvect_sub(fa->x[i], fb->x[i]);
-        err += fvect_norm1(fa->x[i]) < 10e-9;
+        err += fvect_norm1(c) > 10e-9;
         fvect_destroy(c);
     }
 
@@ -172,19 +173,8 @@ int main(int argc, char **argv)
     
     /* Create config */
     config_init(&cfg);
-    config_setting_t *s = config_setting_add(config_root_setting(&cfg), 
-                                             "features", CONFIG_TYPE_GROUP);
-
-    /* Add important variables */   
-    config_setting_add(s, "embedding", CONFIG_TYPE_STRING);
-    config_setting_add(s, "normalization", CONFIG_TYPE_STRING);
-    config_setting_add(s, "ngram_length", CONFIG_TYPE_INT);
-    config_setting_add(s, "ngram_delim", CONFIG_TYPE_STRING);
-    config_set_string(&cfg, "features.embedding", "cnt");    
-    config_set_string(&cfg, "features.normalization", "l1");
-    config_set_string(&cfg, "features.ngram_delim", "0");    
-    config_set_int(&cfg, "features.ngram_length", 4);    
-    
+    config_check(&cfg);
+        
     err |= test_stress();
     err |= test_stress_omp();
     err |= test_load_save();    

@@ -11,7 +11,7 @@ else
    arg=`hostname`
 fi
 
-make distclean
+#make distclean
 
 # Apply configuration
 case $arg in

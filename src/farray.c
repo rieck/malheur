@@ -28,7 +28,7 @@
 #include "config.h"
 #include "common.h"
 #include "farray.h"
-#include "fvect.h"
+#include "fvec.h"
 #include "data.h"
 #include "md5.h"
 #include "util.h"
@@ -111,7 +111,7 @@ void farray_destroy(farray_t *fa)
     /* Free feature vectors */
     if (fa->x) {
         for (int i = 0; i < fa->len; i++)
-            fvect_destroy(fa->x[i]);
+            fvec_destroy(fa->x[i]);
         free(fa->x);
     }
 
@@ -137,16 +137,16 @@ void farray_destroy(farray_t *fa)
  * @param fv Feature vector 
  * @param label Label of feature vector 
  */
-void farray_add(farray_t *fa, fvect_t *fv, char *label)
+void farray_add(farray_t *fa, fvec_t *fv, char *label)
 {
     assert(fa && fv && label);
 
     /* Expand size of array */
     if (fa->len % BLOCK_SIZE == 0) {
         int l = fa->len + BLOCK_SIZE;
-        fa->x = realloc(fa->x, l * sizeof(fvect_t *));
+        fa->x = realloc(fa->x, l * sizeof(fvec_t *));
         fa->y = realloc(fa->y, l * sizeof(int));
-        fa->mem += BLOCK_SIZE * (sizeof(fvect_t *) + sizeof(int));
+        fa->mem += BLOCK_SIZE * (sizeof(fvec_t *) + sizeof(int));
         if (!fa->x || !fa->y) {
             error("Could not re-size feature array");
             farray_destroy(fa);
@@ -247,7 +247,7 @@ farray_t *farray_extract_archive(char *arc)
 
         /* Preprocess and extract feature vector*/
         x = data_preproc(x);
-        fvect_t *fv = fvect_extract(x, strlen(x), l);
+        fvec_t *fv = fvec_extract(x, strlen(x), l);
         
         #pragma omp critical (farray)
         {
@@ -319,7 +319,7 @@ farray_t *farray_extract_dir(char *dir)
         /* Extract feature vector from file */
         char *raw = data_load_file(dir, dp->d_name);
         raw = data_preproc(raw);
-        fvect_t *fv = fvect_extract(raw, strlen(raw), dp->d_name);
+        fvec_t *fv = fvec_extract(raw, strlen(raw), dp->d_name);
 
         #pragma omp critical (farray)
         {        
@@ -359,7 +359,7 @@ void farray_print(farray_t *fa)
     
     for (i = 0; i < fa->len; i++) {
         HASH_FIND(hi, fa->class_index, &fa->y[i], sizeof(int), entry);        
-        fvect_print(fa->x[i]);
+        fvec_print(fa->x[i]);
         printf("  class: %s, index: %u\n", entry->name, fa->y[i]);                
     }   
 }
@@ -379,7 +379,7 @@ void farray_save(farray_t *fa, gzFile *z)
             fa->len, HASH_CNT(hn, fa->class_name), fa->mem, fa->src);
             
     for (i = 0; i < fa->len; i++) {
-        fvect_save(fa->x[i], z);
+        fvec_save(fa->x[i], z);
         HASH_FIND(hi, fa->class_index, &fa->y[i], sizeof(int), entry);   
         gzprintf(z, "  class=%s\n", entry->name);
     }    
@@ -421,7 +421,7 @@ farray_t *farray_load(gzFile *z)
     /* Load contents */
     for (i = 0; i < len; i++) {
         /* Load feature vector */
-        fvect_t *fv = fvect_load(z);
+        fvec_t *fv = fvec_load(z);
         
         /* Load classes */
         gzgets(z, buf, 512);

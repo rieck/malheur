@@ -27,7 +27,7 @@
 
 #include "config.h"
 #include "common.h"
-#include "fvect.h"
+#include "fvec.h"
 #include "ftable.h"
 #include "util.h"
 

@@ -36,17 +36,17 @@ typedef struct {
     unsigned long total;    /**< Total features in sequence */
     unsigned long mem;      /**< Allocated memory in bytes */
     char *src;              /**< Source of features, e.g. file */
-} fvect_t;  
+} fvec_t;  
 
 /* Functions */
-fvect_t *fvect_zero();
-fvect_t *fvect_extract(char *, int l, char *);
-void fvect_destroy(fvect_t *);
-fvect_t *fvect_clone(fvect_t *);
-void fvect_print(fvect_t *);
-void fvect_save(fvect_t *, gzFile *);
-fvect_t *fvect_load(gzFile *);
-void fvect_reset_delim();
-void fvect_realloc(fvect_t *);
+fvec_t *fvec_zero();
+fvec_t *fvec_extract(char *, int l, char *);
+void fvec_destroy(fvec_t *);
+fvec_t *fvec_clone(fvec_t *);
+void fvec_print(fvec_t *);
+void fvec_save(fvec_t *, gzFile *);
+fvec_t *fvec_load(gzFile *);
+void fvec_reset_delim();
+void fvec_realloc(fvec_t *);
 
 #endif                          /* FVEC_H */

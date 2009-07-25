@@ -22,7 +22,7 @@
 
 #include "config.h"
 #include "common.h"
-#include "fvect.h"
+#include "fvec.h"
 #include "fmath.h"
 #include "util.h"
 
@@ -34,7 +34,7 @@ extern int verbose;
  * @param f Feature vector 
  * @param n Normalization
  */
-void fvect_normalize(fvect_t *f, norm_t n)
+void fvec_normalize(fvec_t *f, norm_t n)
 {
     int i = 0;
     double s = 0;
@@ -42,12 +42,12 @@ void fvect_normalize(fvect_t *f, norm_t n)
 
     switch (n) {
     case NORM_L1:
-        s = fvect_norm1(f);
+        s = fvec_norm1(f);
         for (i = 0; i < f->len; i++)
             f->val[i] /= s;
         break;
     case NORM_L2:
-        s = fvect_norm2(f);
+        s = fvec_norm2(f);
         for (i = 0; i < f->len; i++)
             f->val[i] /= s;
         break;
@@ -65,7 +65,7 @@ void farray_normalize(farray_t *f, norm_t n)
     assert(f);
     
     for (i = 0; i < f->len; i++)
-        fvect_normalize(f->x[i], n);
+        fvec_normalize(f->x[i], n);
 }
 
 /**
@@ -73,7 +73,7 @@ void farray_normalize(farray_t *f, norm_t n)
  * @param f Feature vector 
  * @param s Scalar value
  */
-void fvect_mul(fvect_t *f, double s)
+void fvec_mul(fvec_t *f, double s)
 {
     int i = 0;
     assert(f);
@@ -87,9 +87,9 @@ void fvect_mul(fvect_t *f, double s)
  * @param f Feature vector 
  * @param s Scalar value
  */
-void fvect_div(fvect_t *f, double s)
+void fvec_div(fvec_t *f, double s)
 {
-    fvect_mul(f, 1/s);
+    fvec_mul(f, 1/s);
 }
 
 
@@ -100,7 +100,7 @@ void fvect_div(fvect_t *f, double s)
  * @param fb Feature vector (b)
  * @return s Inner product
  */
-static double fvect_dot_loop(fvect_t *fa, fvect_t *fb) 
+static double fvec_dot_loop(fvec_t *fa, fvec_t *fb) 
 {
     unsigned long i = 0, j = 0;
     double s = 0;
@@ -126,14 +126,14 @@ static double fvect_dot_loop(fvect_t *fa, fvect_t *fb)
  * @param fb Feature vector (b)
  * @return s Inner product
  */
-static double fvect_dot_bsearch(fvect_t *fa, fvect_t *fb) 
+static double fvec_dot_bsearch(fvec_t *fa, fvec_t *fb) 
 {
     unsigned long i = 0, j = 0, p, q, k;
     double s = 0;
 
     /* Check if fa is larger than fb */
     if (fa->len < fb->len) {
-        fvect_t *tmp = fa;
+        fvec_t *tmp = fa;
         fa = fb, fb = tmp;
     }
 
@@ -178,7 +178,7 @@ void farray_dot(farray_t *fa, farray_t *fb, double *d)
         #pragma omp parallel for shared(d)
         for (i = 0; i < fa->len; i++) {
             for (int j = i; j < fb->len; j++) {
-                d[i * fb->len + j] = fvect_dot(fa->x[i], fb->x[j]);
+                d[i * fb->len + j] = fvec_dot(fa->x[i], fb->x[j]);
                 d[j * fb->len + i] = d[i * fb->len + j];                
             }
             
@@ -194,7 +194,7 @@ void farray_dot(farray_t *fa, farray_t *fb, double *d)
         #pragma omp parallel for shared(d)
         for (i = 0; i < fa->len; i++) {
             for (int j = 0; j < fb->len; j++) {
-                d[i * fb->len + j] = fvect_dot(fa->x[i], fb->x[j]);
+                d[i * fb->len + j] = fvec_dot(fa->x[i], fb->x[j]);
             }
             
             if (verbose > 0) {
@@ -218,7 +218,7 @@ void farray_dot(farray_t *fa, farray_t *fb, double *d)
  * @param fb Feature vector (b)
  * @return s Inner product
  */
-double fvect_dot(fvect_t *fa, fvect_t *fb) 
+double fvec_dot(fvec_t *fa, fvec_t *fb) 
 {
     assert(fa && fb);
     double a, b;
@@ -232,9 +232,9 @@ double fvect_dot(fvect_t *fa, fvect_t *fb)
     
     /* Choose dot functions */
     if (a + b > ceil(b * log2(a)))
-        return fvect_dot_bsearch(fa, fb);
+        return fvec_dot_bsearch(fa, fb);
     else
-        return fvect_dot_loop(fa, fb);
+        return fvec_dot_loop(fa, fb);
 }
 
 /** 
@@ -244,20 +244,20 @@ double fvect_dot(fvect_t *fa, fvect_t *fb)
  * @param s Scalar value
  * @return new feature vector
  */
-fvect_t *fvect_adds(fvect_t *fa, fvect_t *fb, double s) 
+fvec_t *fvec_adds(fvec_t *fa, fvec_t *fb, double s) 
 {
     unsigned long i = 0, j = 0, len = 0;
     assert(fa && fb);
-    fvect_t *f;
+    fvec_t *f;
     
     /* Allocate feature vector (zero'd) */
-    f = calloc(1, sizeof(fvect_t));
+    f = calloc(1, sizeof(fvec_t));
     if (!f) {
         error("Could not create feature vector");
         return NULL;
     }
 
-    f->mem = sizeof(fvect_t);
+    f->mem = sizeof(fvec_t);
     f->total = fa->total + fb->total;
     f->src = NULL;
 
@@ -266,7 +266,7 @@ fvect_t *fvect_adds(fvect_t *fa, fvect_t *fb, double s)
     f->val = (float *) malloc((fa->len + fb->len) * sizeof(float));
     if (!f->dim || !f->val) {
         error("Could not allocate feature vector contents");
-        fvect_destroy(f);
+        fvec_destroy(f);
         return NULL;
     }
     
@@ -299,7 +299,7 @@ fvect_t *fvect_adds(fvect_t *fa, fvect_t *fb, double s)
     f->mem += f->len * (sizeof(feat_t) + sizeof(float));
 
     /* Reallocate memory */
-    fvect_realloc(f);
+    fvec_realloc(f);
     
     return f;
 }
@@ -310,9 +310,9 @@ fvect_t *fvect_adds(fvect_t *fa, fvect_t *fb, double s)
  * @param fb Feature vector (b)
  * @return new feature vector
  */
-fvect_t *fvect_add(fvect_t *fa, fvect_t *fb)
+fvec_t *fvec_add(fvec_t *fa, fvec_t *fb)
 {   
-    return fvect_adds(fa, fb, 1.0);
+    return fvec_adds(fa, fb, 1.0);
 } 
 
 
@@ -322,9 +322,9 @@ fvect_t *fvect_add(fvect_t *fa, fvect_t *fb)
  * @param fb Feature vector (b)
  * @return new feature vector
  */
-fvect_t *fvect_sub(fvect_t *fa, fvect_t *fb) 
+fvec_t *fvec_sub(fvec_t *fa, fvec_t *fb) 
 {
-    return fvect_adds(fa, fb, -1.0);
+    return fvec_adds(fa, fb, -1.0);
 }
 
 /**
@@ -333,9 +333,9 @@ fvect_t *fvect_sub(fvect_t *fa, fvect_t *fb)
  * @param s Array of scalar values
  * @return Linear combination
  */
-fvect_t *farray_sums(farray_t *fa, double *s)
+fvec_t *farray_sums(farray_t *fa, double *s)
 {
-    fvect_t *g, *f = fvect_zero();
+    fvec_t *g, *f = fvec_zero();
     int i;
             
     for (i = 0; i < fa->len; i++) {
@@ -344,8 +344,8 @@ fvect_t *farray_sums(farray_t *fa, double *s)
             continue;
             
         /* Add elements */
-        g = fvect_adds(f, fa->x[i], s[i]);
-        fvect_destroy(f);
+        g = fvec_adds(f, fa->x[i], s[i]);
+        fvec_destroy(f);
         f = g;
     }
     
@@ -357,7 +357,7 @@ fvect_t *farray_sums(farray_t *fa, double *s)
  * @param fa Array of feature vector
  * @return Linear combination
  */
-fvect_t *farray_sum(farray_t *fa)
+fvec_t *farray_sum(farray_t *fa)
 {
     int i;
 
@@ -365,7 +365,7 @@ fvect_t *farray_sum(farray_t *fa)
     for (i = 0; i < fa->len; i++)
         s[i] = 1.0;
     
-    fvect_t *f = farray_sums(fa, s);
+    fvec_t *f = farray_sums(fa, s);
     
     free(s);
     return f;
@@ -376,7 +376,7 @@ fvect_t *farray_sum(farray_t *fa)
  * @param fa Array of feature vector
  * @return Mean vector
  */
-fvect_t *farray_mean(farray_t *fa)
+fvec_t *farray_mean(farray_t *fa)
 {
     int i;
 
@@ -384,7 +384,7 @@ fvect_t *farray_mean(farray_t *fa)
     for (i = 0; i < fa->len; i++)
         s[i] = 1.0 / fa->len;
     
-    fvect_t *f = farray_sums(fa, s);
+    fvec_t *f = farray_sums(fa, s);
     
     free(s);
     return f;
@@ -396,7 +396,7 @@ fvect_t *farray_mean(farray_t *fa)
  * @param f Feature vector 
  * @return sum of values 
  */
-double fvect_norm1(fvect_t *f)
+double fvec_norm1(fvec_t *f)
 {
     int i = 0;
     double s = 0;    
@@ -413,7 +413,7 @@ double fvect_norm1(fvect_t *f)
  * @param f Feature vector 
  * @return sum of values 
  */
-double fvect_norm2(fvect_t *f)
+double fvec_norm2(fvec_t *f)
 {
     int i = 0;
     double s = 0;
@@ -429,7 +429,7 @@ double fvect_norm2(fvect_t *f)
  * Sparsifies a feature vector by removing zero dimensions 
  * @parma f Feature vectore
  */
-void fvect_sparsify(fvect_t *f)
+void fvec_sparsify(fvec_t *f)
 {
     int i, j = 0;
     
@@ -455,7 +455,7 @@ void fvect_sparsify(fvect_t *f)
     f->len = j;   
     
     /* Reallocate memory */
-    fvect_realloc(f);
+    fvec_realloc(f);
 }
 
 /** }@ */

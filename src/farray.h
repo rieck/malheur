@@ -16,7 +16,7 @@
 
 #include "zlib.h"
 #include "uthash.h"
-#include "fvect.h"
+#include "fvec.h"
 
 /* Allocate memory in blocks of this size */
 #define BLOCK_SIZE          (4096 / sizeof(farray_t))
@@ -35,7 +35,7 @@ typedef struct {
  * Array of feature vectors.
  */
 typedef struct {
-    fvect_t **x;                /**< Array of feature vectors */
+    fvec_t **x;                /**< Array of feature vectors */
     unsigned int *y;            /**< Array of label indices */
     unsigned long len;          /**< Length of array */
     unsigned long mem;          /**< Allocated memory in bytes */
@@ -48,7 +48,7 @@ typedef struct {
 
 /* Feature array functions */
 farray_t *farray_create(char *);
-void farray_add(farray_t *, fvect_t *, char *);
+void farray_add(farray_t *, fvec_t *, char *);
 void farray_destroy(farray_t *);
 void farray_print(farray_t *);
 void farray_save(farray_t *, gzFile *);

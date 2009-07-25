@@ -14,7 +14,7 @@
 #ifndef FMATH_H
 #define FMATH_H
 
-#include "fvect.h"
+#include "fvec.h"
 #include "farray.h"
 
 /** Normalization types for feature vectors */
@@ -28,19 +28,19 @@ typedef enum {
 } embed_t;
 
 /* Functions */
-void fvect_mul(fvect_t *, double);
-void fved_div(fvect_t *, double);
-fvect_t *fvect_adds(fvect_t *, fvect_t *, double);
-fvect_t *fvect_add(fvect_t *, fvect_t *); 
-fvect_t *fvect_sub(fvect_t *, fvect_t *);
-fvect_t *farray_sums(farray_t *, double *);
-fvect_t *farray_sum(farray_t *);
-fvect_t *farray_mean(farray_t *);
-double fvect_dot(fvect_t *, fvect_t *);
-double fvect_norm1(fvect_t *);
-double fvect_norm2(fvect_t *);
-void fvect_normalize(fvect_t *, norm_t);
-void fvect_sparsify(fvect_t *);
+void fvec_mul(fvec_t *, double);
+void fved_div(fvec_t *, double);
+fvec_t *fvec_adds(fvec_t *, fvec_t *, double);
+fvec_t *fvec_add(fvec_t *, fvec_t *); 
+fvec_t *fvec_sub(fvec_t *, fvec_t *);
+fvec_t *farray_sums(farray_t *, double *);
+fvec_t *farray_sum(farray_t *);
+fvec_t *farray_mean(farray_t *);
+double fvec_dot(fvec_t *, fvec_t *);
+double fvec_norm1(fvec_t *);
+double fvec_norm2(fvec_t *);
+void fvec_normalize(fvec_t *, norm_t);
+void fvec_sparsify(fvec_t *);
 void farray_dot(farray_t *, farray_t *, double *);
 void farray_normalize(farray_t *f, norm_t n);
 

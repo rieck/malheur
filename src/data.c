@@ -25,7 +25,7 @@
 
 #include "config.h"
 #include "common.h"
-#include "fvect.h"
+#include "fvec.h"
 #include "farray.h"
 #include "fmath.h"
 #include "data.h"

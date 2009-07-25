@@ -15,7 +15,7 @@
 #define FTABLE_H
 
 #include "zlib.h"
-#include "fvect.h"
+#include "fvec.h"
 #include "uthash.h"
 
 /** 

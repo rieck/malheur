@@ -19,7 +19,7 @@
 #include "uthash.h"
 
 /** 
- * Entry of feature table#
+ * Entry of feature table
  * @private
  */
 typedef struct {

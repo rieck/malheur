@@ -15,6 +15,9 @@
 #include "util.h"
 #include "mconfig.h"
 
+/* External variables */
+extern int verbose;
+
 /* Default configuration */
 static config_default_t defaults[] = {
     {"input",       "format",          0,  NAN, "raw"},

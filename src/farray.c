@@ -13,7 +13,7 @@
 
 /** 
  * @defgroup farray Array of feature vectors
- * Generic array of feature vectors. This module contains functions 
+ * Generic array of feature vectors. This module contains functions for
  * maintenance of feature vectors in an array along with a set of 
  * textual labels, such as AV labels. Moreover, functionality is provided
  * for extraction of feature vectors from directories and compressed

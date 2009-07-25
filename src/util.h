@@ -18,10 +18,10 @@
 
 /* Progress bar stuff */
 #define PROGBAR_LEN     52
-#define PROGBAR_EMPTY   '.'
-#define PROGBAR_FULL    'o'
-#define PROGBAR_FRONT   'O'
+#define PROGBAR_EMPTY   ':'
+#define PROGBAR_FULL    '#'
 #define PROGBAR_DONE    '#'
+#define PROGBAR_FRONT   '#'
 
 /* Fatal message */
 #ifndef fatal

@@ -45,7 +45,6 @@ static int compare_feat(const void *, const void *);
 static void decode_delim(const char *s);
 static char delim[256] = { DELIM_NOT_INIT };
 
-
 /** 
  * Condense a feature vector by counting duplicate features.
  * @param fv Feature vector

@@ -10,7 +10,8 @@ noinst_LIBRARIES	= libmalheur.a
 libmalheur_a_SOURCES	= md5.c md5.h common.h util.c util.h fvec.c \
                           fvec.h uthash.h ftable.c ftable.h mist.c mist.h \
                           fmath.c fmath.h data.c data.h farray.c farray.h \
-                          proto.c proto.h mconfig.c mconfig.h
+                          proto.c proto.h mconfig.c mconfig.h cluster.c \
+                          cluster.h
 
 bin_PROGRAMS		= malheur
 malheur_SOURCES		= $(libmalheur_a_SOURCES) malheur.c

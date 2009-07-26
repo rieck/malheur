@@ -41,10 +41,9 @@ void print_usage(int argc, char **argv)
 {
     printf("Usage: malheur [options] <task> <input>\n"
            "Tasks:\n"
-           "  kernel          Compute a kernel matrix from reports\n"
-           "  prototype       Extract prototypes from reports using labels\n"
-           "  learn-classes   Learn a classification of reports using labels\n"
-           "  learn-clusters  Learn a clustering of reports without labels\n"
+           "  kernel          Compute a kernel matrix from malware reports\n"
+           "  prototype       Extract prototypes from malware reports\n"
+           "  cluster         Cluster malware reports into similar groups\n"
            "Options:\n"
            "  -c <file>       Set configuration file.\n"
            "  -o <file>       Set output file.\n"     
@@ -109,10 +108,8 @@ void parse_options(int argc, char **argv)
         task = PROTOTYPE;
     else if (!strcasecmp(argv[0], "kernel"))
         task = KERNEL;
-    else if (!strcasecmp(argv[0], "learn-classes"))
-        task = LEARN_CLASSES;
-    else if (!strcasecmp(argv[0], "learn-clusters"))
-        task = LEARN_CLUSTERS;
+    else if (!strcasecmp(argv[0], "cluster"))
+        task = CLUSTER;
     else
         fatal("Unknown analysis task '%s' for Malheur", argv[0]);
 
@@ -120,6 +117,28 @@ void parse_options(int argc, char **argv)
     input = argv[1];
     if (access(input, R_OK))
         fatal("Could not access '%s'", input); 
+}
+
+/**
+ * Determines prototypes for the given malware reports
+ */
+static void malheur_prototype()
+{
+        /* Load data */
+        farray_t *fa = farray_extract(input);
+
+        farray_destroy(fa);
+}
+
+/**
+ * Clusters the given malware reports
+ */
+static void malheur_cluster()
+{
+        /* Load data */
+        farray_t *fa = farray_extract(input);
+        
+        farray_destroy(fa);        
 }
 
 /**
@@ -198,10 +217,10 @@ int main(int argc, char **argv)
         malheur_kernel();
         break;
     case PROTOTYPE:
+        malheur_prototype();
         break;
-    case LEARN_CLASSES:
-        break;
-    case LEARN_CLUSTERS:
+    case CLUSTER:
+        malheur_cluster();
         break;
     }
 

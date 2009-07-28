@@ -125,10 +125,12 @@ void parse_options(int argc, char **argv)
  */
 static void malheur_prototype()
 {
-        /* Load data */
-        farray_t *fa = farray_extract(input);
+    /* Load data */
+    farray_t *fa = farray_extract(input);
+    proto_t *pr = proto_extract(fa);
 
-        farray_destroy(fa);
+    proto_destroy(pr);
+    farray_destroy(fa);
 }
 
 /**
@@ -136,13 +138,10 @@ static void malheur_prototype()
  */
 static void malheur_cluster()
 {
-        /* Load data */
-        farray_t *fa = farray_extract(input);        
-        proto_t *pr = proto_extract(fa);
-        
-        
-        proto_destroy(pr);
-        farray_destroy(fa);        
+    /* Load data */
+    farray_t *fa = farray_extract(input);        
+
+    farray_destroy(fa);        
 }
 
 /**
@@ -150,21 +149,21 @@ static void malheur_cluster()
  */
 static void malheur_kernel()
 {
-        /* Load data */
-        farray_t *fa = farray_extract(input);
+    /* Load data */
+    farray_t *fa = farray_extract(input);
                 
-        /* Compute similarity matrix */
-        double *d = malloc(fa->len * fa->len * sizeof(double));
-        if (!d)
-            fatal("Could not allocate similarity matrix");
-        farray_dot(fa, fa, d);
+    /* Compute similarity matrix */
+    double *d = malloc(fa->len * fa->len * sizeof(double));
+    if (!d)
+        fatal("Could not allocate similarity matrix");
+    farray_dot(fa, fa, d);
         
-        /* Save matrix */
-        data_save_kernel(d, fa, output_file);
+    /* Save matrix */
+    data_save_kernel(d, fa, output_file);
 
-        /* Clean up */
-        free(d);
-        farray_destroy(fa);
+    /* Clean up */
+    free(d);
+    farray_destroy(fa);
 }
 
 /**

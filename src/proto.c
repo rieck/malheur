@@ -106,6 +106,10 @@ proto_t *proto_extract(farray_t *fa)
     /* Array for sorting */
     ds = malloc(fa->len * sizeof(double));
     
+    if (verbose > 0)
+        printf("Prototyping feature vectors with %d prototypes "
+               "and %1.0f%% outliers.\n", num, outl * 100);
+
     for (i = 0; i < num; i++) {
         if (i == 0) {
             /* Select random prototype */
@@ -114,7 +118,7 @@ proto_t *proto_extract(farray_t *fa)
             /* Select farthest prototype (excluding outliers) */
             memcpy(ds, p->dist, fa->len * sizeof(double));
             qsort(ds, fa->len, sizeof(double), cmp_double);
-            for (j = 0; j < fa->len && p->dist[j] != ds[far]; j++);
+            for (j = 0; j < fa->len && p->dist[j] != ds[far]; j++);            
         }
 
         /* Add prototype */
@@ -122,6 +126,7 @@ proto_t *proto_extract(farray_t *fa)
         farray_add(p->protos, pv, farray_get_label(fa, j));
 
         /* Update distances and assignments */
+        #pragma omp parallel for shared(fa, pv, p)        
         for (k = 0; k < fa->len; k++) {
             double d = sqrt(2 - 2 * fvec_dot(pv, fa->x[k]));
             if (d < p->dist[k]) {
@@ -129,10 +134,18 @@ proto_t *proto_extract(farray_t *fa)
                 p->assign[k] = i;
             }
         }
+        
+        if (verbose > 0)
+            prog_bar(0, num - 1, i);
     }
-    
+        
     /* Free memory */
     free(ds); 
+    
+    if (verbose > 0)
+        printf("\n");
+    if (verbose > 1)
+        farray_print(p->protos);
 
     return p;
 } 

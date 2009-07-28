@@ -37,24 +37,24 @@
 extern int verbose;
 
 /**
- * Adds a label to the table of classes.
+ * Adds a label to the table of labels.
  * @param a Feature array
  * @param name label name
- * @return index of class 
+ * @return index of label 
  */ 
 static unsigned int label_add(farray_t *fa, char *name)
 {
-    class_t *entry;
+    label_t *entry;
     assert(fa && name);
     unsigned char buf[MD5_DIGEST_LENGTH];
 
     /* Check if label is known */
-    HASH_FIND(hn, fa->class_name, name, strlen(name), entry);    
+    HASH_FIND(hn, fa->label_name, name, strlen(name), entry);    
     if (entry) 
         return entry->index;
 
-    /* Create new class */
-    entry = malloc(sizeof(class_t));
+    /* Create new label */
+    entry = malloc(sizeof(label_t));
     strncpy(entry->name, name, sizeof(entry->name)); 
     entry->name[sizeof(entry->name) - 1] = 0;
     
@@ -62,11 +62,11 @@ static unsigned int label_add(farray_t *fa, char *name)
     memcpy(&entry->index, buf, sizeof(unsigned int));    
              
     /* Add label to both tables */
-    HASH_ADD(hi, fa->class_index, index, sizeof(unsigned int), entry);
-    HASH_ADD(hn, fa->class_name, name, strlen(entry->name), entry);     
+    HASH_ADD(hi, fa->label_index, index, sizeof(unsigned int), entry);
+    HASH_ADD(hn, fa->label_name, name, strlen(entry->name), entry);     
                     
     /* Update memory */
-    fa->mem += sizeof(class_t) + sizeof(name);
+    fa->mem += sizeof(label_t) + sizeof(name);
 
     /* Return new index */
     return entry->index;
@@ -121,10 +121,10 @@ void farray_destroy(farray_t *fa)
         free(fa->src);
         
     /* Free lable table */
-    while(fa->class_name) {
-        class_t *current = fa->class_name;        
-        HASH_DELETE(hn, fa->class_name, current);
-        HASH_DELETE(hi, fa->class_index, current);
+    while(fa->label_name) {
+        label_t *current = fa->label_name;        
+        HASH_DELETE(hn, fa->label_name, current);
+        HASH_DELETE(hi, fa->label_index, current);
         free(current);           
     }    
        
@@ -346,10 +346,10 @@ void farray_print(farray_t *fa)
 {
     assert(fa);
     int i;
-    class_t *entry;
+    label_t *entry;
 
-    printf("feature array\n  len: %lu, classes: %d, mem: %.2fMb\n", 
-           fa->len, HASH_CNT(hn, fa->class_name), fa->mem / 1e6);
+    printf("feature array\n  len: %lu, labels: %d, mem: %.2fMb\n", 
+           fa->len, HASH_CNT(hn, fa->label_name), fa->mem / 1e6);
            
     if (fa->src)
         printf("  src: '%s'\n", fa->src);
@@ -358,9 +358,9 @@ void farray_print(farray_t *fa)
         return;
     
     for (i = 0; i < fa->len; i++) {
-        HASH_FIND(hi, fa->class_index, &fa->y[i], sizeof(int), entry);        
+        HASH_FIND(hi, fa->label_index, &fa->y[i], sizeof(int), entry);        
         fvec_print(fa->x[i]);
-        printf("  class: %s, index: %u\n", entry->name, fa->y[i]);                
+        printf("  label: %s, index: %u\n", entry->name, fa->y[i]);                
     }   
 }
 
@@ -373,17 +373,30 @@ void farray_save(farray_t *fa, gzFile *z)
 {
     assert(fa && z);
     int i;
-    class_t *entry;
 
-    gzprintf(z, "feature array: len=%lu, classes=%d, mem=%lu, src=%s\n", 
-            fa->len, HASH_CNT(hn, fa->class_name), fa->mem, fa->src);
+    gzprintf(z, "feature array: len=%lu, labels=%d, mem=%lu, src=%s\n", 
+            fa->len, HASH_CNT(hn, fa->label_name), fa->mem, fa->src);
             
     for (i = 0; i < fa->len; i++) {
         fvec_save(fa->x[i], z);
-        HASH_FIND(hi, fa->class_index, &fa->y[i], sizeof(int), entry);   
-        gzprintf(z, "  class=%s\n", entry->name);
+        gzprintf(z, "  label=%s\n", farray_get_label(fa, i));
     }    
 }
+
+/**
+ * Returns the textual label for the i-th feature vector
+ * @param fa Array of feature vectors
+ * @param i index
+ * @return Textual label
+ */
+char *farray_get_label(farray_t *fa, int i)
+{
+    assert(fa);
+    label_t *entry;
+
+    HASH_FIND(hi, fa->label_index, &fa->y[i], sizeof(int), entry);   
+    return entry->name;
+} 
 
 /**
  * Loads an array of feature vector form a file stream
@@ -403,7 +416,7 @@ farray_t *farray_load(gzFile *z)
         return NULL;
 
     gzgets(z, buf, 512);
-    r = sscanf(buf, "feature array: len=%lu, classes=%d, mem=%lu, src=%s\n", 
+    r = sscanf(buf, "feature array: len=%lu, labels=%d, mem=%lu, src=%s\n", 
               (unsigned long *) &len, (int *) &lab, 
               (unsigned long *) &mem, str);              
     if (r != 4)  {
@@ -423,9 +436,9 @@ farray_t *farray_load(gzFile *z)
         /* Load feature vector */
         fvec_t *fv = fvec_load(z);
         
-        /* Load classes */
+        /* Load labels */
         gzgets(z, buf, 512);
-        r = sscanf(buf, "  class=%s\n", str);
+        r = sscanf(buf, "  label=%s\n", str);
         if (r != 1) {
             error("Could not parse feature vector contents");
             farray_destroy(f);

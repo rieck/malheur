@@ -155,7 +155,7 @@ void mex_dot_product(MEX_SIGNATURE)
     char cf[1024], df[1024];
     int i;
     mxArray *a;
-    class_t *c;
+    label_t *c;
     const char *fields[] = { "label", "name" };
 
     /* Check input */
@@ -200,9 +200,9 @@ void mex_dot_product(MEX_SIGNATURE)
     
     /* Copy label names */
     if (nlhs > 2) {
-        int n = HASH_CNT(hn, fa->class_name);
+        int n = HASH_CNT(hn, fa->label_name);
         out3 = mxCreateStructMatrix(1, n, 2, fields);
-        for(i = 0, c = fa->class_name; c; i++, c = c->hn.next) {
+        for(i = 0, c = fa->label_name; c; i++, c = c->hn.next) {
             a = mxCreateScalar(c->index);
             mxSetField(out3, i, "label", a);
             a = mxCreateString(c->name);

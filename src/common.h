@@ -30,6 +30,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <math.h>
+#include <float.h>
 #include <dirent.h>
 #include <assert.h>
 #include <ctype.h>

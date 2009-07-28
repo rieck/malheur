@@ -18,6 +18,7 @@
 #include "farray.h"
 #include "ftable.h"
 #include "fmath.h"
+#include "proto.h"
 #include "util.h"
 #include "data.h"
 
@@ -136,8 +137,11 @@ static void malheur_prototype()
 static void malheur_cluster()
 {
         /* Load data */
-        farray_t *fa = farray_extract(input);
+        farray_t *fa = farray_extract(input);        
+        proto_t *pr = proto_extract(fa);
         
+        
+        proto_destroy(pr);
         farray_destroy(fa);        
 }
 

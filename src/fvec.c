@@ -39,7 +39,6 @@ extern config_t cfg;
 /* Local functions */
 static void extract_wgrams(fvec_t *, char *x, int l, int n);
 static void extract_ngrams(fvec_t *, char *x, int l, int n);
-static int compare_feat(const void *, const void *);
 
 /* Delimiter functions and table */
 static void decode_delim(const char *s);
@@ -164,7 +163,7 @@ fvec_t *fvec_extract(char *x, int l, char *s)
     fv->total = fv->len;
     
     /* Sort extracted features */
-    qsort(fv->dim, fv->len, sizeof(feat_t), compare_feat);
+    qsort(fv->dim, fv->len, sizeof(feat_t), cmp_feat);
 
     /* Compute embedding and condense */
     config_lookup_string(&cfg, "features.vect_embed", &cfg_str);
@@ -479,21 +478,6 @@ static void extract_ngrams(fvec_t *fv, char *x, int l, int nlen)
     }
     free(cache);
 }      
-
-/**
- * Compares two features values (hashs)
- * @param x feature X
- * @param y feature Y
- * @return result as a signed integer
- */
-static int compare_feat(const void *x, const void *y)
-{
-    if (*((feat_t *) x) > *((feat_t *) y))
-        return +1;
-    if (*((feat_t *) x) < *((feat_t *) y))
-        return -1;
-    return 0;
-}
 
 /**
  * Decodes a string containing delimiters to a global array

@@ -13,12 +13,43 @@
 
 #include "config.h"
 #include "common.h"
+#include "fvec.h"
 #include "util.h"
 
 /** Progress bar (with NULL) */
 static char pb_string[PROGBAR_LEN + 1];
 /** Start timestamp measured */
 static double pb_start = 0;
+
+/**
+ * Compares two features values (hashs)
+ * @param x feature X
+ * @param y feature Y
+ * @return result as a signed integer
+ */
+int cmp_feat(const void *x, const void *y)
+{
+    if (*((feat_t *) x) > *((feat_t *) y))
+        return +1;
+    if (*((feat_t *) x) < *((feat_t *) y))
+        return -1;
+    return 0;
+}
+
+/**
+ * Compares two double values
+ * @param x double X
+ * @param y double Y
+ * @return result as a signed integer
+ */
+int cmp_double(const void *x, const void *y)
+{
+    if (*((double *) x) > *((double *) y))
+        return +1;
+    if (*((double *) x) < *((double *) y))
+        return -1;
+    return 0;
+}
 
 /**
  * Print a formated error/warning message. See the macros error and 

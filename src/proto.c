@@ -21,31 +21,137 @@
 
 #include "config.h"
 #include "common.h"
+#include "fmath.h"
 #include "util.h"
 #include "proto.h"
 
 /* External variables */
 extern int verbose;
+extern config_t cfg;
+
+/* Local functions */
+static proto_t *proto_create(farray_t *fa);
 
 /**
- * Extracts a set of prototypes
+ * Creates an empty structure of prototypes
  * @param a Array of feature vectors
- * @param p Prototypes
+ * @return Prototypes
  */
-proto_t *proto_extract(farray_t *fa) 
+static proto_t *proto_create(farray_t *fa)
 {
     assert(fa);
+    int i;
 
-    proto_t *p = malloc(sizeof(proto_t));
+    /* Allocate prototype structure */
+    proto_t *p = malloc(sizeof(proto_t));    
     if (!p) {
         error("Could not allocate prototype structure");
         return NULL;
     }
-    
+
+    /* Allocate structure fields */
+    p->protos = farray_create(fa->src);
+    p->dist = calloc(1, fa->len * sizeof(double));
     p->assign = calloc(1, fa->len * sizeof(int));
     p->len = fa->len;
+    if (!p->protos || !p->dist || !p->assign) {
+        error("Could not allocate prototype assignments");
+        proto_destroy(p);
+        return NULL;
+    }
+    
+    /* Create initial assignment */
+    for (i = 0; i < fa->len; i++) {
+        p->assign[i] = -1;
+        p->dist[i] = DBL_MAX;
+    }
     
     return p;
+}
+
+/**
+ * Extracts a set of prototypes
+ * @param a Array of feature vectors
+ * @return Prototypes
+ */
+proto_t *proto_extract(farray_t *fa) 
+{
+    assert(fa);
+    int i, j, k, num, far;
+    double ratio, outl, *ds;
+
+    /* Allocate prototype structure */
+    proto_t *p = proto_create(fa);
+    if (!p)
+        return NULL;
+       
+    /* Get prototype ratio */
+    config_lookup_float(&cfg, "prototypes.ratio", (double *) &ratio);
+    num = round(ratio * fa->len);
+    if (num <= 0 || num > fa->len) {
+        error("Prototype ratio %f invalid (too low/high)", ratio);
+        proto_destroy(p);
+        return NULL;
+    }
+
+    /* Get prototype percentile */
+    config_lookup_float(&cfg, "prototypes.outliers", (double *) &outl);
+    far = round((1 - outl) * fa->len);
+    if (far < 0 || far >= fa->len) {
+        error("Outlier amount %f invalid (too low/high)", outl);
+        proto_destroy(p);
+        return NULL;
+    }
+
+    /* Array for sorting */
+    ds = malloc(fa->len * sizeof(double));
+    
+    for (i = 0; i < num; i++) {
+        if (i == 0) {
+            /* Select random prototype */
+            j = rand() % fa->len;
+        } else {
+            /* Select farthest prototype (excluding outliers) */
+            memcpy(ds, p->dist, fa->len * sizeof(double));
+            qsort(ds, fa->len, sizeof(double), cmp_double);
+            for (j = 0; j < fa->len && p->dist[j] != ds[far]; j++);
+        }
+
+        /* Add prototype */
+        fvec_t *pv = fvec_clone(fa->x[j]);
+        farray_add(p->protos, pv, farray_get_label(fa, j));
+
+        /* Update distances and assignments */
+        for (k = 0; k < fa->len; k++) {
+            double d = sqrt(2 - 2 * fvec_dot(pv, fa->x[k]));
+            if (d < p->dist[k]) {
+                p->dist[k] = d;
+                p->assign[k] = i;
+            }
+        }
+    }
+    
+    /* Free memory */
+    free(ds); 
+
+    return p;
 } 
+
+/**
+ * Destroys a structure containing prototypes and frees its memory. 
+ * @param p PrototypeS
+ */
+void proto_destroy(proto_t *p)
+{
+    if (!p)
+        return;
+    if (p->protos)
+        farray_destroy(p->protos);        
+    if (p->assign)
+        free(p->assign);
+    if (p->dist)
+        free(p->dist);
+    free(p);
+}
 
 /** @} */

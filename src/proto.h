@@ -17,9 +17,14 @@
 #include "farray.h"
 
 typedef struct {
-    farray_t *vectors;      /* Array of prototype vectors */
+    farray_t *protos;       /* Array of prototype vectors */
     int *assign;            /* Assignments of prototypes */
-    unsigned long len;      /* Length of assignments */
+    double *dist;           /* Distances to prototypes */
+    unsigned long len;      /* Length of assign and dist arrays */
 } proto_t;
+
+/* Function declarations */
+proto_t *proto_extract(farray_t *);
+void proto_destroy(proto_t *);
 
 #endif                          /* PROTO_H */

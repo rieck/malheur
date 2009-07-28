@@ -43,6 +43,11 @@ double time_stamp();
 int decode_string(char *);
 char *file_suffix(char *file);
 
+/* Comparison function */
+int cmp_feat(const void *, const void *);
+int cmp_double(const void *, const void *);
+
+/* Missing math functions */
 #ifndef HAVE_FUNC_ROUND
 double log2(double);
 #endif

@@ -6,5 +6,12 @@
  CHANGES
  --
 
- 0.1.0  
+ 0.1.0-2  
         First alpha version of Malheur tool
+        Support for computing kernel matrices
+        Matlab interfaces for functionality
+
+ 0.2.0
+        Improved processing of MIST behavior reports
+        Optinal truncation of MIST reports and threads 
+	First version of prototype extraction

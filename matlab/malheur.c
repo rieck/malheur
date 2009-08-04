@@ -187,8 +187,8 @@ void mex_dot_product(MEX_SIGNATURE)
     if (!fa)
         mex_error("Could not load data from '%s'", df);
 
-    out1 = mxCreateNumericMatrix(fa->len, fa->len, mxDOUBLE_CLASS, mxREAL);    
-    farray_dot(fa, fa, (double *) mxGetPr(out1));
+    out1 = mxCreateNumericMatrix(fa->len, fa->len, mxSINGLE_CLASS, mxREAL);    
+    farray_dot(fa, fa, (float *) mxGetPr(out1));
     
     /* Copy labels */
     if (nlhs > 1) {

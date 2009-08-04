@@ -51,7 +51,7 @@ static proto_t *proto_create(farray_t *fa)
 
     /* Allocate structure fields */
     p->protos = farray_create(fa->src);
-    p->dist = calloc(1, fa->len * sizeof(double));
+    p->dist = calloc(1, fa->len * sizeof(float));
     p->assign = calloc(1, fa->len * sizeof(int));
     p->len = fa->len;
     if (!p->protos || !p->dist || !p->assign) {
@@ -78,7 +78,8 @@ proto_t *proto_extract(farray_t *fa)
 {
     assert(fa);
     int i, j, k, num, far;
-    double ratio, outl, *ds;
+    double ratio, outl;
+    float *ds;
 
     /* Allocate prototype structure */
     proto_t *p = proto_create(fa);
@@ -104,7 +105,7 @@ proto_t *proto_extract(farray_t *fa)
     }
 
     /* Array for sorting */
-    ds = malloc(fa->len * sizeof(double));
+    ds = malloc(fa->len * sizeof(float));
     
     if (verbose > 0)
         printf("Prototyping feature vectors with %d prototypes "
@@ -116,8 +117,8 @@ proto_t *proto_extract(farray_t *fa)
             j = rand() % fa->len;
         } else {
             /* Select farthest prototype (excluding outliers) */
-            memcpy(ds, p->dist, fa->len * sizeof(double));
-            qsort(ds, fa->len, sizeof(double), cmp_double);
+            memcpy(ds, p->dist, fa->len * sizeof(float));
+            qsort(ds, fa->len, sizeof(float), cmp_float);
             for (j = 0; j < fa->len && p->dist[j] != ds[far]; j++);            
         }
 
@@ -128,7 +129,7 @@ proto_t *proto_extract(farray_t *fa)
         /* Update distances and assignments */
         #pragma omp parallel for shared(fa, pv, p)        
         for (k = 0; k < fa->len; k++) {
-            double d = sqrt(2 - 2 * fvec_dot(pv, fa->x[k]));
+            float d = sqrt(2 - 2 * fvec_dot(pv, fa->x[k]));
             if (d < p->dist[k]) {
                 p->dist[k] = d;
                 p->assign[k] = i;

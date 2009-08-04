@@ -45,7 +45,7 @@ test_t tests[] = {
 /* Test file */
 #define TEST_FILE               "test.fv"
 /* Number of stress runs */
-#define STRESS_RUNS             1000
+#define STRESS_RUNS             2000
 /* String length */
 #define STR_LENGTH              1024
 

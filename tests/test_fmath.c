@@ -22,7 +22,7 @@ config_t cfg;
 /* String length */
 #define STR_LENGTH              2000
 /* Number of vector */
-#define NUM_VECTORS             200 
+#define NUM_VECTORS             200.0 
 /* Number of stress runs */
 #define STRESS_RUNS             5
 
@@ -102,7 +102,7 @@ int test_static_dot()
         fy = fvec_extract(test_dot[i].y, strlen(test_dot[i].y), "test");
 
         /* Compute dot product */
-        double d = fvec_dot(fx, fy);
+        float d = fvec_dot(fx, fy);
         err += fabs(d - test_dot[i].res) > 1e-6;
 
         fvec_destroy(fx);
@@ -140,7 +140,7 @@ int test_stress_add()
         fy = fvec_add(fz, fx);
         fvec_destroy(fz);
 
-        err += fabs(fvec_norm1(fy) - 2.0) > 1e-7;
+        err += fabs(fvec_norm1(fy) - 2.0) > 1e-5;
         
         /* Substract fx from fz */
         fz = fvec_sub(fy, fx);
@@ -187,11 +187,11 @@ int test_stress_dot_array()
             farray_add(fa, f, label);
         }    
            
-        double *d = malloc(NUM_VECTORS * NUM_VECTORS * sizeof(double));
+        float *d = malloc(NUM_VECTORS * NUM_VECTORS * sizeof(float));
         farray_dot(fa, fa, d);
 
         for (j = 0; j < fa->len ; j++) {
-            double n = sqrt(d[j * fa->len + j]);
+            float n = sqrt(d[j * fa->len + j]);
             err += fabs(fvec_norm2(fa->x[j]) - n) > 1e-6;
         }
         
@@ -232,8 +232,8 @@ int test_stress_dot()
         buf[j] = 0; 
         fy = fvec_extract(buf, strlen(buf), "test");
 
-        double nx = fvec_dot(fx, fx);
-        double ny = fvec_dot(fy, fy);
+        float nx = fvec_dot(fx, fx);
+        float ny = fvec_dot(fy, fy);
         err += fabs(fvec_norm2(fx) - sqrt(nx)) > 1e-7;
         err += fabs(fvec_norm2(fy) - sqrt(ny)) > 1e-7;
         err += fabs(fvec_dot(fx, fy) > nx + ny);
@@ -280,7 +280,7 @@ int test_stress_add_array()
         }    
            
         fvec_t *f = farray_sum(fa);
-        err += fabs(fvec_norm1(f) - NUM_VECTORS) > 1e-5;
+        err += fabs(fvec_norm1(f) - NUM_VECTORS) > 1e-1;
                       
         /* Destroy features */            
         fvec_destroy(f);

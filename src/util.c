@@ -37,16 +37,16 @@ int cmp_feat(const void *x, const void *y)
 }
 
 /**
- * Compares two double values
- * @param x double X
- * @param y double Y
+ * Compares two float values
+ * @param x float X
+ * @param y float Y
  * @return result as a signed integer
  */
-int cmp_double(const void *x, const void *y)
+int cmp_float(const void *x, const void *y)
 {
-    if (*((double *) x) > *((double *) y))
+    if (*((float *) x) > *((float *) y))
         return +1;
-    if (*((double *) x) < *((double *) y))
+    if (*((float *) x) < *((float *) y))
         return -1;
     return 0;
 }
@@ -195,7 +195,7 @@ char *file_suffix(char *file)
  * @param x input value
  * @return logarithm 
  */
-double log2(double x)
+float log2(float x)
 {
     return log10(x) * 3.32192809488736234;
 }
@@ -207,9 +207,9 @@ double log2(double x)
  * @param x input value
  * @return integer number
  */
-long round(double x)
+long round(float x)
 {
-    double f = floor(x);
+    float f = floor(x);
     if (s - f >= 0.5)
         return (long) f + 1;
     return (long) f;

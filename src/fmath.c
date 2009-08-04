@@ -37,7 +37,7 @@ extern int verbose;
 void fvec_normalize(fvec_t *f, norm_t n)
 {
     int i = 0;
-    double s = 0;
+    float s = 0;
     assert(f);
 
     switch (n) {
@@ -73,7 +73,7 @@ void farray_normalize(farray_t *f, norm_t n)
  * @param f Feature vector 
  * @param s Scalar value
  */
-void fvec_mul(fvec_t *f, double s)
+void fvec_mul(fvec_t *f, float s)
 {
     int i = 0;
     assert(f);
@@ -87,7 +87,7 @@ void fvec_mul(fvec_t *f, double s)
  * @param f Feature vector 
  * @param s Scalar value
  */
-void fvec_div(fvec_t *f, double s)
+void fvec_div(fvec_t *f, float s)
 {
     fvec_mul(f, 1/s);
 }
@@ -100,10 +100,10 @@ void fvec_div(fvec_t *f, double s)
  * @param fb Feature vector (b)
  * @return s Inner product
  */
-static double fvec_dot_loop(fvec_t *fa, fvec_t *fb) 
+static float fvec_dot_loop(fvec_t *fa, fvec_t *fb) 
 {
     unsigned long i = 0, j = 0;
-    double s = 0;
+    float s = 0;
 
     /* Loop over features in a and b */
     while (i < fa->len && j < fb->len) {
@@ -126,10 +126,10 @@ static double fvec_dot_loop(fvec_t *fa, fvec_t *fb)
  * @param fb Feature vector (b)
  * @return s Inner product
  */
-static double fvec_dot_bsearch(fvec_t *fa, fvec_t *fb) 
+static float fvec_dot_bsearch(fvec_t *fa, fvec_t *fb) 
 {
     unsigned long i = 0, j = 0, p, q, k;
-    double s = 0;
+    float s = 0;
 
     /* Check if fa is larger than fb */
     if (fa->len < fb->len) {
@@ -163,14 +163,14 @@ static double fvec_dot_bsearch(fvec_t *fa, fvec_t *fb)
  * @param fb Array of feature vectors (b)
  * @param d matrix of dot products (a_len * b_len)
  */
-void farray_dot(farray_t *fa, farray_t *fb, double *d)
+void farray_dot(farray_t *fa, farray_t *fb, float *d)
 {
     assert(fa && fb);
     long i, r = 0;
     
     if (verbose > 0) {
         printf("Computing dot product (%lu x %lu matrix, %.2fMb).\n", 
-               fa->len, fb->len, (fa->len * fb->len * sizeof(double)) / 1e6);    
+               fa->len, fb->len, (fa->len * fb->len * sizeof(float)) / 1e6);    
         prog_bar(0, 1, 0);
     }
     
@@ -218,10 +218,10 @@ void farray_dot(farray_t *fa, farray_t *fb, double *d)
  * @param fb Feature vector (b)
  * @return s Inner product
  */
-double fvec_dot(fvec_t *fa, fvec_t *fb) 
+float fvec_dot(fvec_t *fa, fvec_t *fb) 
 {
     assert(fa && fb);
-    double a, b;
+    float a, b;
  
     /* Sort vectors according to size */
     if (fa->len > fb->len) {
@@ -244,7 +244,7 @@ double fvec_dot(fvec_t *fa, fvec_t *fb)
  * @param s Scalar value
  * @return new feature vector
  */
-fvec_t *fvec_adds(fvec_t *fa, fvec_t *fb, double s) 
+fvec_t *fvec_adds(fvec_t *fa, fvec_t *fb, float s) 
 {
     unsigned long i = 0, j = 0, len = 0;
     assert(fa && fb);
@@ -333,7 +333,7 @@ fvec_t *fvec_sub(fvec_t *fa, fvec_t *fb)
  * @param s Array of scalar values
  * @return Linear combination
  */
-fvec_t *farray_sums(farray_t *fa, double *s)
+fvec_t *farray_sums(farray_t *fa, float *s)
 {
     fvec_t *g, *f = fvec_zero();
     int i;
@@ -361,7 +361,7 @@ fvec_t *farray_sum(farray_t *fa)
 {
     int i;
 
-    double *s = malloc(fa->len * sizeof(double));
+    float *s = malloc(fa->len * sizeof(float));
     for (i = 0; i < fa->len; i++)
         s[i] = 1.0;
     
@@ -380,7 +380,7 @@ fvec_t *farray_mean(farray_t *fa)
 {
     int i;
 
-    double *s = malloc(fa->len * sizeof(double));
+    float *s = malloc(fa->len * sizeof(float));
     for (i = 0; i < fa->len; i++)
         s[i] = 1.0 / fa->len;
     
@@ -396,10 +396,10 @@ fvec_t *farray_mean(farray_t *fa)
  * @param f Feature vector 
  * @return sum of values 
  */
-double fvec_norm1(fvec_t *f)
+float fvec_norm1(fvec_t *f)
 {
     int i = 0;
-    double s = 0;    
+    float s = 0;    
     assert(f);
 
     for (i = 0; i < f->len; i++)
@@ -413,10 +413,10 @@ double fvec_norm1(fvec_t *f)
  * @param f Feature vector 
  * @return sum of values 
  */
-double fvec_norm2(fvec_t *f)
+float fvec_norm2(fvec_t *f)
 {
     int i = 0;
-    double s = 0;
+    float s = 0;
     assert(f);
 
     for (i = 0; i < f->len; i++)

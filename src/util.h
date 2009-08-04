@@ -45,14 +45,14 @@ char *file_suffix(char *file);
 
 /* Comparison function */
 int cmp_feat(const void *, const void *);
-int cmp_double(const void *, const void *);
+int cmp_float(const void *, const void *);
 
 /* Missing math functions */
 #ifndef HAVE_FUNC_ROUND
-double log2(double);
+float log2(float);
 #endif
 #ifndef HAVE_FUNC_LOG2
-long round(double);
+long round(float);
 #endif
 
 #endif                          /* UTIL_H */

@@ -166,7 +166,7 @@ char *data_preproc(char *x)
  * @param f Feature vector array
  * @param n File name 
  */
-void data_save_kernel(double *d, farray_t *f, char *file)
+void data_save_kernel(float *d, farray_t *f, char *file)
 {
     assert(d && f && file);
     int i,j;

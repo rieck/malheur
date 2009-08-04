@@ -153,7 +153,7 @@ static void malheur_kernel()
     farray_t *fa = farray_extract(input);
                 
     /* Compute similarity matrix */
-    double *d = malloc(fa->len * fa->len * sizeof(double));
+    float *d = malloc(fa->len * fa->len * sizeof(float));
     if (!d)
         fatal("Could not allocate similarity matrix");
     farray_dot(fa, fa, d);

@@ -42,7 +42,7 @@ case $arg in
        CFLAGS="-g -pedantic -pipe -O3 -march=nocona" \
        ./configure --enable-matlab -with-matlab=$HOME/Applications/Matlab \
        		   --enable-openmp \
-                   --prefix=/opt/malheur
+                   --prefix=/opt/rieck
        ;;
    *)    
        echo "# Configuration: Standard"

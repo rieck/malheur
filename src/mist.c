@@ -23,16 +23,25 @@
 #include "mist.h"
 #include "util.h"
 
+/* Size of read buffer */
+#define BUFFER_SIZE     1024
+
 /* External variables */
 extern int verbose;
 extern config_t cfg;
 
+/**
+ * Copy a line into the given buffer and advance pointer
+ * @param ptr Pointer to data
+ * @param buffer Buffer to write data to
+ * @return true on success, false otherwise 
+ */
 static int mist_read_line(char **ptr, char *buffer)
 {
     int i = 0;
 
     /* Copy line */
-    for (i = 0; i < 1024; i++) {
+    for (i = 0; i < BUFFER_SIZE; i++) {
         if ((*ptr)[i] == 0)
             return FALSE;
         if ((*ptr)[i] == '\n')
@@ -46,6 +55,13 @@ static int mist_read_line(char **ptr, char *buffer)
     return TRUE;
 }
 
+/**
+ * Copy a MIST instruction to the given pointer
+ * @param ptr pointer to destrination
+ * @param line pointer to source (line of instruction)
+ * @param level MIST level to keep
+ * @return destination for next instruction
+ */
 static char *mist_copy_instr(char *ptr, char *line, int level)
 {
     int i, l = 0;
@@ -73,7 +89,8 @@ static char *mist_copy_instr(char *ptr, char *line, int level)
 char *mist_preproc(char *report)
 {
     long level, rlen, tlen, ti = 0, ri = 0;
-    char *read_ptr = report, *write_ptr = report, line[1024];
+    char *read_ptr = report, *write_ptr = report;
+    char line[BUFFER_SIZE];
     
     /* Get MIST configuration */
     config_lookup_int(&cfg, "input.mist_level", (long *) &level);  

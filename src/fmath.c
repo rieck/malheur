@@ -206,8 +206,6 @@ void farray_dot(farray_t *fa, farray_t *fb, float *d)
             }
         }    
     }
-    if (verbose > 0)
-        printf("\n");
 }
 
 /** 

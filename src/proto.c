@@ -143,8 +143,6 @@ proto_t *proto_extract(farray_t *fa)
     /* Free memory */
     free(ds); 
     
-    if (verbose > 0)
-        printf("\n");
     if (verbose > 1)
         farray_print(p->protos);
 

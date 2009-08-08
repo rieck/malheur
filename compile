@@ -39,10 +39,16 @@ case $arg in
    twoface*|rieck*|gwlan*)
        echo "# Configuration: Twoface/Rieck"
        CC="/opt/local/bin/gcc-mp-4.3" \
-       CFLAGS="-g -pedantic -pipe -O3 -march=native -mfpmath=sse -msse -msse2" \
+       CFLAGS="-DDEBUG -g -pedantic -pipe -O2 -march=native" \
        ./configure --enable-matlab -with-matlab=$HOME/Applications/Matlab \
        		   --enable-openmp \
                    --prefix=/opt/rieck
+       ;;
+   debug)
+       echo "# Configuration: Debug"
+       CC="/usr/bin/gcc" \
+       CFLAGS="-DDEBUG -ggdb -pedantic" \
+       ./configure --prefix=/opt/rieck
        ;;
    *)    
        echo "# Configuration: Standard"

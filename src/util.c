@@ -83,29 +83,40 @@ void err_msg(char *p, const char *f, char *m, ...)
  */
 void prog_bar(double min, double max, double in)
 {
-    int i;
+    int i, first, last;
     double perc, ptime = 0;
     char *descr = "";
 
-    perc = (in - min) / (max - min);
+#ifdef DEBUG
+    /* Skip progress bars when debugging */
+    return;
+#endif
 
-    if (pb_start == 0 || fabs(in - min) < 1e-12) {
-        /* Start of progress */
+    perc = (in - min) / (max - min);
+    first = fabs(in - min) < 1e-10;
+    last = fabs(in - max) < 1e-10;
+
+    /* Start of progress */
+    if (pb_start == 0 || (first && !last)) {
         pb_start = time_stamp();
         for (i = 0; i < PROGBAR_LEN; i++)
             pb_string[i] = PROGBAR_EMPTY;
         descr = "start";
         perc = 0.0;
-    } else if (fabs(in - max) < 1e-12) {
-        /* End of progress */
+    } 
+
+    /* End of progress */
+    if (last) {
         for (i = 0; i < PROGBAR_LEN; i++)
             pb_string[i] = PROGBAR_FULL;
         ptime = time_stamp() - pb_start;
         descr = "total";
         perc = 1.0;
         pb_start = 0;
-    } else {
-        /* Middle of progress */
+    }
+    
+    /* Middle of progress */
+    if (!first && !last) {    
         int len = round(perc * PROGBAR_LEN);
         for (i = 0; i < len; i++)
             if (i < len - 1)
@@ -113,7 +124,7 @@ void prog_bar(double min, double max, double in)
             else
                 pb_string[i] = PROGBAR_FRONT;
         ptime = (max - in) * (time_stamp() - pb_start) / (in - min);
-        descr = "   in";
+        descr = "   in";     
     }
 
     int mins = floor(ptime / 60);
@@ -122,6 +133,10 @@ void prog_bar(double min, double max, double in)
 
     printf("\r  [%s] %5.1f%%  %s %.2dm %.2ds", pb_string,
            perc * 100, descr, mins, secs);
+           
+    if (last)
+        printf("\n");
+        
     fflush(stdout);
     fflush(stderr);
 }

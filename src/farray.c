@@ -187,9 +187,6 @@ farray_t *farray_extract(char *path)
     else
         error("Unsupported file type of input '%s'", path);
     
-    if (verbose > 0)
-        printf("\n");
-
     return fa;
 }
 

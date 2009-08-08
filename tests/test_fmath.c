@@ -20,9 +20,9 @@ int verbose = 0;
 config_t cfg;
 
 /* String length */
-#define STR_LENGTH              2000
+#define STR_LENGTH              1000
 /* Number of vector */
-#define NUM_VECTORS             200.0 
+#define NUM_VECTORS             100.0 
 /* Number of stress runs */
 #define STRESS_RUNS             5
 
@@ -280,7 +280,7 @@ int test_stress_add_array()
         }    
            
         fvec_t *f = farray_sum(fa);
-        err += fabs(fvec_norm1(f) - NUM_VECTORS) > 1e-1;
+        err += fabs(fvec_norm1(f) - NUM_VECTORS) > 1e-2;
                       
         /* Destroy features */            
         fvec_destroy(f);

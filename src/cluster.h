@@ -20,7 +20,7 @@ typedef struct {
     int *cluster;           /* Assignments of clustering */
     unsigned long len;      /* Length of assignments */
     unsigned long num;      /* Number of clusters */
-    double param;           /* Clustering parameter */
+    float param;            /* Clustering parameter */
 } clustering_t;
 
 #endif                          /* CLUSTER_H */

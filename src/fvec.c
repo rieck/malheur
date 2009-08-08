@@ -248,7 +248,7 @@ void fvec_destroy(fvec_t * fv)
  * @param o Feature vector
  * @return Cloned feature vector
  */
-fvec_t *fvec_clone(fvec_t * o)
+fvec_t *fvec_clone(fvec_t *o)
 {
     assert(o);
     fvec_t *fv;

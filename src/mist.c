@@ -64,8 +64,8 @@ static int mist_read_line(char **ptr, char *buffer)
  */
 static char *mist_copy_instr(char *ptr, char *line, int level)
 {
-    int i, l = 0;
-    for (i = 0; i < strlen(line); i++) {
+    int i, l = 0, m = strlen(line);
+    for (i = 0; i < m; i++) {
         if (line[i] == MIST_LEVEL)
             l++;
         if (l >= level)

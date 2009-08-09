@@ -8,6 +8,7 @@
 /config.*
 /configure
 /depcomp
+/doc/test.cfg
 /install-sh
 /libtool
 /ltmain.sh

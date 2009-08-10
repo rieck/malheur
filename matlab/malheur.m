@@ -9,7 +9,11 @@
 %    out = malheur(cmd, args);
 %
 % Arguments:
-%    cmd:  Command to execute
-%          'load_mist'      - Load MIST reports. See malheur_load.m
-%          'version'        - Print Malheur version
+%     cmd:      Command to execute
+%     args:     Generic arguments
+%
+% For help see the following files:
+%   mal_load_mist.m     - Load reports in MIST format
+%   mal_kernel.m        - Compute kernel matrix from reports
+%   mal_prototype.m     - Compute prototypes from reports
 %

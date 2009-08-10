@@ -18,8 +18,9 @@
 
 typedef struct {
     farray_t *protos;       /* Array of prototype vectors */
-    int *assign;            /* Assignments of prototypes */
-    float *dist;            /* Distances to prototypes */
+    int *indices;           /* Indices of prototypes (length: protos->len)*/
+    int *assign;            /* Assignments of prototypes (length: len)*/
+    float *dist;            /* Distances to prototypes (length: len) */
     unsigned long len;      /* Length of assign and dist arrays */
 } proto_t;
 

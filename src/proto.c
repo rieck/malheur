@@ -29,15 +29,13 @@
 extern int verbose;
 extern config_t cfg;
 
-/* Local functions */
-static proto_t *proto_create(farray_t *fa);
-
 /**
  * Creates an empty structure of prototypes
  * @param a Array of feature vectors
+ * @param n Number of prototypes
  * @return Prototypes
  */
-static proto_t *proto_create(farray_t *fa)
+static proto_t *proto_create(farray_t *fa, int n)
 {
     assert(fa);
     int i;
@@ -51,11 +49,13 @@ static proto_t *proto_create(farray_t *fa)
 
     /* Allocate structure fields */
     p->protos = farray_create(fa->src);
-    p->dist = calloc(1, fa->len * sizeof(float));
-    p->assign = calloc(1, fa->len * sizeof(int));
+    p->dist = calloc(fa->len, sizeof(float));
+    p->assign = calloc(fa->len, sizeof(int));
+    p->indices = calloc(n, sizeof(int));
     p->len = fa->len;
-    if (!p->protos || !p->dist || !p->assign) {
-        error("Could not allocate prototype assignments");
+    
+    if (!p->protos || !p->dist || !p->assign || !p->indices) {
+        error("Could not allocate prototype structure");
         proto_destroy(p);
         return NULL;
     }
@@ -70,83 +70,82 @@ static proto_t *proto_create(farray_t *fa)
 }
 
 /**
- * Extracts a set of prototypes
+ * Extracts a set of prototypes using the quantile prototype algorithm.
  * @param a Array of feature vectors
  * @return Prototypes
  */
 proto_t *proto_extract(farray_t *fa) 
 {
     assert(fa);
-    int i, j, k, num, far;
+    int i, j, k, p, n;
     double ratio, outl;
     float *ds;
 
-    /* Allocate prototype structure */
-    proto_t *p = proto_create(fa);
-    if (!p)
-        return NULL;
-       
     /* Get prototype ratio */
     config_lookup_float(&cfg, "prototypes.ratio", (double *) &ratio);
-    num = round(ratio * fa->len);
-    if (num <= 0 || num > fa->len) {
+    n = round(ratio * fa->len);
+    if (n <= 0 || n > fa->len) {
         error("Prototype ratio %f invalid (too low/high)", ratio);
-        proto_destroy(p);
         return NULL;
     }
 
-    /* Get prototype percentile */
+    /* Get prototype quantile */
     config_lookup_float(&cfg, "prototypes.outliers", (double *) &outl);
-    far = round((1 - outl) * fa->len);
-    if (far < 0 || far >= fa->len) {
+    p = round((1 - outl) * fa->len);
+    if (p < 0 || p >= fa->len) {
         error("Outlier amount %f invalid (too low/high)", outl);
-        proto_destroy(p);
         return NULL;
     }
 
+    /* Allocate prototype structure */
+    proto_t *pr = proto_create(fa, n);
+    if (!pr)
+        return NULL;
+       
     /* Array for sorting */
     ds = malloc(fa->len * sizeof(float));
     
     if (verbose > 0)
         printf("Prototyping feature vectors with %d prototypes "
-               "and %1.0f%% outliers.\n", num, outl * 100);
+               "and %1.0f%% outliers.\n", n, outl * 100);
 
-    for (i = 0; i < num; i++) {
+    for (i = 0; i < n; i++) {
         if (i == 0) {
             /* Select random prototype */
             j = rand() % fa->len;
         } else {
-            /* Select farthest prototype (excluding outliers) */
-            memcpy(ds, p->dist, fa->len * sizeof(float));
+            /* Select p-quantile prototype */
+            memcpy(ds, pr->dist, fa->len * sizeof(float));
             qsort(ds, fa->len, sizeof(float), cmp_float);
-            for (j = 0; j < fa->len && p->dist[j] != ds[far]; j++);            
+            for (j = 0; j < fa->len && pr->dist[j] != ds[p]; j++);            
         }
 
         /* Add prototype */
         fvec_t *pv = fvec_clone(fa->x[j]);
-        farray_add(p->protos, pv, farray_get_label(fa, j));
+        farray_add(pr->protos, pv, farray_get_label(fa, j));
+        pr->indices[i] = j;
 
         /* Update distances and assignments */
         #pragma omp parallel for shared(fa, pv, p)        
         for (k = 0; k < fa->len; k++) {
             float d = sqrt(2 - 2 * fvec_dot(pv, fa->x[k]));
-            if (d < p->dist[k]) {
-                p->dist[k] = d;
-                p->assign[k] = i;
+            if (d < pr->dist[k]) {
+                pr->dist[k] = d;
+                pr->assign[k] = i;
             }
         }
         
         if (verbose > 0)
-            prog_bar(0, num - 1, i);
+            prog_bar(0, n - 1, i);
     }
         
     /* Free memory */
     free(ds); 
     
     if (verbose > 1)
-        farray_print(p->protos);
+        farray_print(pr->protos);
 
-    return p;
+    return pr;
 } 
 
 /**
@@ -163,6 +162,8 @@ void proto_destroy(proto_t *p)
         free(p->assign);
     if (p->dist)
         free(p->dist);
+    if (p->indices)
+        free(p->indices);
     free(p);
 }
 

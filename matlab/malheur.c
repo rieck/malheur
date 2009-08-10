@@ -21,11 +21,12 @@
 
 #include "mist.h"
 #include "mconfig.h"
-#include "uthash.h"
 #include "util.h"
 #include "data.h"
 #include "farray.h"
 #include "fmath.h"
+#include "proto.h"
+#include "malmex.h"
 
 /* Mex signature */
 #ifndef MEX_SIGNATURE
@@ -33,31 +34,21 @@
     int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]
 #endif   
 
-/* Convenience definitions */
+/* Convenience definitions: Input */
 #define cmd     prhs[0]
 #define in1     prhs[1]         /* Default input 1 */
 #define in2     prhs[2]         /* Default input 2 */
 #define in3     prhs[3]         /* Default input 3 */
+
+/* Convenience definitions: Output */
 #define out1    plhs[0]         /* Default output 1 */
 #define out2    plhs[1]         /* Default output 2 */
-#define out3    plhs[2]         /* Default output 3 */
-#define out4    plhs[3]         /* Default output 4 */
 
 /*
  * Global configuration
  */
 config_t cfg;
 int verbose = 1;
-
-/*
- * Helper function to initialize scalar values 
- */
-static mxArray* mxCreateScalar(double x) {
-    mxArray *a = mxCreateDoubleMatrix(1, 1, mxREAL);
-    double *ptr = mxGetPr(a);
-    ptr[0] = x;
-    return a;
-}
 
 /*
  * Print library version
@@ -67,24 +58,6 @@ void mex_print_version(void)
     printf(" MALHEUR %s - Automatic Malware Analysis on Steroids\n"
            " Copyright (c) 2009 Konrad Rieck (rieck@cs.tu-berlin.de)\n"
            " Berlin Institute of Technology (TU Berlin).\n", VERSION);
-}
-
-/**
- * Print a formated error/warning message.  
- * @param m Format string
- */
-void mex_error(char *m, ...)
-{
-    va_list ap;
-    char s[256] = { " " };
-
-    config_destroy(&cfg);
-
-    va_start(ap, m);
-    vsnprintf(s, 256, m, ap);
-    va_end(ap);
-
-    mexErrMsgIdAndTxt("malheur:generic", s);
 }
 
 /*
@@ -98,11 +71,11 @@ void mex_load_mist(MEX_SIGNATURE)
 
     /* Check input */
     if (nrhs != 1 + 2 || nlhs != 1) 
-        mex_error("Number of input/output arguments is invalid");
+        mal_error("Number of input/output arguments is invalid");
     if (!mxIsCell(in1))
-        mex_error("First argument is not a cell array of file names");
+        mal_error("First argument is not a cell array of file names");
     if (!mxIsChar(in2))
-        mex_error("Second argument is not a config filename");
+        mal_error("Second argument is not a config filename");
 
     /* Get input arguments */
     len = mxGetN(in1);    
@@ -111,7 +84,7 @@ void mex_load_mist(MEX_SIGNATURE)
     /* Init and load configuration */
     config_init(&cfg);
     if (config_read_file(&cfg, fn) != CONFIG_TRUE) {
-        mex_error("Could not read configuration (%s in line %d)",
+        mal_error("Could not read configuration (%s in line %d)",
                   config_error_text(&cfg), config_error_line(&cfg));
     }          
     
@@ -146,25 +119,20 @@ void mex_load_mist(MEX_SIGNATURE)
     printf("\nDone.\n");
 }
 
-
 /*
  * Extract features and compute pairwise dot product 
  */
-void mex_dot_product(MEX_SIGNATURE)
+void mex_kernel(MEX_SIGNATURE)
 {
     char cf[1024], df[1024];
-    int i;
-    mxArray *a;
-    label_t *c;
-    const char *fields[] = { "label", "name" };
 
     /* Check input */
     if (nrhs != 1 + 2 || nlhs < 1) 
-        mex_error("Number of input/output arguments is invalid");
+        mal_error("Number of input/output arguments is invalid");
     if (!mxIsChar(in1))
-        mex_error("First argument is not a dirname/archive");
+        mal_error("First argument is not a dirname/archive");
     if (!mxIsChar(in2))
-        mex_error("Second argument is not a config filename");
+        mal_error("Second argument is not a config filename");
 
     /* Get input arguments */
     mxGetString(in1, df, 1023);
@@ -173,7 +141,7 @@ void mex_dot_product(MEX_SIGNATURE)
     /* Init and load configuration */
     config_init(&cfg);
     if (config_read_file(&cfg, cf) != CONFIG_TRUE) {
-        mex_error("Could not read configuration (%s in line %d)",
+        mal_error("Could not read configuration (%s in line %d)",
                   config_error_text(&cfg), config_error_line(&cfg));
     }          
     
@@ -185,40 +153,68 @@ void mex_dot_product(MEX_SIGNATURE)
     /* Extract features */
     farray_t *fa = farray_extract(df);
     if (!fa)
-        mex_error("Could not load data from '%s'", df);
+        mal_error("Could not load data from '%s'", df);
 
+    /* Compute dot product */
     out1 = mxCreateNumericMatrix(fa->len, fa->len, mxSINGLE_CLASS, mxREAL);    
     farray_dot(fa, fa, (float *) mxGetPr(out1));
-    
-    /* Copy labels */
-    if (nlhs > 1) {
-        out2 = mxCreateNumericMatrix(1, fa->len, mxDOUBLE_CLASS, mxREAL);
-        double *y = mxGetPr(out2);
-        for (i = 0; i < fa->len; i++)
-            y[i] = fa->y[i];
-    }
-    
-    /* Copy label names */
-    if (nlhs > 2) {
-        int n = HASH_CNT(hn, fa->label_name);
-        out3 = mxCreateStructMatrix(1, n, 2, fields);
-        for(i = 0, c = fa->label_name; c; i++, c = c->hn.next) {
-            a = mxCreateScalar(c->index);
-            mxSetField(out3, i, "label", a);
-            a = mxCreateString(c->name);
-            mxSetField(out3, i, "name", a);            
-        }
-    }
 
-    /* Copy sources */
-    if (nlhs > 3) {
-        out4 = mxCreateCellMatrix(1, fa->len);
-        for (i = 0; i < fa->len; i++) 
-            if (fa->x[i]->src)
-                mxSetCell(out4, i, mxCreateString(fa->x[i]->src));
-    }
+    /* Create data struct */
+    out2 = mal_data_struct(fa);
+         
+    /* Clean up */
+    farray_destroy(fa);
+    config_destroy(&cfg);    
+    
+    printf("Done.\n");
+}
+
+/*
+ * Extract features and compute quantile prototypes
+ */
+void mex_prototype(MEX_SIGNATURE)
+{
+    char cf[1024], df[1024];
+
+    /* Check input */
+    if (nrhs != 1 + 2 || nlhs < 1) 
+        mal_error("Number of input/output arguments is invalid");
+    if (!mxIsChar(in1))
+        mal_error("First argument is not a dirname/archive");
+    if (!mxIsChar(in2))
+        mal_error("Second argument is not a config filename");
+
+    /* Get input arguments */
+    mxGetString(in1, df, 1023);
+    mxGetString(in2, cf, 1023);
+
+    /* Init and load configuration */
+    config_init(&cfg);
+    if (config_read_file(&cfg, cf) != CONFIG_TRUE) {
+        mal_error("Could not read configuration (%s in line %d)",
+                  config_error_text(&cfg), config_error_line(&cfg));
+    }          
+    
+    /* Check configuration */
+    config_check(&cfg);
+    if (verbose)
+        config_print(&cfg);
+
+    /* Extract features */
+    farray_t *fa = farray_extract(df);
+    if (!fa)
+        mal_error("Could not load data from '%s'", df);
+
+    /* Extract prototypes */
+    proto_t *pr = proto_extract(fa);
+    if (!pr)
+        mal_error("Could not prototype feature vectors.");
+
+    out1 = mal_proto_struct(pr);    
+    out2 = mal_data_struct(fa);
     
     /* Clean up */
+    proto_destroy(pr);
     farray_destroy(fa);
     config_destroy(&cfg);    
     
@@ -240,16 +236,18 @@ void mexFunction(MEX_SIGNATURE)
 
     /* Get command */
     if (mxGetString(cmd, buf, 255)) 
-        mex_error("Invalid Malheur command");
+        mal_error("Invalid Malheur command");
 
     /* Process commands */    
     if (!strcasecmp(buf, "version")) {
         mex_print_version();           
     } else if (!strcasecmp(buf, "load_mist")) {
         mex_load_mist(nlhs, plhs, nrhs, prhs);
-    } else if (!strcasecmp(buf, "dot_product")) {
-        mex_dot_product(nlhs, plhs, nrhs, prhs);
+    } else if (!strcasecmp(buf, "kernel")) {
+        mex_kernel(nlhs, plhs, nrhs, prhs);
+    } else if (!strcasecmp(buf, "prototype")) {
+        mex_prototype(nlhs, plhs, nrhs, prhs);
     } else {
-        mex_error("Unknown Malheur command");
+        mal_error("Unknown Malheur command");
     }
 }

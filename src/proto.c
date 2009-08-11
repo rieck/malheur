@@ -84,18 +84,14 @@ proto_t *proto_extract(farray_t *fa)
     /* Get prototype ratio */
     config_lookup_float(&cfg, "prototypes.ratio", (double *) &ratio);
     n = round(ratio * fa->len);
-    if (n <= 0 || n > fa->len) {
-        error("Prototype ratio %f invalid (too low/high)", ratio);
-        return NULL;
-    }
+    n = n < 1 ? 1 : n;
+    n = n > fa->len ? fa->len : n;
 
     /* Get prototype quantile */
     config_lookup_float(&cfg, "prototypes.outliers", (double *) &outl);
     p = round((1 - outl) * fa->len);
-    if (p < 0 || p >= fa->len) {
-        error("Outlier amount %f invalid (too low/high)", outl);
-        return NULL;
-    }
+    p = p < 0 ? 0 : p;
+    p = p > fa->len - 1 ? fa->len - 1 : p;
 
     /* Allocate prototype structure */
     proto_t *pr = proto_create(fa, n);

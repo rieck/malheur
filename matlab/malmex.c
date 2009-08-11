@@ -86,9 +86,9 @@ mxArray *mal_data_struct(farray_t *fa)
     a = mxCreateStructMatrix(1, n, 2, fields2);
     for(i = 0, c = fa->label_name; c; i++, c = c->hn.next) {
         b = mxCreateScalar(c->index);
-        mxSetField(a, i, "label", a);
+        mxSetField(a, i, "label", b);
         b = mxCreateString(c->name);
-        mxSetField(a, i, "name", a);            
+        mxSetField(a, i, "name", b);            
     }
     mxSetField(data, 0, "names", a);
 

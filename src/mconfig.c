@@ -117,6 +117,14 @@ void config_check(config_t *cfg)
             /* Check for float */
             if (config_setting_lookup_float(cs, defaults[i].name, &f))
                 continue;
+            
+            /* Check for mis-interpreted integer */
+            if (config_setting_lookup_int(cs, defaults[i].name, &j)) {
+                config_setting_remove(cs, defaults[i].name);
+                vs = config_setting_add(cs, defaults[i].name, CONFIG_TYPE_FLOAT);
+                config_setting_set_float(vs, (double) j);                
+                continue;
+            }
 
             /* Add default value */
             vs = config_setting_add(cs, defaults[i].name, CONFIG_TYPE_FLOAT);
@@ -125,6 +133,14 @@ void config_check(config_t *cfg)
             /* Check for integer */
             if (config_setting_lookup_int(cs, defaults[i].name, &j))
                 continue;
+
+            /* Check for mis-interpreted float */
+            if (config_setting_lookup_float(cs, defaults[i].name, &f)) {
+                config_setting_remove(cs, defaults[i].name);
+                vs = config_setting_add(cs, defaults[i].name, CONFIG_TYPE_INT);
+                config_setting_set_float(vs, (long) round(f));                
+                continue;
+            }
 
             /* Add default value */
             vs = config_setting_add(cs, defaults[i].name, CONFIG_TYPE_INT);

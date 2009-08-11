@@ -27,5 +27,9 @@ typedef struct {
 /* Function declarations */
 proto_t *proto_extract(farray_t *);
 void proto_destroy(proto_t *);
+proto_t *proto_load(gzFile *);
+void proto_save(proto_t *, gzFile *);
+void proto_print(proto_t *);
+void proto_export(proto_t *, char *);
 
 #endif                          /* PROTO_H */

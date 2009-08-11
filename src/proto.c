@@ -102,8 +102,8 @@ proto_t *proto_extract(farray_t *fa)
     ds = malloc(fa->len * sizeof(float));
     
     if (verbose > 0)
-        printf("Prototyping feature vectors with %d prototypes "
-               "and %1.0f%% outliers.\n", n, outl * 100);
+        printf("Extracting %d prototypes from feature vectors with"
+               " %1.0f%% outliers.\n", n, outl * 100);
 
     for (i = 0; i < n; i++) {
         if (i == 0) {
@@ -146,7 +146,7 @@ proto_t *proto_extract(farray_t *fa)
 
 /**
  * Destroys a structure containing prototypes and frees its memory. 
- * @param p PrototypeS
+ * @param p Prototypes
  */
 void proto_destroy(proto_t *p)
 {
@@ -162,5 +162,47 @@ void proto_destroy(proto_t *p)
         free(p->indices);
     free(p);
 }
+
+/**
+ * Prints a structure containing prototypes
+ * @param p Prototypes
+ */
+void proto_print(proto_t *p)
+{
+    /* FIXME */
+} 
+
+/**
+ * Exports a structure of prototype to HTML format
+ * @param p Prototypes
+ * @param f Filename for HTML file
+ */
+void proto_export(proto_t *p, char *f)
+{
+    /* FIXME */
+}
+
+/**
+ * Saves a structure of prototype to a file stram
+ * @param p Prototypes
+ * @param z Stream pointer
+ */
+void proto_save(proto_t *p, gzFile *z)
+{
+    /* FIXME */
+}
+
+/**
+ * Loads a structure of prototype from a file stram
+ * @param z Stream pointer
+ * @return Prototypes
+ */
+proto_t *proto_load(gzFile *z)
+{
+    /* FIXME */
+    return NULL;
+}
+
+
 
 /** @} */

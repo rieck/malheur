@@ -161,18 +161,18 @@ char *data_preproc(char *x)
 }
 
 /**
- * Saves a kernel matrix to a compressed file
+ * Exports a kernel matrix to a compressed file
  * @param d Pointer to matrix
  * @param f Feature vector array
  * @param n File name 
  */
-void data_save_kernel(float *d, farray_t *f, char *file)
+void data_export_kernel(float *d, farray_t *f, char *file)
 {
     assert(d && f && file);
     int i,j;
 
     if (verbose > 0)
-        printf("Saving kernel matrix to '%s'.\n", file);
+        printf("Exporting kernel matrix to '%s'.\n", file);
 
     gzFile *z = gzopen(file, "w");
     if (!z) {
@@ -188,6 +188,17 @@ void data_save_kernel(float *d, farray_t *f, char *file)
     }
     
     gzclose(z);
+}
+
+/**
+ * Exports prototypes to a HTML file
+ * @param p Prototype structure
+ * @param f Feature vector array 
+ * @param n File name
+ */
+void data_export_proto(proto_t *p, farray_t *f, char *file)
+{
+
 }
 
 /** @} */

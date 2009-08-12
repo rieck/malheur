@@ -204,6 +204,21 @@ char *file_suffix(char *file)
     return name;
 }
 
+/**
+ * Checks and fixes the range of a value 
+ * @param a Value to check
+ * @param mi Minimum value
+ * @param ma Maximum value
+ * @return fixed value
+ */
+int check_range(int a, int mi, int ma)
+{
+    a = a < mi ? mi : a;
+    a = a > ma ? ma : a;
+    return a;
+} 
+ 
+
 #ifndef HAVE_FUNC_LOG2
 /** 
  * Logarithm of x to base 2

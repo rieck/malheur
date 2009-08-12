@@ -129,6 +129,10 @@ static void malheur_prototype()
     farray_t *fa = farray_extract(input);
     proto_t *pr = proto_extract(fa);
 
+    /* Export prototypes */
+    data_export_proto(p, f, output_file)
+
+    /* Clean up */
     proto_destroy(pr);
     farray_destroy(fa);
 }
@@ -158,8 +162,8 @@ static void malheur_kernel()
         fatal("Could not allocate similarity matrix");
     farray_dot(fa, fa, d);
         
-    /* Save matrix */
-    data_save_kernel(d, fa, output_file);
+    /* Export matrix */
+    data_export_kernel(d, fa, output_file);
 
     /* Clean up */
     free(d);

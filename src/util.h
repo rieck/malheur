@@ -42,6 +42,7 @@ void prog_bar(double, double, double);
 double time_stamp();
 int decode_string(char *);
 char *file_suffix(char *file);
+int check_range(int, int, int);
 
 /* Comparison function */
 int cmp_feat(const void *, const void *);

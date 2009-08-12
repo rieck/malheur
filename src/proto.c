@@ -83,15 +83,11 @@ proto_t *proto_extract(farray_t *fa)
 
     /* Get prototype ratio */
     config_lookup_float(&cfg, "prototypes.ratio", (double *) &ratio);
-    n = round(ratio * fa->len);
-    n = n < 1 ? 1 : n;
-    n = n > fa->len ? fa->len : n;
-
+    n = check_range(round(ratio * fa->len), 1, fa->len);
+    
     /* Get prototype quantile */
     config_lookup_float(&cfg, "prototypes.outliers", (double *) &outl);
-    p = round((1 - outl) * fa->len);
-    p = p < 0 ? 0 : p;
-    p = p > fa->len - 1 ? fa->len - 1 : p;
+    p = check_range(round((1 - outl) * fa->len), 0, fa->len - 1);
 
     /* Allocate prototype structure */
     proto_t *pr = proto_create(fa, n);
@@ -173,16 +169,6 @@ void proto_print(proto_t *p)
 } 
 
 /**
- * Exports a structure of prototype to HTML format
- * @param p Prototypes
- * @param f Filename for HTML file
- */
-void proto_export(proto_t *p, char *f)
-{
-    /* FIXME */
-}
-
-/**
  * Saves a structure of prototype to a file stram
  * @param p Prototypes
  * @param z Stream pointer
@@ -202,7 +188,5 @@ proto_t *proto_load(gzFile *z)
     /* FIXME */
     return NULL;
 }
-
-
 
 /** @} */

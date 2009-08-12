@@ -156,8 +156,8 @@ void mex_kernel(MEX_SIGNATURE)
         mal_error("Could not load data from '%s'", df);
 
     /* Compute dot product */
-    out1 = mxCreateNumericMatrix(fa->len, fa->len, mxSINGLE_CLASS, mxREAL);    
-    farray_dot(fa, fa, (float *) mxGetPr(out1));
+    out1 = mxCreateNumericMatrix(fa->len, fa->len, mxDOUBLE_CLASS, mxREAL);    
+    farray_dot(fa, fa, (double *) mxGetPr(out1));
 
     /* Create data struct */
     out2 = mal_data_struct(fa);

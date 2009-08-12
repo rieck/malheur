@@ -20,9 +20,9 @@ int verbose = 0;
 config_t cfg;
 
 /* String length */
-#define STR_LENGTH              1000
+#define STR_LENGTH              2000
 /* Number of vector */
-#define NUM_VECTORS             100.0 
+#define NUM_VECTORS             200 
 /* Number of stress runs */
 #define STRESS_RUNS             5
 
@@ -30,7 +30,7 @@ config_t cfg;
 typedef struct {
     char *x;
     char *y;
-    float res;
+    double res;
 } test_t;
 
 /* Addition test cases */
@@ -102,7 +102,7 @@ int test_static_dot()
         fy = fvec_extract(test_dot[i].y, strlen(test_dot[i].y), "test");
 
         /* Compute dot product */
-        float d = fvec_dot(fx, fy);
+        double d = fvec_dot(fx, fy);
         err += fabs(d - test_dot[i].res) > 1e-6;
 
         fvec_destroy(fx);
@@ -140,7 +140,7 @@ int test_stress_add()
         fy = fvec_add(fz, fx);
         fvec_destroy(fz);
 
-        err += fabs(fvec_norm1(fy) - 2.0) > 1e-5;
+        err += fabs(fvec_norm1(fy) - 2.0) > 1e-7;
         
         /* Substract fx from fz */
         fz = fvec_sub(fy, fx);
@@ -187,12 +187,12 @@ int test_stress_dot_array()
             farray_add(fa, f, label);
         }    
            
-        float *d = malloc(NUM_VECTORS * NUM_VECTORS * sizeof(float));
+        double *d = malloc(NUM_VECTORS * NUM_VECTORS * sizeof(double));
         farray_dot(fa, fa, d);
 
         for (j = 0; j < fa->len ; j++) {
-            float n = sqrt(d[j * fa->len + j]);
-            err += fabs(fvec_norm2(fa->x[j]) - n) > 1e-6;
+            double n = sqrt(d[j * fa->len + j]);
+            err += fabs(fvec_norm2(fa->x[j]) - n) > 1e-7;
         }
         
         free(d);
@@ -232,8 +232,8 @@ int test_stress_dot()
         buf[j] = 0; 
         fy = fvec_extract(buf, strlen(buf), "test");
 
-        float nx = fvec_dot(fx, fx);
-        float ny = fvec_dot(fy, fy);
+        double nx = fvec_dot(fx, fx);
+        double ny = fvec_dot(fy, fy);
         err += fabs(fvec_norm2(fx) - sqrt(nx)) > 1e-7;
         err += fabs(fvec_norm2(fy) - sqrt(ny)) > 1e-7;
         err += fabs(fvec_dot(fx, fy) > nx + ny);
@@ -280,7 +280,7 @@ int test_stress_add_array()
         }    
            
         fvec_t *f = farray_sum(fa);
-        err += fabs(fvec_norm1(f) - NUM_VECTORS) > 1e-2;
+        err += fabs(fvec_norm1(f) - NUM_VECTORS) > 1e-5;
                       
         /* Destroy features */            
         fvec_destroy(f);

@@ -49,7 +49,7 @@ static proto_t *proto_create(farray_t *fa, int n)
     /* Allocate structure fields */
     p->protos = farray_create(fa->src);
     p->assign = calloc(fa->len, sizeof(uint32_t));
-    p->len = fa->len;
+    p->alen = fa->len;
     
     if (!p->protos || !p->assign) {
         error("Could not allocate prototype structure");
@@ -70,7 +70,7 @@ proto_t *proto_extract(farray_t *fa)
     assert(fa);
     int i, j, k, p, n;
     double ratio, outl;
-    float *ds, *di;
+    double *ds, *di;
 
     /* Get prototype ratio */
     config_lookup_float(&cfg, "prototypes.ratio", (double *) &ratio);
@@ -82,8 +82,8 @@ proto_t *proto_extract(farray_t *fa)
 
     /* Allocate prototype structure and distance arrays */
     proto_t *pr = proto_create(fa, n);
-    ds = malloc(fa->len * sizeof(float));
-    di = malloc(fa->len * sizeof(float));
+    ds = malloc(fa->len * sizeof(double));
+    di = malloc(fa->len * sizeof(double));
     if (!pr || !ds || !di) {
         error("Could not allocate memory for prototype extraction");
         return NULL;
@@ -103,8 +103,8 @@ proto_t *proto_extract(farray_t *fa)
             j = rand() % fa->len;
         } else {
             /* Select p-quantile prototype */
-            memcpy(ds, di, fa->len * sizeof(float));
-            qsort(ds, fa->len, sizeof(float), cmp_float);
+            memcpy(ds, di, fa->len * sizeof(double));
+            qsort(ds, fa->len, sizeof(double), cmp_double);
             for (j = 0; j < fa->len && di[j] != ds[p]; j++);            
         }
 
@@ -115,12 +115,16 @@ proto_t *proto_extract(farray_t *fa)
         /* Update distances and assignments */
         #pragma omp parallel for shared(fa, pv, p)        
         for (k = 0; k < fa->len; k++) {
-            float d = sqrt(2 - 2 * fvec_dot(pv, fa->x[k]));
+            double d = sqrt(2 - 2 * fvec_dot(pv, fa->x[k]));
             if (d < di[k]) {
                 di[k] = d;
-                /* Store assignments, MSB indicates prototype itself */
                 pr->assign[k] = i & PA_ASSIGN_MASK;
-                pr->assign[k] |= k == j ? PA_PROTO_MASK : 0;
+            }
+            
+            /* Mark protoype */
+            if (k == j) {
+                pr->assign[k] = i | PA_PROTO_MASK;
+                di[k] = 0;
             }
         }
         
@@ -131,7 +135,7 @@ proto_t *proto_extract(farray_t *fa)
     /* Free memory */
     free(ds); 
     free(di);
-    
+        
     return pr;
 } 
 
@@ -156,7 +160,15 @@ void proto_destroy(proto_t *p)
  */
 void proto_print(proto_t *p)
 {
-    /* FIXME */
+    assert(p);
+
+    double mem = (p->protos->mem + sizeof(p->protos) + 
+                  p->alen * sizeof(uint32_t)) / 1e6;
+
+    printf("prototypes\n  len: %lu, assign: %lu, mem: %.2fMb \n", 
+           p->protos->len, p->alen, mem);
+    
+    farray_print(p->protos);
 } 
 
 /**
@@ -166,7 +178,14 @@ void proto_print(proto_t *p)
  */
 void proto_save(proto_t *p, gzFile *z)
 {
-    /* FIXME */
+    assert(p && z);
+    int i;
+
+    gzprintf(z, "prototypes: alen=%lu\n", p->alen);            
+    for (i = 0; i < p->alen; i++)
+        gzprintf(z, "  %u\n", p->assign[i]);
+        
+    farray_save(p->protos, z);
 }
 
 /**
@@ -176,8 +195,45 @@ void proto_save(proto_t *p, gzFile *z)
  */
 proto_t *proto_load(gzFile *z)
 {
-    /* FIXME */
-    return NULL;
+    char buf[512];
+    unsigned long alen;
+    int i, r;
+    
+    /* Allocate prototype structure */
+    proto_t *p = calloc(1, sizeof(proto_t));    
+    if (!p) {
+        error("Could not allocate prototype structure");
+        return NULL;
+    }
+
+    gzgets(z, buf, 512);
+    r = sscanf(buf, "prototypes: alen=%lu\n", &alen); 
+    if (r != 1)  {
+        error("Could not parse prototypes");
+        proto_destroy(p);
+        return NULL;
+    }
+
+    p->assign = calloc(alen, sizeof(uint32_t));
+    p->alen = alen;    
+    if (!p->assign) {
+        error("Could not allocate prototype assignments");
+        proto_destroy(p);
+        return NULL;
+    }
+    
+    for (i = 0; i < p->alen; i++) {
+        gzgets(z, buf, 512);
+        r = sscanf(buf, "  %u\n", p->assign + i); 
+        if (r != 1)  {
+            error("Could not parse prototype assignments");
+            proto_destroy(p);
+            return NULL;
+        }    
+    }
+    
+    p->protos = farray_load(z);
+    return p;
 }
 
 /** @} */

@@ -117,16 +117,16 @@ mxArray *mal_proto_struct(proto_t *p)
     /* Copy prototype indices */
     a = mxCreateNumericMatrix(1, p->protos->len, mxDOUBLE_CLASS, mxREAL);
     f = mxGetPr(a);
-    for (i = j = 0; i < p->len; i++) {
+    for (i = j = 0; i < p->alen; i++) {
         if (p->assign[i] & PA_PROTO_MASK)
             f[j++] = i;
     }
     mxSetField(proto, 0, "indices", a);
     
     /* Copy prototype assignments */
-    a = mxCreateNumericMatrix(1, p->len, mxDOUBLE_CLASS, mxREAL);
+    a = mxCreateNumericMatrix(1, p->alen, mxDOUBLE_CLASS, mxREAL);
     f = mxGetPr(a);
-    for (i = 0; i < p->len; i++)
+    for (i = 0; i < p->alen; i++)
         f[i] = p->assign[i] & PA_ASSIGN_MASK;
     mxSetField(proto, 0, "assign", a);
     

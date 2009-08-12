@@ -30,7 +30,7 @@
 typedef struct {
     farray_t *protos;          /* Array of prototype vectors */
     uint32_t *assign;          /* Assignments of prototypes */
-    unsigned long len;         /* Length of assign arrays */
+    unsigned long alen;        /* Length of assign arrays */
 } proto_t;
 
 /* Function declarations */

@@ -46,14 +46,14 @@ int check_range(int, int, int);
 
 /* Comparison function */
 int cmp_feat(const void *, const void *);
-int cmp_float(const void *, const void *);
+int cmp_double(const void *, const void *);
 
 /* Missing math functions */
 #ifndef HAVE_FUNC_ROUND
-float log2(float);
+double log2(double);
 #endif
 #ifndef HAVE_FUNC_LOG2
-long round(float);
+double round(double);
 #endif
 
 #endif                          /* UTIL_H */

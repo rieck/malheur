@@ -69,15 +69,16 @@ proto_t *proto_extract(farray_t *fa)
 {
     assert(fa);
     int i, j, k, p, n;
-    double ratio, outl;
+    double ratio, outl, mdist;
     double *ds, *di;
 
-    /* Get prototype ratio */
+    /* Get configuration */    
     config_lookup_float(&cfg, "prototypes.ratio", (double *) &ratio);
-    n = check_range(round(ratio * fa->len), 1, fa->len);
-    
-    /* Get prototype quantile */
     config_lookup_float(&cfg, "prototypes.outliers", (double *) &outl);
+    config_lookup_float(&cfg, "prototypes.min_dist", (double *) &mdist);
+
+    /* Compute discrete numbers of prototypes and inliers */
+    n = check_range(round(ratio * fa->len), 1, fa->len);
     p = check_range(round((1 - outl) * fa->len), 0, fa->len - 1);
 
     /* Allocate prototype structure and distance arrays */
@@ -107,6 +108,10 @@ proto_t *proto_extract(farray_t *fa)
             qsort(ds, fa->len, sizeof(double), cmp_double);
             for (j = 0; j < fa->len && di[j] != ds[p]; j++);            
         }
+        
+        /* Check for minimum distance between prototypes */
+        if (di[j] < mdist)
+            break;
 
         /* Add prototype */
         fvec_t *pv = fvec_clone(fa->x[j]);
@@ -126,6 +131,7 @@ proto_t *proto_extract(farray_t *fa)
                 pr->assign[k] = i | PA_PROTO_MASK;
                 di[k] = 0;
             }
+            
         }
         
         if (verbose > 0)

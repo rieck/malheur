@@ -132,20 +132,6 @@ static void malheur_prototype()
     if (verbose > 1)
         proto_print(pr);
 
-    gzFile *z = gzopen("/tmp/test1", "w");
-    proto_save(pr, z);
-    gzclose(z);
-    
-    proto_destroy(pr);
-    z = gzopen("/tmp/test1", "r");
-    pr = proto_load(z);
-    gzclose(z);    
-    
-    z = gzopen("/tmp/test2", "w");
-    proto_save(pr, z);
-    gzclose(z);
-    
-
     /* Export prototypes */
     data_export_proto(pr, fa, output_file);
 

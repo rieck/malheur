@@ -38,7 +38,6 @@ extern config_t cfg;
 static proto_t *proto_create(farray_t *fa, int n)
 {
     assert(fa);
-    int i;
 
     /* Allocate prototype structure */
     proto_t *p = malloc(sizeof(proto_t));    
@@ -49,23 +48,15 @@ static proto_t *proto_create(farray_t *fa, int n)
 
     /* Allocate structure fields */
     p->protos = farray_create(fa->src);
-    p->dist = calloc(fa->len, sizeof(float));
-    p->assign = calloc(fa->len, sizeof(int));
-    p->indices = calloc(n, sizeof(int));
+    p->assign = calloc(fa->len, sizeof(uint32_t));
     p->len = fa->len;
     
-    if (!p->protos || !p->dist || !p->assign || !p->indices) {
+    if (!p->protos || !p->assign) {
         error("Could not allocate prototype structure");
         proto_destroy(p);
         return NULL;
     }
-    
-    /* Create initial assignment */
-    for (i = 0; i < fa->len; i++) {
-        p->assign[i] = -1;
-        p->dist[i] = DBL_MAX;
-    }
-    
+        
     return p;
 }
 
@@ -79,7 +70,7 @@ proto_t *proto_extract(farray_t *fa)
     assert(fa);
     int i, j, k, p, n;
     double ratio, outl;
-    float *ds;
+    float *ds, *di;
 
     /* Get prototype ratio */
     config_lookup_float(&cfg, "prototypes.ratio", (double *) &ratio);
@@ -89,13 +80,18 @@ proto_t *proto_extract(farray_t *fa)
     config_lookup_float(&cfg, "prototypes.outliers", (double *) &outl);
     p = check_range(round((1 - outl) * fa->len), 0, fa->len - 1);
 
-    /* Allocate prototype structure */
+    /* Allocate prototype structure and distance arrays */
     proto_t *pr = proto_create(fa, n);
-    if (!pr)
-        return NULL;
-       
-    /* Array for sorting */
     ds = malloc(fa->len * sizeof(float));
+    di = malloc(fa->len * sizeof(float));
+    if (!pr || !ds || !di) {
+        error("Could not allocate memory for prototype extraction");
+        return NULL;
+    }
+
+    /* Init distances to maximum value */
+    for (i = 0; i < fa->len; i++)
+        di[i] = DBL_MAX;    
     
     if (verbose > 0)
         printf("Extracting %d prototypes from feature vectors with"
@@ -107,23 +103,24 @@ proto_t *proto_extract(farray_t *fa)
             j = rand() % fa->len;
         } else {
             /* Select p-quantile prototype */
-            memcpy(ds, pr->dist, fa->len * sizeof(float));
+            memcpy(ds, di, fa->len * sizeof(float));
             qsort(ds, fa->len, sizeof(float), cmp_float);
-            for (j = 0; j < fa->len && pr->dist[j] != ds[p]; j++);            
+            for (j = 0; j < fa->len && di[j] != ds[p]; j++);            
         }
 
         /* Add prototype */
         fvec_t *pv = fvec_clone(fa->x[j]);
         farray_add(pr->protos, pv, farray_get_label(fa, j));
-        pr->indices[i] = j;
 
         /* Update distances and assignments */
         #pragma omp parallel for shared(fa, pv, p)        
         for (k = 0; k < fa->len; k++) {
             float d = sqrt(2 - 2 * fvec_dot(pv, fa->x[k]));
-            if (d < pr->dist[k]) {
-                pr->dist[k] = d;
-                pr->assign[k] = i;
+            if (d < di[k]) {
+                di[k] = d;
+                /* Store assignments, MSB indicates prototype itself */
+                pr->assign[k] = i & PA_ASSIGN_MASK;
+                pr->assign[k] |= k == j ? PA_PROTO_MASK : 0;
             }
         }
         
@@ -133,10 +130,8 @@ proto_t *proto_extract(farray_t *fa)
         
     /* Free memory */
     free(ds); 
+    free(di);
     
-    if (verbose > 1)
-        farray_print(pr->protos);
-
     return pr;
 } 
 
@@ -152,10 +147,6 @@ void proto_destroy(proto_t *p)
         farray_destroy(p->protos);        
     if (p->assign)
         free(p->assign);
-    if (p->dist)
-        free(p->dist);
-    if (p->indices)
-        free(p->indices);
     free(p);
 }
 

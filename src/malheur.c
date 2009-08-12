@@ -130,7 +130,7 @@ static void malheur_prototype()
     proto_t *pr = proto_extract(fa);
 
     /* Export prototypes */
-    data_export_proto(p, f, output_file)
+    data_export_proto(pr, fa, output_file);
 
     /* Clean up */
     proto_destroy(pr);

@@ -15,7 +15,6 @@ function [proto, data] = mal_prototype(in, cfg)
 %     proto:	Prototype structure
 %               .indices   Indices of prototypes (1 x l)
 %               .assign    Assignments of prototypes (1 x n)
-%               .dist      Distances to prototypes (1 x n) 
 %     data:     Data structure   
 %               .labels    Label vector (1 x n)
 %               .names     Label to class names structure

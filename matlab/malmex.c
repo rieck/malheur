@@ -107,33 +107,28 @@ mxArray *mal_data_struct(farray_t *fa)
  */
 mxArray *mal_proto_struct(proto_t *p) 
 {
-    const char *fields[] = { "indices", "dist", "assign" };
+    const char *fields[] = { "indices", "assign" };
     mxArray *a, *proto;
     double *f;
-    int i;
+    int i, j;
     
     proto = mxCreateStructMatrix(1, 1, 3, fields);
 
     /* Copy prototype indices */
     a = mxCreateNumericMatrix(1, p->protos->len, mxDOUBLE_CLASS, mxREAL);
     f = mxGetPr(a);
-    for (i = 0; i < p->protos->len; i++)
-        f[i] = p->indices[i];
+    for (i = j = 0; i < p->len; i++) {
+        if (p->assign[i] & PA_PROTO_MASK)
+            f[j++] = i;
+    }
     mxSetField(proto, 0, "indices", a);
     
     /* Copy prototype assignments */
     a = mxCreateNumericMatrix(1, p->len, mxDOUBLE_CLASS, mxREAL);
     f = mxGetPr(a);
     for (i = 0; i < p->len; i++)
-        f[i] = p->assign[i];
+        f[i] = p->assign[i] & PA_ASSIGN_MASK;
     mxSetField(proto, 0, "assign", a);
-
-    /* Copy prototype distances */
-    a = mxCreateNumericMatrix(1, p->len, mxDOUBLE_CLASS, mxREAL);
-    f = mxGetPr(a);
-    for (i = 0; i < p->len; i++)
-        f[i] = p->dist[i];
-    mxSetField(proto, 0, "dist", a); 
     
     return proto;
 }   

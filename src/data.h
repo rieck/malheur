@@ -23,7 +23,7 @@ void data_dir_entries(char *dir, int *, int *);
 void data_archive_entries(char *arc, int *, int *);
 char *data_preproc(char *);
 void data_export_kernel(float *, farray_t *, char *);
-void data_export_proto(proto_t *, char *);
+void data_export_proto(proto_t *, farray_t *, char *);
 
 
 #endif                          /* STRIO_H */

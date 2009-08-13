@@ -11,20 +11,18 @@
  * --
  */
 
-#ifndef DATA_H
-#define DATA_H
-
-#define CSS_FONT  "style='font-family: verdana; font-size: 10pt;'"
+#ifndef EXPORT_H
+#define EXPORT_H
 
 #include "farray.h"
 #include "proto.h"
 
+#define CSS_FONT  "style='font-family: verdana; font-size: 10pt;'"
+#define CWS_URL   "https://pcert.cwsandbox.org/?page=analysis&format=xml"
+
 /* I/O functions */
-char *io_load_file(char *, char *);
-void io_dir_entries(char *dir, int *, int *);
-void io_arc_entries(char *arc, int *, int *);
-char *io_preprocess(char *);
-void io_save_kernel(double *, farray_t *, char *);
-void io_export_proto(proto_t *p, farray_t *fa, char *file);
+void export_proto(proto_t *p, farray_t *fa, char *file);
+void export_kernel(double *d, farray_t *f, char *file);
+
 
 #endif                          /* STRIO_H */

@@ -11,6 +11,9 @@
  * --
  */
 
+#include <archive.h>
+#include <archive_entry.h>
+
 #include "config.h"
 #include "common.h"
 #include "fvec.h"
@@ -140,6 +143,112 @@ void prog_bar(double min, double max, double in)
     fflush(stdout);
     fflush(stderr);
 }
+
+
+/**
+ * Loads a textual file into a string. The string is allocated 
+ * and need to be free'd later by the caller.
+ * @param path Path to file
+ * @param name file name or NULL
+ * @return string 
+ */
+char *load_file(char *path, char *name) 
+{
+    assert(path);
+    long len, size = 0;
+    char *str = NULL, file[1024];
+    struct stat st;    
+     
+    #pragma omp critical (snprintf) 
+    {
+        if (name)
+            snprintf(file, 1024, "%s/%s", path, name);
+        else
+            snprintf(file, 1024, "%s", path);
+    }
+
+    /* Open file */
+    FILE *fptr = fopen(file, "r");
+    if (!fptr) {
+        error("Could not open file '%s'", file);
+        return NULL;
+    }
+
+    /* Allocate memory */
+    stat(file, &st);
+    size = st.st_size;
+    str = malloc(sizeof(char) * (size + 1));
+    if (!str) {
+        error("Could not allocate memory for file data");
+        return NULL;
+    }
+
+    /* Read data */
+    len = fread(str, sizeof(char), size, fptr);
+    fclose(fptr);
+    
+    if (len != size) 
+        warning("Could not read all data from file '%s'", file);
+    
+    str[size] = '\0';
+    return str;
+}
+
+/**
+ * Returns the number of entries in a directory. 
+ * @param dir Directory to analyse
+ * @param fnum Return pointer for number of regular files
+ * @param total Return pointer for number of total files
+ */
+void list_dir_entries(char *dir, int *fnum, int *total)
+{
+    struct dirent *dp;
+    DIR *d;
+
+    *fnum = 0;
+    *total = 0;
+
+    d = opendir(dir);
+    while (d && (dp = readdir(d)) != NULL) {
+        if (dp->d_type == DT_REG)
+            ++*fnum;
+        ++*total;           
+    }            
+    closedir(d);
+}
+
+/**
+ * Returns the number of file entries in an archive.
+ * @param arc archive containing files
+ * @param fnum Return pointer for number of regular files
+ * @param total Return pointer for number of total files
+ */
+void list_arc_entries(char *arc, int *fnum, int *total) 
+{
+    struct archive *a;
+    struct archive_entry *entry;
+    assert(arc);
+    
+    *fnum = 0;
+    *total = 0;
+    
+    /* Open archive */
+    a = archive_read_new();
+    archive_read_support_compression_all(a);
+    archive_read_support_format_all(a);
+    archive_read_open_filename(a, arc, 4096);
+    
+    /* Jump through archive */
+    while (archive_read_next_header(a, &entry) == ARCHIVE_OK) {
+        const struct stat *s = archive_entry_stat(entry);
+        if (S_ISREG(s->st_mode))      
+            ++*fnum;
+        ++*total;    
+        archive_read_data_skip(a);
+    }
+    archive_read_finish(a);
+}  
+
 
 /**
  * Return a timestamp of the real time

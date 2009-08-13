@@ -15,12 +15,11 @@
 #include "malheur.h"
 #include "common.h"
 #include "mconfig.h"
-#include "farray.h"
 #include "ftable.h"
 #include "fmath.h"
 #include "proto.h"
 #include "util.h"
-#include "io.h"
+#include "export.h"
 
 /* Global variables */
 int verbose = 0;
@@ -133,7 +132,7 @@ static void malheur_prototype()
         proto_print(pr);
 
     /* Export prototypes */
-    io_export_proto(pr, fa, output_file);
+    export_proto(pr, fa, output_file);
 
     /* Clean up */
     proto_destroy(pr);
@@ -166,7 +165,7 @@ static void malheur_kernel()
     farray_dot(fa, fa, d);
         
     /* Save kernel matrix */
-    io_save_kernel(d, fa, output_file);
+    export_kernel(d, fa, output_file);
 
     /* Clean up */
     free(d);

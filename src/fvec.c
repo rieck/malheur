@@ -30,6 +30,7 @@
 #include "ftable.h"
 #include "fmath.h"
 #include "util.h"
+#include "mist.h"
 #include "md5.h"
 
 /* External variables */
@@ -43,6 +44,27 @@ static void extract_ngrams(fvec_t *, char *x, int l, int n);
 /* Delimiter functions and table */
 static void decode_delim(const char *s);
 static char delim[256] = { DELIM_NOT_INIT };
+
+
+/**
+ * Preprocess input format according to configuration. The function takes 
+ * a raw string and formats it according to the given configuration. 
+ * @param x Raw string
+ * @return Preprocessed output.
+ */
+char *fvec_preproc(char *x) 
+{
+    const char *fm_str;
+
+    config_lookup_string(&cfg, "input.format", &fm_str);
+    
+    /* MIST transformation */
+    if (!strcasecmp(fm_str, "mist")) {
+        x = mist_preproc(x);
+    }    
+
+    return x;
+}
 
 /** 
  * Condense a feature vector by counting duplicate features.

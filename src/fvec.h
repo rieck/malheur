@@ -39,6 +39,7 @@ typedef struct {
 } fvec_t;  
 
 /* Functions */
+char *fvec_preproc(char *);
 fvec_t *fvec_zero();
 fvec_t *fvec_extract(char *, int l, char *);
 void fvec_destroy(fvec_t *);

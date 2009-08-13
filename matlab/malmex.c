@@ -23,7 +23,6 @@
 #include "mconfig.h"
 #include "uthash.h"
 #include "util.h"
-#include "farray.h"
 #include "proto.h"
 #include "malmex.h"
 

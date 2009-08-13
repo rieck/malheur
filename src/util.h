@@ -43,6 +43,9 @@ double time_stamp();
 int decode_string(char *);
 char *file_suffix(char *file);
 int check_range(int, int, int);
+char *load_file(char *, char *);
+void list_dir_entries(char *dir, int *, int *);
+void list_arc_entries(char *arc, int *, int *);
 
 /* Comparison function */
 int cmp_feat(const void *, const void *);

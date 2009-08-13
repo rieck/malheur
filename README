@@ -26,7 +26,11 @@
  input format Malheur supports generic text and XML reports of
  monitored behavior.
 
- Malheur is currently in a *pre-alpha* stage. Check back later.
+*Warning:* Malheur is currently in a pre-alpha stage. Check back later.
+Most of the code is either not documented or not functional. If you are
+interested in working with a preliminary version of Malheur, feel free
+to drop an email to <rieck@cs.tu-berlin.de>.
+
 
  Dependencies
  --

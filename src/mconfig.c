@@ -37,38 +37,38 @@ static config_default_t defaults[] = {
     {NULL, NULL, 0, 0, NULL}
 };
 
-static void config_setting_print(config_setting_t *cs, int depth)
+static void config_setting_fprint(FILE *f, config_setting_t *cs, int depth)
 {
     assert(cs && depth >= 0);
 
     int i;
     for (i = 0; i < depth; i++)
-        printf("  ");
+        fprintf(f, "    ");
     
     char *n = config_setting_name(cs);
     
     switch(config_setting_type(cs)) {
     case CONFIG_TYPE_GROUP:
         if (depth > 0)
-            printf("%s = {\n", n);
+            fprintf(f, "%s = {\n", n);
 
         for (i = 0; i < config_setting_length(cs); i++)
-            config_setting_print(config_setting_get_elem(cs, i), depth + 1); 
+            config_setting_fprint(f, config_setting_get_elem(cs, i), depth + 1); 
         
         if (depth > 0) {
             for (i = 0; i < depth; i++)
-                printf("  ");
-            printf("};\n");
+                fprintf(f, "    ");
+            fprintf(f, "};\n");
         }
         break;
     case CONFIG_TYPE_STRING:
-        printf("%s\t= \"%s\";\n", n, config_setting_get_string(cs));
+        fprintf(f, "%s\t= \"%s\";\n", n, config_setting_get_string(cs));
         break;
     case CONFIG_TYPE_FLOAT:
-        printf("%s\t= %8.5f;\n", n, config_setting_get_float(cs));
+        fprintf(f, "%s\t= %8.5f;\n", n, config_setting_get_float(cs));
         break;
     case CONFIG_TYPE_INT:
-        printf("%s\t= %ld;\n", n, config_setting_get_int(cs));
+        fprintf(f, "%s\t= %ld;\n", n, config_setting_get_int(cs));
         break;
     default:
         error("Unsupported type for configuration setting '%s'", n);
@@ -82,7 +82,17 @@ static void config_setting_print(config_setting_t *cs, int depth)
 void config_print(config_t *cfg)
 {
     printf("Malheur configuration\n");
-    config_setting_print(config_root_setting(cfg), 0);
+    config_setting_fprint(stdout, config_root_setting(cfg), 0);
+}
+
+/**
+ * Print the Malheur configuration is valid. 
+ * @param cfg configuration
+ * @param 
+ */
+void config_fprint(FILE *f, config_t *cfg)
+{
+    config_setting_fprint(f, config_root_setting(cfg), 0);
 }
 
 /**

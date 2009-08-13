@@ -132,8 +132,7 @@ proto_t *proto_extract(farray_t *fa)
                 di[k] = 0;
             }
             
-        }
-        
+        }        
         if (verbose > 0)
             prog_bar(0, n - 1, i);
     }

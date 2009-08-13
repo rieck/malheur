@@ -14,6 +14,8 @@
 #ifndef DATA_H
 #define DATA_H
 
+#define CSS_FONT  "style='font-family: verdana; font-size: 10pt;'"
+
 #include "farray.h"
 #include "proto.h"
 

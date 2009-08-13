@@ -26,5 +26,6 @@ typedef struct {
 /* Functions */
 void config_print(config_t *cfg);
 void config_check(config_t *cfg);
+void config_fprint(FILE *, config_t *cfg);
 
 #endif                          /* CFG_H */

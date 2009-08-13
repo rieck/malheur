@@ -31,6 +31,7 @@
 #include "data.h"
 #include "util.h"
 #include "mist.h"
+#include "mconfig.h"
 
 /* External variables */
 extern int verbose;
@@ -190,15 +191,85 @@ void data_export_kernel(double *d, farray_t *f, char *file)
     gzclose(z);
 }
 
+static char *data_cwsandbox_url(char *f)
+{
+    static char buf[1024];
+    char *ptr = f + strlen(f) - 1;
+    int rid, aid;
+    
+    /* Determine basename */
+    while(ptr != f && *(ptr - 1) != '/')
+        ptr--;
+        
+    sscanf(ptr, "%d_%d.%*s\n", &rid, &aid);
+    snprintf(buf, 1024, 
+             "https://pcert.cwsandbox.org/?page=analysis&format=xml&analysisid=%d", 
+             aid);
+             
+    return buf;
+}
+
 /**
- * Exports prototypes to a HTML file
+ * Exports prototypes to a HTML file (Urgently needs support for templates)
  * @param p Prototype structure
  * @param f Feature vector array 
  * @param n File name
  */
-void data_export_proto(proto_t *p, farray_t *f, char *file)
+void data_export_proto(proto_t *p, farray_t *fa, char *file)
 {
+    assert(p && fa && file);
+    int i, j, n = 0, x = 0;
+    FILE *f = fopen(file, "w");
+    if (!f) {
+        error("Could not open '%s' for writing", file);
+        return;
+    }
+    
+    /* Write generic */
+    fprintf(f, "<html><body %s><h1>Prototypes</h1><table %s>\n", 
+            CSS_FONT, CSS_FONT);
+    fprintf(f, "<tr><td>Number of prototypes: </td><td>%lu</td></tr>\n", 
+            p->protos->len);
+    fprintf(f, "<tr><td>Number of total reports: </td><td>%lu</td></tr>\n", 
+            p->alen);
+    fprintf(f, "<tr><td>Compression ratio: </td><td>%4.1f%%</td></tr>\n", 
+            (1.0 - p->protos->len / (double) fa->len) * 100);
+    fprintf(f, "<tr><td>Source: </td><td>%s</td></tr>\n",
+            p->protos->src);
+    fprintf(f, "</table>\n");
+    
+    /* Write configuration */
+    fprintf(f, "<h2>Configuration</h2><pre>");
+    config_fprint(f, &cfg);
+    fprintf(f, "</pre>");    
+    
+    /* Write prototypes and assignments */
+    fprintf(f, "<h2>Assignments</h2><ul>");
+    for (i = 0; i < p->protos->len; i++) {
+        for (j = 0, n = 0; j < p->alen; j++) 
+            n += ((p->assign[j] & PA_ASSIGN_MASK) == i);
 
+        fprintf(f, "<li><a href='%s'><b>Prototype %d</b></a><br>\n", 
+                data_cwsandbox_url(p->protos->x[i]->src), i);
+               
+        fprintf(f, "%d members: ", n);
+        for (j = 0, x = 0; j < p->alen; j++) {
+            if ((p->assign[j] & PA_ASSIGN_MASK) != i)
+                continue;
+                
+            fprintf(f, "<a href='%s'>", data_cwsandbox_url(fa->x[j]->src));
+            if (x && x == fa->y[j]) 
+                fprintf(f, "&middot;");
+            else
+                fprintf(f, "%s", farray_get_label(fa, j));
+            x = fa->y[j];
+            fprintf(f, "</a> ");
+        }
+        fprintf(f, "<br><br>\n");
+    }
+    fprintf(f,"</ul>"); 
+    fprintf(f, "</body></html>\n");
+    fclose(f);
 }
 
 /** @} */

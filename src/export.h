@@ -17,7 +17,21 @@
 #include "farray.h"
 #include "proto.h"
 
-#define CSS_FONT  "style='font-family: verdana; font-size: 10pt;'"
+/* Simple CSS style */
+#define BODY    "<style> " \
+                " h1,h2,h3 {font-family: georgia; color: #511;}\n " \
+                " body {font-size: 11pt; font-family: verdana;}" \
+                " a {text-decoration: none; color: #151;}" \
+                " </style>" 
+
+/* Brain-damaged macros for HTML tables */
+#define TS      "<tr><td> &nbsp;&nbsp; "
+#define TM      " &nbsp;&nbsp; </td><td valign='right'>"
+#define TE      "</td></tr>\n"
+#define TABS    "<table cellpadding='0' cellspacing='0' style='font-size: 11pt;'>"
+#define TABE    "</table>\n"
+
+/* URL template for cwsandbox.org */
 #define CWS_URL   "https://pcert.cwsandbox.org/?page=analysis&format=xml"
 
 /* I/O functions */

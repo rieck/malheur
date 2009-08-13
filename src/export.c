@@ -94,7 +94,7 @@ static char *cwsandbox_url(char *f)
 void export_proto(proto_t *p, farray_t *fa, char *file)
 {
     assert(p && fa && file);
-    int i, j, n = 0, x = 0;
+    int i, j, k = 0, n = 0, x = 0;
     
     if (verbose > 0)
         printf("Exporting prototypes to '%s'.\n", file);
@@ -106,17 +106,15 @@ void export_proto(proto_t *p, farray_t *fa, char *file)
     }
     
     /* Write generic */
-    fprintf(f, "<html><body %s><h1>Prototypes</h1><table %s>\n", 
-            CSS_FONT, CSS_FONT);
-    fprintf(f, "<tr><td>Number of prototypes: </td><td>%lu</td></tr>\n", 
-            p->protos->len);
-    fprintf(f, "<tr><td>Number of total reports: </td><td>%lu</td></tr>\n", 
-            p->alen);
-    fprintf(f, "<tr><td>Compression ratio: </td><td>%4.1f%%</td></tr>\n", 
+    fprintf(f, "<html><body>%s<h1>Prototypes</h1>", BODY);
+
+    fprintf(f, TABS);
+    fprintf(f, TS "Report source:" TM "%s", p->protos->src);    
+    fprintf(f, TS "Number of prototypes:" TM "%lu" TE, p->protos->len);
+    fprintf(f, TS "Number of total reports:" TM "%lu" TE, p->alen);
+    fprintf(f, TS "Compression ratio:" TM "%4.1f%%" TE, 
             (1.0 - p->protos->len / (double) fa->len) * 100);
-    fprintf(f, "<tr><td>Source: </td><td>%s</td></tr>\n",
-            p->protos->src);
-    fprintf(f, "</table>\n");
+    fprintf(f, TABE);
     
     /* Write configuration */
     fprintf(f, "<h2>Configuration</h2><pre>");
@@ -124,20 +122,30 @@ void export_proto(proto_t *p, farray_t *fa, char *file)
     fprintf(f, "</pre>");    
     
     /* Write prototypes and assignments */
-    fprintf(f, "<h2>Assignments</h2><ul>");
+    fprintf(f, "<h2>Assignments</h2><ol>\n");
     for (i = 0; i < p->protos->len; i++) {
-        for (j = 0, n = 0; j < p->alen; j++) 
-            n += ((p->assign[j] & PA_ASSIGN_MASK) == i);
+    
+        /* Count members per prototype */
+        for (j = 0, n = 0; j < p->alen; j++) {
+            if ((p->assign[j] & PA_ASSIGN_MASK) == i) {
+                n++;
+                if ((p->assign[j] & PA_PROTO_MASK) != 0)
+                    k = j;
+            }
+        }
 
-        fprintf(f, "<li><a href='%s'><b>Prototype %d</b></a><br>\n", 
-                cwsandbox_url(p->protos->x[i]->src), i);
+        fprintf(f, "<li><a href='%s'><b>Prototype</b></a> "
+                "(members: %d, label: %s, index: %d)<br>\n", 
+                cwsandbox_url(p->protos->x[i]->src), n, 
+                farray_get_label(p->protos, i), k);
                
-        fprintf(f, "%d members: ", n);
+        /* Write list of assignments */
         for (j = 0, x = 0; j < p->alen; j++) {
             if ((p->assign[j] & PA_ASSIGN_MASK) != i)
                 continue;
                 
-            fprintf(f, "<a href='%s'>", cwsandbox_url(fa->x[j]->src));
+            fprintf(f, "<a href='%s' style='text-decoration: none;'>", 
+                    cwsandbox_url(fa->x[j]->src));
             if (x && x == fa->y[j]) 
                 fprintf(f, "&middot;");
             else
@@ -145,10 +153,9 @@ void export_proto(proto_t *p, farray_t *fa, char *file)
             x = fa->y[j];
             fprintf(f, "</a> ");
         }
-        fprintf(f, "<br><br>\n");
+        fprintf(f, "<br>\n");
     }
-    fprintf(f,"</ul>"); 
-    fprintf(f, "</body></html>\n");
+    fprintf(f,"</ol></body></html>\n");
     fclose(f);
 }
 

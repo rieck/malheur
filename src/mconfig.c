@@ -43,7 +43,7 @@ static void config_setting_fprint(FILE *f, config_setting_t *cs, int depth)
 
     int i;
     for (i = 0; i < depth; i++)
-        fprintf(f, "    ");
+        fprintf(f, "  ");
     
     char *n = config_setting_name(cs);
     
@@ -57,7 +57,7 @@ static void config_setting_fprint(FILE *f, config_setting_t *cs, int depth)
         
         if (depth > 0) {
             for (i = 0; i < depth; i++)
-                fprintf(f, "    ");
+                fprintf(f, "  ");
             fprintf(f, "};\n");
         }
         break;

@@ -28,7 +28,7 @@
 #include "fvec.h"
 #include "farray.h"
 #include "fmath.h"
-#include "data.h"
+#include "io.h"
 #include "util.h"
 #include "mist.h"
 #include "mconfig.h"
@@ -44,7 +44,7 @@ extern config_t cfg;
  * @param name file name or NULL
  * @return string 
  */
-char *data_load_file(char *path, char *name) 
+char *io_load_file(char *path, char *name) 
 {
     assert(path);
     long len, size = 0;
@@ -92,7 +92,7 @@ char *data_load_file(char *path, char *name)
  * @param fnum Return pointer for number of regular files
  * @param total Return pointer for number of total files
  */
-void data_dir_entries(char *dir, int *fnum, int *total)
+void io_dir_entries(char *dir, int *fnum, int *total)
 {
     struct dirent *dp;
     DIR *d;
@@ -115,7 +115,7 @@ void data_dir_entries(char *dir, int *fnum, int *total)
  * @param fnum Return pointer for number of regular files
  * @param total Return pointer for number of total files
  */
-void data_archive_entries(char *arc, int *fnum, int *total) 
+void io_arc_entries(char *arc, int *fnum, int *total) 
 {
     struct archive *a;
     struct archive_entry *entry;
@@ -147,7 +147,7 @@ void data_archive_entries(char *arc, int *fnum, int *total)
  * @param x Raw string
  * @return Preprocessed output.
  */
-char *data_preproc(char *x) 
+char *io_preprocess(char *x) 
 {
     const char *fm_str;
 
@@ -161,37 +161,38 @@ char *data_preproc(char *x)
     return x;
 }
 
+
 /**
- * Exports a kernel matrix to a compressed file
+ * Saves a kernel matrix to a compressed file
  * @param d Pointer to matrix
  * @param f Feature vector array
  * @param n File name 
  */
-void data_export_kernel(double *d, farray_t *f, char *file)
+void io_save_kernel(double *d, farray_t *f, char *file)
 {
     assert(d && f && file);
     int i,j;
 
     if (verbose > 0)
-        printf("Exporting kernel matrix to '%s'.\n", file);
+        printf("Saving kernel matrix to '%s'.\n", file);
 
     gzFile *z = gzopen(file, "w");
     if (!z) {
         error("Could not create file '%s'.", file);
         return;
-    }    
-    
+    }
+
     for (i = 0; i < f->len; i++) {
         gzprintf(z, "%s:", f->x[i]->src);
         for (j = 0; j < f->len; j++)
             gzprintf(z, " %g", d[i * f->len + j]);
         gzprintf(z, "\n");
     }
-    
+
     gzclose(z);
 }
 
-static char *data_cwsandbox_url(char *f)
+static char *cwsandbox_url(char *f)
 {
     static char buf[1024];
     char *ptr = f + strlen(f) - 1;
@@ -209,13 +210,8 @@ static char *data_cwsandbox_url(char *f)
     return buf;
 }
 
-/**
- * Exports prototypes to a HTML file (Urgently needs support for templates)
- * @param p Prototype structure
- * @param f Feature vector array 
- * @param n File name
- */
-void data_export_proto(proto_t *p, farray_t *fa, char *file)
+
+void io_export_proto(proto_t *p, farray_t *fa, char *file)
 {
     assert(p && fa && file);
     int i, j, n = 0, x = 0;
@@ -250,14 +246,14 @@ void data_export_proto(proto_t *p, farray_t *fa, char *file)
             n += ((p->assign[j] & PA_ASSIGN_MASK) == i);
 
         fprintf(f, "<li><a href='%s'><b>Prototype %d</b></a><br>\n", 
-                data_cwsandbox_url(p->protos->x[i]->src), i);
+                cwsandbox_url(p->protos->x[i]->src), i);
                
         fprintf(f, "%d members: ", n);
         for (j = 0, x = 0; j < p->alen; j++) {
             if ((p->assign[j] & PA_ASSIGN_MASK) != i)
                 continue;
                 
-            fprintf(f, "<a href='%s'>", data_cwsandbox_url(fa->x[j]->src));
+            fprintf(f, "<a href='%s'>", cwsandbox_url(fa->x[j]->src));
             if (x && x == fa->y[j]) 
                 fprintf(f, "&middot;");
             else
@@ -271,6 +267,7 @@ void data_export_proto(proto_t *p, farray_t *fa, char *file)
     fprintf(f, "</body></html>\n");
     fclose(f);
 }
+
 
 /** @} */
  

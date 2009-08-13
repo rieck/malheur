@@ -20,7 +20,7 @@
 #include "fmath.h"
 #include "proto.h"
 #include "util.h"
-#include "data.h"
+#include "io.h"
 
 /* Global variables */
 int verbose = 0;
@@ -133,7 +133,7 @@ static void malheur_prototype()
         proto_print(pr);
 
     /* Export prototypes */
-    data_export_proto(pr, fa, output_file);
+    io_export_proto(pr, fa, output_file);
 
     /* Clean up */
     proto_destroy(pr);
@@ -165,8 +165,8 @@ static void malheur_kernel()
         fatal("Could not allocate similarity matrix");
     farray_dot(fa, fa, d);
         
-    /* Export matrix */
-    data_export_kernel(d, fa, output_file);
+    /* Save kernel matrix */
+    io_save_kernel(d, fa, output_file);
 
     /* Clean up */
     free(d);

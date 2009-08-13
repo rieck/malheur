@@ -29,7 +29,7 @@
 #include "common.h"
 #include "farray.h"
 #include "fvec.h"
-#include "data.h"
+#include "io.h"
 #include "md5.h"
 #include "util.h"
 
@@ -210,7 +210,7 @@ farray_t *farray_extract_archive(char *arc)
     if (!fa) 
         return NULL;
         
-    data_archive_entries(arc, &fnum, &total);
+    io_arc_entries(arc, &fnum, &total);
 
     /* Open archive */
     a = archive_read_new();
@@ -243,7 +243,7 @@ farray_t *farray_extract_archive(char *arc)
             continue;
 
         /* Preprocess and extract feature vector*/
-        x = data_preproc(x);
+        x = io_preprocess(x);
         fvec_t *fv = fvec_extract(x, strlen(x), l);
         
         #pragma omp critical (farray)
@@ -295,7 +295,7 @@ farray_t *farray_extract_dir(char *dir)
      * between the previous call to opendir() and the following call to
      * pathconf(). I'll take care of this at a later time.
      */
-    data_dir_entries(dir, &fnum, &total);
+    io_dir_entries(dir, &fnum, &total);
     maxlen = pathconf(dir, _PC_NAME_MAX);
 
     /* Loop over directory entries */
@@ -314,8 +314,8 @@ farray_t *farray_extract_dir(char *dir)
         }    
     
         /* Extract feature vector from file */
-        char *raw = data_load_file(dir, dp->d_name);
-        raw = data_preproc(raw);
+        char *raw = io_load_file(dir, dp->d_name);
+        raw = io_preprocess(raw);
         fvec_t *fv = fvec_extract(raw, strlen(raw), dp->d_name);
 
         #pragma omp critical (farray)

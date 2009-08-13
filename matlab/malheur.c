@@ -22,7 +22,7 @@
 #include "mist.h"
 #include "mconfig.h"
 #include "util.h"
-#include "data.h"
+#include "io.h"
 #include "farray.h"
 #include "fmath.h"
 #include "proto.h"
@@ -102,7 +102,7 @@ void mex_load_mist(MEX_SIGNATURE)
         mxGetString(a, fn, 1023);
 
         /* Load report */
-        r = data_load_file(fn, NULL);
+        r = io_load_file(fn, NULL);
         r = mist_preproc(r);
     
         /* Store report in cell array */

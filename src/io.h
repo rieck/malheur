@@ -20,12 +20,11 @@
 #include "proto.h"
 
 /* I/O functions */
-char *data_load_file(char *, char *);
-void data_dir_entries(char *dir, int *, int *);
-void data_archive_entries(char *arc, int *, int *);
-char *data_preproc(char *);
-void data_export_kernel(double *, farray_t *, char *);
-void data_export_proto(proto_t *, farray_t *, char *);
-
+char *io_load_file(char *, char *);
+void io_dir_entries(char *dir, int *, int *);
+void io_arc_entries(char *arc, int *, int *);
+char *io_preprocess(char *);
+void io_save_kernel(double *, farray_t *, char *);
+void io_export_proto(proto_t *p, farray_t *fa, char *file);
 
 #endif                          /* STRIO_H */

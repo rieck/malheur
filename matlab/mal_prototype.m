@@ -1,4 +1,4 @@
-function [proto, data] = mal_prototype(in, cfg)
+function [proto, data] = mal_prototype(in, cfg, varargin)
 %
 % MALHEUR - Automatic Malware Analysis on Steroids
 % Copyright (c) 2009 Konrad Rieck (rieck@cs.tu-berlin.de)
@@ -22,4 +22,8 @@ function [proto, data] = mal_prototype(in, cfg)
 %
 
 % Call native function
-[proto, data] = malheur('prototype', in, cfg);
+if isempty(varargin)
+   [proto, data] = malheur('prototype', in, cfg);
+else
+   [proto, data] = malheur('prototype', in, cfg, varargin{1});
+end

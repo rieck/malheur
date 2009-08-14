@@ -199,11 +199,7 @@ void mex_prototype(MEX_SIGNATURE)
         mal_error("Could not read configuration (%s in line %d)",
                   config_error_text(&cfg), config_error_line(&cfg));
     }          
-
-    /* Check configuration */
     config_check(&cfg);
-    if (verbose)
-        config_print(&cfg);
         
     /* Check for optional input */
     if (nrhs == 4 && mxGetClassID(in3) == mxDOUBLE_CLASS) {
@@ -222,15 +218,14 @@ void mex_prototype(MEX_SIGNATURE)
         mal_error("Could not load data from '%s'", df);
 
     /* Extract prototypes */
-    out1 = mxCreateStructMatrix(1, ns, 3, fields);
+    out1 = mxCreateStructMatrix(1, ns, 2, fields);
     for (i = 0; i < ns; i++) {
         config_set_float(&cfg, "prototypes.ratio", rs[i]);  
-    
         proto_t *pr = proto_extract(fa);
         if (!pr)
             mal_error("Could not prototype feature vectors.");
             
-        mal_proto_struct(out1, i, proto_extract(fa));
+        mal_proto_struct(out1, i, pr);
         proto_destroy(pr);
     }
     out2 = mal_data_struct(fa);

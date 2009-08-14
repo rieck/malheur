@@ -31,8 +31,7 @@ case $arg in
        CC="gcc" \
        CPPFLAGS="-I $HOME/usr/include" \
        CFLAGS="-DDEBUG -fomit-frame-pointer -pedantic -pipe -O3 -march=native -mfpmath=sse -msse -msse2" \
-       ./configure --enable-openmp \
-                   --enable-matlab -with-matlab=/usr/local/matlab2009a \
+       ./configure --enable-matlab -with-matlab=/usr/local/matlab2009a \
                    --prefix=$HOME/usr
        ;;       
    # Konrad's laptop    

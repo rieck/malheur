@@ -95,8 +95,8 @@ proto_t *proto_extract(farray_t *fa)
         di[i] = DBL_MAX;    
     
     if (verbose > 0)
-        printf("Extracting %d prototypes from feature vectors with"
-               " %1.0f%% outliers.\n", n, outl * 100);
+        printf("Extracting %d prototypes (%.1f%%) from feature vectors with"
+               " %1.0f%% outliers.\n", n, 100 * ratio, outl * 100);
 
     for (i = 0; i < n; i++) {
         if (i == 0) {
@@ -122,8 +122,8 @@ proto_t *proto_extract(farray_t *fa)
         for (k = 0; k < fa->len; k++) {
             double d = sqrt(2 - 2 * fvec_dot(pv, fa->x[k]));
             if (d < di[k]) {
+                pr->assign[k] = i & PA_ASSIGN_MASK;            
                 di[k] = d;
-                pr->assign[k] = i & PA_ASSIGN_MASK;
             }
             
             /* Mark protoype */
@@ -131,7 +131,6 @@ proto_t *proto_extract(farray_t *fa)
                 pr->assign[k] = i | PA_PROTO_MASK;
                 di[k] = 0;
             }
-            
         }        
         if (verbose > 0)
             prog_bar(0, n - 1, i);

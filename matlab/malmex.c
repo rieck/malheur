@@ -102,16 +102,13 @@ mxArray *mal_data_struct(farray_t *fa)
 }
 
 /*
- * Create a prototype struct
+ * Add a prototype struct to a struct array
  */
-mxArray *mal_proto_struct(proto_t *p) 
+void mal_proto_struct(mxArray *ps, int k, proto_t *p) 
 {
-    const char *fields[] = { "indices", "assign" };
-    mxArray *a, *proto;
+    mxArray *a;
     double *f;
     int i, j;
-    
-    proto = mxCreateStructMatrix(1, 1, 3, fields);
 
     /* Copy prototype indices */
     a = mxCreateNumericMatrix(1, p->protos->len, mxDOUBLE_CLASS, mxREAL);
@@ -120,14 +117,12 @@ mxArray *mal_proto_struct(proto_t *p)
         if (p->assign[i] & PA_PROTO_MASK)
             f[j++] = i;
     }
-    mxSetField(proto, 0, "indices", a);
+    mxSetField(ps, k, "indices", a);
     
     /* Copy prototype assignments */
     a = mxCreateNumericMatrix(1, p->alen, mxDOUBLE_CLASS, mxREAL);
     f = mxGetPr(a);
     for (i = 0; i < p->alen; i++)
         f[i] = p->assign[i] & PA_ASSIGN_MASK;
-    mxSetField(proto, 0, "assign", a);
-    
-    return proto;
+    mxSetField(ps, k, "assign", a);
 }   

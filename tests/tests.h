@@ -26,6 +26,8 @@
       config_setting_set_string(config_lookup(c,x),s)
 #define config_set_int(c,x,s) \
       config_setting_set_int(config_lookup(c,x),s)
+#define config_set_float(c,x,s) \
+      config_setting_set_floar(config_lookup(c,x),s)
 
 /* Functions */
 void test_printf(char *fmt, ...);

@@ -42,6 +42,14 @@
 #define out1    plhs[0]         /* Default output 1 */
 #define out2    plhs[1]         /* Default output 2 */
 
+/* Macros for faking a configuration */
+#define config_set_string(c,x,s) \
+      config_setting_set_string(config_lookup(c,x),s)
+#define config_set_int(c,x,s) \
+      config_setting_set_int(config_lookup(c,x),s)
+#define config_set_float(c,x,s) \
+      config_setting_set_float(config_lookup(c,x),s)
+
 /*
  * Global configuration
  */
@@ -113,8 +121,6 @@ void mex_load_mist(MEX_SIGNATURE)
     
     prog_bar(0.0, 1.0, 1.0);
     config_destroy(&cfg);
-    
-    printf("\nDone.\n");
 }
 
 /*
@@ -163,8 +169,6 @@ void mex_kernel(MEX_SIGNATURE)
     /* Clean up */
     farray_destroy(fa);
     config_destroy(&cfg);    
-    
-    printf("Done.\n");
 }
 
 /*
@@ -172,10 +176,13 @@ void mex_kernel(MEX_SIGNATURE)
  */
 void mex_prototype(MEX_SIGNATURE)
 {
+    const char *fields[] = { "indices", "assign" };
     char cf[1024], df[1024];
+    double *rs = NULL; 
+    int i, ns = 0;
 
     /* Check input */
-    if (nrhs != 1 + 2 || nlhs < 1) 
+    if (nrhs < 1 + 2 || nlhs < 1) 
         mal_error("Number of input/output arguments is invalid");
     if (!mxIsChar(in1))
         mal_error("First argument is not a dirname/archive");
@@ -192,11 +199,22 @@ void mex_prototype(MEX_SIGNATURE)
         mal_error("Could not read configuration (%s in line %d)",
                   config_error_text(&cfg), config_error_line(&cfg));
     }          
-    
+
     /* Check configuration */
     config_check(&cfg);
     if (verbose)
         config_print(&cfg);
+        
+    /* Check for optional input */
+    if (nrhs == 4 && mxGetClassID(in3) == mxDOUBLE_CLASS) {
+        ns = mxGetNumberOfElements(in3);
+        rs = malloc(ns * sizeof(double));
+        memcpy(rs, mxGetData(in3), ns * sizeof(double));
+    } else {
+        ns = 1;
+        rs = malloc(ns * sizeof(double));
+        config_lookup_float(&cfg, "prototypes.ratio", rs);
+    }        
 
     /* Extract features */
     farray_t *fa = farray_extract(df);
@@ -204,19 +222,23 @@ void mex_prototype(MEX_SIGNATURE)
         mal_error("Could not load data from '%s'", df);
 
     /* Extract prototypes */
-    proto_t *pr = proto_extract(fa);
-    if (!pr)
-        mal_error("Could not prototype feature vectors.");
-
-    out1 = mal_proto_struct(pr);    
+    out1 = mxCreateStructMatrix(1, ns, 3, fields);
+    for (i = 0; i < ns; i++) {
+        config_set_float(&cfg, "prototypes.ratio", rs[i]);  
+    
+        proto_t *pr = proto_extract(fa);
+        if (!pr)
+            mal_error("Could not prototype feature vectors.");
+            
+        mal_proto_struct(out1, i, proto_extract(fa));
+        proto_destroy(pr);
+    }
     out2 = mal_data_struct(fa);
     
     /* Clean up */
-    proto_destroy(pr);
+    free(rs);
     farray_destroy(fa);
     config_destroy(&cfg);    
-    
-    printf("Done.\n");
 }
 
 

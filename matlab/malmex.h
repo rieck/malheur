@@ -17,7 +17,7 @@
 /* Malheur-MEX functions */
 void mal_error(char *m, ...);
 mxArray *mal_data_struct(farray_t *fa);
-mxArray *mal_proto_struct(proto_t *p);
+void mal_proto_struct(mxArray *, int, proto_t *p);
 
 /* Helper functions */
 mxArray* mxCreateScalar(double x);

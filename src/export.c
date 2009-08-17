@@ -95,6 +95,8 @@ void export_proto(proto_t *p, farray_t *fa, char *file)
 {
     assert(p && fa && file);
     int i, j, k = 0, n = 0, x = 0;
+    long cws_urls;
+    
     
     if (verbose > 0)
         printf("Exporting prototypes to '%s'.\n", file);
@@ -105,15 +107,17 @@ void export_proto(proto_t *p, farray_t *fa, char *file)
         return;
     }
     
+    /* Get configuration */
+    config_lookup_int(&cfg, "output.cws_urls", &cws_urls);
+    
     /* Write generic */
     fprintf(f, "<html><body>%s<h1>Prototypes</h1>", BODY);
-
     fprintf(f, TABS);
     fprintf(f, TS "Report source:" TM "%s", p->protos->src);    
-    fprintf(f, TS "Number of prototypes:" TM "%lu" TE, p->protos->len);
+    fprintf(f, TS "Number of prototypes:" TM "%lu (%3.1f%%)" TE, 
+            p->protos->len, p->protos->len / (double) fa->len * 100);
     fprintf(f, TS "Number of total reports:" TM "%lu" TE, p->alen);
-    fprintf(f, TS "Compression ratio:" TM "%4.1f%%" TE, 
-            (1.0 - p->protos->len / (double) fa->len) * 100);
+    fprintf(f, TS "Average distance:" TM "%5.3f" TE, p->avg_dist);
     fprintf(f, TABE);
     
     /* Write configuration */
@@ -134,18 +138,21 @@ void export_proto(proto_t *p, farray_t *fa, char *file)
             }
         }
 
-        fprintf(f, "<li><a href='%s'><b>Prototype</b></a> "
-                "(members: %d, label: %s, index: %d)<br>\n", 
-                cwsandbox_url(p->protos->x[i]->src), n, 
-                farray_get_label(p->protos, i), k);
+        fprintf(f, "<li><a href='%s'><b>Prototype</b></a> (members: %d, "
+                "label: %s, index: %d)<br>\n", cws_urls ? 
+                    cwsandbox_url(p->protos->x[i]->src) : 
+                    p->protos->x[i]->src, n, 
+                    farray_get_label(p->protos, i), k);
                
         /* Write list of assignments */
         for (j = 0, x = 0; j < p->alen; j++) {
             if ((p->assign[j] & PA_ASSIGN_MASK) != i)
                 continue;
-                
+            
             fprintf(f, "<a href='%s' style='text-decoration: none;'>", 
-                    cwsandbox_url(fa->x[j]->src));
+                    cws_urls ? cwsandbox_url(fa->x[j]->src) : 
+                    fa->x[j]->src);
+            
             if (x && x == fa->y[j]) 
                 fprintf(f, "&middot;");
             else

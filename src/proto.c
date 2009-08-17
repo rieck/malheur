@@ -29,6 +29,9 @@
 extern int verbose;
 extern config_t cfg;
 
+/* Global variables */
+static long counter = 0;
+
 /**
  * Creates an empty structure of prototypes
  * @param a Array of feature vectors
@@ -60,26 +63,25 @@ static proto_t *proto_create(farray_t *fa, int n)
     return p;
 }
 
+
 /**
  * Extracts a set of prototypes using the quantile prototype algorithm.
- * @param a Array of feature vectors
+ * @param fa Array of feature vectors
+ * @param r Ratio of prototypes
+ * @param o Outliers ratio
+ * @param m Minimum distance
+ * @param z Number of repeats
  * @return Prototypes
  */
-proto_t *proto_extract(farray_t *fa) 
+static proto_t *proto_run(farray_t *fa, double r, double o, double m, double z) 
 {
     assert(fa);
     int i, j, k, p, n;
-    double ratio, outl, mdist;
     double *ds, *di;
 
-    /* Get configuration */    
-    config_lookup_float(&cfg, "prototypes.ratio", (double *) &ratio);
-    config_lookup_float(&cfg, "prototypes.outliers", (double *) &outl);
-    config_lookup_float(&cfg, "prototypes.min_dist", (double *) &mdist);
-
     /* Compute discrete numbers of prototypes and inliers */
-    n = check_range(round(ratio * fa->len), 1, fa->len);
-    p = check_range(round((1 - outl) * fa->len), 0, fa->len - 1);
+    n = check_range(round(r * fa->len), 1, fa->len);
+    p = check_range(round((1 - o) * (fa->len - 1)), 0, fa->len - 1);
 
     /* Allocate prototype structure and distance arrays */
     proto_t *pr = proto_create(fa, n);
@@ -93,10 +95,6 @@ proto_t *proto_extract(farray_t *fa)
     /* Init distances to maximum value */
     for (i = 0; i < fa->len; i++)
         di[i] = DBL_MAX;    
-    
-    if (verbose > 0)
-        printf("Extracting %d prototypes (%.1f%%) from feature vectors with"
-               " %1.0f%% outliers.\n", n, 100 * ratio, outl * 100);
 
     for (i = 0; i < n; i++) {
         if (i == 0) {
@@ -110,7 +108,7 @@ proto_t *proto_extract(farray_t *fa)
         }
         
         /* Check for minimum distance between prototypes */
-        if (di[j] < mdist)
+        if (di[j] < m)
             break;
 
         /* Add prototype */
@@ -118,7 +116,7 @@ proto_t *proto_extract(farray_t *fa)
         farray_add(pr->protos, pv, farray_get_label(fa, j));
 
         /* Update distances and assignments */
-        #pragma omp parallel for shared(fa, pv, p)        
+        #pragma omp parallel for shared(fa, pv, p)
         for (k = 0; k < fa->len; k++) {
             double d = sqrt(2 - 2 * fvec_dot(pv, fa->x[k]));
             if (d < di[k]) {
@@ -131,10 +129,19 @@ proto_t *proto_extract(farray_t *fa)
                 pr->assign[k] = i | PA_PROTO_MASK;
                 di[k] = 0;
             }
-        }        
-        if (verbose > 0)
-            prog_bar(0, n - 1, i);
+        } 
+        
+        #pragma omp critical (counter)
+        {
+            counter++;
+            if (verbose) 
+                prog_bar(0, n * z, counter);
+        }
     }
+    
+    /* Compute average distance */
+    for (k = 0, pr->avg_dist = 0; k < fa->len; k++)
+        pr->avg_dist += di[k] / fa->len;
         
     /* Free memory */
     free(ds); 
@@ -142,6 +149,55 @@ proto_t *proto_extract(farray_t *fa)
         
     return pr;
 } 
+
+
+/**
+ * Extracts a set of prototypes using the quantile prototype algorithm.
+ * @param a Array of feature vectors
+ * @return Prototypes
+ */
+proto_t *proto_extract(farray_t *fa) 
+{
+    assert(fa);
+    long i, repeats;
+    double ratio, outliers, mindist;
+    proto_t **p, *pr;
+
+    /* Get configuration */    
+    config_lookup_float(&cfg, "prototypes.ratio", (double *) &ratio);
+    config_lookup_float(&cfg, "prototypes.outliers", (double *) &outliers);
+    config_lookup_float(&cfg, "prototypes.min_dist", (double *) &mindist);
+    config_lookup_int(&cfg, "prototypes.repeats", (long *) &repeats);
+
+    /* Allocate multiple prototype structures */
+    p = malloc(repeats * sizeof(proto_t *));
+
+    if (verbose > 0) {
+        int n = check_range(round(ratio * fa->len), 1, fa->len);
+        printf("Extracting %d prototypes (%3.1f%%) with %1.0f%% outliers "
+               "and %ld repeats.\n", n, 100 * ratio, outliers * 100, repeats);
+    }
+    
+    counter = 0;
+    
+    #pragma omp parallel for shared(p)
+    for (i = 0; i < repeats; i++)
+        p[i] = proto_run(fa, ratio, outliers, mindist, repeats);
+
+    /* Determine best prototypes */
+    for (i = 1; i < repeats; i++) {
+        if (p[0]->avg_dist > p[i]->avg_dist) {
+            proto_destroy(p[0]);
+            p[0] = p[i];
+        } else {
+            proto_destroy(p[i]);
+        }
+    }
+    pr = p[0];
+    free(p);
+    
+    return pr;
+}
 
 /**
  * Destroys a structure containing prototypes and frees its memory. 
@@ -169,8 +225,8 @@ void proto_print(proto_t *p)
     double mem = (p->protos->mem + sizeof(p->protos) + 
                   p->alen * sizeof(uint32_t)) / 1e6;
 
-    printf("prototypes\n  len: %lu, assign: %lu, mem: %.2fMb \n", 
-           p->protos->len, p->alen, mem);
+    printf("prototypes\n  len: %lu, assign: %lu, avg_dist: %f, mem: %.2fMb \n", 
+           p->protos->len, p->alen, p->avg_dist, mem);
     
     farray_print(p->protos);
 } 
@@ -185,7 +241,7 @@ void proto_save(proto_t *p, gzFile *z)
     assert(p && z);
     int i;
 
-    gzprintf(z, "prototypes: alen=%lu\n", p->alen);            
+    gzprintf(z, "prototypes: alen=%lu, avg_dist=%g\n", p->alen, p->avg_dist);            
     for (i = 0; i < p->alen; i++)
         gzprintf(z, "  %u\n", p->assign[i]);
         
@@ -201,6 +257,7 @@ proto_t *proto_load(gzFile *z)
 {
     char buf[512];
     unsigned long alen;
+    double f;
     int i, r;
     
     /* Allocate prototype structure */
@@ -211,8 +268,8 @@ proto_t *proto_load(gzFile *z)
     }
 
     gzgets(z, buf, 512);
-    r = sscanf(buf, "prototypes: alen=%lu\n", &alen); 
-    if (r != 1)  {
+    r = sscanf(buf, "prototypes: alen=%lu, avg_dist=%lg\n", &alen, &f); 
+    if (r != 2)  {
         error("Could not parse prototypes");
         proto_destroy(p);
         return NULL;
@@ -220,6 +277,7 @@ proto_t *proto_load(gzFile *z)
 
     p->assign = calloc(alen, sizeof(uint32_t));
     p->alen = alen;    
+    p->avg_dist = f;
     if (!p->assign) {
         error("Could not allocate prototype assignments");
         proto_destroy(p);

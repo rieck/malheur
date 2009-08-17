@@ -31,6 +31,7 @@ typedef struct {
     farray_t *protos;          /* Array of prototype vectors */
     uint32_t *assign;          /* Assignments of prototypes */
     unsigned long alen;        /* Length of assign arrays */
+    double avg_dist;           /* Average distance to prototypes */
 } proto_t;
 
 /* Function declarations */

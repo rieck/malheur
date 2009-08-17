@@ -20,18 +20,21 @@ extern int verbose;
 
 /* Default configuration */
 static config_default_t defaults[] = {
-    {"input",       "format",          0,  NAN, "raw"},
-    {"input",       "mist_level",      2,  NAN, NULL},
-    {"input",       "mist_rlen",       0,  NAN, NULL},
-    {"input",       "mist_tlen",       0,  NAN, NULL},
+    {"input",       "format",          0,   NAN, "raw"},
+    {"input",       "mist_level",      2,   NAN, NULL},
+    {"input",       "mist_rlen",       0,   NAN, NULL},
+    {"input",       "mist_tlen",       0,   NAN, NULL},
     
-    {"features",    "ngram_len",       3,  NAN, NULL},
-    {"features",    "ngram_delim",     0,  NAN, "%20%0a%0d"},
-    {"features",    "vect_embed",      0,  NAN, "bin"},
-    {"features",    "vect_norm",       0,  NAN, "l2"},
+    {"output",      "cws_urls",        1,   NAN, NULL},
+    
+    {"features",    "ngram_len",       3,   NAN, NULL},
+    {"features",    "ngram_delim",     0,   NAN, "%20%0a%0d"},
+    {"features",    "vect_embed",      0,   NAN, "bin"},
+    {"features",    "vect_norm",       0,   NAN, "l2"},
     
     {"prototypes",  "ratio",           0, 0.010, NULL},
     {"prototypes",  "outliers",        0, 0.010, NULL},
+    {"prototypes",  "repeats",         5,   NAN, NULL},
     {"prototypes",  "min_dist",        0, 0.141, NULL},
 
     {NULL, NULL, 0, 0, NULL}
@@ -65,7 +68,7 @@ static void config_setting_fprint(FILE *f, config_setting_t *cs, int depth)
         fprintf(f, "%s\t= \"%s\";\n", n, config_setting_get_string(cs));
         break;
     case CONFIG_TYPE_FLOAT:
-        fprintf(f, "%s\t= %8.5f;\n", n, config_setting_get_float(cs));
+        fprintf(f, "%s\t= %7.5f;\n", n, config_setting_get_float(cs));
         break;
     case CONFIG_TYPE_INT:
         fprintf(f, "%s\t= %ld;\n", n, config_setting_get_int(cs));

@@ -6,8 +6,10 @@
 #
 
 INCLUDES             = @INCLUDES@ -I$(top_srcdir)/src 
-TESTS                = test_ftable test_fvec test_farray test_fmath
-noinst_PROGRAMS	     = test_ftable test_fvec test_farray test_fmath
+TESTS                = test_ftable test_fvec test_farray test_fmath \
+		       test_eval
+noinst_PROGRAMS	     = test_ftable test_fvec test_farray test_fmath \
+		       test_eval
 
 test_ftable_SOURCES  = test_ftable.c tests.c tests.h
 test_ftable_LDADD    = $(top_builddir)/src/libmalheur.a
@@ -20,3 +22,7 @@ test_fvec_LDADD      = $(top_builddir)/src/libmalheur.a
 
 test_farray_SOURCES  = test_farray.c tests.c tests.h
 test_farray_LDADD    = $(top_builddir)/src/libmalheur.a
+
+test_eval_SOURCES    = test_eval.c tests.c tests.h
+test_eval_LDADD	     = $(top_builddir)/src/libmalheur.a
+

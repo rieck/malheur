@@ -25,6 +25,22 @@ static char pb_string[PROGBAR_LEN + 1];
 static double pb_start = 0;
 
 /**
+ * Compares two index structures.
+ * @param x Index structure x
+ * @param y Index structure y
+ * @return comparison using internal function (cmp)
+ */
+int cmp_index(const void *x, const void *y) 
+{
+    index_t *xi = (index_t *) x;
+    index_t *yi = (index_t *) y;
+    
+    assert(xi->cmp == yi->cmp);
+    
+    return xi->cmp(xi->ptr, yi->ptr);
+}
+
+/**
  * Compares two features values (hashs)
  * @param x feature X
  * @param y feature Y
@@ -52,6 +68,58 @@ int cmp_double(const void *x, const void *y)
     if (*((double *) x) < *((double *) y))
         return -1;
     return 0;
+}
+
+/**
+ * Compares two unsigned integer values
+ * @param x double X
+ * @param y double Y
+ * @return result as a signed integer
+ */
+int cmp_uint(const void *x, const void *y)
+{
+    if (*((unsigned int *) x) > *((unsigned int *) y))
+        return +1;
+    if (*((unsigned int *) x) < *((unsigned int *) y))
+        return -1;
+    return 0;
+}
+
+/*
+ * Sorts the provided array and also returns an array of corresponding
+ * indices. The array's memory need to be free'd.
+ * @param b Pointer to array
+ * @param n Number of elements
+ * @param w Size of each element
+ * @param c Comparison function
+ * @return array of indices according to sorting
+ */
+int *qsort_idx(void *b, size_t n, size_t w, int (*c)(const void *, const void *))
+{
+    int i;
+    index_t *x = malloc(sizeof(index_t) * n);
+    int *y = malloc(sizeof(int) * n);
+    if (!x || !y) {
+        error("Could not allocate memory for sorting");
+        return NULL;
+    }
+    
+    /* Prepare new array */
+    for (i = 0; i < n; i++) {
+        x[i].idx = i;
+        x[i].ptr = ((char *) b) + i * w;
+        x[i].cmp = c;
+    }
+    
+    /* Sort new array */
+    qsort(x, n, sizeof(index_t), cmp_index);
+    
+    /* Copy sorted indices */
+    for (i = 0; i < n; i++)
+        y[i] = x[i].idx;
+    free(x);
+
+    return y;    
 }
 
 /**

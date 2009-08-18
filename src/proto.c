@@ -153,7 +153,9 @@ static proto_t *proto_run(farray_t *fa, double r, double o, double m, double z)
 
 /**
  * Extracts a set of prototypes using the quantile prototype algorithm.
- * @param a Array of feature vectors
+ * Quantile prototype algorithm is run multiple times and the best set
+ * of prototypes is returned.
+ * @param fa Array of feature vectors
  * @return Prototypes
  */
 proto_t *proto_extract(farray_t *fa) 

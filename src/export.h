@@ -32,7 +32,7 @@
 #define TABE    "</table>\n"
 
 /* URL template for cwsandbox.org */
-#define CWS_URL   "https://pcert.cwsandbox.org/?page=analysis&format=xml"
+#define CWS_URL   "https://cwsandbox.org/?site=1&page=report&format=xml"
 
 /* I/O functions */
 void export_proto(proto_t *p, farray_t *fa, char *file);

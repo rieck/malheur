@@ -39,4 +39,4 @@ void export_proto(proto_t *p, farray_t *fa, char *file);
 void export_kernel(double *d, farray_t *f, char *file);
 
 
-#endif                          /* STRIO_H */
+#endif                          /* EXPORT_H */

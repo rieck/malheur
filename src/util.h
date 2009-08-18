@@ -36,6 +36,13 @@
 #define warning(...)   {err_msg("Warning", __func__, __VA_ARGS__);} 
 #endif
 
+/* Structure for comparing data with indices */
+typedef struct {
+    void *ptr;  /* Pointer to original data */
+    int idx;    /* Index number */
+    int (*cmp)(const void *, const void *);
+} index_t;
+ 
 /* Utility functions functions */
 void err_msg(char *, const char *, char *, ...);
 void prog_bar(double, double, double);
@@ -48,8 +55,11 @@ void list_dir_entries(char *dir, int *, int *);
 void list_arc_entries(char *arc, int *, int *);
 
 /* Comparison function */
+int *qsort_idx(void *b, size_t n, size_t w, int (*c)(const void *, const void *));
 int cmp_feat(const void *, const void *);
 int cmp_double(const void *, const void *);
+int cmp_uint(const void *, const void *);
+int cmp_index(const void *, const void *);
 
 /* Missing math functions */
 #ifndef HAVE_FUNC_ROUND

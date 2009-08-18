@@ -160,6 +160,7 @@ void prog_bar(double min, double max, double in)
 
 #ifdef DEBUG
     /* Skip progress bars when debugging */
+    return;
 #endif
 
     perc = (in - min) / (max - min);

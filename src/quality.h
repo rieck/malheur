@@ -11,17 +11,17 @@
  * --
  */
 
-#ifndef EVAL_H
-#define EVAL_H
+#ifndef QUALITY_H
+#define QUALITY_H
 
 #include "uthash.h"
 
 /* Definitions of quality measures */
-#define E_PRECISION     0       /* Precision */
-#define E_RECALL        1       /* Recall */
-#define E_FMEASURE      2       /* F-measure */
-#define E_RAND          3       /* Rand index */
-#define E_ARAND         4       /* Adjusted rand */
+#define Q_PRECISION     0       /* Precision */
+#define Q_RECALL        1       /* Recall */
+#define Q_FMEASURE      2       /* F-measure */
+#define Q_RAND          3       /* Rand index */
+#define Q_ARAND         4       /* Adjusted rand */
 
 /* Assignment to each true label */
 typedef struct {
@@ -42,6 +42,6 @@ typedef struct {
 hist_t *hist_create(unsigned int *, unsigned int *, int);
 void hist_print(hist_t *);
 void hist_destroy(hist_t *);
-double *eval_quality(unsigned int *, unsigned int *, int );
+double *quality(unsigned int *, unsigned int *, int );
 
 #endif                          /* EVAL_H */

@@ -11,7 +11,7 @@
  */
  
 #include "tests.h"
-#include "eval.h"
+#include "quality.h"
 
 /* Global variables */
 int verbose = 0;
@@ -24,7 +24,7 @@ typedef struct {
     double e[5];            /* Quality measures */
 } test_t;
 
-/* Evaluation test cases */
+/* Quality test cases */
 test_t tests[] = {
     {{0,0,1,1}, {1,1,2,2},  {1.0000,  1.0000,  1.0000,  1.0000,  1.0000}},
     {{0,0,0,0}, {1,1,3,3},  {1.0000,  0.5000,  0.6667,  0.5000,  0.0000}},
@@ -35,16 +35,16 @@ test_t tests[] = {
 };
 
 /**
- * Test the generic evaluation function
+ * Test the generic quality function
  */
-int test_eval()
+int test_quality()
 {
     int i, j, err = 0;
     double *e;
 
-    test_printf("Computing evaluation measures"); 
+    test_printf("Computing quality measures"); 
     for (i = 0; tests[i].e[0] > -1; i++) {
-        e = eval_quality(tests[i].y, tests[i].a, 4);
+        e = quality(tests[i].y, tests[i].a, 4);
         for (j = 0; j < 5; j++)
             err += fabs(tests[i].e[j] - e[j]) > 1e-3;     
     }
@@ -60,7 +60,7 @@ int main(int argc, char **argv)
 {
     int err = FALSE;
     
-    err |= test_eval(); 
+    err |= test_quality(); 
 
     config_destroy(&cfg);
     return err;

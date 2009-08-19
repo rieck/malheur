@@ -25,7 +25,7 @@
 #include "util.h"
 #include "export.h"
 #include "mconfig.h"
-#include "eval.h"
+#include "quality.h"
 
 /* External variables */
 extern int verbose;
@@ -110,11 +110,9 @@ void export_proto(proto_t *p, farray_t *fa, char *file)
     /* Get configuration */
     config_lookup_int(&cfg, "output.cws_urls", &cws_urls);
     
-    /* Sort labels */
+    /* Sort labels and compute quality */
     int *idx = qsort_idx(fa->y, fa->len, sizeof(unsigned int), cmp_uint);
-
-    /* Compute quality */
-    double *e = eval_quality(fa->y, p->assign, fa->len);
+    double *e = quality(fa->y, p->assign, fa->len);
         
     /* Write generic */
     fprintf(f, "<html><body>%s<h1>Prototypes</h1>", BODY);
@@ -124,7 +122,7 @@ void export_proto(proto_t *p, farray_t *fa, char *file)
     fprintf(f, TS "Number of total reports:" TM "%lu" TE, p->alen);
     fprintf(f, TS "Report source:" TM "%s", p->protos->src);    
     fprintf(f, TS "Average distance:" TM "%7.5f" TE, p->avg_dist);
-    fprintf(f, TS "Precision:" TM "%7.5f" TE, e[E_PRECISION]);
+    fprintf(f, TS "Precision of labels:" TM "%7.5f" TE, e[Q_PRECISION]);
     fprintf(f, TABE);
      
     /* Write configuration */

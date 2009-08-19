@@ -14,12 +14,11 @@
 #ifndef PROTO_H
 #define PROTO_H
 
-#include <stdint.h>
 #include "farray.h"
 
 /* Mask for assignments of prototypes */
 #define PA_ASSIGN_MASK       0x7FFFFFFF
-#define PA_PROTO_MASK        0x80000000
+#define PA_PROTO_MASK        ~PA_ASSIGN_MASK
 
 /**
  * Prototype structure. The 'protos' field holds the feature vectors
@@ -29,7 +28,7 @@
  */
 typedef struct {
     farray_t *protos;          /* Array of prototype vectors */
-    uint32_t *assign;          /* Assignments of prototypes */
+    unsigned int *assign;      /* Assignments of prototypes */
     unsigned long alen;        /* Length of assign arrays */
     double avg_dist;           /* Average distance to prototypes */
 } proto_t;

@@ -16,24 +16,32 @@
 
 #include "uthash.h"
 
-#if 0
-typedef struct {
-    int num;            /* Number */
-    double count;       /* Occurences of number */
-    UT_hash_handle hh;  /* Hash table entry */
-} num_t ;
+/* Definitions of quality measures */
+#define E_PRECISION     0       /* Precision */
+#define E_RECALL        1       /* Recall */
+#define E_FMEASURE      2       /* F-measure */
+#define E_RAND          3       /* Rand index */
+#define E_ARAND         4       /* Adjusted rand */
 
+/* Assignment to each true label */
 typedef struct {
-    int label;          /* Label of class */
-    double total;       /* Number of elements */
-    num_t *index;       /* Indices of class */
+    unsigned int label; /* Predicted label */
+    double count;       /* Occurences of label */
     UT_hash_handle hh;  /* Hash table entry */
+} assign_t;
+
+/* Histogram bin for each true label */
+typedef struct {
+    unsigned int label;     /* Label */
+    double total;           /* Number of elements */
+    assign_t *assign;       /* Assignments  */
+    UT_hash_handle hh;      /* Hash table entry */
 } hist_t;
 
-hist_t *hist_create(int *, int *, int);
+/* Evaluation functions */
+hist_t *hist_create(unsigned int *, unsigned int *, int);
 void hist_print(hist_t *);
 void hist_destroy(hist_t *);
-#endif
-
+double *eval_quality(unsigned int *, unsigned int *, int );
 
 #endif                          /* EVAL_H */

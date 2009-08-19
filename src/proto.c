@@ -51,7 +51,7 @@ static proto_t *proto_create(farray_t *fa, int n)
 
     /* Allocate structure fields */
     p->protos = farray_create(fa->src);
-    p->assign = calloc(fa->len, sizeof(uint32_t));
+    p->assign = calloc(fa->len, sizeof(unsigned int));
     p->alen = fa->len;
     
     if (!p->protos || !p->assign) {
@@ -225,7 +225,7 @@ void proto_print(proto_t *p)
     assert(p);
 
     double mem = (p->protos->mem + sizeof(p->protos) + 
-                  p->alen * sizeof(uint32_t)) / 1e6;
+                  p->alen * sizeof(unsigned int)) / 1e6;
 
     printf("prototypes\n  len: %lu, assign: %lu, avg_dist: %f, mem: %.2fMb \n", 
            p->protos->len, p->alen, p->avg_dist, mem);
@@ -277,7 +277,7 @@ proto_t *proto_load(gzFile *z)
         return NULL;
     }
 
-    p->assign = calloc(alen, sizeof(uint32_t));
+    p->assign = calloc(alen, sizeof(unsigned int));
     p->alen = alen;    
     p->avg_dist = f;
     if (!p->assign) {

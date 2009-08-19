@@ -12,8 +12,8 @@
  */
 
 /**
- * @defgroup data Generic evaluation functions
- * The module contains functions for evaluation the performance of 
+ * @defgroup data Generic quality evaluation functions
+ * The module contains functions for evaluating the quality of 
  * classification and clustering methods.
  * @author Konrad Rieck (rieck@cs.tu-berlin.de)
  * @{
@@ -21,7 +21,7 @@
 
 #include "config.h"
 #include "common.h"
-#include "eval.h"
+#include "quality.h"
 #include "util.h"
 
 /* External variables */
@@ -29,14 +29,14 @@ extern int verbose;
 extern config_t cfg;
 
 /**
- * Computes the precisions, recall and f-measure of a label assignment. 
+ * Computes quality measures for the label assignment. 
  * The function returns a static array. The code is not thread-safe.
  * @param y Labels of data points
  * @param a Assignments to clusters or classes
  * @param n Number of data points
  * @return array with quality values
  */
-double *eval_quality(unsigned int *y, unsigned int *a, int n)
+double *quality(unsigned int *y, unsigned int *a, int n)
 {
     assert(y && a && n > 0);
     static double r[5];
@@ -54,7 +54,7 @@ double *eval_quality(unsigned int *y, unsigned int *a, int n)
         ac += mn;
     }
     hist_destroy(h);
-    r[E_PRECISION] = ac / n;
+    r[Q_PRECISION] = ac / n;
 
     /* Compute recall. This is again ugly code. */
     h = hist_create(y, a, n);
@@ -65,11 +65,11 @@ double *eval_quality(unsigned int *y, unsigned int *a, int n)
         ac += mn;
     }
     hist_destroy(h);
-    r[E_RECALL] = ac / n ;
+    r[Q_RECALL] = ac / n ;
     
     /* Compute f-measure */
-    r[E_FMEASURE] = (2 * r[E_RECALL] * r[E_PRECISION]) / 
-                    (r[E_RECALL] + r[E_PRECISION]);
+    r[Q_FMEASURE] = (2 * r[Q_RECALL] * r[Q_PRECISION]) / 
+                    (r[Q_RECALL] + r[Q_PRECISION]);
     
     /* Compute similarity coefficients */
     ac = bc = cc = dc = 0;
@@ -81,8 +81,8 @@ double *eval_quality(unsigned int *y, unsigned int *a, int n)
             dc += (a[i] == a[j] && y[i] != y[j]) ? 1 : 0;
         }
     }
-    r[E_RAND] = (ac + bc) / (ac + bc + cc + dc);
-    r[E_ARAND] = 2 * (ac * bc - cc * dc) / 
+    r[Q_RAND] = (ac + bc) / (ac + bc + cc + dc);
+    r[Q_ARAND] = 2 * (ac * bc - cc * dc) / 
                  ((ac + dc) * (dc + bc) + (ac + cc) * (cc + bc));
     
     return r;
@@ -143,7 +143,6 @@ hist_t *hist_create(unsigned int *y, unsigned int *a, int n)
     return hist;
 }
 
-
 /**
  * Prints the contents of a histogram for labels
  * @param h histogram struct
@@ -188,10 +187,6 @@ void hist_destroy(hist_t *h)
         free(hi);            
     }
 }
-
-/**
- *
- */
 
 /** @} */
  

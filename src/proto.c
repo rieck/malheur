@@ -104,6 +104,11 @@ static proto_t *proto_run(farray_t *fa, double r, double o, double m, double z)
             /* Select p-quantile prototype */
             memcpy(ds, di, fa->len * sizeof(double));
             qsort(ds, fa->len, sizeof(double), cmp_double);
+            
+            /* Skip over zero distances */
+            for (; ds[p] == 0 && p < n; p++); 
+            
+            /* Determine index in original distances */
             for (j = 0; j < fa->len && di[j] != ds[p]; j++);            
         }
         

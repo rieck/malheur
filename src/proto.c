@@ -67,21 +67,22 @@ static proto_t *proto_create(farray_t *fa, int n)
 /**
  * Extracts a set of prototypes using the quantile prototype algorithm.
  * @param fa Array of feature vectors
- * @param r Ratio of prototypes
+ * @param n Maximum number of outliers
  * @param o Outliers ratio
  * @param m Minimum distance
  * @param z Number of repeats
  * @return Prototypes
  */
-static proto_t *proto_run(farray_t *fa, double r, double o, double m, double z) 
+static proto_t *proto_run(farray_t *fa, long n, double o, double m, double z) 
 {
     assert(fa);
-    int i, j, k, p, n;
+    int i, j, k, p;
     double *ds, *di;
 
     /* Compute discrete numbers of prototypes and inliers */
-    n = check_range(round(r * fa->len), 1, fa->len);
     p = check_range(round((1 - o) * (fa->len - 1)), 0, fa->len - 1);
+    if (n == 0)
+        n = fa->len;
 
     /* Allocate prototype structure and distance arrays */
     proto_t *pr = proto_create(fa, n);
@@ -106,7 +107,7 @@ static proto_t *proto_run(farray_t *fa, double r, double o, double m, double z)
             qsort(ds, fa->len, sizeof(double), cmp_double);
             
             /* Skip over zero distances */
-            for (; ds[p] == 0 && p < n; p++); 
+            for (; ds[p] == 0 && p < fa->len; p++); 
             
             /* Determine index in original distances */
             for (j = 0; j < fa->len && di[j] != ds[p]; j++);            
@@ -166,30 +167,30 @@ static proto_t *proto_run(farray_t *fa, double r, double o, double m, double z)
 proto_t *proto_extract(farray_t *fa) 
 {
     assert(fa);
-    long i, repeats;
-    double ratio, outliers, mindist;
+    long i, repeats, maxnum;
+    double outliers, maxdist;
     proto_t **p, *pr;
 
     /* Get configuration */    
-    config_lookup_float(&cfg, "prototypes.ratio", (double *) &ratio);
     config_lookup_float(&cfg, "prototypes.outliers", (double *) &outliers);
-    config_lookup_float(&cfg, "prototypes.min_dist", (double *) &mindist);
+    config_lookup_float(&cfg, "prototypes.max_dist", (double *) &maxdist);
     config_lookup_int(&cfg, "prototypes.repeats", (long *) &repeats);
+    config_lookup_int(&cfg, "prototypes.max_num", (long *) &maxnum);
 
     /* Allocate multiple prototype structures */
     p = malloc(repeats * sizeof(proto_t *));
-
-    if (verbose > 0) {
-        int n = check_range(round(ratio * fa->len), 1, fa->len);
-        printf("Extracting %d prototypes (%3.1f%%) with %1.0f%% outliers "
-               "and %ld repeats.\n", n, 100 * ratio, outliers * 100, repeats);
-    }
+    if (verbose > 0) 
+        printf("Extracting prototypes with %1.0f%% outliers "
+               "and %ld repeats.\n", outliers * 100, repeats);
     
     counter = 0;
     
     #pragma omp parallel for shared(p)
     for (i = 0; i < repeats; i++)
-        p[i] = proto_run(fa, ratio, outliers, mindist, repeats);
+        p[i] = proto_run(fa, maxnum, outliers, maxdist, repeats);
+
+    if (verbose) 
+       prog_bar(0, 1, 1);
 
     /* Determine best prototypes */
     for (i = 1; i < repeats; i++) {
@@ -200,6 +201,7 @@ proto_t *proto_extract(farray_t *fa)
             proto_destroy(p[i]);
         }
     }
+    
     pr = p[0];
     free(p);
     

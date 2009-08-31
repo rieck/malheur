@@ -32,9 +32,9 @@ static config_default_t defaults[] = {
     {"features",    "vect_embed",      0,   NAN, "bin"},
     {"features",    "vect_norm",       0,   NAN, "l2"},
     
-    {"prototypes",  "max_dist",        0, 0.5, NULL},
+    {"prototypes",  "max_dist",        0,   0.5, NULL},
     {"prototypes",  "max_num",         0,   NAN, NULL},
-    {"prototypes",  "outliers",        0, 0.010, NULL},
+    {"prototypes",  "outliers",        0,   0.010, NULL},
     {"prototypes",  "repeats",         5,   NAN, NULL},
 
     {NULL, NULL, 0, 0, NULL}

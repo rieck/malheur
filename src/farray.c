@@ -247,6 +247,7 @@ farray_t *farray_extract_archive(char *arc)
         if (fv->len == 0) {
             warning("Discarding empty feature vector for '%s'", l);
             fvec_destroy(fv);
+            fnum--;
             continue;
         }
         
@@ -324,6 +325,7 @@ farray_t *farray_extract_dir(char *dir)
         if (fv->len == 0) {
             warning("Discarding empty feature vector for '%s'", dp->d_name);
             fvec_destroy(fv);
+            fnum--;
             continue;
         }
 

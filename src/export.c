@@ -95,7 +95,7 @@ static char *cwsandbox_url(char *f)
 void export_proto(proto_t *p, farray_t *fa, char *file)
 {
     assert(p && fa && file);
-    int i, j, k = 0, n = 0, x = 0;
+    int i, j, x = 0, *lidx, *pidx, *cnt;
     long cws_urls;
     FILE *f;
         
@@ -111,8 +111,17 @@ void export_proto(proto_t *p, farray_t *fa, char *file)
     config_lookup_int(&cfg, "output.cws_urls", &cws_urls);
     
     /* Sort labels and compute quality */
-    int *idx = qsort_idx(fa->y, fa->len, sizeof(unsigned int), cmp_uint);
+    lidx = qsort_idx(fa->y, fa->len, sizeof(unsigned int), cmp_uint);
     double *e = quality(fa->y, p->assign, fa->len);
+        
+    /* Sort prototypes by members */
+    cnt = calloc(p->protos->len, sizeof(unsigned int));
+    for (i = 0; i < p->protos->len; i++) 
+        for (j = 0; j < p->alen; j++) 
+            if ((p->assign[j] & PA_ASSIGN_MASK) == i) 
+                cnt[i]--;
+    pidx = qsort_idx(cnt, p->protos->len, sizeof(int), cmp_int);        
+
         
     /* Write generic */
     fprintf(f, "<html><body>%s<h1>Prototypes</h1>", BODY);
@@ -133,45 +142,35 @@ void export_proto(proto_t *p, farray_t *fa, char *file)
     /* Write prototypes and assignments */
     fprintf(f, "<h2>Assignments</h2><ol>\n");
     for (i = 0; i < p->protos->len; i++) {
-    
-        /* Count members per prototype and detertmine index */
-        for (j = 0, n = 0; j < p->alen; j++) {
-            if ((p->assign[j] & PA_ASSIGN_MASK) == i) {
-                if ((p->assign[j] & PA_PROTO_MASK) != 0)
-                    k = j;
-                n++;
-            }
-        }
-
-        fprintf(f, "<li><a href='%s'><b>Prototype</b></a> (members: %d, "
-                "label: %s, index: %d)<br>\n", cws_urls ? 
-                cwsandbox_url(p->protos->x[i]->src) : p->protos->x[i]->src, 
-                n, farray_get_label(p->protos, i), k);
+        fprintf(f, "<li><a href='%s'><b>Prototype</b></a> (members: %d)<br>\n", 
+                cws_urls ? cwsandbox_url(p->protos->x[pidx[i]]->src) : 
+                p->protos->x[pidx[i]]->src, -cnt[pidx[i]]);
                
         /* Write list of assignments */
         for (j = 0, x = 0; j < p->alen; j++) {
-            if ((p->assign[idx[j]] & PA_ASSIGN_MASK) != i)
+            if ((p->assign[lidx[j]] & PA_ASSIGN_MASK) != pidx[i])
                 continue;
             
             fprintf(f, "<a href='%s' style='text-decoration: none;'>", 
-                    cws_urls ? cwsandbox_url(fa->x[idx[j]]->src) : 
-                    fa->x[idx[j]]->src);
+                    cws_urls ? cwsandbox_url(fa->x[lidx[j]]->src) : 
+                    fa->x[lidx[j]]->src);
             
             /* Print dots if label is repreated */
-            if (x && x == fa->y[idx[j]]) 
+            if (x && x == fa->y[lidx[j]]) 
                 fprintf(f, "&middot;");
             else
-                fprintf(f, "%s", farray_get_label(fa, idx[j]));
+                fprintf(f, "%s", farray_get_label(fa, lidx[j]));
                 
-            x = fa->y[idx[j]];
+            x = fa->y[lidx[j]];
             fprintf(f, "</a> ");
         }
         fprintf(f, "<br>\n");
     }
     fprintf(f,"</ol></body></html>\n");
     fclose(f);
-    
-    free(idx);
+
+    free(pidx);
+    free(lidx);
 }
 
 /** @} */

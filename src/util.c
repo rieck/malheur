@@ -85,6 +85,21 @@ int cmp_uint(const void *x, const void *y)
     return 0;
 }
 
+/**
+ * Compares two integer values
+ * @param x double X
+ * @param y double Y
+ * @return result as a signed integer
+ */
+int cmp_int(const void *x, const void *y)
+{
+    if (*((int *) x) > *((int *) y))
+        return +1;
+    if (*((int *) x) < *((int *) y))
+        return -1;
+    return 0;
+}
+
 /*
  * Sorts the provided array and also returns an array of corresponding
  * indices. The array's memory need to be free'd.

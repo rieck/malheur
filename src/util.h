@@ -59,6 +59,7 @@ int *qsort_idx(void *b, size_t n, size_t w, int (*c)(const void *, const void *)
 int cmp_feat(const void *, const void *);
 int cmp_double(const void *, const void *);
 int cmp_uint(const void *, const void *);
+int cmp_int(const void *, const void *);
 int cmp_index(const void *, const void *);
 
 /* Missing math functions */

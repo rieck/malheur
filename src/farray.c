@@ -244,6 +244,11 @@ farray_t *farray_extract_archive(char *arc)
         /* Preprocess and extract feature vector*/
         x = fvec_preproc(x);
         fvec_t *fv = fvec_extract(x, strlen(x), l);
+        if (fv->len == 0) {
+            warning("Discarding empty feature vector for '%s'", l);
+            fvec_destroy(fv);
+            continue;
+        }
         
         #pragma omp critical (farray)
         {
@@ -316,6 +321,11 @@ farray_t *farray_extract_dir(char *dir)
         char *raw = load_file(dir, dp->d_name);
         raw = fvec_preproc(raw);
         fvec_t *fv = fvec_extract(raw, strlen(raw), dp->d_name);
+        if (fv->len == 0) {
+            warning("Discarding empty feature vector for '%s'", dp->d_name);
+            fvec_destroy(fv);
+            continue;
+        }
 
         #pragma omp critical (farray)
         {        

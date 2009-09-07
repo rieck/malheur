@@ -68,27 +68,20 @@ static proto_t *proto_create(farray_t *fa, int n)
  * Extracts a set of prototypes using the quantile prototype algorithm.
  * @param fa Array of feature vectors
  * @param n Maximum number of outliers
- * @param o Outliers ratio
  * @param m Minimum distance
  * @param z Number of repeats
  * @return Prototypes
  */
-static proto_t *proto_run(farray_t *fa, long n, double o, double m, double z) 
+static proto_t *proto_run(farray_t *fa, long n, double m, double z) 
 {
     assert(fa);
-    int i, j, k, p;
-    double *ds, *di;
-
-    /* Compute discrete numbers of prototypes and inliers */
-    p = check_range(round((1 - o) * (fa->len - 1)), 0, fa->len - 1);
-    if (n == 0)
-        n = fa->len;
+    int i, j, k;
+    double dm, *di;
 
     /* Allocate prototype structure and distance arrays */
     proto_t *pr = proto_create(fa, n);
-    ds = malloc(fa->len * sizeof(double));
     di = malloc(fa->len * sizeof(double));
-    if (!pr || !ds || !di) {
+    if (!pr || !di) {
         error("Could not allocate memory for prototype extraction");
         return NULL;
     }
@@ -97,20 +90,18 @@ static proto_t *proto_run(farray_t *fa, long n, double o, double m, double z)
     for (i = 0; i < fa->len; i++)
         di[i] = DBL_MAX;    
 
+    /* Loop over feature vectors */
     for (i = 0; i < n; i++) {
         if (i == 0) {
             /* Select random prototype */
             j = rand() % fa->len;
         } else {
-            /* Select p-quantile prototype */
-            memcpy(ds, di, fa->len * sizeof(double));
-            qsort(ds, fa->len, sizeof(double), cmp_double);
-            
-            /* Skip over zero distances */
-            for (; ds[p] == 0 && p < fa->len; p++); 
-            
-            /* Determine index in original distances */
-            for (j = 0; j < fa->len && di[j] != ds[p]; j++);            
+            /* Determine largest distance */
+            for(k = 0, j = 0, dm = 0; k < fa->len; k++)
+                if (dm < di[k]) {
+                    dm = di[k];
+                    j = k;
+                }
         }
         
         /* Check for minimum distance between prototypes */
@@ -122,7 +113,7 @@ static proto_t *proto_run(farray_t *fa, long n, double o, double m, double z)
         farray_add(pr->protos, pv, farray_get_label(fa, j));
 
         /* Update distances and assignments */
-        #pragma omp parallel for shared(fa, pv, p)
+        #pragma omp parallel for shared(fa, pv)
         for (k = 0; k < fa->len; k++) {
             double d = sqrt(2 - 2 * fvec_dot(pv, fa->x[k]));
             if (d < di[k]) {
@@ -150,7 +141,6 @@ static proto_t *proto_run(farray_t *fa, long n, double o, double m, double z)
         pr->avg_dist += di[k] / fa->len;
         
     /* Free memory */
-    free(ds); 
     free(di);
         
     return pr;
@@ -168,11 +158,10 @@ proto_t *proto_extract(farray_t *fa)
 {
     assert(fa);
     long i, repeats, maxnum;
-    double outliers, maxdist;
+    double maxdist;
     proto_t **p, *pr;
 
     /* Get configuration */    
-    config_lookup_float(&cfg, "prototypes.outliers", (double *) &outliers);
     config_lookup_float(&cfg, "prototypes.max_dist", (double *) &maxdist);
     config_lookup_int(&cfg, "prototypes.repeats", (long *) &repeats);
     config_lookup_int(&cfg, "prototypes.max_num", (long *) &maxnum);
@@ -180,14 +169,14 @@ proto_t *proto_extract(farray_t *fa)
     /* Allocate multiple prototype structures */
     p = malloc(repeats * sizeof(proto_t *));
     if (verbose > 0) 
-        printf("Extracting prototypes with %1.0f%% outliers "
-               "and %ld repeats.\n", outliers * 100, repeats);
+        printf("Extracting prototypes with distance %4.2f%%"
+               "and %ld repeats.\n", maxdist, repeats);
     
     counter = 0;
     
     #pragma omp parallel for shared(p)
     for (i = 0; i < repeats; i++)
-        p[i] = proto_run(fa, maxnum, outliers, maxdist, repeats);
+        p[i] = proto_run(fa, maxnum, maxdist, repeats);
 
     if (verbose) 
        prog_bar(0, 1, 1);
@@ -268,7 +257,6 @@ void proto_save_file(proto_t *p, char *f)
 
     if (verbose)
         printf("Saving prototypes to '%s'", f);
-            
     
     /* Open file */
     gzFile *z = gzopen(f, "w9");
@@ -290,7 +278,6 @@ void proto_save_file(proto_t *p, char *f)
 proto_t *proto_load_file(char *f) 
 { 
     assert(f);
-
     if (verbose)
         printf("Loading prototypes from '%s'", f);
     

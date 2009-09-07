@@ -45,7 +45,6 @@ static void extract_ngrams(fvec_t *, char *x, int l, int n);
 static void decode_delim(const char *s);
 static char delim[256] = { DELIM_NOT_INIT };
 
-
 /**
  * Preprocess input format according to configuration. The function takes 
  * a raw string and formats it according to the given configuration. 

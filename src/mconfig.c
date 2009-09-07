@@ -34,32 +34,37 @@ static config_default_t defaults[] = {
     
     {"prototypes",  "max_dist",        0,   0.5, NULL},
     {"prototypes",  "max_num",         0,   NAN, NULL},
-    {"prototypes",  "outliers",        0,   0.010, NULL},
     {"prototypes",  "repeats",         5,   NAN, NULL},
 
     {NULL, NULL, 0, 0, NULL}
 };
 
-static void config_setting_fprint(FILE *f, config_setting_t *cs, int depth)
+/**
+ * Print a configuration setting. 
+ * @param f File stream to print to
+ * @param cs Configuration setting
+ * @param d Current depth.
+ */
+static void config_setting_fprint(FILE *f, config_setting_t *cs, int d)
 {
-    assert(cs && depth >= 0);
+    assert(cs && d >= 0);
 
     int i;
-    for (i = 0; i < depth; i++)
+    for (i = 0; i < d; i++)
         fprintf(f, "  ");
     
     char *n = config_setting_name(cs);
     
     switch(config_setting_type(cs)) {
     case CONFIG_TYPE_GROUP:
-        if (depth > 0)
+        if (d > 0)
             fprintf(f, "%s = {\n", n);
 
         for (i = 0; i < config_setting_length(cs); i++)
-            config_setting_fprint(f, config_setting_get_elem(cs, i), depth + 1); 
+            config_setting_fprint(f, config_setting_get_elem(cs, i), d + 1); 
         
-        if (depth > 0) {
-            for (i = 0; i < depth; i++)
+        if (d > 0) {
+            for (i = 0; i < d; i++)
                 fprintf(f, "  ");
             fprintf(f, "};\n");
         }

@@ -15,7 +15,6 @@
 #define MALHEUR_H
 
 #define CONFIG_FILE "@SYSCONFDIR@/malheur/malheur.cfg"
-#define OUTPUT_FILE "malheur.out"
 
 /* Operation tasks of Malheur  */
 typedef enum {

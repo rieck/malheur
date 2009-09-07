@@ -258,6 +258,57 @@ void proto_save(proto_t *p, gzFile *z)
 }
 
 /**
+ * Saves a structure of prototypes to a file
+ * @param p Prototypes
+ * @param f File name
+ */
+void proto_save_file(proto_t *p, char *f) 
+{ 
+    assert(p && f);
+
+    if (verbose)
+        printf("Saving prototypes to '%s'", f);
+            
+    
+    /* Open file */
+    gzFile *z = gzopen(f, "w9");
+    if (!z) {
+        error("Could not open '%s' for writing", f);
+        return;
+    }
+        
+    /* Save data */
+    proto_save(p, z);
+    gzclose(z);      
+}
+
+/**
+ * Loads a structure of prototypes from a file
+ * @param f File name
+ * @return Prototypes
+ */
+proto_t *proto_load_file(char *f) 
+{ 
+    assert(f);
+
+    if (verbose)
+        printf("Loading prototypes from '%s'", f);
+    
+    /* Open file */
+    gzFile *z = gzopen(f, "r");
+    if (!z) {
+        error("Could not open '%s' for reading", f);
+        return NULL;
+    }
+        
+    /* Save data */
+    proto_t *pr = proto_load(z);
+    gzclose(z);      
+    
+    return pr;
+}
+
+/**
  * Loads a structure of prototype from a file stram
  * @param z Stream pointer
  * @return Prototypes

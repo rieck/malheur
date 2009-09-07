@@ -67,7 +67,7 @@ static proto_t *proto_create(farray_t *fa, int n)
 /**
  * Extracts a set of prototypes using the prototype algorithm.
  * @param fa Array of feature vectors
- * @param n Maximum number of outliers
+ * @param n Maximum number of prototypes
  * @param m Minimum distance
  * @param z Number of repeats
  * @return Prototypes
@@ -77,6 +77,9 @@ static proto_t *proto_run(farray_t *fa, long n, double m, double z)
     assert(fa);
     int i, j, k;
     double dm, *di;
+
+    if (n == 0)
+        n = fa->len;
 
     /* Allocate prototype structure and distance arrays */
     proto_t *pr = proto_create(fa, n);
@@ -169,7 +172,7 @@ proto_t *proto_extract(farray_t *fa)
     /* Allocate multiple prototype structures */
     p = malloc(repeats * sizeof(proto_t *));
     if (verbose > 0) 
-        printf("Extracting prototypes with distance %4.2f%%"
+        printf("Extracting prototypes with maximum distance %4.2f "
                "and %ld repeats.\n", maxdist, repeats);
     
     counter = 0;
@@ -193,6 +196,10 @@ proto_t *proto_extract(farray_t *fa)
     
     pr = p[0];
     free(p);
+    
+    if (verbose > 0)
+        printf("  Done. %ld prototypes with average distance %4.2f "
+               "extracted.\n", pr->protos->len, pr->avg_dist);
     
     return pr;
 }

@@ -256,7 +256,7 @@ void proto_save_file(proto_t *p, char *f)
     assert(p && f);
 
     if (verbose)
-        printf("Saving prototypes to '%s'", f);
+        printf("Saving prototypes to '%s'.\n", f);
     
     /* Open file */
     gzFile *z = gzopen(f, "w9");
@@ -279,7 +279,7 @@ proto_t *proto_load_file(char *f)
 { 
     assert(f);
     if (verbose)
-        printf("Loading prototypes from '%s'", f);
+        printf("Loading prototypes from '%s'.\n", f);
     
     /* Open file */
     gzFile *z = gzopen(f, "r");

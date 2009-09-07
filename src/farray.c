@@ -186,6 +186,10 @@ farray_t *farray_extract(char *path)
     else
         error("Unsupported file type of input '%s'", path);
     
+    if (verbose > 0)
+        printf("  Done. %ld feature vectors using %.2fMb extracted.\n", 
+               fa->len, fa->mem / 1e6);
+    
     return fa;
 }
 

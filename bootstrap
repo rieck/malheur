@@ -20,6 +20,7 @@ case `uname -s` in
 esac
 
 rm -f aclocal.m4
+rm -f m4/lib* m4/lt*
 
 echo "Autotools"
 echo " + aclocal..."     && $ACLOCAL -I m4 && \

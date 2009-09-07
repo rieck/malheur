@@ -37,7 +37,9 @@ typedef struct {
 proto_t *proto_extract(farray_t *);
 void proto_destroy(proto_t *);
 proto_t *proto_load(gzFile *);
+proto_t *proto_load_file(char *);
 void proto_save(proto_t *, gzFile *);
+void proto_save_file(proto_t *, char *);
 void proto_print(proto_t *);
 
 #endif                          /* PROTO_H */

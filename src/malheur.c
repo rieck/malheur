@@ -27,8 +27,9 @@ config_t cfg;
 
 /* Local variables */
 static char *config_file = CONFIG_FILE;
-static char *output_file = OUTPUT_FILE;
-static char *input = NULL;
+static char *result_file = NULL;
+static char *input_file = NULL;
+static char *proto_file = NULL;
 static malheur_task_t task = PROTOTYPE;
 static int lookup_table = FALSE;
 
@@ -41,16 +42,18 @@ void print_usage(int argc, char **argv)
 {
     printf("Usage: malheur [options] <task> <input>\n"
            "Tasks:\n"
-           "  kernel          Compute a kernel matrix from malware reports\n"
-           "  prototype       Extract prototypes from malware reports\n"
-           "  cluster         Cluster malware reports into similar groups\n"
+           "  kernel        Compute a kernel matrix from malware reports\n"
+           "  prototype     Extract prototypes from malware reports\n"
+           "  cluster       Cluster malware reports into similar groups\n"
            "Options:\n"
-           "  -c <file>       Set configuration file.\n"
-           "  -o <file>       Set output file.\n"     
-           "  -l              Enable feature lookup table.\n"
-           "  -v              Increase verbosity.\n"
-           "  -V              Print version and copyright.\n"
-           "  -h              Print this help screen.\n");
+           "  -c <file>     Set configuration file.\n"
+           "  -r <file>     Save analysis results to file.\n"   
+           "  -l <file>     Load feature vectors of prototypes from file.\n"  
+           "  -s <file>     Save feature vectors of prototypes to file.\n"  
+           "  -t            Enable feature lookup table.\n"
+           "  -v            Increase verbosity.\n"
+           "  -V            Print version and copyright.\n"
+           "  -h            Print this help screen.\n");
 }
 
 /**
@@ -71,7 +74,7 @@ void print_version()
 void parse_options(int argc, char **argv)
 {
     int ch;
-    while ((ch = getopt(argc, argv, "lo:c:hvV")) != -1) {
+    while ((ch = getopt(argc, argv, "l:s:tr:c:hvV")) != -1) {
         switch (ch) {
         case 'v':
             verbose++;
@@ -79,10 +82,14 @@ void parse_options(int argc, char **argv)
         case 'c':
             config_file = optarg;
             break;
-        case 'o':
-            output_file = optarg;
+        case 'r':
+            result_file = optarg;
             break;
         case 'l':
+        case 's':
+            proto_file = optarg;
+            break;
+        case 't':
             lookup_table = TRUE;
             break;
         case 'V':
@@ -114,9 +121,25 @@ void parse_options(int argc, char **argv)
         fatal("Unknown analysis task '%s' for Malheur", argv[0]);
 
     /* Argument: Input */
-    input = argv[1];
-    if (access(input, R_OK))
-        fatal("Could not access '%s'", input); 
+    input_file = argv[1];
+    if (access(input_file, R_OK))
+        fatal("Could not access '%s'", input_file); 
+    
+    /* Sanity checks */
+    switch(task) {
+    case PROTOTYPE:
+        if (!proto_file && !result_file)
+            fatal("No output specified. See options '-s' and/or '-r'");
+        break;
+    case KERNEL:
+        if (!result_file)
+            fatal("No output specified. See option '-r'");
+        if (proto_file)
+            warning("Prototypes will not be extracted in this task"); 
+        break;
+    case CLUSTER:
+        break;
+    }
 }
 
 /**
@@ -125,14 +148,19 @@ void parse_options(int argc, char **argv)
 static void malheur_prototype()
 {
     /* Load data */
-    farray_t *fa = farray_extract(input);
+    farray_t *fa = farray_extract(input_file);
     proto_t *pr = proto_extract(fa);
     
     if (verbose > 1)
         proto_print(pr);
 
     /* Export prototypes */
-    export_proto(pr, fa, output_file);
+    if (result_file)
+        export_proto(pr, fa, result_file);
+
+    /* Save prototype vectors */
+    if (proto_file) 
+        proto_save_file(pr, proto_file);
 
     /* Clean up */
     proto_destroy(pr);
@@ -145,7 +173,7 @@ static void malheur_prototype()
 static void malheur_cluster()
 {
     /* Load data */
-    farray_t *fa = farray_extract(input);        
+    farray_t *fa = farray_extract(input_file);        
 
     farray_destroy(fa);        
 }
@@ -156,7 +184,7 @@ static void malheur_cluster()
 static void malheur_kernel()
 {
     /* Load data */
-    farray_t *fa = farray_extract(input);
+    farray_t *fa = farray_extract(input_file);
                 
     /* Compute similarity matrix */
     double *d = malloc(fa->len * fa->len * sizeof(double));
@@ -165,7 +193,7 @@ static void malheur_kernel()
     farray_dot(fa, fa, d);
         
     /* Save kernel matrix */
-    export_kernel(d, fa, output_file);
+    export_kernel(d, fa, result_file);
 
     /* Clean up */
     free(d);

@@ -373,7 +373,7 @@ void farray_print(farray_t *fa)
 }
 
 /**
- * Saves an array of feature vectors to a file stream
+ * Saves an array of feature vectors to a file 
  * @param fa Array of feature vectors
  * @param z Stream pointer
  */

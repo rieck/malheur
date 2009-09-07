@@ -172,7 +172,7 @@ void mex_kernel(MEX_SIGNATURE)
 }
 
 /*
- * Extract features and compute quantile prototypes
+ * Extract features and compute prototypes
  */
 void mex_prototype(MEX_SIGNATURE)
 {

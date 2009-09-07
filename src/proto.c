@@ -65,7 +65,7 @@ static proto_t *proto_create(farray_t *fa, int n)
 
 
 /**
- * Extracts a set of prototypes using the quantile prototype algorithm.
+ * Extracts a set of prototypes using the prototype algorithm.
  * @param fa Array of feature vectors
  * @param n Maximum number of outliers
  * @param m Minimum distance
@@ -148,8 +148,8 @@ static proto_t *proto_run(farray_t *fa, long n, double m, double z)
 
 
 /**
- * Extracts a set of prototypes using the quantile prototype algorithm.
- * Quantile prototype algorithm is run multiple times and the best set
+ * Extracts a set of prototypes using the prototype algorithm.
+ * Prototype algorithm is run multiple times and the best set
  * of prototypes is returned.
  * @param fa Array of feature vectors
  * @return Prototypes

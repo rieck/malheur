@@ -43,7 +43,7 @@ void print_usage(int argc, char **argv)
 {
     printf("Usage: malheur [options] <task> <input>\n"
            "Tasks:\n"
-           "  distances     Compute a distance matrix from malware reports\n"
+           "  distance      Compute a distance matrix from malware reports\n"
            "  prototype     Extract prototypes from malware reports\n"
            "  cluster       Cluster malware reports into similar groups\n"
            "Options:\n"
@@ -116,8 +116,8 @@ void parse_options(int argc, char **argv)
     /* Argument: Task */
     if (!strcasecmp(argv[0], "prototype"))
         task = PROTOTYPE;
-    else if (!strcasecmp(argv[0], "distances"))
-        task = DISTANCES;
+    else if (!strcasecmp(argv[0], "distance"))
+        task = DISTANCE;
     else if (!strcasecmp(argv[0], "cluster"))
         task = CLUSTER;
     else
@@ -176,7 +176,7 @@ static void malheur_cluster()
 /**
  * Computes a distance matrix and saves the result to a file
  */
-static void malheur_distances()
+static void malheur_distance()
 {
     /* Load data */
     farray_t *fa = farray_extract(input_file);
@@ -191,9 +191,9 @@ static void malheur_distances()
     
     /* Save distance matrix */
     if (html_output)
-        export_distances_html(d, fa, output_file);
+        export_distance_html(d, fa, output_file);
     else
-        export_distances_text(d, fa, output_file);
+        export_distance_text(d, fa, output_file);
     
     /* Clean up */
     free(d);
@@ -250,8 +250,8 @@ int main(int argc, char **argv)
     
     /* Perform task */
     switch (task) {
-        case DISTANCES:
-            malheur_distances();
+        case DISTANCE:
+            malheur_distance();
             break;
         case PROTOTYPE:
             malheur_prototype();

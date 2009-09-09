@@ -124,9 +124,9 @@ void mex_load_mist(MEX_SIGNATURE)
 }
 
 /*
- * Extract features and compute pairwise dot product 
+ * Extract features and compute pairwise distances
  */
-void mex_kernel(MEX_SIGNATURE)
+void mex_distance(MEX_SIGNATURE)
 {
     char cf[1024], df[1024];
 
@@ -159,7 +159,56 @@ void mex_kernel(MEX_SIGNATURE)
     if (!fa)
         mal_error("Could not load data from '%s'", df);
 
-    /* Compute dot product */
+    /* Compute distances */
+    out1 = mxCreateNumericMatrix(fa->len, fa->len, mxDOUBLE_CLASS, mxREAL);    
+    farray_dist(fa, fa, (double *) mxGetPr(out1));
+
+    /* Create data struct */
+    out2 = mal_data_struct(fa);
+         
+    /* Clean up */
+    farray_destroy(fa);
+    config_destroy(&cfg);    
+}
+
+
+/*
+ * Extract features and compute pairwise dot product
+ */
+void mex_dot_product(MEX_SIGNATURE)
+{
+    char cf[1024], df[1024];
+
+    /* Check input */
+    if (nrhs != 1 + 2 || nlhs < 1) 
+        mal_error("Number of input/output arguments is invalid");
+    if (!mxIsChar(in1))
+        mal_error("First argument is not a dirname/archive");
+    if (!mxIsChar(in2))
+        mal_error("Second argument is not a config filename");
+
+    /* Get input arguments */
+    mxGetString(in1, df, 1023);
+    mxGetString(in2, cf, 1023);
+
+    /* Init and load configuration */
+    config_init(&cfg);
+    if (config_read_file(&cfg, cf) != CONFIG_TRUE) {
+        mal_error("Could not read configuration (%s in line %d)",
+                  config_error_text(&cfg), config_error_line(&cfg));
+    }          
+    
+    /* Check configuration */
+    config_check(&cfg);
+    if (verbose)
+        config_print(&cfg);
+
+    /* Extract features */
+    farray_t *fa = farray_extract(df);
+    if (!fa)
+        mal_error("Could not load data from '%s'", df);
+
+    /* Compute dot */
     out1 = mxCreateNumericMatrix(fa->len, fa->len, mxDOUBLE_CLASS, mxREAL);    
     farray_dot(fa, fa, (double *) mxGetPr(out1));
 
@@ -170,6 +219,7 @@ void mex_kernel(MEX_SIGNATURE)
     farray_destroy(fa);
     config_destroy(&cfg);    
 }
+
 
 /*
  * Extract features and compute prototypes
@@ -258,8 +308,10 @@ void mexFunction(MEX_SIGNATURE)
         mex_print_version();           
     } else if (!strcasecmp(buf, "load_mist")) {
         mex_load_mist(nlhs, plhs, nrhs, prhs);
-    } else if (!strcasecmp(buf, "kernel")) {
-        mex_kernel(nlhs, plhs, nrhs, prhs);
+    } else if (!strcasecmp(buf, "distance")) {
+        mex_distance(nlhs, plhs, nrhs, prhs);
+    } else if (!strcasecmp(buf, "dot_product")) {
+        mex_dot_product(nlhs, plhs, nrhs, prhs);
     } else if (!strcasecmp(buf, "prototype")) {
         mex_prototype(nlhs, plhs, nrhs, prhs);
     } else {

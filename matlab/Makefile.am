@@ -12,12 +12,12 @@ MEXFLAGS 		= @MEXFLAGS@ -inline $(INCLUDES) -v \
 MEXLDADD		= $(top_builddir)/src/libmalheur.a $(LIBS)
 
 EXTRA_DIST		= malheur.m malheur.c mal_load_mist.m \
-			  mal_kernel.m malmex.c malmex.h \
-			  mal_prototype.m
+			  mal_distance.m malmex.c malmex.h \
+			  mal_prototype.m mal_dot_product.m
 
 if MATLAB_TOOLS
-matlab_DATA             = malheur.m mal_load_mist.m mal_kernel.m \
-			  mal_prototype.m
+matlab_DATA             = malheur.m mal_load_mist.m mal_distance.m \
+			  mal_prototype.m mal_dot_product.m
 matlabarch_SCRIPTS      = malheur.$(MEXEXT)
 endif
 

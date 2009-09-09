@@ -37,7 +37,7 @@ extern config_t cfg;
  * @param fa Feature vector array
  * @param file File name 
  */
-void export_distances_text(double *d, farray_t *fa, char *file)
+void export_distance_text(double *d, farray_t *fa, char *file)
 {
     assert(d && fa && file);
     int i,j;
@@ -67,7 +67,7 @@ void export_distances_text(double *d, farray_t *fa, char *file)
  * @param fa Feature vector array
  * @param file File name 
  */
-void export_distances_html(double *d, farray_t *fa, char *file)
+void export_distance_html(double *d, farray_t *fa, char *file)
 {
     assert(d && fa && file);
     int i,j;

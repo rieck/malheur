@@ -35,8 +35,8 @@
 /* I/O functions */
 void export_proto_html(proto_t *p, farray_t *fa, char *file);
 void export_proto_text(proto_t *p, farray_t *fa, char *file);
-void export_distances_html(double *d, farray_t *f, char *file);
-void export_distances_text(double *d, farray_t *f, char *file);
+void export_distance_html(double *d, farray_t *f, char *file);
+void export_distance_text(double *d, farray_t *f, char *file);
 
 
 #endif                          /* EXPORT_H */

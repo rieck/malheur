@@ -164,7 +164,7 @@ void export_proto_text(farray_t *p, farray_t *fa, char *file)
     int i, j;
 
     /* Assign data to prototypes */
-    class_t *c = class_predict(fa, p);
+    assign_t *c = proto_assign(fa, p);
 
     if (verbose > 0)
         printf("Exporting prototypes to '%s'.\n", file);
@@ -181,7 +181,7 @@ void export_proto_text(farray_t *p, farray_t *fa, char *file)
     }
     
     fclose(f);
-    class_destroy(c);
+    assign_destroy(c);
 }
 
 /**
@@ -199,7 +199,7 @@ void export_proto_html(farray_t *p, farray_t *fa, char *file)
     FILE *f;
 
     /* Assign data to prototypes */
-    class_t *c = class_predict(fa, p);
+    assign_t *c = proto_assign(fa, p);
     
     if (verbose > 0)
         printf("Exporting prototypes to '%s'.\n", file);
@@ -269,7 +269,7 @@ void export_proto_html(farray_t *p, farray_t *fa, char *file)
     fprintf(f,"</ol></body></html>\n");
     fclose(f);
 
-    class_destroy(c);
+    assign_destroy(c);
     free(pidx);
     free(lidx);
 }

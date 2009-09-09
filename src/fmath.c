@@ -167,7 +167,6 @@ void farray_dist(farray_t *fa, farray_t *fb, double *d)
 {
     assert(fa && fb);
     long i, r = 0;
-    double f;
     
     if (verbose > 0) {
         printf("Computing distances (%lu x %lu matrix, %.2fMb).\n", 
@@ -179,11 +178,7 @@ void farray_dist(farray_t *fa, farray_t *fb, double *d)
         #pragma omp parallel for shared(d)
         for (i = 0; i < fa->len; i++) {
             for (int j = i; j < fb->len; j++) {
-                f = fvec_dot(fa->x[i], fb->x[j]);
-                if (f > 1.0)
-                    f = 1.0;
-                
-                d[i * fb->len + j] = sqrt(2 - 2 * f);
+                d[i * fb->len + j] = fvec_dist(fa->x[i], fb->x[j]);
                 d[j * fb->len + i] = d[i * fb->len + j];                
             }
             
@@ -198,13 +193,8 @@ void farray_dist(farray_t *fa, farray_t *fb, double *d)
     } else {
         #pragma omp parallel for shared(d)
         for (i = 0; i < fa->len; i++) {
-            for (int j = 0; j < fb->len; j++) {
-                f = fvec_dot(fa->x[i], fb->x[j]);
-                if (f > 1.0)
-                    f = 1.0;
-                
-                d[i * fb->len + j] = sqrt(2 - 2 * f);
-            }
+            for (int j = 0; j < fb->len; j++) 
+                d[i * fb->len + j] = fvec_dist(fa->x[i], fb->x[j]);
             
             if (verbose > 0) {
                 #pragma omp critical
@@ -216,7 +206,6 @@ void farray_dist(farray_t *fa, farray_t *fb, double *d)
         }    
     }
 }
-
 
 /** 
  * Dot product between arrays of feature vectors (s = <a,b>). 
@@ -267,6 +256,22 @@ void farray_dot(farray_t *fa, farray_t *fb, double *d)
             }
         }    
     }
+}
+
+/** 
+ * Distance between two feature vectors (s = ||a-b||). The function 
+ * uses a loop or a binary search to sum over all dimensions depending
+ * on the size of the considered vectors.
+ * @param fa Feature vector (a)
+ * @param fb Feature vector (b)
+ * @return s Euclidean distance
+ */
+double fvec_dist(fvec_t *fa, fvec_t *fb) 
+{
+    double f = fvec_dot(fa, fb);
+    if (f > 1.0)
+        f = 1.0;
+    return sqrt(2 - 2 * f);
 }
 
 /** 

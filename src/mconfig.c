@@ -20,21 +20,18 @@ extern int verbose;
 
 /* Default configuration */
 static config_default_t defaults[] = {
-    {"input",       "format",          0,   NAN, "raw"},
-    {"input",       "mist_level",      2,   NAN, NULL},
-    {"input",       "mist_rlen",       0,   NAN, NULL},
-    {"input",       "mist_tlen",       0,   NAN, NULL},
-    
-    {"output",      "cws_urls",        1,   NAN, NULL},
-    
-    {"features",    "ngram_len",       3,   NAN, NULL},
-    {"features",    "ngram_delim",     0,   NAN, "%20%0a%0d"},
-    {"features",    "vect_embed",      0,   NAN, "bin"},
-    
-    {"prototypes",  "max_dist",        0,   0.5, NULL},
-    {"prototypes",  "max_num",         0,   NAN, NULL},
-    {"prototypes",  "repeats",         5,   NAN, NULL},
-
+    {"input",          "format",          0,   NAN, "raw"},
+    {"input",          "mist_level",      2,   NAN, NULL},
+    {"input",          "mist_rlen",       0,   NAN, NULL},
+    {"input",          "mist_tlen",       0,   NAN, NULL},
+    {"features",       "ngram_len",       3,   NAN, NULL},
+    {"features",       "ngram_delim",     0,   NAN, "%20%0a%0d"},
+    {"features",       "vect_embed",      0,   NAN, "bin"},
+    {"prototypes",     "max_dist",        0,   0.5, NULL},
+    {"prototypes",     "max_num",         0,   NAN, NULL},
+    {"prototypes",     "repeats",         5,   NAN, NULL},    
+    {"classify",       "max_dist",        0,   0.5, NULL},
+    {"output",         "cws_urls",        1,   NAN, NULL},
     {NULL, NULL, 0, 0, NULL}
 };
 

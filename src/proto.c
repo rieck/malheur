@@ -35,10 +35,9 @@ static long counter = 0;
 /**
  * Creates an empty structure of prototypes
  * @param a Array of feature vectors
- * @param n Number of prototypes
  * @return Prototypes
  */
-static proto_t *proto_create(farray_t *fa, int n)
+static proto_t *proto_create(farray_t *fa)
 {
     assert(fa);
 
@@ -78,11 +77,8 @@ static proto_t *proto_run(farray_t *fa, long n, double m, double z)
     int i, j, k;
     double dm, *di;
 
-    if (n == 0)
-        n = fa->len;
-
     /* Allocate prototype structure and distance arrays */
-    proto_t *pr = proto_create(fa, n);
+    proto_t *pr = proto_create(fa);
     di = malloc(fa->len * sizeof(double));
     if (!pr || !di) {
         error("Could not allocate memory for prototype extraction");
@@ -92,6 +88,10 @@ static proto_t *proto_run(farray_t *fa, long n, double m, double z)
     /* Init distances to maximum value */
     for (i = 0; i < fa->len; i++)
         di[i] = DBL_MAX;    
+        
+    /* Check for maximum number of protos */
+    if (n == 0)
+        n = fa->len;
 
     /* Loop over feature vectors */
     for (i = 0; i < n; i++) {
@@ -118,7 +118,7 @@ static proto_t *proto_run(farray_t *fa, long n, double m, double z)
         /* Update distances and assignments */
         #pragma omp parallel for shared(fa, pv)
         for (k = 0; k < fa->len; k++) {
-            double d = sqrt(2 - 2 * fvec_dot(pv, fa->x[k]));
+            double d = fvec_dist(pv, fa->x[k]);
             if (d < di[k]) {
                 pr->assign[k] = i & PA_ASSIGN_MASK;            
                 di[k] = d;

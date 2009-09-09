@@ -26,6 +26,8 @@
 #include "proto.h"
 #include "class.h"
  
+extern int verbose;
+ 
 /**
  * Creates an empty structure of prototypes
  * @param a Array of feature vectors
@@ -65,12 +67,15 @@ static class_t *class_create(farray_t *fa)
 class_t *class_predict(farray_t *fa, farray_t *p)
 {
     assert(fa && p);
-
-    int i, k, j;
-    double min, d;
+    int i, k, j, cnt = 0;
+    double min, d, maxdist = 0.99;
     class_t *c = class_create(fa);
 
-    #pragma omp parallel for shared(fa,p)
+    if (verbose > 0) 
+        printf("Classifying feature vectors with %lu prototypes and maximum"
+               " distance %4.2f.\n", p->len, maxdist);
+
+    #pragma omp parallel for shared(fa,c,p)
     for (i = 0; i < fa->len; i++) {
         min = DBL_MAX;
         for (k = 0, j = 0; k < p->len; k++) {
@@ -85,7 +90,18 @@ class_t *class_predict(farray_t *fa, farray_t *p)
         c->proto[i] = j;
         c->dist[i] = d;
         c->label[i] = p->y[j];
+        
+        #pragma omp critical (cnt)
+        {
+            cnt++;
+            if (verbose) 
+                prog_bar(0, fa->len, cnt);
+        } 
     }
+    
+    if (verbose > 0)
+        printf("  Done. %ld feature vectors assigned to %d classes.\n", 
+               fa->len, HASH_CNT(hn, fa->label_name));
     
     return c;
 }

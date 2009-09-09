@@ -32,35 +32,101 @@ extern int verbose;
 extern config_t cfg;
 
 /**
- * Exports a kernel matrix to a file
+ * Exports a distance matrix to a text file
  * @param d Pointer to matrix
  * @param fa Feature vector array
  * @param file File name 
  */
-void export_kernel(double *d, farray_t *fa, char *file)
+void export_distances_text(double *d, farray_t *fa, char *file)
 {
     assert(d && fa && file);
     int i,j;
-
+    
     if (verbose > 0)
-        printf("Exporting kernel matrix to '%s'.\n", file);
-
+        printf("Exporting distance matrix to '%s'.\n", file);
+    
     FILE *f = fopen(file, "w");
     if (!f) {
         error("Could not create file '%s'.", file);
         return;
     }
-
+    
     for (i = 0; i < fa->len; i++) {
         fprintf(f, "%s:", fa->x[i]->src);
         for (j = 0; j < fa->len; j++)
             fprintf(f, " %g", d[i * fa->len + j]);
         fprintf(f, "\n");
     }
-
+    
     fclose(f);
 }
- 
+
+/**
+ * Exports a distance matrix to a text file
+ * @param d Pointer to matrix
+ * @param fa Feature vector array
+ * @param file File name 
+ */
+void export_distances_html(double *d, farray_t *fa, char *file)
+{
+    assert(d && fa && file);
+    int i,j;
+    char bg[8];
+    double min = DBL_MAX, max = DBL_MIN, avg = 0;
+    
+    if (verbose > 0)
+        printf("Exporting distance matrix to '%s'.\n", file);
+    
+    FILE *f = fopen(file, "w");
+    if (!f) {
+        error("Could not create file '%s'.", file);
+        return;
+    }
+    
+    /* Determine minimum, average and maximum values */
+    for (i = 0; i < fa->len; i++)
+        for (j = i; j < fa->len; j++) {
+            if (d[i * fa->len + j] < min)
+                min = d[i * fa->len + j];
+            if (d[i * fa->len + j] > max)
+                max = d[i * fa->len + j];
+            avg += d[i * fa->len + j];
+        }
+    avg /= (fa->len * fa->len) / 2 + fa->len;
+    
+    
+    fprintf(f, "<html><body>%s<h1>Distance Matrix</h1>", BODY);
+    
+    fprintf(f, "<table cellpadding='0' cellspacing='0' style='font-size: 11pt;'>");
+    fprintf(f, TS "Number of total reports:" TM "%lu" TE, fa->len);
+    fprintf(f, TS "Report source:" TM "%s", fa->src);    
+    fprintf(f, TS "Minimum distance:" TM "%7.5f" TE, min);
+    fprintf(f, TS "Average distance:" TM "%7.5f" TE, avg);
+    fprintf(f, TS "Maximum distance:" TM "%7.5f" TE, max);
+    fprintf(f, "</table>\n");
+    
+    /* Write configuration */
+    fprintf(f, "<h2>Configuration</h2><pre>");
+    config_fprint(f, &cfg);
+    fprintf(f, "</pre>");   
+    
+    
+    fprintf(f, "<table cellpadding='0' cellspacing='1' style='font-size: 6pt;'>");
+    for (i = 0; i < fa->len; i++) {
+        fprintf(f, "<tr><td>%s:&nbsp;&nbsp;", fa->x[i]->src);
+        for (j = 0; j < fa->len; j++) {
+            int x = (int) round(255 * (d[i * fa->len + j] - min) / (max - min));
+            snprintf(bg, 8, "#%.2xff%.2x", x, x);
+            fprintf(f, "</td><td bgcolor='%s'>%4.2f", bg, d[i * fa->len + j]);
+        }
+        fprintf(f, "</td></tr>\n");
+    }
+    fprintf(f, "</table></body></html>\n");
+    
+    fclose(f);
+}
+
+
 /**
  * Extracts a CWSandbox URL from a filename. The function uses a static 
  * buffer and thus is not thread-safe.
@@ -85,23 +151,51 @@ static char *cwsandbox_url(char *f)
     return buf;
 }
 
-
 /**
- * Exports a structure of prototypes to a file
+ * Exports a structure of prototypes to a text file
  * @param p Prototype structure
  * @param fa Feature vector array
  * @param file File name
  */
-void export_proto(proto_t *p, farray_t *fa, char *file)
+void export_proto_text(proto_t *p, farray_t *fa, char *file)
+{
+    assert(p && fa && file);
+    int i, j;
+
+    if (verbose > 0)
+        printf("Exporting prototypes to '%s'.\n", file);
+    
+    FILE *f = fopen(file, "w");
+    if (!f) {
+        error("Could not create file '%s'.", file);
+        return;
+    }
+    
+    for (i = 0; i < fa->len; i++) {
+        j = p->assign[i];
+        fprintf(f, "%s: %s\n", fa->x[i]->src, p->protos->x[j]->src);
+    }
+    
+    fclose(f);
+}
+
+/**
+ * Exports a structure of prototypes to a HTML file. This function is 
+ * ugly and should be replaced by some template engine.
+ * @param p Prototype structure
+ * @param fa Feature vector array
+ * @param file File name
+ */
+void export_proto_html(proto_t *p, farray_t *fa, char *file)
 {
     assert(p && fa && file);
     int i, j, x = 0, *lidx, *pidx, *cnt;
     long cws_urls;
     FILE *f;
-        
+    
     if (verbose > 0)
         printf("Exporting prototypes to '%s'.\n", file);
-        
+    
     if (!(f = fopen(file, "w"))) {
         error("Could not open '%s' for writing", file);
         return;
@@ -113,7 +207,7 @@ void export_proto(proto_t *p, farray_t *fa, char *file)
     /* Sort labels and compute quality */
     lidx = qsort_idx(fa->y, fa->len, sizeof(unsigned int), cmp_uint);
     double *e = quality(fa->y, p->assign, fa->len);
-        
+    
     /* Sort prototypes by members */
     cnt = calloc(p->protos->len, sizeof(unsigned int));
     for (i = 0; i < p->protos->len; i++) 
@@ -121,19 +215,19 @@ void export_proto(proto_t *p, farray_t *fa, char *file)
             if ((p->assign[j] & PA_ASSIGN_MASK) == i) 
                 cnt[i]--;
     pidx = qsort_idx(cnt, p->protos->len, sizeof(int), cmp_int);        
-
-        
+    
+    
     /* Write generic */
     fprintf(f, "<html><body>%s<h1>Prototypes</h1>", BODY);
-    fprintf(f, TABS);
+    fprintf(f, "<table cellpadding='0' cellspacing='0' style='font-size: 11pt;'>");
     fprintf(f, TS "Number of prototypes:" TM "%lu (%3.1f%%)" TE, 
             p->protos->len, p->protos->len / (double) fa->len * 100);    
     fprintf(f, TS "Number of total reports:" TM "%lu" TE, p->alen);
     fprintf(f, TS "Report source:" TM "%s", p->protos->src);    
     fprintf(f, TS "Average distance:" TM "%7.5f" TE, p->avg_dist);
     fprintf(f, TS "Precision of labels:" TM "%7.5f" TE, e[Q_PRECISION]);
-    fprintf(f, TABE);
-     
+    fprintf(f, "</table>\n");
+    
     /* Write configuration */
     fprintf(f, "<h2>Configuration</h2><pre>");
     config_fprint(f, &cfg);
@@ -145,7 +239,7 @@ void export_proto(proto_t *p, farray_t *fa, char *file)
         fprintf(f, "<li><a href='%s'><b>Prototype</b></a> (members: %d)<br>\n", 
                 cws_urls ? cwsandbox_url(p->protos->x[pidx[i]]->src) : 
                 p->protos->x[pidx[i]]->src, -cnt[pidx[i]]);
-               
+        
         /* Write list of assignments */
         for (j = 0, x = 0; j < p->alen; j++) {
             if ((p->assign[lidx[j]] & PA_ASSIGN_MASK) != pidx[i])
@@ -160,7 +254,7 @@ void export_proto(proto_t *p, farray_t *fa, char *file)
                 fprintf(f, "&middot;");
             else
                 fprintf(f, "%s", farray_get_label(fa, lidx[j]));
-                
+            
             x = fa->y[lidx[j]];
             fprintf(f, "</a> ");
         }
@@ -168,10 +262,10 @@ void export_proto(proto_t *p, farray_t *fa, char *file)
     }
     fprintf(f,"</ol></body></html>\n");
     fclose(f);
-
+    
     free(pidx);
     free(lidx);
 }
 
 /** @} */
- 
+

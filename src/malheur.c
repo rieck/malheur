@@ -27,11 +27,12 @@ config_t cfg;
 
 /* Local variables */
 static char *config_file = CONFIG_FILE;
-static char *result_file = NULL;
+static char *output_file = NULL;
 static char *input_file = NULL;
 static char *proto_file = NULL;
 static malheur_task_t task = PROTOTYPE;
 static int lookup_table = FALSE;
+static int html_output = FALSE;
 
 /**
  * Print usage of command line tool
@@ -42,15 +43,15 @@ void print_usage(int argc, char **argv)
 {
     printf("Usage: malheur [options] <task> <input>\n"
            "Tasks:\n"
-           "  kernel        Compute a kernel matrix from malware reports\n"
+           "  distances     Compute a distance matrix from malware reports\n"
            "  prototype     Extract prototypes from malware reports\n"
            "  cluster       Cluster malware reports into similar groups\n"
            "Options:\n"
            "  -c <file>     Set configuration file.\n"
-           "  -r <file>     Save analysis results to file.\n"   
-           "  -l <file>     Load feature vectors of prototypes from file.\n"  
-           "  -s <file>     Save feature vectors of prototypes to file.\n"  
-           "  -t            Enable feature lookup table.\n"
+           "  -p <file>     Set prototype file.\n"  
+           "  -o <file>     Set output file for analysis.\n"   
+           "  -l            Enable feature lookup table.\n"
+           "  -t            Enable HTML output for analysis.\n"
            "  -v            Increase verbosity.\n"
            "  -V            Print version and copyright.\n"
            "  -h            Print this help screen.\n");
@@ -74,72 +75,62 @@ void print_version()
 void parse_options(int argc, char **argv)
 {
     int ch;
-    while ((ch = getopt(argc, argv, "l:s:tr:c:hvV")) != -1) {
+    while ((ch = getopt(argc, argv, "o:p:ltc:hvV")) != -1) {
         switch (ch) {
-        case 'v':
-            verbose++;
-            break;
-        case 'c':
-            config_file = optarg;
-            break;
-        case 'r':
-            result_file = optarg;
-            break;
-        case 'l':
-        case 's':
-            proto_file = optarg;
-            break;
-        case 't':
-            lookup_table = TRUE;
-            break;
-        case 'V':
-            print_version();
-            exit(EXIT_SUCCESS);
-            break;
-        case 'h':
-        case '?':
-            print_usage(argc, argv);
-            exit(EXIT_SUCCESS);
-            break;
+            case 'v':
+                verbose++;
+                break;
+            case 'c':
+                config_file = optarg;
+                break;
+            case 'o':
+                output_file = optarg;
+                break;
+            case 'p':
+                proto_file = optarg;
+                break;
+            case 'l':
+                lookup_table = TRUE;
+                break;
+            case 't':
+                html_output = TRUE;
+                break;
+            case 'V':
+                print_version();
+                exit(EXIT_SUCCESS);
+                break;
+            case 'h':
+            case '?':
+                print_usage(argc, argv);
+                exit(EXIT_SUCCESS);
+                break;
         }
     }
-
+    
     argc -= optind;
     argv += optind;
-
+    
     if (argc != 2)
         fatal("<task> and <input> arguments are required");
-
+    
     /* Argument: Task */
     if (!strcasecmp(argv[0], "prototype"))
         task = PROTOTYPE;
-    else if (!strcasecmp(argv[0], "kernel"))
-        task = KERNEL;
+    else if (!strcasecmp(argv[0], "distances"))
+        task = DISTANCES;
     else if (!strcasecmp(argv[0], "cluster"))
         task = CLUSTER;
     else
-        fatal("Unknown analysis task '%s' for Malheur", argv[0]);
-
+        fatal("Unknown analysis task '%s'", argv[0]);
+    
     /* Argument: Input */
     input_file = argv[1];
     if (access(input_file, R_OK))
         fatal("Could not access '%s'", input_file); 
-    
-    /* Sanity checks */
-    switch(task) {
-    case PROTOTYPE:
-        if (!proto_file && !result_file)
-            fatal("No output specified. See options '-s' and/or '-r'");
-        break;
-    case KERNEL:
-        if (!result_file)
-            fatal("No output specified. See option '-r'");
-        if (proto_file)
-            warning("Prototypes will not be extracted in this task"); 
-        break;
-    case CLUSTER:
-        break;
-    }
+
+    /* Check for output fle */
+    if (!output_file)
+        fatal("No output file specified. See '-o' option.");
 }
 
 /**
@@ -153,15 +144,17 @@ static void malheur_prototype()
     
     if (verbose > 1)
         proto_print(pr);
-
+    
     /* Export prototypes */
-    if (result_file)
-        export_proto(pr, fa, result_file);
-
+    if (html_output)
+        export_proto_html(pr, fa, output_file);
+    else 
+        export_proto_text(pr, fa, output_file);
+    
     /* Save prototype vectors */
     if (proto_file) 
         proto_save_file(pr, proto_file);
-
+    
     /* Clean up */
     proto_destroy(pr);
     farray_destroy(fa);
@@ -174,27 +167,34 @@ static void malheur_cluster()
 {
     /* Load data */
     farray_t *fa = farray_extract(input_file);        
-
+    
+    /* TODO */
+    
     farray_destroy(fa);        
 }
 
 /**
- * Computes a kernel matrix and saves the result to afile
+ * Computes a distance matrix and saves the result to a file
  */
-static void malheur_kernel()
+static void malheur_distances()
 {
     /* Load data */
     farray_t *fa = farray_extract(input_file);
-                
-    /* Compute similarity matrix */
+    
+    /* Allocate distance matrix */
     double *d = malloc(fa->len * fa->len * sizeof(double));
     if (!d)
         fatal("Could not allocate similarity matrix");
-    farray_dot(fa, fa, d);
         
-    /* Save kernel matrix */
-    export_kernel(d, fa, result_file);
-
+    /* Compute distance matrix */
+    farray_dist(fa, fa, d);
+    
+    /* Save distance matrix */
+    if (html_output)
+        export_distances_html(d, fa, output_file);
+    else
+        export_distances_text(d, fa, output_file);
+    
     /* Clean up */
     free(d);
     farray_destroy(fa);
@@ -209,7 +209,7 @@ static void malheur_init(int argc, char **argv)
 {
     /* Parse options */
     parse_options(argc, argv);
-
+    
     /* Init and load configuration */
     config_init(&cfg);
     if (config_read_file(&cfg, config_file) != CONFIG_TRUE)
@@ -233,11 +233,11 @@ static void malheur_exit()
 {
     if (lookup_table)
         ftable_destroy();
-
+    
     /* Destroy configuration */
     config_destroy(&cfg);
 }
- 
+
 /**
  * Main function of Malheur
  * @param argc Number of arguments
@@ -247,20 +247,20 @@ static void malheur_exit()
 int main(int argc, char **argv)
 {
     malheur_init(argc, argv);
-
+    
     /* Perform task */
     switch (task) {
-    case KERNEL:
-        malheur_kernel();
-        break;
-    case PROTOTYPE:
-        malheur_prototype();
-        break;
-    case CLUSTER:
-        malheur_cluster();
-        break;
+        case DISTANCES:
+            malheur_distances();
+            break;
+        case PROTOTYPE:
+            malheur_prototype();
+            break;
+        case CLUSTER:
+            malheur_cluster();
+            break;
     }
-
+    
     malheur_exit();
     return EXIT_SUCCESS;
 }

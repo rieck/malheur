@@ -30,7 +30,6 @@ static config_default_t defaults[] = {
     {"features",    "ngram_len",       3,   NAN, NULL},
     {"features",    "ngram_delim",     0,   NAN, "%20%0a%0d"},
     {"features",    "vect_embed",      0,   NAN, "bin"},
-    {"features",    "vect_norm",       0,   NAN, "l2"},
     
     {"prototypes",  "max_dist",        0,   0.5, NULL},
     {"prototypes",  "max_num",         0,   NAN, NULL},

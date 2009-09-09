@@ -197,19 +197,8 @@ fvec_t *fvec_extract(char *x, int l, char *s)
         fvec_condense(fv, EMBED_CNT);
     }
 
-    /* Compute normalization */
-    config_lookup_string(&cfg, "features.vect_norm", &cfg_str);
-    if (!strcasecmp(cfg_str, "l2")) {
-        fvec_normalize(fv, NORM_L2);
-    } else if (!strcasecmp(cfg_str, "l1")) {
-        fvec_normalize(fv, NORM_L1);
-    } else if (!strcasecmp(cfg_str, "none")) {
-        /* Nothing */
-    } else {
-        warning("Unknown normalization '%s', using 'cnt'.", cfg_str);
-        fvec_normalize(fv, NORM_L1);
-    }
-
+    /* Compute l2 normalization */
+    fvec_normalize(fv, NORM_L2);
     return fv;
 }
 

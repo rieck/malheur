@@ -16,9 +16,23 @@
 
 #include "farray.h"
 
+/**
+ * Assignment structure. 
+ */
+typedef struct {
+    unsigned int *label;        /* Predicted labels */
+    unsigned int *proto;        /* Nearest prototypes */
+    double *dist;               /* Distance to prototypes */
+    unsigned long len;          /* Length of assign arrays */
+} assign_t;
+
 /* Function declarations */
 farray_t *proto_extract(farray_t *);
 farray_t *proto_load_file(char *);
 void proto_save_file(farray_t *, char *);
+
+/* Functions */
+void assign_destroy(assign_t *c);
+assign_t *proto_assign(farray_t *fa, farray_t *p);
 
 #endif                          /* PROTO_H */

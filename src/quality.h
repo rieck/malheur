@@ -23,18 +23,18 @@
 #define Q_RAND          3       /* Rand index */
 #define Q_ARAND         4       /* Adjusted rand */
 
-/* Assignment to each true label */
+/* Counts for each true label */
 typedef struct {
     unsigned int label; /* Predicted label */
     double count;       /* Occurences of label */
     UT_hash_handle hh;  /* Hash table entry */
-} assign_t;
+} count_t;
 
 /* Histogram bin for each true label */
 typedef struct {
     unsigned int label;     /* Label */
     double total;           /* Number of elements */
-    assign_t *assign;       /* Assignments  */
+    count_t *count;         /* Counts  */
     UT_hash_handle hh;      /* Hash table entry */
 } hist_t;
 

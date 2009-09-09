@@ -211,4 +211,102 @@ farray_t *proto_load_file(char *f)
     return pr;
 }
 
+/**
+ * Creates an empty structure of assignments
+ * @param a Array of feature vectors
+ * @return assignment structure
+ */
+static assign_t *assign_create(farray_t *fa)
+{
+    assert(fa);
+
+    /* Allocate assignment structure */
+    assign_t *c = malloc(sizeof(assign_t));    
+    if (!c) {
+        error("Could not allocate assignment structure");
+        return NULL;
+    }
+
+    /* Allocate structure fields */
+    c->label = calloc(fa->len, sizeof(unsigned int));
+    c->proto = calloc(fa->len, sizeof(unsigned int));
+    c->dist = calloc(fa->len, sizeof(double));
+    c->len = fa->len;
+    
+    if (!c->label || !c->proto || !c->dist) {
+        error("Could not allocate assignment structure");
+        assign_destroy(c);
+        return NULL;
+    }
+        
+    return c;
+}
+
+/**
+ * Assign a set of vector to prototypes
+ * @param fa Feature vectors
+ * @param p Prototype vectors
+ */
+assign_t *proto_assign(farray_t *fa, farray_t *p)
+{
+    assert(fa && p);
+    int i, k, j, cnt = 0;
+    double min, d;
+    assign_t *c = assign_create(fa);
+
+
+    if (verbose > 0) 
+        printf("Assigning feature vectors to %lu prototypes of %d classes.\n", 
+               p->len, HASH_CNT(hn, fa->label_name));
+
+    #pragma omp parallel for shared(fa,c,p)
+    for (i = 0; i < fa->len; i++) {
+        min = DBL_MAX;
+        for (k = 0, j = 0; k < p->len; k++) {
+            d = fvec_dist(fa->x[i], p->x[k]);
+            if (d < min) {
+                min = d;
+                j = k;
+            }
+        }
+        
+        /* Compute classification */
+        c->proto[i] = j;
+        c->dist[i] = d;
+        c->label[i] = p->y[j];
+        
+        #pragma omp critical (cnt)
+        {
+            cnt++;
+            if (verbose) 
+                prog_bar(0, fa->len, cnt);
+        } 
+    }
+    
+    if (verbose > 0)
+        printf("  Done. %ld feature vectors assigned to %lu prototypes.\n", 
+               fa->len, p->len);
+     
+    return c;
+}
+  
+ 
+/**
+ * Destroys an assignment
+ * @param c Assignment structure
+ */
+void assign_destroy(assign_t *c)
+{
+    if (!c)
+        return;
+    if (c->label)
+        free(c->label);
+    if (c->proto)
+        free(c->proto);
+    if (c->dist)
+        free(c->dist);
+    free(c);
+}
+
+
 /** @} */

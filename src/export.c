@@ -157,10 +157,11 @@ static char *cwsandbox_url(char *f)
  * @param fa Feature vector array
  * @param file File name
  */
-void export_proto_text(proto_t *p, farray_t *fa, char *file)
+void export_proto_text(farray_t *p, farray_t *fa, char *file)
 {
     assert(p && fa && file);
     int i, j;
+    unsigned int *assign;
 
     if (verbose > 0)
         printf("Exporting prototypes to '%s'.\n", file);
@@ -172,8 +173,8 @@ void export_proto_text(proto_t *p, farray_t *fa, char *file)
     }
     
     for (i = 0; i < fa->len; i++) {
-        j = p->assign[i];
-        fprintf(f, "%s: %s\n", fa->x[i]->src, p->protos->x[j]->src);
+        j = 0;
+        fprintf(f, "%s: %s\n", fa->x[i]->src, p->x[j]->src);
     }
     
     fclose(f);
@@ -186,8 +187,9 @@ void export_proto_text(proto_t *p, farray_t *fa, char *file)
  * @param fa Feature vector array
  * @param file File name
  */
-void export_proto_html(proto_t *p, farray_t *fa, char *file)
+void export_proto_html(farray_t *p, farray_t *fa, char *file)
 {
+#if 0    
     assert(p && fa && file);
     int i, j, x = 0, *lidx, *pidx, *cnt;
     long cws_urls;
@@ -265,6 +267,7 @@ void export_proto_html(proto_t *p, farray_t *fa, char *file)
     
     free(pidx);
     free(lidx);
+#endif    
 }
 
 /** @} */

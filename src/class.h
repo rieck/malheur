@@ -28,6 +28,6 @@ typedef struct {
 
 /* Functions */
 void class_destroy(class_t *c);
-class_t *class_predict(farray_t *fa, proto_t *p);
+class_t *class_predict(farray_t *fa, farray_t *p);
 
 #endif                          /* CLASS_H */

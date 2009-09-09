@@ -186,7 +186,7 @@ proto_t *proto_extract(farray_t *fa)
 
     /* Determine best prototypes */
     for (i = 1; i < repeats; i++) {
-        if (p[0]->avg_dist > p[i]->avg_dist) {
+        if (p[0]->protos->len > p[i]->protos->len) {
             proto_destroy(p[0]);
             p[0] = p[i];
         } else {

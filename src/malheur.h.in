@@ -18,7 +18,7 @@
 
 /* Operation tasks of Malheur  */
 typedef enum {
-    KERNEL, PROTOTYPE, CLUSTER
+    DISTANCES, PROTOTYPE, CLUSTER
 } malheur_task_t;
 
 #endif                          /* MALHEUR_H */

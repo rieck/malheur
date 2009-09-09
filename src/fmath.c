@@ -158,6 +158,67 @@ static double fvec_dot_bsearch(fvec_t *fa, fvec_t *fb)
 }
 
 /** 
+ * Compute distances between arrays of feature vectors (s = || a - b||). 
+ * @param fa Array of feature vectors (a)
+ * @param fb Array of feature vectors (b)
+ * @param d matrix of distances (a_len * b_len)
+ */
+void farray_dist(farray_t *fa, farray_t *fb, double *d)
+{
+    assert(fa && fb);
+    long i, r = 0;
+    double f;
+    
+    if (verbose > 0) {
+        printf("Computing distances (%lu x %lu matrix, %.2fMb).\n", 
+               fa->len, fb->len, (fa->len * fb->len * sizeof(double)) / 1e6);    
+        prog_bar(0, 1, 0);
+    }    
+    
+    if (fa == fb) {
+        #pragma omp parallel for shared(d)
+        for (i = 0; i < fa->len; i++) {
+            for (int j = i; j < fb->len; j++) {
+                f = fvec_dot(fa->x[i], fb->x[j]);
+                if (f > 1.0)
+                    f = 1.0;
+                
+                d[i * fb->len + j] = sqrt(2 - 2 * f);
+                d[j * fb->len + i] = d[i * fb->len + j];                
+            }
+            
+            if (verbose > 0) {
+                #pragma omp critical
+                {
+                    r += fb->len - i;
+                    prog_bar(0, (fa->len * fa->len + fa->len) / 2.0, r);
+                }
+            }    
+        }    
+    } else {
+        #pragma omp parallel for shared(d)
+        for (i = 0; i < fa->len; i++) {
+            for (int j = 0; j < fb->len; j++) {
+                f = fvec_dot(fa->x[i], fb->x[j]);
+                if (f > 1.0)
+                    f = 1.0;
+                
+                d[i * fb->len + j] = sqrt(2 - 2 * f);
+            }
+            
+            if (verbose > 0) {
+                #pragma omp critical
+                {
+                    r += fb->len;
+                    prog_bar(0, fa->len * fb->len, r);
+                }
+            }
+        }    
+    }
+}
+
+
+/** 
  * Dot product between arrays of feature vectors (s = <a,b>). 
  * @param fa Array of feature vectors (a)
  * @param fb Array of feature vectors (b)
@@ -172,7 +233,7 @@ void farray_dot(farray_t *fa, farray_t *fb, double *d)
         printf("Computing dot product (%lu x %lu matrix, %.2fMb).\n", 
                fa->len, fb->len, (fa->len * fb->len * sizeof(double)) / 1e6);    
         prog_bar(0, 1, 0);
-    }
+    }    
     
     if (fa == fb) {
         #pragma omp parallel for shared(d)

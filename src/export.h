@@ -25,18 +25,18 @@
                 " </style>" 
 
 /* Brain-damaged macros for HTML tables */
-#define TS      "<tr><td> &nbsp;&nbsp; "
-#define TM      " &nbsp;&nbsp; </td><td valign='right'>"
+#define TS      "<tr><td>&nbsp;"
+#define TM      "&nbsp;</td><td valign='right'>&nbsp;"
 #define TE      "</td></tr>\n"
-#define TABS    "<table cellpadding='0' cellspacing='0' style='font-size: 11pt;'>"
-#define TABE    "</table>\n"
 
 /* URL template for cwsandbox.org */
 #define CWS_URL   "https://cwsandbox.org/?site=1&page=report&format=xml"
 
 /* I/O functions */
-void export_proto(proto_t *p, farray_t *fa, char *file);
-void export_kernel(double *d, farray_t *f, char *file);
+void export_proto_html(proto_t *p, farray_t *fa, char *file);
+void export_proto_text(proto_t *p, farray_t *fa, char *file);
+void export_distances_html(double *d, farray_t *f, char *file);
+void export_distances_text(double *d, farray_t *f, char *file);
 
 
 #endif                          /* EXPORT_H */

@@ -14,6 +14,7 @@
 %
 % For help see the following files:
 %   mal_load_mist.m     - Load reports in MIST format
-%   mal_kernel.m        - Compute kernel matrix from reports
+%   mal_distances.m     - Compute distances matrix from reports
+%   mal_dot_product.m   - Compute dot product matrix from reports
 %   mal_prototype.m     - Compute prototypes from reports
 %

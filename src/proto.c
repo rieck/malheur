@@ -91,6 +91,9 @@ static farray_t *proto_run(farray_t *fa, long n, double m, double z)
             double d = fvec_dist(pv, fa->x[k]);
             if (d < di[k]) 
                 di[k] = d;
+            
+            if (j == k)
+                di[k] = 0;
         } 
         
         #pragma omp critical (counter)

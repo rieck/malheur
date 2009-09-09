@@ -4,19 +4,19 @@
 # Berlin Institute of Technology (TU Berlin).
 #
 
-EXTRA_DIST		= malheur.h.in
+EXTRA_DIST              = malheur.h.in
 
-noinst_LIBRARIES	= libmalheur.a			  
+noinst_LIBRARIES        = libmalheur.a			  
 libmalheur_a_SOURCES	= md5.c md5.h common.h util.c util.h fvec.c \
                           fvec.h uthash.h ftable.c ftable.h mist.c mist.h \
                           fmath.c fmath.h export.c export.h farray.c farray.h \
                           proto.c proto.h mconfig.c mconfig.h cluster.c \
-                          cluster.h quality.c quality.h
+                          cluster.h quality.c quality.h class.c class.h 
 
-bin_PROGRAMS		= malheur
-malheur_SOURCES		= $(libmalheur_a_SOURCES) malheur.c
-malheur_LDFLAGS		= -static
+bin_PROGRAMS            = malheur
+malheur_SOURCES         = $(libmalheur_a_SOURCES) malheur.c
+malheur_LDFLAGS         = -static
 
-beautify:       	$(libmalheur_a_SOURCES) $(malheur_SOURCES)
+beautify:               $(libmalheur_a_SOURCES) $(malheur_SOURCES)
 			gnuindent -i4 -kr -l77 -lc77 --no-tabs -cs \
-				  -T FILE -T fvet_t -T DIR -T DIRP $^
+                                  -T FILE -T fvet_t -T DIR -T DIRP $^

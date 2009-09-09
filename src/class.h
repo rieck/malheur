@@ -14,20 +14,7 @@
 #ifndef CLASS_H
 #define CLASS_H
 
-#include "farray.h"
 
-/**
- * Classification structure. 
- */
-typedef struct {
-    unsigned int *label;        /* Predictied labels */
-    unsigned int *proto;        /* Nearest prototypes */
-    double *dist;               /* Distance to prototypes */
-    unsigned long len;          /* Length of assign arrays */
-} class_t;
 
-/* Functions */
-void class_destroy(class_t *c);
-class_t *class_predict(farray_t *fa, proto_t *p);
 
 #endif                          /* CLASS_H */

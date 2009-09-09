@@ -29,7 +29,7 @@ extern int verbose;
 extern config_t cfg;
 
 /**
- * Computes quality measures for the label assignment. 
+ * Computes quality measures for the label countment. 
  * The function returns a static array. The code is not thread-safe.
  * @param y Labels of data points
  * @param a Assignments to clusters or classes
@@ -42,13 +42,13 @@ double *quality(unsigned int *y, unsigned int *a, int n)
     static double r[5];
     double mn, ac, bc, cc, dc;
     hist_t *h, *hi;
-    assign_t *ai;
+    count_t *ai;
     int i, j;
 
     /* Compute precision. This is ugly code. */
     h = hist_create(a, y, n);
     for(hi = h, i = 0, ac = 0; hi != NULL; hi = hi->hh.next, i++) {
-        for(ai = hi->assign, mn = 0; ai != NULL; ai = ai->hh.next)
+        for(ai = hi->count, mn = 0; ai != NULL; ai = ai->hh.next)
             if (ai->count > mn)
                 mn = ai->count;
         ac += mn;
@@ -59,7 +59,7 @@ double *quality(unsigned int *y, unsigned int *a, int n)
     /* Compute recall. This is again ugly code. */
     h = hist_create(y, a, n);
     for(hi = h, i = 0, ac = 0; hi != NULL; hi = hi->hh.next, i++) {
-        for(ai = hi->assign, mn = 0; ai != NULL; ai = ai->hh.next)
+        for(ai = hi->count, mn = 0; ai != NULL; ai = ai->hh.next)
             if (ai->count > mn)
                 mn = ai->count;
         ac += mn;
@@ -89,9 +89,9 @@ double *quality(unsigned int *y, unsigned int *a, int n)
 }
 
 /**
- * Creates an histogram for each label containing assignments.
+ * Creates an histogram for each label containing countments.
  * @param y Labels of data points
- * @param a Assignments to clusters or classes
+ * @param a countments to clusters or classes
  * @param n Number of data points
  * @return histogram struct
  */
@@ -99,7 +99,7 @@ hist_t *hist_create(unsigned int *y, unsigned int *a, int n)
 {
     assert(y && a && n > 0);
     hist_t *entry, *hist = NULL;
-    assign_t *assign = NULL;
+    count_t *count = NULL;
     int i;
     
     /* Loop over  labels */
@@ -115,7 +115,7 @@ hist_t *hist_create(unsigned int *y, unsigned int *a, int n)
             
             /* Create new entry */
             entry->label = y[i];
-            entry->assign = NULL;
+            entry->count = NULL;
             entry->total  =0;
             
             /* Add entry */
@@ -123,21 +123,21 @@ hist_t *hist_create(unsigned int *y, unsigned int *a, int n)
         }
         entry->total++;
         
-        HASH_FIND_INT(entry->assign, &a[i], assign);
-        if (!assign) {
-            assign = malloc(sizeof(assign_t));
-            if (!assign) {
-                error("Could not allocate assignments");
+        HASH_FIND_INT(entry->count, &a[i], count);
+        if (!count) {
+            count = malloc(sizeof(count_t));
+            if (!count) {
+                error("Could not allocate countments");
                 hist_destroy(hist);
                 return NULL;
             }
-            assign->label = a[i];
-            assign->count = 0;
+            count->label = a[i];
+            count->count = 0;
             
             /* Add entry */
-            HASH_ADD_INT(entry->assign, label, assign);
+            HASH_ADD_INT(entry->count, label, count);
         }
-        assign->count++;
+        count->count++;
     }
     
     return hist;
@@ -150,14 +150,14 @@ hist_t *hist_create(unsigned int *y, unsigned int *a, int n)
 void hist_print(hist_t *h)
 {
     hist_t *hi;
-    assign_t *ai;
+    count_t *ai;
     
     for(hi = h; hi != NULL; hi = hi->hh.next) {
         printf("Label: %d\n", hi->label);
         printf("Total: %f\n", hi->total);
 
-        printf("Assignments: ");
-        for (ai = hi->assign; ai != NULL; ai = ai->hh.next)
+        printf("countments: ");
+        for (ai = hi->count; ai != NULL; ai = ai->hh.next)
             printf("%d (%f) ", ai->label, ai->count);
         printf("\n");
     }
@@ -170,16 +170,16 @@ void hist_print(hist_t *h)
 void hist_destroy(hist_t *h)
 {
     hist_t *hi;
-    assign_t *ai;
+    count_t *ai;
     
     /* Iterate over classes */
     while(h) {
         hi = h;           
         
         /* Delete indices */
-        while(hi->assign) {
-            ai = hi->assign;            
-            HASH_DEL(hi->assign, ai);  
+        while(hi->count) {
+            ai = hi->count;            
+            HASH_DEL(hi->count, ai);  
             free(ai);            
         }
         

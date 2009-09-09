@@ -16,30 +16,23 @@
 
 #include "farray.h"
 
-/* Mask for assignments of prototypes */
-#define PA_ASSIGN_MASK       0x7FFFFFFF
-#define PA_PROTO_MASK        ~PA_ASSIGN_MASK
-
 /**
- * Prototype structure. The 'protos' field holds the feature vectors
- * of the extracted prototypes. The field 'assign' contains the 
- * assignments of the original data points to the prototypes, where 
- * the most significant bit indicates the prototypes themselves. 
+ * Assignment structure. 
  */
 typedef struct {
-    farray_t *protos;          /* Array of prototype vectors */
-    unsigned int *assign;      /* Assignments of prototypes */
-    unsigned long alen;        /* Length of assign arrays */
-    double avg_dist;           /* Average distance to prototypes */
-} proto_t;
+    unsigned int *label;        /* Predicted labels */
+    unsigned int *proto;        /* Nearest prototypes */
+    double *dist;               /* Distance to prototypes */
+    unsigned long len;          /* Length of assign arrays */
+} assign_t;
 
 /* Function declarations */
-proto_t *proto_extract(farray_t *);
-void proto_destroy(proto_t *);
-proto_t *proto_load(gzFile *);
-proto_t *proto_load_file(char *);
-void proto_save(proto_t *, gzFile *);
-void proto_save_file(proto_t *, char *);
-void proto_print(proto_t *);
+farray_t *proto_extract(farray_t *);
+farray_t *proto_load_file(char *);
+void proto_save_file(farray_t *, char *);
+
+/* Functions */
+void assign_destroy(assign_t *c);
+assign_t *proto_assign(farray_t *fa, farray_t *p);
 
 #endif                          /* PROTO_H */

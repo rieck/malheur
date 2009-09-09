@@ -33,37 +33,6 @@ extern config_t cfg;
 static long counter = 0;
 
 /**
- * Creates an empty structure of prototypes
- * @param a Array of feature vectors
- * @return Prototypes
- */
-static proto_t *proto_create(farray_t *fa)
-{
-    assert(fa);
-
-    /* Allocate prototype structure */
-    proto_t *p = malloc(sizeof(proto_t));    
-    if (!p) {
-        error("Could not allocate prototype structure");
-        return NULL;
-    }
-
-    /* Allocate structure fields */
-    p->protos = farray_create(fa->src);
-    p->assign = calloc(fa->len, sizeof(unsigned int));
-    p->alen = fa->len;
-    
-    if (!p->protos || !p->assign) {
-        error("Could not allocate prototype structure");
-        proto_destroy(p);
-        return NULL;
-    }
-        
-    return p;
-}
-
-
-/**
  * Extracts a set of prototypes using the prototype algorithm.
  * @param fa Array of feature vectors
  * @param n Maximum number of prototypes
@@ -71,14 +40,15 @@ static proto_t *proto_create(farray_t *fa)
  * @param z Number of repeats
  * @return Prototypes
  */
-static proto_t *proto_run(farray_t *fa, long n, double m, double z) 
+static farray_t *proto_run(farray_t *fa, long n, double m, double z) 
 {
     assert(fa);
     int i, j, k;
     double dm, *di;
 
+
     /* Allocate prototype structure and distance arrays */
-    proto_t *pr = proto_create(fa);
+    farray_t *pr = farray_create(fa->src);
     di = malloc(fa->len * sizeof(double));
     if (!pr || !di) {
         error("Could not allocate memory for prototype extraction");
@@ -113,22 +83,17 @@ static proto_t *proto_run(farray_t *fa, long n, double m, double z)
 
         /* Add prototype */
         fvec_t *pv = fvec_clone(fa->x[j]);
-        farray_add(pr->protos, pv, farray_get_label(fa, j));
+        farray_add(pr, pv, farray_get_label(fa, j));
 
         /* Update distances and assignments */
         #pragma omp parallel for shared(fa, pv)
         for (k = 0; k < fa->len; k++) {
             double d = fvec_dist(pv, fa->x[k]);
-            if (d < di[k]) {
-                pr->assign[k] = i & PA_ASSIGN_MASK;            
+            if (d < di[k]) 
                 di[k] = d;
-            }
             
-            /* Mark protoype */
-            if (k == j) {
-                pr->assign[k] = i | PA_PROTO_MASK;
+            if (j == k)
                 di[k] = 0;
-            }
         } 
         
         #pragma omp critical (counter)
@@ -138,10 +103,6 @@ static proto_t *proto_run(farray_t *fa, long n, double m, double z)
                 prog_bar(0, n * z, counter);
         }
     }
-    
-    /* Compute average distance */
-    for (k = 0, pr->avg_dist = 0; k < fa->len; k++)
-        pr->avg_dist += di[k] / fa->len;
         
     /* Free memory */
     free(di);
@@ -152,17 +113,17 @@ static proto_t *proto_run(farray_t *fa, long n, double m, double z)
 
 /**
  * Extracts a set of prototypes using the prototype algorithm.
- * Prototype algorithm is run multiple times and the best set
+ * Prototype algorithm is run multiple times and the smallest set
  * of prototypes is returned.
  * @param fa Array of feature vectors
  * @return Prototypes
  */
-proto_t *proto_extract(farray_t *fa) 
+farray_t *proto_extract(farray_t *fa) 
 {
     assert(fa);
     long i, repeats, maxnum;
     double maxdist;
-    proto_t **p, *pr;
+    farray_t **p, *pr;
 
     /* Get configuration */    
     config_lookup_float(&cfg, "prototypes.max_dist", (double *) &maxdist);
@@ -170,7 +131,7 @@ proto_t *proto_extract(farray_t *fa)
     config_lookup_int(&cfg, "prototypes.max_num", (long *) &maxnum);
 
     /* Allocate multiple prototype structures */
-    p = malloc(repeats * sizeof(proto_t *));
+    p = malloc(repeats * sizeof(farray_t *));
     if (verbose > 0) 
         printf("Extracting prototypes with maximum distance %4.2f "
                "and %ld repeats.\n", maxdist, repeats);
@@ -186,11 +147,11 @@ proto_t *proto_extract(farray_t *fa)
 
     /* Determine best prototypes */
     for (i = 1; i < repeats; i++) {
-        if (p[0]->protos->len > p[i]->protos->len) {
-            proto_destroy(p[0]);
+        if (p[0]->len > p[i]->len) {
+            farray_destroy(p[0]);
             p[0] = p[i];
         } else {
-            proto_destroy(p[i]);
+            farray_destroy(p[i]);
         }
     }
     
@@ -198,59 +159,10 @@ proto_t *proto_extract(farray_t *fa)
     free(p);
     
     if (verbose > 0)
-        printf("  Done. %ld prototypes with average distance %4.2f "
-               "extracted.\n", pr->protos->len, pr->avg_dist);
+        printf("  Done. %ld prototypes using %.2fMb extracted.\n", 
+               pr->len, pr->mem / 1e6);
     
     return pr;
-}
-
-/**
- * Destroys a structure containing prototypes and frees its memory. 
- * @param p Prototypes
- */
-void proto_destroy(proto_t *p)
-{
-    if (!p)
-        return;
-    if (p->protos)
-        farray_destroy(p->protos);        
-    if (p->assign)
-        free(p->assign);
-    free(p);
-}
-
-/**
- * Prints a structure containing prototypes
- * @param p Prototypes
- */
-void proto_print(proto_t *p)
-{
-    assert(p);
-
-    double mem = (p->protos->mem + sizeof(p->protos) + 
-                  p->alen * sizeof(unsigned int)) / 1e6;
-
-    printf("prototypes\n  len: %lu, assign: %lu, avg_dist: %f, mem: %.2fMb \n", 
-           p->protos->len, p->alen, p->avg_dist, mem);
-    
-    farray_print(p->protos);
-} 
-
-/**
- * Saves a structure of prototype to a file stram
- * @param p Prototypes
- * @param z Stream pointer
- */
-void proto_save(proto_t *p, gzFile *z)
-{
-    assert(p && z);
-    int i;
-
-    gzprintf(z, "prototypes: alen=%lu, avg_dist=%g\n", p->alen, p->avg_dist);            
-    for (i = 0; i < p->alen; i++)
-        gzprintf(z, "  %u\n", p->assign[i]);
-        
-    farray_save(p->protos, z);
 }
 
 /**
@@ -258,7 +170,7 @@ void proto_save(proto_t *p, gzFile *z)
  * @param p Prototypes
  * @param f File name
  */
-void proto_save_file(proto_t *p, char *f) 
+void proto_save_file(farray_t *p, char *f) 
 { 
     assert(p && f);
 
@@ -273,7 +185,7 @@ void proto_save_file(proto_t *p, char *f)
     }
         
     /* Save data */
-    proto_save(p, z);
+    farray_save(p, z);
     gzclose(z);      
 }
 
@@ -282,7 +194,7 @@ void proto_save_file(proto_t *p, char *f)
  * @param f File name
  * @return Prototypes
  */
-proto_t *proto_load_file(char *f) 
+farray_t *proto_load_file(char *f) 
 { 
     assert(f);
     if (verbose)
@@ -296,60 +208,107 @@ proto_t *proto_load_file(char *f)
     }
         
     /* Save data */
-    proto_t *pr = proto_load(z);
+    farray_t *pr = farray_load(z);
     gzclose(z);      
     
     return pr;
 }
 
 /**
- * Loads a structure of prototype from a file stram
- * @param z Stream pointer
- * @return Prototypes
+ * Creates an empty structure of assignments
+ * @param a Array of feature vectors
+ * @return assignment structure
  */
-proto_t *proto_load(gzFile *z)
+static assign_t *assign_create(farray_t *fa)
 {
-    char buf[512];
-    unsigned long alen;
-    double f;
-    int i, r;
-    
-    /* Allocate prototype structure */
-    proto_t *p = calloc(1, sizeof(proto_t));    
-    if (!p) {
-        error("Could not allocate prototype structure");
+    assert(fa);
+
+    /* Allocate assignment structure */
+    assign_t *c = malloc(sizeof(assign_t));    
+    if (!c) {
+        error("Could not allocate assignment structure");
         return NULL;
     }
 
-    gzgets(z, buf, 512);
-    r = sscanf(buf, "prototypes: alen=%lu, avg_dist=%lg\n", &alen, &f); 
-    if (r != 2)  {
-        error("Could not parse prototypes");
-        proto_destroy(p);
+    /* Allocate structure fields */
+    c->label = calloc(fa->len, sizeof(unsigned int));
+    c->proto = calloc(fa->len, sizeof(unsigned int));
+    c->dist = calloc(fa->len, sizeof(double));
+    c->len = fa->len;
+    
+    if (!c->label || !c->proto || !c->dist) {
+        error("Could not allocate assignment structure");
+        assign_destroy(c);
         return NULL;
     }
-
-    p->assign = calloc(alen, sizeof(unsigned int));
-    p->alen = alen;    
-    p->avg_dist = f;
-    if (!p->assign) {
-        error("Could not allocate prototype assignments");
-        proto_destroy(p);
-        return NULL;
-    }
-    
-    for (i = 0; i < p->alen; i++) {
-        gzgets(z, buf, 512);
-        r = sscanf(buf, "  %u\n", p->assign + i); 
-        if (r != 1)  {
-            error("Could not parse prototype assignments");
-            proto_destroy(p);
-            return NULL;
-        }    
-    }
-    
-    p->protos = farray_load(z);
-    return p;
+        
+    return c;
 }
+
+/**
+ * Assign a set of vector to prototypes
+ * @param fa Feature vectors
+ * @param p Prototype vectors
+ */
+assign_t *proto_assign(farray_t *fa, farray_t *p)
+{
+    assert(fa && p);
+    int i, k, j, cnt = 0;
+    double d;
+    assign_t *c = assign_create(fa);
+
+    if (verbose > 0) 
+        printf("Assigning feature vectors to %lu prototypes of %d classes.\n", 
+               p->len, HASH_CNT(hn, fa->label_name));
+
+    #pragma omp parallel for shared(fa,c,p) private(k,j)
+    for (i = 0; i < fa->len; i++) {
+        double min = DBL_MAX;
+        for (k = 0, j = 0; k < p->len; k++) {
+            d = fvec_dist(fa->x[i], p->x[k]);
+            if (d < min) {
+                min = d;
+                j = k;
+            }
+        }
+        
+        /* Compute assignments */
+        c->proto[i] = j;
+        c->dist[i] = d;
+        c->label[i] = p->y[j];
+        
+        #pragma omp critical (cnt)
+        {
+            cnt++;
+            if (verbose) 
+                prog_bar(0, fa->len, cnt);
+        } 
+    }
+    
+    if (verbose > 0)
+        printf("  Done. %ld feature vectors assigned to %lu prototypes.\n", 
+               fa->len, p->len);
+     
+    return c;
+}
+  
+ 
+/**
+ * Destroys an assignment
+ * @param c Assignment structure
+ */
+void assign_destroy(assign_t *c)
+{
+    if (!c)
+        return;
+    if (c->label)
+        free(c->label);
+    if (c->proto)
+        free(c->proto);
+    if (c->dist)
+        free(c->dist);
+    free(c);
+}
+
 
 /** @} */

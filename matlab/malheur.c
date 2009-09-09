@@ -222,72 +222,6 @@ void mex_dot_product(MEX_SIGNATURE)
 
 
 /*
- * Extract features and compute prototypes
- */
-void mex_prototype(MEX_SIGNATURE)
-{
-    const char *fields[] = { "indices", "assign" };
-    char cf[1024], df[1024];
-    double *rs = NULL; 
-    int i, ns = 0;
-
-    /* Check input */
-    if (nrhs < 1 + 2 || nlhs < 1) 
-        mal_error("Number of input/output arguments is invalid");
-    if (!mxIsChar(in1))
-        mal_error("First argument is not a dirname/archive");
-    if (!mxIsChar(in2))
-        mal_error("Second argument is not a config filename");
-
-    /* Get input arguments */
-    mxGetString(in1, df, 1023);
-    mxGetString(in2, cf, 1023);
-
-    /* Init and load configuration */
-    config_init(&cfg);
-    if (config_read_file(&cfg, cf) != CONFIG_TRUE) {
-        mal_error("Could not read configuration (%s in line %d)",
-                  config_error_text(&cfg), config_error_line(&cfg));
-    }          
-    config_check(&cfg);
-        
-    /* Check for optional input */
-    if (nrhs == 4 && mxGetClassID(in3) == mxDOUBLE_CLASS) {
-        ns = mxGetNumberOfElements(in3);
-        rs = malloc(ns * sizeof(double));
-        memcpy(rs, mxGetData(in3), ns * sizeof(double));
-    } else {
-        ns = 1;
-        rs = malloc(ns * sizeof(double));
-        config_lookup_float(&cfg, "prototypes.ratio", rs);
-    }        
-
-    /* Extract features */
-    farray_t *fa = farray_extract(df);
-    if (!fa)
-        mal_error("Could not load data from '%s'", df);
-
-    /* Extract prototypes */
-    out1 = mxCreateStructMatrix(1, ns, 2, fields);
-    for (i = 0; i < ns; i++) {
-        config_set_float(&cfg, "prototypes.ratio", rs[i]);  
-        proto_t *pr = proto_extract(fa);
-        if (!pr)
-            mal_error("Could not prototype feature vectors.");
-            
-        mal_proto_struct(out1, i, pr);
-        proto_destroy(pr);
-    }
-    out2 = mal_data_struct(fa);
-    
-    /* Clean up */
-    free(rs);
-    farray_destroy(fa);
-    config_destroy(&cfg);    
-}
-
-
-/*
  * Generic matlab wrapper function to Malheur functionality
  */
 void mexFunction(MEX_SIGNATURE)
@@ -312,8 +246,6 @@ void mexFunction(MEX_SIGNATURE)
         mex_distance(nlhs, plhs, nrhs, prhs);
     } else if (!strcasecmp(buf, "dot_product")) {
         mex_dot_product(nlhs, plhs, nrhs, prhs);
-    } else if (!strcasecmp(buf, "prototype")) {
-        mex_prototype(nlhs, plhs, nrhs, prhs);
     } else {
         mal_error("Unknown Malheur command");
     }

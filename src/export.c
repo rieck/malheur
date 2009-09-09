@@ -26,6 +26,7 @@
 #include "export.h"
 #include "mconfig.h"
 #include "quality.h"
+#include "class.h"
 
 /* External variables */
 extern int verbose;
@@ -161,7 +162,9 @@ void export_proto_text(farray_t *p, farray_t *fa, char *file)
 {
     assert(p && fa && file);
     int i, j;
-    unsigned int *assign;
+
+    /* Assign data to prototypes */
+    class_t *c = class_predict(fa, p);
 
     if (verbose > 0)
         printf("Exporting prototypes to '%s'.\n", file);
@@ -173,11 +176,12 @@ void export_proto_text(farray_t *p, farray_t *fa, char *file)
     }
     
     for (i = 0; i < fa->len; i++) {
-        j = 0;
+        j = c->proto[i];
         fprintf(f, "%s: %s\n", fa->x[i]->src, p->x[j]->src);
     }
     
     fclose(f);
+    class_destroy(c);
 }
 
 /**
@@ -189,11 +193,13 @@ void export_proto_text(farray_t *p, farray_t *fa, char *file)
  */
 void export_proto_html(farray_t *p, farray_t *fa, char *file)
 {
-#if 0    
     assert(p && fa && file);
     int i, j, x = 0, *lidx, *pidx, *cnt;
     long cws_urls;
     FILE *f;
+
+    /* Assign data to prototypes */
+    class_t *c = class_predict(fa, p);
     
     if (verbose > 0)
         printf("Exporting prototypes to '%s'.\n", file);
@@ -208,25 +214,23 @@ void export_proto_html(farray_t *p, farray_t *fa, char *file)
     
     /* Sort labels and compute quality */
     lidx = qsort_idx(fa->y, fa->len, sizeof(unsigned int), cmp_uint);
-    double *e = quality(fa->y, p->assign, fa->len);
+    double *e = quality(fa->y, c->proto, fa->len);
     
     /* Sort prototypes by members */
-    cnt = calloc(p->protos->len, sizeof(unsigned int));
-    for (i = 0; i < p->protos->len; i++) 
-        for (j = 0; j < p->alen; j++) 
-            if ((p->assign[j] & PA_ASSIGN_MASK) == i) 
+    cnt = calloc(p->len, sizeof(unsigned int));
+    for (i = 0; i < p->len; i++) 
+        for (j = 0; j < fa->len; j++) 
+            if (c->proto[j] == i) 
                 cnt[i]--;
-    pidx = qsort_idx(cnt, p->protos->len, sizeof(int), cmp_int);        
-    
+    pidx = qsort_idx(cnt, p->len, sizeof(int), cmp_int);        
     
     /* Write generic */
     fprintf(f, "<html><body>%s<h1>Prototypes</h1>", BODY);
     fprintf(f, "<table cellpadding='0' cellspacing='0' style='font-size: 11pt;'>");
-    fprintf(f, TS "Number of prototypes:" TM "%lu (%3.1f%%)" TE, 
-            p->protos->len, p->protos->len / (double) fa->len * 100);    
-    fprintf(f, TS "Number of total reports:" TM "%lu" TE, p->alen);
-    fprintf(f, TS "Report source:" TM "%s", p->protos->src);    
-    fprintf(f, TS "Average distance:" TM "%7.5f" TE, p->avg_dist);
+    fprintf(f, TS "Number of prototypes:" TM "%lu (%3.1f%%)" TE, p->len, 
+            p->len / (double) fa->len * 100);    
+    fprintf(f, TS "Number of total reports:" TM "%lu" TE, fa->len);
+    fprintf(f, TS "Report source:" TM "%s", p->src);    
     fprintf(f, TS "Precision of labels:" TM "%7.5f" TE, e[Q_PRECISION]);
     fprintf(f, "</table>\n");
     
@@ -237,14 +241,14 @@ void export_proto_html(farray_t *p, farray_t *fa, char *file)
     
     /* Write prototypes and assignments */
     fprintf(f, "<h2>Assignments</h2><ol>\n");
-    for (i = 0; i < p->protos->len; i++) {
+    for (i = 0; i < p->len; i++) {
         fprintf(f, "<li><a href='%s'><b>Prototype</b></a> (members: %d)<br>\n", 
-                cws_urls ? cwsandbox_url(p->protos->x[pidx[i]]->src) : 
-                p->protos->x[pidx[i]]->src, -cnt[pidx[i]]);
+                cws_urls ? cwsandbox_url(p->x[pidx[i]]->src) : 
+                p->x[pidx[i]]->src, -cnt[pidx[i]]);
         
         /* Write list of assignments */
-        for (j = 0, x = 0; j < p->alen; j++) {
-            if ((p->assign[lidx[j]] & PA_ASSIGN_MASK) != pidx[i])
+        for (j = 0, x = 0; j < fa->len; j++) {
+            if (c->proto[lidx[j]] != pidx[i])
                 continue;
             
             fprintf(f, "<a href='%s' style='text-decoration: none;'>", 
@@ -264,10 +268,10 @@ void export_proto_html(farray_t *p, farray_t *fa, char *file)
     }
     fprintf(f,"</ol></body></html>\n");
     fclose(f);
-    
+
+    class_destroy(c);
     free(pidx);
     free(lidx);
-#endif    
 }
 
 /** @} */

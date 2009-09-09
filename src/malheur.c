@@ -140,10 +140,10 @@ static void malheur_prototype()
 {
     /* Load data */
     farray_t *fa = farray_extract(input_file);
-    proto_t *pr = proto_extract(fa);
+    farray_t *pr = proto_extract(fa);
     
     if (verbose > 1)
-        proto_print(pr);
+        farray_print(pr);
     
     /* Export prototypes */
     if (html_output)
@@ -156,7 +156,7 @@ static void malheur_prototype()
         proto_save_file(pr, proto_file);
     
     /* Clean up */
-    proto_destroy(pr);
+    farray_destroy(pr);
     farray_destroy(fa);
 }
 

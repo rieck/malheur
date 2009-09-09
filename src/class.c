@@ -60,9 +60,9 @@ static class_t *class_create(farray_t *fa)
 /**
  * Predict the classes of feature vectors using labeled prototypes.
  * @param fa Feature vectors
- * @param p Prototype structure
+ * @param p Prototype vectors
  */
-class_t *class_predict(farray_t *fa, proto_t *p)
+class_t *class_predict(farray_t *fa, farray_t *p)
 {
     assert(fa && p);
 
@@ -73,8 +73,8 @@ class_t *class_predict(farray_t *fa, proto_t *p)
     #pragma omp parallel for shared(fa,p)
     for (i = 0; i < fa->len; i++) {
         min = DBL_MAX;
-        for (k = 0, j = 0; k < p->protos->len; k++) {
-            d = fvec_dist(fa->x[i], p->protos->x[k]);
+        for (k = 0, j = 0; k < p->len; k++) {
+            d = fvec_dist(fa->x[i], p->x[k]);
             if (d < min) {
                 min = d;
                 j = k;
@@ -84,7 +84,7 @@ class_t *class_predict(farray_t *fa, proto_t *p)
         /* Compute classification */
         c->proto[i] = j;
         c->dist[i] = d;
-        c->label[i] = p->protos->y[j];
+        c->label[i] = p->y[j];
     }
     
     return c;

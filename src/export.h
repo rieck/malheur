@@ -33,8 +33,8 @@
 #define CWS_URL   "https://cwsandbox.org/?site=1&page=report&format=xml"
 
 /* I/O functions */
-void export_proto_html(proto_t *p, farray_t *fa, char *file);
-void export_proto_text(proto_t *p, farray_t *fa, char *file);
+void export_proto_html(farray_t *p, farray_t *fa, char *file);
+void export_proto_text(farray_t *p, farray_t *fa, char *file);
 void export_distance_html(double *d, farray_t *f, char *file);
 void export_distance_text(double *d, farray_t *f, char *file);
 

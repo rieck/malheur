@@ -23,7 +23,6 @@
 #include "mconfig.h"
 #include "uthash.h"
 #include "util.h"
-#include "proto.h"
 #include "malmex.h"
 
 /*
@@ -100,29 +99,3 @@ mxArray *mal_data_struct(farray_t *fa)
     
     return data;
 }
-
-/*
- * Add a prototype struct to a struct array
- */
-void mal_proto_struct(mxArray *ps, int k, proto_t *p) 
-{
-    mxArray *a;
-    double *f;
-    int i, j;
-
-    /* Copy prototype indices */
-    a = mxCreateNumericMatrix(1, p->protos->len, mxDOUBLE_CLASS, mxREAL);
-    f = mxGetPr(a);
-    for (i = j = 0; i < p->alen; i++) {
-        if (p->assign[i] & PA_PROTO_MASK)
-            f[j++] = i;
-    }
-    mxSetField(ps, k, "indices", a);
-    
-    /* Copy prototype assignments */
-    a = mxCreateNumericMatrix(1, p->alen, mxDOUBLE_CLASS, mxREAL);
-    f = mxGetPr(a);
-    for (i = 0; i < p->alen; i++)
-        f[i] = p->assign[i] & PA_ASSIGN_MASK;
-    mxSetField(ps, k, "assign", a);
-}   

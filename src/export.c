@@ -177,7 +177,8 @@ void export_proto_text(farray_t *p, farray_t *fa, char *file)
     
     for (i = 0; i < fa->len; i++) {
         j = c->proto[i];
-        fprintf(f, "%s: %s\n", fa->x[i]->src, p->x[j]->src);
+        fprintf(f, "%s: %s (%s)\n", fa->x[i]->src, p->x[j]->src, 
+                farray_get_label(p, j));
     }
     
     fclose(f);

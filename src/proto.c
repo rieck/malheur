@@ -254,7 +254,7 @@ assign_t *proto_assign(farray_t *fa, farray_t *p)
 {
     assert(fa && p);
     int i, k, j, cnt = 0;
-    double d;
+    double d = 0;
     assign_t *c = assign_create(fa);
 
     if (verbose > 0) 

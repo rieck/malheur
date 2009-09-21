@@ -41,6 +41,8 @@
 /* Convenience definitions: Output */
 #define out1    plhs[0]         /* Default output 1 */
 #define out2    plhs[1]         /* Default output 2 */
+#define out3    plhs[2]         /* Default output 2 */
+
 
 /* Macros for faking a configuration */
 #define config_set_string(c,x,s) \
@@ -128,19 +130,27 @@ void mex_load_mist(MEX_SIGNATURE)
  */
 void mex_distance(MEX_SIGNATURE)
 {
-    char cf[1024], df[1024];
+    char cf[1024], df1[1024], df2[1024];
+    farray_t *fa1, *fa2;
+    int sym = 0;
 
     /* Check input */
-    if (nrhs != 1 + 2 || nlhs < 1) 
+    if (nrhs != 1 + 3 || nlhs < 1) 
         mal_error("Number of input/output arguments is invalid");
     if (!mxIsChar(in1))
         mal_error("First argument is not a dirname/archive");
     if (!mxIsChar(in2))
-        mal_error("Second argument is not a config filename");
+        mal_error("Second argument is not a dirname/archive");
+    if (!mxIsChar(in3))
+        mal_error("Third argument is not a config filename");
 
     /* Get input arguments */
-    mxGetString(in1, df, 1023);
-    mxGetString(in2, cf, 1023);
+    mxGetString(in1, df1, 1023);
+    mxGetString(in2, df2, 1023);
+    mxGetString(in3, cf, 1023);
+
+    /* Compute input names */
+    sym = !strcmp(df1, df2);
 
     /* Init and load configuration */
     config_init(&cfg);
@@ -155,19 +165,26 @@ void mex_distance(MEX_SIGNATURE)
         config_print(&cfg);
 
     /* Extract features */
-    farray_t *fa = farray_extract(df);
-    if (!fa)
-        mal_error("Could not load data from '%s'", df);
+    fa1 = farray_extract(df1);
+    if (!sym)
+        fa2 = farray_extract(df2);
+    else
+        fa2 = fa1;
 
     /* Compute distances */
-    out1 = mxCreateNumericMatrix(fa->len, fa->len, mxDOUBLE_CLASS, mxREAL);    
-    farray_dist(fa, fa, (double *) mxGetPr(out1));
+    out1 = mxCreateNumericMatrix(fa1->len, fa2->len, mxDOUBLE_CLASS, mxREAL);    
+    farray_dist(fa1, fa2, (double *) mxGetPr(out1));
 
     /* Create data struct */
-    out2 = mal_data_struct(fa);
+    if (nlhs > 1)
+        out2 = mal_data_struct(fa1);
+    if (nlhs > 2)
+        out3 = mal_data_struct(fa2);
          
     /* Clean up */
-    farray_destroy(fa);
+    farray_destroy(fa1);
+    if (!sym)
+        farray_destroy(fa2);
     config_destroy(&cfg);    
 }
 

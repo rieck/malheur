@@ -242,8 +242,11 @@ void fvec_realloc(fvec_t *fv)
  * Destroys a feature vector 
  * @param fv Feature vector
  */
-void fvec_destroy(fvec_t * fv)
+void fvec_destroy(fvec_t *fv)
 {
+    if (!fv)
+        return;
+
     if (fv->dim)
         free(fv->dim);
     if (fv->val)

@@ -28,6 +28,8 @@ config_t cfg;
 /* Local variables */
 static char *config_file = CONFIG_FILE;
 static char *output_file = NULL;
+static char **input_files = NULL;
+static int input_len = 0;
 static char *proto_file = NULL;
 static malheur_task_t task = PROTOTYPE;
 static int lookup_table = FALSE;
@@ -38,7 +40,7 @@ static int html_output = FALSE;
  * @param argc Number of arguments
  * @param argv Argument values
  */
-void print_usage(int argc, char **argv)
+static void print_usage(int argc, char **argv)
 {
     printf("Usage: malheur [options] <task> <input> ...\n"
            "Tasks:\n"
@@ -60,7 +62,7 @@ void print_usage(int argc, char **argv)
 /**
  * Print version and copyright information
  */
-void print_version()
+static void print_version()
 {
     printf(" MALHEUR - Automatic Malware Analysis on Steroids\n"
            " Copyright (c) 2009 Konrad Rieck (rieck@cs.tu-berlin.de)\n"
@@ -72,7 +74,7 @@ void print_version()
  * @param argc Number of arguments
  * @param argv Argument values
  */
-void parse_options(int argc, char **argv)
+static void parse_options(int argc, char **argv)
 {
     int ch;
     while ((ch = getopt(argc, argv, "o:p:ltc:hvV")) != -1) {
@@ -110,7 +112,7 @@ void parse_options(int argc, char **argv)
     argc -= optind;
     argv += optind;
     
-    if (argc != 2)
+    if (argc < 2)
         fatal("<task> and <input> arguments are required");
     
     /* Argument: Task */
@@ -125,30 +127,43 @@ void parse_options(int argc, char **argv)
     else
         fatal("Unknown analysis task '%s'", argv[0]);
 
+    /* Assign input files */
+    input_files = argv + 1;
+    input_len = argc - 1;
+
     /* Check for output fle */
     if (!output_file)
         fatal("No output file specified. See '-o' option.");
 }
 
+
 /**
- * Determines prototypes for the given malware reports
- * @param argv command line argumwents
- * @param argc length of arguments 
+ * Loads data from archives/directories into feature vectors 
+ * @return array of feature vectors
  */
-static void malheur_prototype(int argc, char **argv)
+static farray_t *malheur_load()
 {
-    /* Load data */
     farray_t *fa = NULL;
-    for (int i = 0; i < argc; i++) {
+    for (int i = 0; i < input_len; i++) {
         /* Argument: Input */
-        if (access(argv[i], R_OK)) {
-            warning("Could not access '%s'. Skipping", argv[i]);         
+        if (access(input_files[i], R_OK)) {
+            warning("Could not access '%s'. Skipping", input_files[i]);         
             continue;
         }
         
-        farray_t *f = farray_extract(argv[i]);
+        farray_t *f = farray_extract(input_files[i]);
         fa = farray_merge(fa, f);
     } 
+    return fa;
+}
+
+/**
+ * Determines prototypes for the given malware reports
+ */
+static void malheur_prototype()
+{
+    /* Load data */
+    farray_t *fa = malheur_load();
     
     /* Extract prototypes */
     farray_t *pr = proto_extract(fa);
@@ -173,23 +188,11 @@ static void malheur_prototype(int argc, char **argv)
 
 /**
  * Clusters the given malware reports
- * @param argv command line argumwents
- * @param argc length of arguments 
  */
-static void malheur_cluster(int argc, char **argv)
+static void malheur_cluster()
 {
     /* Load data */
-    farray_t *fa = NULL;
-    for (int i = 0; i < argc; i++) {
-        /* Argument: Input */
-        if (access(argv[i], R_OK)) {
-            warning("Could not access '%s'. Skipping", argv[i]);         
-            continue;
-        }
-        
-        farray_t *f = farray_extract(argv[i]);
-        fa = farray_merge(fa, f);
-    } 
+    farray_t *fa = malheur_load();
 
     /* Extract prototypes */
     farray_t *pr = proto_extract(fa);    
@@ -207,30 +210,17 @@ static void malheur_cluster(int argc, char **argv)
 
 /**
  * Classify the given malware reports
- * @param argv command line argumwents
- * @param argc length of arguments 
-
  */
-static void malheur_classify(int argc, char **argv)
+static void malheur_classify()
 {
     if (!proto_file)
         error("No prototype file specified.");
 
-    /* Load data */
+    /* Load prototypes */
     farray_t *pr = proto_load_file(proto_file);
 
     /* Load data */
-    farray_t *fa = NULL;
-    for (int i = 0; i < argc; i++) {
-        /* Argument: Input */
-        if (access(argv[i], R_OK)) {
-            warning("Could not access '%s'. Skipping", argv[i]);         
-            continue;
-        }
-        
-        farray_t *f = farray_extract(argv[i]);
-        fa = farray_merge(fa, f);
-    } 
+    farray_t *fa = malheur_load();
 
     /* TODO */
     
@@ -242,23 +232,11 @@ static void malheur_classify(int argc, char **argv)
 
 /**
  * Computes a distance matrix and saves the result to a file
- * @param argv command line argumwents
- * @param argc length of arguments 
  */
-static void malheur_distance(int argc, char **argv)
+static void malheur_distance()
 {
     /* Load data */
-    farray_t *fa = NULL;
-    for (int i = 0; i < argc; i++) {
-        /* Argument: Input */
-        if (access(argv[i], R_OK)) {
-            warning("Could not access '%s'. Skipping", argv[i]);         
-            continue;
-        }
-        
-        farray_t *f = farray_extract(argv[i]);
-        fa = farray_merge(fa, f);
-    } 
+    farray_t *fa = malheur_load();
 
     /* Allocate distance matrix */
     double *d = malloc(fa->len * fa->len * sizeof(double));
@@ -330,16 +308,16 @@ int main(int argc, char **argv)
     /* Perform task */
     switch (task) {
         case DISTANCE:
-            malheur_distance(argc, argv);
+            malheur_distance();
             break;
         case PROTOTYPE:
-            malheur_prototype(argc, argv);
+            malheur_prototype();
             break;
         case CLUSTER:
-            malheur_cluster(argc, argv);
+            malheur_cluster();
             break;
         case CLASSIFY:
-            malheur_classify(argc, argv);
+            malheur_classify();
             break;
     }
     

@@ -6,6 +6,6 @@
 
  TODO  
 
- * Prototype extraction
+ * Filtering of arrays using file names
+ * Support to merge arrays
  * Clustering with and without prototypes
- * Classification using liblinear / libsvm

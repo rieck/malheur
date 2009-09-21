@@ -88,6 +88,8 @@ static char *mist_copy_instr(char *ptr, char *line, int level)
  */
 char *mist_preproc(char *report)
 {
+    assert(report);
+
     long level, rlen, tlen, ti = 0, ri = 0;
     char *read_ptr = report, *write_ptr = report;
     char line[BUFFER_SIZE];

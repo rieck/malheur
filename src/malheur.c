@@ -28,7 +28,6 @@ config_t cfg;
 /* Local variables */
 static char *config_file = CONFIG_FILE;
 static char *output_file = NULL;
-static char *input_file = NULL;
 static char *proto_file = NULL;
 static malheur_task_t task = PROTOTYPE;
 static int lookup_table = FALSE;
@@ -41,7 +40,7 @@ static int html_output = FALSE;
  */
 void print_usage(int argc, char **argv)
 {
-    printf("Usage: malheur [options] <task> <input>\n"
+    printf("Usage: malheur [options] <task> <input> ...\n"
            "Tasks:\n"
            "  distance      Compute a distance matrix from malware reports\n"
            "  prototype     Extract prototypes from malware reports\n"
@@ -125,11 +124,6 @@ void parse_options(int argc, char **argv)
         task = CLASSIFY;
     else
         fatal("Unknown analysis task '%s'", argv[0]);
-    
-    /* Argument: Input */
-    input_file = argv[1];
-    if (access(input_file, R_OK))
-        fatal("Could not access '%s'", input_file); 
 
     /* Check for output fle */
     if (!output_file)
@@ -138,11 +132,25 @@ void parse_options(int argc, char **argv)
 
 /**
  * Determines prototypes for the given malware reports
+ * @param argv command line argumwents
+ * @param argc length of arguments 
  */
-static void malheur_prototype()
+static void malheur_prototype(int argc, char **argv)
 {
     /* Load data */
-    farray_t *fa = farray_extract(input_file);
+    farray_t *fa = NULL;
+    for (int i = 0; i < argc; i++) {
+        /* Argument: Input */
+        if (access(argv[i], R_OK)) {
+            warning("Could not access '%s'. Skipping", argv[i]);         
+            continue;
+        }
+        
+        farray_t *f = farray_extract(argv[i]);
+        fa = farray_merge(fa, f);
+    } 
+    
+    /* Extract prototypes */
     farray_t *pr = proto_extract(fa);
     
     if (verbose > 1)
@@ -165,11 +173,25 @@ static void malheur_prototype()
 
 /**
  * Clusters the given malware reports
+ * @param argv command line argumwents
+ * @param argc length of arguments 
  */
-static void malheur_cluster()
+static void malheur_cluster(int argc, char **argv)
 {
     /* Load data */
-    farray_t *fa = farray_extract(input_file);        
+    farray_t *fa = NULL;
+    for (int i = 0; i < argc; i++) {
+        /* Argument: Input */
+        if (access(argv[i], R_OK)) {
+            warning("Could not access '%s'. Skipping", argv[i]);         
+            continue;
+        }
+        
+        farray_t *f = farray_extract(argv[i]);
+        fa = farray_merge(fa, f);
+    } 
+
+    /* Extract prototypes */
     farray_t *pr = proto_extract(fa);    
 
     /* TODO */
@@ -185,16 +207,31 @@ static void malheur_cluster()
 
 /**
  * Classify the given malware reports
+ * @param argv command line argumwents
+ * @param argc length of arguments 
+
  */
-static void malheur_classify()
+static void malheur_classify(int argc, char **argv)
 {
     if (!proto_file)
         error("No prototype file specified.");
 
     /* Load data */
-    farray_t *fa = farray_extract(input_file);        
     farray_t *pr = proto_load_file(proto_file);
-    
+
+    /* Load data */
+    farray_t *fa = NULL;
+    for (int i = 0; i < argc; i++) {
+        /* Argument: Input */
+        if (access(argv[i], R_OK)) {
+            warning("Could not access '%s'. Skipping", argv[i]);         
+            continue;
+        }
+        
+        farray_t *f = farray_extract(argv[i]);
+        fa = farray_merge(fa, f);
+    } 
+
     /* TODO */
     
     /* Clean up */
@@ -205,12 +242,24 @@ static void malheur_classify()
 
 /**
  * Computes a distance matrix and saves the result to a file
+ * @param argv command line argumwents
+ * @param argc length of arguments 
  */
-static void malheur_distance()
+static void malheur_distance(int argc, char **argv)
 {
     /* Load data */
-    farray_t *fa = farray_extract(input_file);
-    
+    farray_t *fa = NULL;
+    for (int i = 0; i < argc; i++) {
+        /* Argument: Input */
+        if (access(argv[i], R_OK)) {
+            warning("Could not access '%s'. Skipping", argv[i]);         
+            continue;
+        }
+        
+        farray_t *f = farray_extract(argv[i]);
+        fa = farray_merge(fa, f);
+    } 
+
     /* Allocate distance matrix */
     double *d = malloc(fa->len * fa->len * sizeof(double));
     if (!d)
@@ -281,16 +330,16 @@ int main(int argc, char **argv)
     /* Perform task */
     switch (task) {
         case DISTANCE:
-            malheur_distance();
+            malheur_distance(argc, argv);
             break;
         case PROTOTYPE:
-            malheur_prototype();
+            malheur_prototype(argc, argv);
             break;
         case CLUSTER:
-            malheur_cluster();
+            malheur_cluster(argc, argv);
             break;
         case CLASSIFY:
-            malheur_classify();
+            malheur_classify(argc, argv);
             break;
     }
     

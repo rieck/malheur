@@ -385,16 +385,22 @@ void farray_print(farray_t *fa)
  */
 farray_t *farray_merge(farray_t *x, farray_t *y) 
 {
-    assert(x && y);
     int i;
+    
+    /* Check for arguments */
+    if (!x && y)
+        return y;
+    if (!y && x)
+        return x;
 
     /* Add to old array */
-    for (i = 0; i < y->len; i++) 
+    for (i = 0; i < y->len; i++) { 
         farray_add(x, y->x[i], farray_get_label(y, i));
-    
-    
+        y->x[i] = NULL;
+    }
+
     /* Clean up */
-    farray_destroy(y);
+    farray_destroy(y); 
     return x;
 }
 

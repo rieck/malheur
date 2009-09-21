@@ -46,6 +46,7 @@ void print_usage(int argc, char **argv)
            "  distance      Compute a distance matrix from malware reports\n"
            "  prototype     Extract prototypes from malware reports\n"
            "  cluster       Cluster malware reports into similar groups\n"
+           "  classify      Classify malware reports using labeled prototypes\n"
            "Options:\n"
            "  -c <file>     Set configuration file.\n"
            "  -p <file>     Set prototype file.\n"  
@@ -120,6 +121,8 @@ void parse_options(int argc, char **argv)
         task = DISTANCE;
     else if (!strcasecmp(argv[0], "cluster"))
         task = CLUSTER;
+    else if (!strcasecmp(argv[0], "classify"))
+        task = CLASSIFY;
     else
         fatal("Unknown analysis task '%s'", argv[0]);
     
@@ -167,11 +170,38 @@ static void malheur_cluster()
 {
     /* Load data */
     farray_t *fa = farray_extract(input_file);        
+    farray_t *pr = proto_extract(fa);    
+
+    /* TODO */
+
+    /* Save prototype vectors */
+    if (proto_file) 
+        proto_save_file(pr, proto_file);
+    
+    /* Clean up */
+    farray_destroy(pr);    
+    farray_destroy(fa);        
+}
+
+/**
+ * Classify the given malware reports
+ */
+static void malheur_classify()
+{
+    if (!proto_file)
+        error("No prototype file specified.");
+
+    /* Load data */
+    farray_t *fa = farray_extract(input_file);        
+    farray_t *pr = proto_load_file(proto_file);
     
     /* TODO */
     
+    /* Clean up */
+    farray_destroy(pr);
     farray_destroy(fa);        
 }
+
 
 /**
  * Computes a distance matrix and saves the result to a file
@@ -258,6 +288,9 @@ int main(int argc, char **argv)
             break;
         case CLUSTER:
             malheur_cluster();
+            break;
+        case CLASSIFY:
+            malheur_classify();
             break;
     }
     

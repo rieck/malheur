@@ -235,9 +235,10 @@ farray_t *farray_extract_archive(char *arc)
                 archive_read_data_skip(a);
                 l = NULL;
             } else {
-                x = malloc(s->st_size * sizeof(char));            
+                x = malloc((s->st_size + 1) * sizeof(char));            
                 archive_read_data(a, x, s->st_size);
                 l = strdup((char *) archive_entry_pathname(entry));
+                x[s->st_size] = 0;
             }
         }    
         

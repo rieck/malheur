@@ -377,6 +377,28 @@ void farray_print(farray_t *fa)
 }
 
 /**
+ * Merges two arrays into one. The second array is destroy and all 
+ * its memory is free'd.
+ * @param x First array of feature vectors
+ * @param y Second array of feature vectors
+ * @return array of feature vectors
+ */
+farray_t *farray_merge(farray_t *x, farray_t *y) 
+{
+    assert(x && y);
+    int i;
+
+    /* Add to old array */
+    for (i = 0; i < y->len; i++) 
+        farray_add(x, y->x[i], farray_get_label(y, i));
+    
+    
+    /* Clean up */
+    farray_destroy(y);
+    return x;
+}
+
+/**
  * Saves an array of feature vectors to a file 
  * @param fa Array of feature vectors
  * @param z Stream pointer

@@ -172,7 +172,7 @@ void mex_distance(MEX_SIGNATURE)
         fa2 = fa1;
 
     /* Compute distances */
-    out1 = mxCreateNumericMatrix(fa1->len, fa2->len, mxDOUBLE_CLASS, mxREAL);    
+    out1 = mxCreateNumericMatrix(fa2->len, fa1->len, mxDOUBLE_CLASS, mxREAL);    
     farray_dist(fa1, fa2, (double *) mxGetPr(out1));
 
     /* Create data struct */

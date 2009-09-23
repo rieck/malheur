@@ -42,8 +42,8 @@
 #define out1    plhs[0]         /* Default output 1 */
 #define out2    plhs[1]         /* Default output 2 */
 #define out3    plhs[2]         /* Default output 3 */
-#define out4    plhs[2]         /* Default output 4 */
-#define out5    plhs[2]         /* Default output 5 */
+#define out4    plhs[3]         /* Default output 4 */
+#define out5    plhs[4]         /* Default output 5 */
 
 
 /* Macros for faking a configuration */

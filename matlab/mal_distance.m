@@ -1,4 +1,4 @@
-function [dist, dx, dy] = mal_distance(ix, iy, cfg)
+function [dist, dx, dy, t1, t2] = mal_distance(ix, iy, cfg)
 %
 % MALHEUR - Automatic Malware Analysis on Steroids
 % Copyright (c) 2009 Konrad Rieck (rieck@cs.tu-berlin.de)
@@ -22,4 +22,4 @@ function [dist, dx, dy] = mal_distance(ix, iy, cfg)
 %
 
 % Call native function
-[dist, dx, dy] = malheur('distance', ix, iy, cfg);
+[dist, dx, dy, t1, t2] = malheur('distance', ix, iy, cfg);

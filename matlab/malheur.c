@@ -41,7 +41,9 @@
 /* Convenience definitions: Output */
 #define out1    plhs[0]         /* Default output 1 */
 #define out2    plhs[1]         /* Default output 2 */
-#define out3    plhs[2]         /* Default output 2 */
+#define out3    plhs[2]         /* Default output 3 */
+#define out4    plhs[2]         /* Default output 4 */
+#define out5    plhs[2]         /* Default output 5 */
 
 
 /* Macros for faking a configuration */
@@ -131,6 +133,7 @@ void mex_load_mist(MEX_SIGNATURE)
 void mex_distance(MEX_SIGNATURE)
 {
     char cf[1024], df1[1024], df2[1024];
+    double time1, time2;    
     farray_t *fa1, *fa2;
     int sym = 0;
 
@@ -165,22 +168,31 @@ void mex_distance(MEX_SIGNATURE)
         config_print(&cfg);
 
     /* Extract features */
+    time1 = time(NULL);
     fa1 = farray_extract(df1);
     if (!sym)
         fa2 = farray_extract(df2);
     else
         fa2 = fa1;
+    time1 = time(NULL) - time1;
 
     /* Compute distances */
+    time2 = time(NULL);
     out1 = mxCreateNumericMatrix(fa2->len, fa1->len, mxDOUBLE_CLASS, mxREAL);    
     farray_dist(fa1, fa2, (double *) mxGetPr(out1));
+    time2 = time(NULL) - time2;
 
     /* Create data struct */
     if (nlhs > 1)
         out2 = mal_data_struct(fa1);
     if (nlhs > 2)
         out3 = mal_data_struct(fa2);
-         
+    if (nlhs > 3)
+        out4 = mxCreateScalar(time1);
+    if (nlhs > 5)
+        out5 = mxCreateScalar(time2);
+
+  
     /* Clean up */
     farray_destroy(fa1);
     if (!sym)

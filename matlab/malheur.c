@@ -18,6 +18,7 @@
 #include <string.h>
 #include <libconfig.h>
 #include <strings.h>
+#include <time.h>
 
 #include "mist.h"
 #include "mconfig.h"

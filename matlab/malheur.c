@@ -190,7 +190,7 @@ void mex_distance(MEX_SIGNATURE)
         out3 = mal_data_struct(fa2);
     if (nlhs > 3)
         out4 = mxCreateScalar(time1);
-    if (nlhs > 5)
+    if (nlhs > 4)
         out5 = mxCreateScalar(time2);
 
   

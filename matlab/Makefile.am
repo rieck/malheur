@@ -13,11 +13,11 @@ MEXLDADD		= $(top_builddir)/src/libmalheur.a $(LIBS)
 
 EXTRA_DIST		= malheur.m malheur.c mal_load_mist.m \
 			  mal_distance.m malmex.c malmex.h \
-			  mal_dot_product.m
+			  mal_dot_product.m mal_jaccard.m mal_ncd.m
 
 if MATLAB_TOOLS
 matlab_DATA             = malheur.m mal_load_mist.m mal_distance.m \
-			  mal_dot_product.m
+			  mal_dot_product.m mal_jaccard.m mal_ncd.m
 matlabarch_SCRIPTS      = malheur.$(MEXEXT)
 endif
 

@@ -22,6 +22,7 @@
 
 #include "config.h"
 #include "common.h"
+#include "ftable.h"
 #include "fvec.h"
 #include "fmath.h"
 #include "util.h"
@@ -207,6 +208,109 @@ void farray_dist(farray_t *fa, farray_t *fb, double *d)
     }
 }
 
+
+/** 
+ * Compute Jaccard index between arrays of feature vectors (s = || a - b||). 
+ * @param fa Array of feature vectors (a)
+ * @param fb Array of feature vectors (b)
+ * @param d matrix of Jaccard index
+ */
+void farray_jaccard(farray_t *fa, farray_t *fb, double *d)
+{
+    assert(fa && fb);
+    long i, r = 0;
+    
+    if (verbose > 0) {
+        printf("Computing Jaccard (%lu x %lu matrix, %.2fMb).\n", 
+               fa->len, fb->len, (fa->len * fb->len * sizeof(double)) / 1e6);    
+        prog_bar(0, 1, 0);
+    }    
+    
+    if (fa == fb) {
+        #pragma omp parallel for shared(d)
+        for (i = 0; i < fa->len; i++) {
+            for (int j = i; j < fb->len; j++) {
+                d[i * fb->len + j] = fvec_jaccard(fa->x[i], fb->x[j]);
+                d[j * fb->len + i] = d[i * fb->len + j];                
+            }
+            
+            if (verbose > 0) {
+                #pragma omp critical
+                {
+                    r += fb->len - i;
+                    prog_bar(0, (fa->len * fa->len + fa->len) / 2.0, r);
+                }
+            }    
+        }    
+    } else {
+        #pragma omp parallel for shared(d)
+        for (i = 0; i < fa->len; i++) {
+            for (int j = 0; j < fb->len; j++) 
+                d[i * fb->len + j] = fvec_jaccard(fa->x[i], fb->x[j]);
+            
+            if (verbose > 0) {
+                #pragma omp critical
+                {
+                    r += fb->len;
+                    prog_bar(0, fa->len * fb->len, r);
+                }
+            }
+        }    
+    }
+}
+
+/** 
+ * Compute Jaccard index between arrays of feature vectors (s = || a - b||). 
+ * @param fa Array of feature vectors (a)
+ * @param fb Array of feature vectors (b)
+ * @param d matrix of Jaccard index
+ */
+void farray_ncd(farray_t *fa, farray_t *fb, double *d)
+{
+    assert(fa && fb);
+    long i, r = 0;
+    
+    if (verbose > 0) {
+        printf("Computing NCD (%lu x %lu matrix, %.2fMb).\n", 
+               fa->len, fb->len, (fa->len * fb->len * sizeof(double)) / 1e6);    
+        prog_bar(0, 1, 0);
+    }    
+    
+    if (fa == fb) {
+        #pragma omp parallel for shared(d)
+        for (i = 0; i < fa->len; i++) {
+            for (int j = i; j < fb->len; j++) {
+                d[i * fb->len + j] = fvec_ncd(fa->x[i], fb->x[j]);
+                d[j * fb->len + i] = d[i * fb->len + j];                
+            }
+            
+            if (verbose > 0) {
+                #pragma omp critical
+                {
+                    r += fb->len - i;
+                    prog_bar(0, (fa->len * fa->len + fa->len) / 2.0, r);
+                }
+            }    
+        }    
+    } else {
+        #pragma omp parallel for shared(d)
+        for (i = 0; i < fa->len; i++) {
+            for (int j = 0; j < fb->len; j++) 
+                d[i * fb->len + j] = fvec_ncd(fa->x[i], fb->x[j]);
+            
+            if (verbose > 0) {
+                #pragma omp critical
+                {
+                    r += fb->len;
+                    prog_bar(0, fa->len * fb->len, r);
+                }
+            }
+        }    
+    }
+}
+
+
+
 /** 
  * Dot product between arrays of feature vectors (s = <a,b>). 
  * @param fa Array of feature vectors (a)
@@ -300,6 +404,96 @@ double fvec_dot(fvec_t *fa, fvec_t *fb)
     else
         return fvec_dot_loop(fa, fb);
 }
+
+/** 
+ * Jaccard index between two feature vectors. The function 
+ * uses a loop to sum over all dimensions. See Rieck & Laskov, JMLR.
+ * @param fa Feature vector (a)
+ * @param fb Feature vector (b)
+ * @return s Jaccard
+ */
+double fvec_jaccard(fvec_t *fa, fvec_t *fb) 
+{
+    assert(fa && fb);
+    unsigned long i = 0, j = 0;
+    double a = 0, b = 0, c = 0;
+
+    /* Loop over features in a and b */
+    while (i < fa->len && j < fb->len) {
+        if (fa->dim[i] > fb->dim[j]) {
+            b += fb->val[j];
+            j++;
+        } else if (fa->dim[i] < fb->dim[j]) {
+            c += fa->val[i]; 
+            i++;
+        } else {
+            double m = fa->val[i] < fb->val[j] ? 
+                       fa->val[i] : fb->val[j];
+                
+            a += m;
+            b += fb->val[j] - m;
+            c += fa->val[i] - m;
+            i++, j++;
+        }
+    }
+
+    /* Loop over remaining dimensions */
+    while (j < fb->len) {
+        b += fb->val[j];     
+        j++;
+    }
+    while (i < fa->len) {
+        c += fa->val[i]; 
+        i++;
+    }
+    
+    return a / (a + b + c); 
+}
+
+
+/** 
+ * Normalized compression distance between two feature vectors. 
+ * @param fa Feature vector (a)
+ * @param fb Feature vector (b)
+ * @return s Jaccard
+ */
+double fvec_ncd(fvec_t *fa, fvec_t *fb) 
+{
+    assert(fa && fb);
+    long xl, yl, cl;
+    char *dest, *cmb;
+
+    /* Hack to retrieve MIST string */
+    assert(fa->len == 1 && fb->len == 1);
+
+    fentry_t *x = ftable_get(fa->dim[0]);
+    fentry_t *y = ftable_get(fb->dim[0]);    
+
+    xl = compressBound(x->len);
+    dest = malloc(xl);
+    compress(dest, &xl, x->data, x->len);
+    free(dest);
+
+    yl = compressBound(y->len);
+    dest = malloc(yl);
+    compress(dest, &yl, y->data, y->len);
+    free(dest);
+
+    cmb = malloc(x->len + y->len);
+    memcpy(cmb, x->data, x->len);
+    memcpy(cmb + x->len, y->data, y->len);
+
+    cl = compressBound(x->len + y->len);
+    dest = malloc(cl);
+    compress(dest, &cl, cmb, x->len + y->len);
+    free(dest);
+    free(cmb);
+    
+    double f = cl - xl<yl?xl:yl;
+    f /= xl<yl?yl:xl;
+    return f;
+}
+
 
 /** 
  * Adds two feature vectors and create a new one (c = a + b * s)

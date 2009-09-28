@@ -50,4 +50,5 @@ fvec_t *fvec_load(gzFile *);
 void fvec_reset_delim();
 void fvec_realloc(fvec_t *);
 
+
 #endif                          /* FVEC_H */

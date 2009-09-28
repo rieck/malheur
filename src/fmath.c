@@ -158,7 +158,7 @@ static double fvec_dot_bsearch(fvec_t *fa, fvec_t *fb)
 }
 
 /** 
- * Compute distances between arrays of feature vectors (s = || a - b||). 
+ * Compute distances between arrays of feature vectors (s = ||a - b||). 
  * @param fa Array of feature vectors (a)
  * @param fb Array of feature vectors (b)
  * @param d matrix of distances (a_len * b_len)

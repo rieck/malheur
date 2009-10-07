@@ -169,19 +169,19 @@ void mex_distance(MEX_SIGNATURE)
         config_print(&cfg);
 
     /* Extract features */
-    time1 = time(NULL);
+    time1 = time_stamp();
     fa1 = farray_extract(df1);
     if (!sym)
         fa2 = farray_extract(df2);
     else
         fa2 = fa1;
-    time1 = time(NULL) - time1;
+    time1 = time_stamp() - time1;
 
     /* Compute distances */
-    time2 = time(NULL);
+    time2 = time_stamp();
     out1 = mxCreateNumericMatrix(fa2->len, fa1->len, mxDOUBLE_CLASS, mxREAL);    
     farray_dist(fa1, fa2, (double *) mxGetPr(out1));
-    time2 = time(NULL) - time2;
+    time2 = time_stamp() - time2;
 
     /* Create data struct */
     if (nlhs > 1)
@@ -192,7 +192,6 @@ void mex_distance(MEX_SIGNATURE)
         out4 = mxCreateScalar(time1);
     if (nlhs > 4)
         out5 = mxCreateScalar(time2);
-
   
     /* Clean up */
     farray_destroy(fa1);

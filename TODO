@@ -6,6 +6,9 @@
 
  TODO  
 
+ * Fix bug in stat of libarchive on MacOS 10.6
+
  * Filtering of arrays using file names
  * Support to merge arrays
  * Clustering with and without prototypes
+ 

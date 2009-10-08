@@ -214,8 +214,6 @@ farray_t *farray_extract_archive(char *arc)
         return NULL;
         
     list_arc_entries(arc, &fnum, &total);
-
-    printf("In archive %d %d\n", fnum, total);
     
     /* Open archive */
     a = archive_read_new();

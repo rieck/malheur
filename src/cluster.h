@@ -20,7 +20,11 @@ typedef struct {
     int *cluster;           /* Assignments of clustering */
     unsigned long len;      /* Length of assignments */
     unsigned long num;      /* Number of clusters */
-    double param;           /* Clustering parameter */
-} clustering_t;
+} cluster_t;
+
+
+/* Functions */
+cluster_t *cluster_linkage(farray_t *);
+void cluster_destroy(cluster_t *);
 
 #endif                          /* CLUSTER_H */

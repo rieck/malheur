@@ -20,6 +20,7 @@
 #include "proto.h"
 #include "util.h"
 #include "export.h"
+#include "cluster.h"
 
 /* Global variables */
 int verbose = 0;
@@ -198,12 +199,14 @@ static void malheur_cluster()
     farray_t *pr = proto_extract(fa);    
 
     /* TODO */
+    cluster_t *c = cluster_linkage(pr);
 
     /* Save prototype vectors */
     if (proto_file) 
         proto_save_file(pr, proto_file);
     
     /* Clean up */
+    cluster_destroy(c);
     farray_destroy(pr);    
     farray_destroy(fa);        
 }

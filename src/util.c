@@ -323,9 +323,15 @@ void list_arc_entries(char *arc, int *fnum, int *total)
     
     /* Jump through archive */
     while (archive_read_next_header(a, &entry) == ARCHIVE_OK) {
+    
+        /* 
+         * FIXME: This call return garbage on MacOS 10.6. Probably a 
+         * 64 bit issue with libarchive. Need to look into this later. 
+         */
         const struct stat *s = archive_entry_stat(entry);
-        if (S_ISREG(s->st_mode))      
+        if (S_ISREG(s->st_mode)) 
             ++*fnum;
+
         ++*total;    
         archive_read_data_skip(a);
     }

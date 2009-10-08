@@ -76,7 +76,7 @@ static farray_t *proto_run(farray_t *fa, long n, double m, double z)
                     j = k;
                 }
         }
-        
+
         /* Check for minimum distance between prototypes */
         if (di[j] < m)
             break;

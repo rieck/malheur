@@ -13,7 +13,8 @@
 
 /**
  * @defgroup cluster Clustering functionality
- * The module contains functions for clustering feature vectors
+ * The module contains functions for grouping feature vectors using
+ * linkage clustering.
  * @author Konrad Rieck (rieck@cs.tu-berlin.de)
  * @{
  */
@@ -27,13 +28,17 @@
 extern int verbose;
 
 /**
- * Clusters a set of feature vectors
+ * Clusters a set of feature vectors using complete-linkage clustering
  * @param a Array of feature vectors
  * @return clustering
  */
 clustering_t *cluster_linkage(farray_t *fa) 
 {
     assert(fa);
+    
+    
+
+
     return NULL;
 } 
 

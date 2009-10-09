@@ -28,7 +28,7 @@ config_t cfg;
 
 /* Local variables */
 static char *config_file = CONFIG_FILE;
-static char *output_file = NULL;
+static char *output_file = OUTPUT_FILE;
 static char **input_files = NULL;
 static int input_len = 0;
 static char *proto_file = NULL;
@@ -59,16 +59,6 @@ static void print_usage(int argc, char **argv)
 }
 
 /**
- * Print version and copyright information
- */
-static void print_version()
-{
-    printf(" MALHEUR - Automatic Malware Analysis on Steroids\n"
-           " Copyright (c) 2009 Konrad Rieck (rieck@cs.tu-berlin.de)\n"
-           " Berlin Institute of Technology (TU Berlin).\n");
-}
-
-/**
  * Parse command line options
  * @param argc Number of arguments
  * @param argv Argument values
@@ -94,7 +84,7 @@ static void parse_options(int argc, char **argv)
                 lookup_table = TRUE;
                 break;
             case 'V':
-                print_version();
+                malheur_version(stdout);
                 exit(EXIT_SUCCESS);
                 break;
             case 'h':

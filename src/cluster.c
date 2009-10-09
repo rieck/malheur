@@ -30,57 +30,53 @@ extern int verbose;
 extern config_t cfg;
 
 /* Simple macro distance matrix */
-#define D(x,y)      dist[x * fa->len + y]
+#define D(x,y)      d[x * c->len + y]
 
 /**
  * Linkage clustering algorithm by Mutargh. The algorithm has a 
  * worst-case run-time of O(n^3) but usually runs in O(n^2). Note
  * that in the generic case linkage clustering has a worst-case 
  * time complexity of O(n^2 log n).
- * @param fa Feature vectors
  * @param c Clustering structure
- * @param dm Minimum distance
+ * @param d Minimum distance
+ * @param m Clustering mode
  */
-static void linkage_murtagh(farray_t *fa, cluster_t *c, double *dist, double dm)
+static 
+void linkage_murtagh(cluster_t *c, double *d, double dm, char m)
 {
+    assert(c && d);
     double dmin; 
     long k, j, i, jj, jm, ii, im;
 
     /* Allocate stuff */
-    char *done = calloc(1, sizeof(char) * fa->len);
-    unsigned long *nn = malloc(sizeof(unsigned long) * fa->len);
-    double *dnn = malloc(sizeof(double) * fa->len);
-    
+    char *done = calloc(1, sizeof(char) * c->len);
+    unsigned long *nn = malloc(sizeof(unsigned long) * c->len);
+    double *dnn = malloc(sizeof(double) * c->len);
     if (!done || !nn || !dnn) {
         error("Could not allocate memory for clustering algorithm.");
         goto err;
     }
     
     /* Main loop */
-    for (k = 0; k < fa->len - 1; k++) {
+    for (k = 0; k < c->len - 1; k++) {
+        /* Update nearest neighbors for each point */
         #pragma omp parallel for default(shared) private(dmin, jj)
-        for (i = 0; i < fa->len; i++) {
-            if (done[i])
-                continue;
-            if (k > 0 && (nn[i] != im && nn[i] != jm))
+        for (i = 0; i < c->len; i++) {
+            if (done[i] || (k > 0 && (nn[i] != im && nn[i] != jm)))
                 continue;
             dmin = DBL_MAX, jj = 0;
-            for (j = i + 1; j < fa->len; j++) {
-                if (done[j])
-                    continue;
-                if (D(i,j) >= dmin) 
+            for (j = i + 1; j < c->len; j++) {
+                if (done[j] || D(i,j) >= dmin) 
                     continue;
                 dmin = D(i,j), jj = j;
             }
             dnn[i] = dmin, nn[i] = jj;
         }
     
-        /* Determine minimum */
+        /* Determine smalled distance */
         dmin = DBL_MAX, im = 0;
-        for (i = 0; i < fa->len; i++) {
-            if (done[i])
-                continue;
-            if (dnn[i] >= dmin) 
+        for (i = 0; i < c->len; i++) {
+            if (done[i] || dnn[i] >= dmin) 
                 continue;
             dmin = dnn[i], im = i;
         }
@@ -89,45 +85,90 @@ static void linkage_murtagh(farray_t *fa, cluster_t *c, double *dist, double dm)
         if (dmin > dm)
             break;
 
-        /* Update cluster assignments */
-        for (i = 0; i < fa->len; i++)
-            if (c->cluster[i] == jm)
-                c->cluster[i] = im;
+        /* Update */
         done[jm] = TRUE;
         c->num--;
         
-        /* Update distance matrix */
-        dmin = DBL_MAX, ii = 0;
-        for (i = 0; i < fa->len; i++) {
-            if (done[i])
+        /* Update clusters and distance matrix */
+        int cm = c->cluster[jm];
+        #pragma omp parallel for default(shared)
+        for (i = 0; i < c->len; i++) {
+            /* Update cluster assignments */
+            if (c->cluster[i] == cm)
+                c->cluster[i] = c->cluster[im];
+            if (done[i] || i == im)
                 continue;
-            if (i == im)
-                continue;
-            D(im, k) = fmax(D(im, k), D(jm, k));
-            D(k, im) = D(im, k);
             
-            if (D(im, k) >= dmin)
+            switch(m) {
+                /* Single linkage */
+                case 's':
+                    D(im, i) = fmin(D(im, i), D(jm, i));
+                    break;
+                /* Average linkage */
+                case 'a':
+                    D(im, i) = (D(im, i) + D(jm, i)) / 2;
+                    break;
+                /* Complete linkage */
+                default:
+                case 'c':
+                    D(im, i) = fmax(D(im, i), D(jm, i));
+                    break;
+            }
+            D(i, im) = D(im, i);
+        }
+        
+        /* Update nearest neighbors */
+        dmin = DBL_MAX, ii = 0;
+        for (i = 0; i < c->len; i++) {
+            if (done[i] || i == m || D(im, i) >= dmin)
                 continue;
-            dmin = D(im,k), ii = i;
+            dmin = D(im, i), ii = i;
         }
         dnn[im] = dmin;
         nn[im] = ii;
         
         if (verbose) 
-            prog_bar(0, fa->len - 1, k);
+            prog_bar(0, c->len - 1, k);
     }
-
-#if 0    
-    for (i = 0; i < fa->len; i++)
-        printf("%d ", c->cluster[i]);
-    printf("\n");
-#endif    
     
 err:    
     /* Free remaining arrays */
     free(done);
     free(nn);
     free(dnn);
+}
+
+/**
+ * Initializes an empty clustering 
+ * @param n Number of points
+ * @return clustering structure
+ */
+static cluster_t *cluster_create(int n)
+{
+    int i;
+
+    /* Allocate cluster structure */
+    cluster_t *c = calloc(1, sizeof(cluster_t));
+    if (!c) {
+        error("Could not allocate cluster structure");
+        return NULL;
+    }
+
+    /* Allocate cluster assignments */
+    c->cluster = malloc(sizeof(int) * n);
+    if (!c->cluster) {
+        error("Could not allocate cluster assignments");
+        cluster_destroy(c);
+        return NULL;
+    }
+
+    /* Initialize cluster assignements */
+    c->num = n;
+    c->len = n;
+    for (i = 0; i < n; i++)
+        c->cluster[i] = i + 1;
+        
+    return c;
 }
 
 /**
@@ -138,37 +179,28 @@ err:
 cluster_t *cluster_linkage(farray_t *fa) 
 {
     assert(fa);
-    double mindist;
-    long i, reject;
+    double dmin;
+    long rej;
+    const char *mode;
     
     /* Get cluster configuration */
-    config_lookup_float(&cfg, "cluster.min_dist", (double *) &mindist);
-    config_lookup_int(&cfg, "cluster.reject_num", (long *) &reject);
-    
+    config_lookup_float(&cfg, "cluster.min_dist", (double *) &dmin);
+    config_lookup_int(&cfg, "cluster.reject_num", (long *) &rej);
+    config_lookup_string(&cfg, "cluster.link_mode", &mode);
+
     /* Allocate cluster structure */
-    cluster_t *c = calloc(1, sizeof(cluster_t));
-    c->cluster = malloc(sizeof(int) * fa->len);
-    if (!c || !c->cluster) {
-        error("Could not allocate cluster structure");
-        cluster_destroy(c);
-        return NULL;
-    }
+    cluster_t *c = cluster_create(fa->len);
 
-    /* Initialize cluster assignements */
-    c->num = fa->len;
-    for (i = 0; i < fa->len; i++)
-        c->cluster[i] = i + 1;
-
-    double *dist = malloc(sizeof(double) * fa->len * fa->len);
     /* Compute distances */
+    double *dist = malloc(sizeof(double) * fa->len * fa->len);
     farray_dist(fa, fa, dist); 
 
     if (verbose > 0) 
-        printf("Clustering prototypes with minimum distance %4.2f "
-               "and %ld rejection threshold.\n", mindist, reject);
+        printf("Clustering (%s linkage) with minimum distance %4.2f.\n",
+               mode, dmin);
     
     /* Run clustering */
-    linkage_murtagh(fa, c, dist, mindist);
+    linkage_murtagh(c, dist, dmin, mode[0]);
 
     if (verbose > 0) {
         prog_bar(0, 1, 1);
@@ -187,6 +219,11 @@ void cluster_destroy(cluster_t *c)
 {
     if (!c)
         return;
+
+    int i = 0;
+    for (i = 0; i < c->len; i++)
+        printf("%d ", c->cluster[i]);
+    printf("\n");
         
     if (c->cluster)
         free(c->cluster);

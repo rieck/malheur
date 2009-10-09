@@ -276,4 +276,3 @@ void export_proto_html(farray_t *p, farray_t *fa, char *file)
 }
 
 /** @} */
-

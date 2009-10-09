@@ -50,7 +50,7 @@ void linkage_murtagh(cluster_t *c, double *d, double dm, char m)
 
     /* Allocate stuff */
     char *done = calloc(1, sizeof(char) * c->len);
-    unsigned long *nn = malloc(sizeof(unsigned long) * c->len);
+    long *nn = malloc(sizeof(long) * c->len);
     double *dnn = malloc(sizeof(double) * c->len);
     if (!done || !nn || !dnn) {
         error("Could not allocate memory for clustering algorithm.");
@@ -92,6 +92,7 @@ void linkage_murtagh(cluster_t *c, double *d, double dm, char m)
         
         /* Update clusters and distance matrix */
         int cm = c->cluster[jm];
+        
         #pragma omp parallel for default(shared) private(dnew)
         for (i = 0; i < c->len; i++) {
             /* Update cluster assignments */
@@ -156,7 +157,7 @@ static cluster_t *cluster_create(int n)
     }
 
     /* Allocate cluster assignments */
-    c->cluster = malloc(sizeof(int) * n);
+    c->cluster = malloc(sizeof(unsigned int) * n);
     if (!c->cluster) {
         error("Could not allocate cluster assignments");
         cluster_destroy(c);

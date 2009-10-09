@@ -38,7 +38,7 @@ extern config_t cfg;
  * @param fa Feature vector array
  * @param file File name 
  */
-void export_distance_text(double *d, farray_t *fa, char *file)
+void export_dist(double *d, farray_t *fa, char *file)
 {
     assert(d && fa && file);
     int i, j;
@@ -77,7 +77,7 @@ void export_distance_text(double *d, farray_t *fa, char *file)
  * @param fa Feature vector array
  * @param file File name
  */
-void export_proto_text(farray_t *p, farray_t *fa, char *file)
+void export_proto(farray_t *p, farray_t *fa, char *file)
 {
     assert(p && fa && file);
     int i, j;
@@ -96,12 +96,17 @@ void export_proto_text(farray_t *p, farray_t *fa, char *file)
     
     /* Print version header */
     malheur_version(f);
+    
+    /* Evaluate some quality functions */
+    double *e = quality(fa->y, c->proto, c->len);
 
     /* Print prototype header */
     fprintf(f, "# ---\n# Prototypes for %s\n", fa->src);
-    fprintf(f, "# Number of prototypes: %ld (%4.1f%%)\n# ---\n", p->len, 
+    fprintf(f, "# Number of prototypes: %ld (%3.1f%%)\n", p->len, 
             p->len * 100.0 / (double) fa->len);
-    fprintf(f, "# <report> <prototype> <label> <distance>\n");
+    fprintf(f, "# Precision of prototypes: %4.1f%%\n", 
+            e[Q_PRECISION] * 100.0);
+    fprintf(f, "# ---\n# <report> <prototype> <label> <distance>\n");
     
     for (i = 0; i < fa->len; i++) {
         j = c->proto[i];
@@ -112,5 +117,42 @@ void export_proto_text(farray_t *p, farray_t *fa, char *file)
     fclose(f);
     assign_destroy(c);
 }
+
+/**
+ * Exports a clustering structure to a text file
+ * @param c Clustering structure
+ * @param fa Feature vector array
+ * @param file File name
+ */
+void export_cluster(cluster_t *c, farray_t *fa, char *file)
+{
+    assert(c && fa && file);
+    FILE *f;
+
+    if (verbose > 0)
+        printf("Exporting clusters to '%s'.\n", file);
+    
+    if (!(f = fopen(file, "w"))) {
+        error("Could not create file '%s'.", file);
+        return;
+    }
+    
+    /* Print version header */
+    malheur_version(f);
+    
+    /* Evaluate some quality functions */
+    double *e = quality(fa->y, c->cluster, c->len);
+
+    /* Print prototype header */
+    fprintf(f, "# ---\n# Clusters for %s\n", fa->src);
+    fprintf(f, "# Number of cluster: %ld\n", c->num);
+    fprintf(f, "# Precision of clusters: %4.1f%%\n", e[Q_PRECISION] * 100.0);
+    fprintf(f, "# Recall of clusters: %4.1f%%\n", e[Q_RECALL] * 100.0);
+    fprintf(f, "# F-measure of clusters: %4.1f%%\n", e[Q_FMEASURE] * 100.0);
+    fprintf(f, "# ---\n# <report> <cluster> <prototype> <label> <distance>\n");
+    
+    fclose(f);
+}
+
 
 /** @} */

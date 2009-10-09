@@ -16,10 +16,12 @@
 
 #include "farray.h"
 #include "proto.h"
+#include "cluster.h"
 
 /* I/O functions */
-void export_proto_text(farray_t *p, farray_t *fa, char *file);
-void export_distance_text(double *d, farray_t *f, char *file);
+void export_cluster(cluster_t *c, farray_t *fa, char *file);
+void export_dist(double *d, farray_t *f, char *file);
+void export_proto(farray_t *p, farray_t *fa, char *file);
 
 
 #endif                          /* EXPORT_H */

@@ -158,7 +158,7 @@ static void malheur_prototype()
         farray_print(pr);
     
     /* Export prototypes */
-    export_proto_text(pr, fa, output_file);
+    export_proto(pr, fa, output_file);
     
     /* Save prototype vectors */
     if (proto_file) 
@@ -180,8 +180,11 @@ static void malheur_cluster()
     /* Extract prototypes */
     farray_t *pr = proto_extract(fa);    
 
-    /* TODO */
+    /* Cluster prototypes */
     cluster_t *c = cluster_linkage(pr);
+    
+    /* Export prototypes */
+    export_cluster(c, fa, output_file);    
 
     /* Save prototype vectors */
     if (proto_file) 
@@ -232,7 +235,7 @@ static void malheur_distance()
     farray_dist(fa, fa, d);
     
     /* Save distance matrix */
-    export_distance_text(d, fa, output_file);
+    export_dist(d, fa, output_file);
     
     /* Clean up */
     free(d);

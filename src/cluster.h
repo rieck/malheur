@@ -17,7 +17,7 @@
 #include "farray.h"
 
 typedef struct {
-    int *cluster;           /* Assignments of clustering */
+    unsigned int *cluster;  /* Assignments of clustering */
     unsigned long len;      /* Length of assignments */
     unsigned long num;      /* Number of clusters */
 } cluster_t;

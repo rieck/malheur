@@ -6,7 +6,8 @@
 
  TODO  
 
- * Fix bug in stat of libarchive on MacOS 10.6
+ * Add support for rejected clusters
+ * Export function for clustering
  * Loading and saving of prototypes (for incremental analysis)
  * Clustering with and without prototypes
  

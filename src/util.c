@@ -55,51 +55,6 @@ int cmp_feat(const void *x, const void *y)
     return 0;
 }
 
-/**
- * Compares two double values
- * @param x double X
- * @param y double Y
- * @return result as a signed integer
- */
-int cmp_double(const void *x, const void *y)
-{
-    if (*((double *) x) > *((double *) y))
-        return +1;
-    if (*((double *) x) < *((double *) y))
-        return -1;
-    return 0;
-}
-
-/**
- * Compares two unsigned integer values
- * @param x double X
- * @param y double Y
- * @return result as a signed integer
- */
-int cmp_uint(const void *x, const void *y)
-{
-    if (*((unsigned int *) x) > *((unsigned int *) y))
-        return +1;
-    if (*((unsigned int *) x) < *((unsigned int *) y))
-        return -1;
-    return 0;
-}
-
-/**
- * Compares two integer values
- * @param x double X
- * @param y double Y
- * @return result as a signed integer
- */
-int cmp_int(const void *x, const void *y)
-{
-    if (*((int *) x) > *((int *) y))
-        return +1;
-    if (*((int *) x) < *((int *) y))
-        return -1;
-    return 0;
-}
-
 /*
  * Sorts the provided array and also returns an array of corresponding
  * indices. The array's memory need to be free'd.
@@ -217,7 +172,7 @@ void prog_bar(double min, double max, double in)
     int secs = floor(ptime - mins * 60);
     pb_string[PROGBAR_LEN] = 0;
 
-    printf("\r  [%s] %5.1f%%  %s %.2dm %.2ds", pb_string,
+    printf("\r  [%s] %5.1f%%  %s %.2dm %.2ds ", pb_string,
            perc * 100, descr, mins, secs);
            
     if (last)
@@ -323,11 +278,6 @@ void list_arc_entries(char *arc, int *fnum, int *total)
     
     /* Jump through archive */
     while (archive_read_next_header(a, &entry) == ARCHIVE_OK) {
-    
-        /* 
-         * FIXME: This call return garbage on MacOS 10.6. Probably a 
-         * 64 bit issue with libarchive. Need to look into this later. 
-         */
         const struct stat *s = archive_entry_stat(entry);
         if (S_ISREG(s->st_mode)) 
             ++*fnum;
@@ -414,14 +364,28 @@ void malheur_version(FILE *f)
 }
 
 /** 
- * Computes the size of the upper triangle of an n x n matrix
- * @param n dimension of matrix
+ * Size of upper triangle of a symmatrix matrix
+ * @param n length of one dimension
  * @return size of triangle
  */
-unsigned long tria_size(unsigned long n)
+long tria_size(long n)
 {
     return n * (n + 1) / 2;
 } 
+
+/** 
+ * Index of point in the upper triangle of a symmetric matrix
+ * @param x coordinate in x axis
+ * @param y coordinate in y axis
+ * @param n length of one dimension 
+ */
+long tria_pos(long x, long y, long n)
+{
+    if (y < x) 
+        return tria_size(y) + (n - y) * x + (x - y);
+    else 
+        return tria_size(x) + (n - x) * x + (y - x);
+}
 
 /**
  * Determine the maximum of an array
@@ -464,45 +428,3 @@ int array_min(double *a, int l)
     
     return k;
 }
-
-/**
- * Checks and fixes the range of a value 
- * @param a Value to check
- * @param mi Minimum value
- * @param ma Maximum value
- * @return fixed value
- */
-int check_range(int a, int mi, int ma)
-{
-    a = a < mi ? mi : a;
-    a = a > ma ? ma : a;
-    return a;
-} 
-
-#ifndef HAVE_FUNC_LOG2
-/** 
- * Logarithm of x to base 2
- * @param x input value
- * @return logarithm 
- */
-double log2(double x)
-{
-    return log10(x) * 3.32192809488736234;
-}
-#endif
-
-#ifndef HAVE_FUNC_ROUND
-/** 
- * Round function 
- * @param x input value
- * @return integer number
- */
-long round(double x)
-{
-    double f = floor(x);
-    if (s - f >= 0.5)
-        return (long) f + 1;
-    return (long) f;
-}
-#endif
-

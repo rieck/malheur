@@ -89,9 +89,9 @@ double *quality(unsigned int *y, unsigned int *a, int n)
 }
 
 /**
- * Creates an histogram for each label containing countments.
+ * Creates an histogram for each label containing assignments.
  * @param y Labels of data points
- * @param a countments to clusters or classes
+ * @param a Assignments to clusters or classes
  * @param n Number of data points
  * @return histogram struct
  */

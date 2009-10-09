@@ -34,7 +34,6 @@ static int input_len = 0;
 static char *proto_file = NULL;
 static malheur_task_t task = PROTOTYPE;
 static int lookup_table = FALSE;
-static int html_output = FALSE;
 
 /**
  * Print usage of command line tool
@@ -54,7 +53,6 @@ static void print_usage(int argc, char **argv)
            "  -p <file>     Set prototype file.\n"  
            "  -o <file>     Set output file for analysis.\n"   
            "  -l            Enable feature lookup table.\n"
-           "  -t            Enable HTML output for analysis.\n"
            "  -v            Increase verbosity.\n"
            "  -V            Print version and copyright.\n"
            "  -h            Print this help screen.\n");
@@ -78,7 +76,7 @@ static void print_version()
 static void parse_options(int argc, char **argv)
 {
     int ch;
-    while ((ch = getopt(argc, argv, "o:p:ltc:hvV")) != -1) {
+    while ((ch = getopt(argc, argv, "o:p:lc:hvV")) != -1) {
         switch (ch) {
             case 'v':
                 verbose++;
@@ -94,9 +92,6 @@ static void parse_options(int argc, char **argv)
                 break;
             case 'l':
                 lookup_table = TRUE;
-                break;
-            case 't':
-                html_output = TRUE;
                 break;
             case 'V':
                 print_version();
@@ -173,10 +168,7 @@ static void malheur_prototype()
         farray_print(pr);
     
     /* Export prototypes */
-    if (html_output)
-        export_proto_html(pr, fa, output_file);
-    else 
-        export_proto_text(pr, fa, output_file);
+    export_proto_text(pr, fa, output_file);
     
     /* Save prototype vectors */
     if (proto_file) 
@@ -250,10 +242,7 @@ static void malheur_distance()
     farray_dist(fa, fa, d);
     
     /* Save distance matrix */
-    if (html_output)
-        export_distance_html(d, fa, output_file);
-    else
-        export_distance_text(d, fa, output_file);
+    export_distance_text(d, fa, output_file);
     
     /* Clean up */
     free(d);

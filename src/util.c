@@ -403,6 +403,17 @@ char *file_suffix(char *file)
 }
 
 /**
+ * Print version and copyright information
+ */
+void malheur_version(FILE *f)
+{
+    fprintf(f, "# MALHEUR (%d.%d.%d)- Automatic Malware Analysis on Steroids\n"
+               "# Copyright (c) 2009 Konrad Rieck (rieck@cs.tu-berlin.de)\n"
+               "# Berlin Institute of Technology (TU Berlin).\n", MALHEUR_MAJOR,
+               MALHEUR_MINOR, MALHEUR_PATCH);
+}
+
+/**
  * Checks and fixes the range of a value 
  * @param a Value to check
  * @param mi Minimum value
@@ -415,7 +426,6 @@ int check_range(int a, int mi, int ma)
     a = a > ma ? ma : a;
     return a;
 } 
- 
 
 #ifndef HAVE_FUNC_LOG2
 /** 

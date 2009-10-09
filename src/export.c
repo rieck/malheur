@@ -41,21 +41,30 @@ extern config_t cfg;
 void export_distance_text(double *d, farray_t *fa, char *file)
 {
     assert(d && fa && file);
-    int i,j;
+    int i, j;
+    FILE *f;
     
     if (verbose > 0)
         printf("Exporting distance matrix to '%s'.\n", file);
     
-    FILE *f = fopen(file, "w");
-    if (!f) {
+    if (!(f = fopen(file, "w"))) {
         error("Could not create file '%s'.", file);
         return;
     }
     
+    /* Print version header */
+    malheur_version(f);
+
+    /* Print distance header */
+    fprintf(f, "# ---\n# Distance matrix for %s\n", fa->src);
+    fprintf(f, "# Matrix size: %ld x %ld\n# ---\n", fa->len, fa->len);
+    fprintf(f, "# <report> <dist1> <dist2> ... <distn>\n");
+    
+    /* Print matrix */
     for (i = 0; i < fa->len; i++) {
-        fprintf(f, "%s:", fa->x[i]->src);
+        fprintf(f, "%s ", fa->x[i]->src);
         for (j = 0; j < fa->len; j++)
-            fprintf(f, " %g", d[i * fa->len + j]);
+            fprintf(f, "%g ", d[i * fa->len + j]);
         fprintf(f, "\n");
     }
     
@@ -72,6 +81,7 @@ void export_proto_text(farray_t *p, farray_t *fa, char *file)
 {
     assert(p && fa && file);
     int i, j;
+    FILE *f;
 
     /* Assign data to prototypes */
     assign_t *c = proto_assign(fa, p);
@@ -79,16 +89,24 @@ void export_proto_text(farray_t *p, farray_t *fa, char *file)
     if (verbose > 0)
         printf("Exporting prototypes to '%s'.\n", file);
     
-    FILE *f = fopen(file, "w");
-    if (!f) {
+    if (!(f = fopen(file, "w"))) {
         error("Could not create file '%s'.", file);
         return;
     }
     
+    /* Print version header */
+    malheur_version(f);
+
+    /* Print prototype header */
+    fprintf(f, "# ---\n# Prototypes for %s\n", fa->src);
+    fprintf(f, "# Number of prototypes: %ld (%4.1f%%)\n# ---\n", p->len, 
+            p->len * 100.0 / (double) fa->len);
+    fprintf(f, "# <report> <prototype> <label> <distance>\n");
+    
     for (i = 0; i < fa->len; i++) {
         j = c->proto[i];
-        fprintf(f, "%s: %s (%s)\n", fa->x[i]->src, p->x[j]->src, 
-                farray_get_label(p, j));
+        fprintf(f, "%s %s %s %g\n", fa->x[i]->src, p->x[j]->src, 
+                farray_get_label(p, j), c->dist[i]);
     }
     
     fclose(f);

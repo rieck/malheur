@@ -53,6 +53,7 @@ int check_range(int, int, int);
 char *load_file(char *, char *);
 void list_dir_entries(char *dir, int *, int *);
 void list_arc_entries(char *arc, int *, int *);
+void malheur_version(FILE *f);
 
 /* Comparison function */
 int *qsort_idx(void *b, size_t n, size_t w, int (*c)(const void *, const void *));

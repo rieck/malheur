@@ -14,6 +14,7 @@
 #ifndef MALHEUR_H
 #define MALHEUR_H
 
+#define OUTPUT_FILE "malheur.out"
 #define CONFIG_FILE "@SYSCONFDIR@/malheur/malheur.cfg"
 
 /* Operation tasks of Malheur  */

@@ -34,14 +34,11 @@ case $arg in
        ./configure --enable-matlab -with-matlab=/usr/local/matlab2009a \
                    --prefix=$HOME/usr
        ;;       
-   # Konrad's laptop    
    twoface*|rieck*|gwlan*)
        echo "# Configuration: Twoface/Rieck"
-       CC="/opt/local/bin/gcc-mp-4.3" \
-       CFLAGS="-DDEBUG -g -pedantic -pipe -O2 -march=native" \
-       ./configure --enable-matlab -with-matlab=$HOME/Applications/Matlab \
-       		   --enable-openmp \
-                   --prefix=/opt/rieck
+       CC="gcc-mp-4.4" \
+       CFLAGS="-DDEBUG -g -pedantic -pipe -O2" \
+       ./configure --enable-openmp --prefix=/opt/rieck
        ;;
    debug)
        echo "# Configuration: Debug"

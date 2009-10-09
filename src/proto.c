@@ -29,23 +29,18 @@
 extern int verbose;
 extern config_t cfg;
 
-/* Global variables */
-static long counter = 0;
-
 /**
- * Extracts a set of prototypes using the prototype algorithm.
+ * Extracts prototypes using an extended version of Gonzalez' algorithm.
  * @param fa Array of feature vectors
  * @param n Maximum number of prototypes
- * @param m Minimum distance
- * @param z Number of repeats
+ * @param m Minimum distance between prototypes
  * @return Prototypes
  */
-static farray_t *proto_run(farray_t *fa, long n, double m, double z) 
+static farray_t *proto_gonzalez(farray_t *fa, long n, double m)  
 {
     assert(fa);
     int i, j, k;
-    double dm, *di;
-
+    double *di;
 
     /* Allocate prototype structure and distance arrays */
     farray_t *pr = farray_create(fa->src);
@@ -63,19 +58,13 @@ static farray_t *proto_run(farray_t *fa, long n, double m, double z)
     if (n == 0)
         n = fa->len;
 
-    /* Loop over feature vectors */
+    /* Loop over feature vectors. First prototype: j = 0.*/
     for (i = 0; i < n; i++) {
-        if (i == 0) {
-            /* Select random prototype */
-            j = rand() % fa->len;
-        } else {
-            /* Determine largest distance */
-            for(k = 0, j = 0, dm = 0; k < fa->len; k++)
-                if (dm < di[k]) {
-                    dm = di[k];
-                    j = k;
-                }
-        }
+        /* Determine largest distance */
+        if (i > 0)
+            j = array_max(di, fa->len);
+        else
+            j = 0;
 
         /* Check for minimum distance between prototypes */
         if (di[j] < m)
@@ -96,17 +85,16 @@ static farray_t *proto_run(farray_t *fa, long n, double m, double z)
                 di[k] = 0;
         } 
         
-        #pragma omp critical (counter)
-        {
-            counter++;
-            if (verbose) 
-                prog_bar(0, n * z, counter);
-        }
+        if (verbose) 
+            prog_bar(0, n, i);
     }
+
+    /* Update progress bar */
+    if (verbose)
+        prog_bar(0, n, n);
         
     /* Free memory */
     free(di);
-        
     return pr;
 } 
 
@@ -121,48 +109,26 @@ static farray_t *proto_run(farray_t *fa, long n, double m, double z)
 farray_t *proto_extract(farray_t *fa) 
 {
     assert(fa);
-    long i, repeats, maxnum;
+    farray_t *p;
+    long maxnum;
     double maxdist;
-    farray_t **p, *pr;
 
     /* Get configuration */    
     config_lookup_float(&cfg, "prototypes.max_dist", (double *) &maxdist);
-    config_lookup_int(&cfg, "prototypes.repeats", (long *) &repeats);
     config_lookup_int(&cfg, "prototypes.max_num", (long *) &maxnum);
 
-    /* Allocate multiple prototype structures */
-    p = malloc(repeats * sizeof(farray_t *));
     if (verbose > 0) 
-        printf("Extracting prototypes with maximum distance %4.2f "
-               "and %ld repeats.\n", maxdist, repeats);
+        printf("Extracting prototypes with maximum distance %4.2f.\n", 
+               maxdist);
     
-    counter = 0;
-    
-    #pragma omp parallel for shared(p)
-    for (i = 0; i < repeats; i++)
-        p[i] = proto_run(fa, maxnum, maxdist, repeats);
-
-    if (verbose) 
-       prog_bar(0, 1, 1);
-
-    /* Determine best prototypes */
-    for (i = 1; i < repeats; i++) {
-        if (p[0]->len > p[i]->len) {
-            farray_destroy(p[0]);
-            p[0] = p[i];
-        } else {
-            farray_destroy(p[i]);
-        }
-    }
-    
-    pr = p[0];
-    free(p);
+    /* Extract prototypes */
+    p = proto_gonzalez(fa, maxnum, maxdist);
     
     if (verbose > 0)
         printf("  Done. %ld prototypes using %.2fMb extracted.\n", 
-               pr->len, pr->mem / 1e6);
+               p->len, p->mem / 1e6);
     
-    return pr;
+    return p;
 }
 
 /**

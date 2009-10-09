@@ -49,10 +49,11 @@ void prog_bar(double, double, double);
 double time_stamp();
 int decode_string(char *);
 char *file_suffix(char *file);
-int check_range(int, int, int);
 char *load_file(char *, char *);
 void list_dir_entries(char *dir, int *, int *);
 void list_arc_entries(char *arc, int *, int *);
+
+/* Version */
 void malheur_version(FILE *f);
 
 /* Comparison function */
@@ -63,7 +64,11 @@ int cmp_uint(const void *, const void *);
 int cmp_int(const void *, const void *);
 int cmp_index(const void *, const void *);
 
-/* Missing math functions */
+/* Useful math functions */
+int array_max(double *, int); 
+int array_min(double *, int); 
+int check_range(int, int, int);
+
 #ifndef HAVE_FUNC_ROUND
 double log2(double);
 #endif

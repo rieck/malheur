@@ -407,11 +407,21 @@ char *file_suffix(char *file)
  */
 void malheur_version(FILE *f)
 {
-    fprintf(f, "# MALHEUR (%d.%d.%d)- Automatic Malware Analysis on Steroids\n"
+    fprintf(f, "# MALHEUR (%d.%d.%d) - Automatic Malware Analysis on Steroids\n"
                "# Copyright (c) 2009 Konrad Rieck (rieck@cs.tu-berlin.de)\n"
                "# Berlin Institute of Technology (TU Berlin).\n", MALHEUR_MAJOR,
                MALHEUR_MINOR, MALHEUR_PATCH);
 }
+
+/** 
+ * Computes the size of the upper triangle of an n x n matrix
+ * @param n dimension of matrix
+ * @return size of triangle
+ */
+unsigned long tria_size(unsigned long n)
+{
+    return n * (n + 1) / 2;
+} 
 
 /**
  * Determine the maximum of an array

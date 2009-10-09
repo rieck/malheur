@@ -42,8 +42,8 @@ double fvec_norm1(fvec_t *);
 double fvec_norm2(fvec_t *);
 void fvec_normalize(fvec_t *, norm_t);
 void fvec_sparsify(fvec_t *);
-void farray_dot(farray_t *, farray_t *, double *);
 void farray_dist(farray_t *fa, farray_t *fb, double *d);
+void farray_dist_tria(farray_t *fa, double *d);
 void farray_normalize(farray_t *f, norm_t n);
 
 #endif                          /* FMATH_H */

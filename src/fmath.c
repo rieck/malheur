@@ -10,7 +10,7 @@
  * warranty. See the GNU General Public License for more details. 
  * --
  */
- 
+
 /** 
  * @defgroup fmath Math for feature vectors
  * This module contains standard mathematical functions defined over
@@ -39,18 +39,18 @@ void fvec_normalize(fvec_t *f, norm_t n)
     int i = 0;
     double s = 0;
     assert(f);
-
+    
     switch (n) {
-    case NORM_L1:
-        s = fvec_norm1(f);
-        for (i = 0; i < f->len; i++)
-            f->val[i] /= s;
-        break;
-    case NORM_L2:
-        s = fvec_norm2(f);
-        for (i = 0; i < f->len; i++)
-            f->val[i] /= s;
-        break;
+        case NORM_L1:
+            s = fvec_norm1(f);
+            for (i = 0; i < f->len; i++)
+                f->val[i] /= s;
+            break;
+        case NORM_L2:
+            s = fvec_norm2(f);
+            for (i = 0; i < f->len; i++)
+                f->val[i] /= s;
+            break;
     }
 }
 
@@ -77,7 +77,7 @@ void fvec_mul(fvec_t *f, double s)
 {
     int i = 0;
     assert(f);
-
+    
     for (i = 0; i < f->len; i++)
         f->val[i] *= s;
 }
@@ -104,7 +104,7 @@ static double fvec_dot_loop(fvec_t *fa, fvec_t *fb)
 {
     unsigned long i = 0, j = 0;
     double s = 0;
-
+    
     /* Loop over features in a and b */
     while (i < fa->len && j < fb->len) {
         if (fa->dim[i] > fb->dim[j]) {
@@ -130,13 +130,13 @@ static double fvec_dot_bsearch(fvec_t *fa, fvec_t *fb)
 {
     unsigned long i = 0, j = 0, p, q, k;
     double s = 0;
-
+    
     /* Check if fa is larger than fb */
     if (fa->len < fb->len) {
         fvec_t *tmp = fa;
         fa = fb, fb = tmp;
     }
-
+    
     /* Loop over dimensions fb */
     for (i = 0, j = 0; j < fb->len; j++) {
         /* Binary search */
@@ -153,7 +153,7 @@ static double fvec_dot_bsearch(fvec_t *fa, fvec_t *fb)
             }
         } while (i != k);
     }
-
+    
     return s;
 }
 
@@ -182,12 +182,10 @@ void farray_dist(farray_t *fa, farray_t *fb, double *d)
                 d[j * fb->len + i] = d[i * fb->len + j];                
             }
             
+            #pragma omp critical
             if (verbose > 0) {
-                #pragma omp critical
-                {
-                    r += fb->len - i;
-                    prog_bar(0, (fa->len * fa->len + fa->len) / 2.0, r);
-                }
+                r += fb->len - i;
+                prog_bar(0, (fa->len * fa->len + fa->len) / 2.0, r);
             }    
         }    
     } else {
@@ -195,67 +193,43 @@ void farray_dist(farray_t *fa, farray_t *fb, double *d)
         for (i = 0; i < fa->len; i++) {
             for (int j = 0; j < fb->len; j++) 
                 d[i * fb->len + j] = fvec_dist(fa->x[i], fb->x[j]);
-            
+
+            #pragma omp critical            
             if (verbose > 0) {
-                #pragma omp critical
-                {
-                    r += fb->len;
-                    prog_bar(0, fa->len * fb->len, r);
-                }
+                r += fb->len;
+                prog_bar(0, fa->len * fb->len, r);
             }
         }    
     }
 }
 
 /** 
- * Dot product between arrays of feature vectors (s = <a,b>). 
+ * Compute distances for an array of feature vectors (s = ||a - b||). 
  * @param fa Array of feature vectors (a)
- * @param fb Array of feature vectors (b)
- * @param d matrix of dot products (a_len * b_len)
+ * @param d upper triangle of distance matrix
  */
-void farray_dot(farray_t *fa, farray_t *fb, double *d)
+void farray_dist_tria(farray_t *fa, double *d)
 {
-    assert(fa && fb);
-    long i, r = 0;
+    assert(fa);
+    long i, r = 0, n = tria_size(fa->len);
     
     if (verbose > 0) {
-        printf("Computing dot product (%lu x %lu matrix, %.2fMb).\n", 
-               fa->len, fb->len, (fa->len * fb->len * sizeof(double)) / 1e6);    
+        printf("Computing distances (%lu pairs, %.2fMb).\n", n,  
+               n * sizeof(double) / 1e6);    
         prog_bar(0, 1, 0);
     }    
     
-    if (fa == fb) {
-        #pragma omp parallel for shared(d)
-        for (i = 0; i < fa->len; i++) {
-            for (int j = i; j < fb->len; j++) {
-                d[i * fb->len + j] = fvec_dot(fa->x[i], fb->x[j]);
-                d[j * fb->len + i] = d[i * fb->len + j];                
-            }
-            
-            if (verbose > 0) {
-                #pragma omp critical
-                {
-                    r += fb->len - i;
-                    prog_bar(0, (fa->len * fa->len + fa->len) / 2.0, r);
-                }
-            }    
+    #pragma omp parallel for shared(d)
+    for (i = 0; i < fa->len; i++) {
+        for (int j = i; j < fa->len; j++)
+            d[i * fa->len + j] = fvec_dist(fa->x[i], fa->x[j]);
+
+        #pragma omp critical
+        if (verbose > 0) {
+            r += fa->len - i;
+            prog_bar(0, n, r);
         }    
-    } else {
-        #pragma omp parallel for shared(d)
-        for (i = 0; i < fa->len; i++) {
-            for (int j = 0; j < fb->len; j++) {
-                d[i * fb->len + j] = fvec_dot(fa->x[i], fb->x[j]);
-            }
-            
-            if (verbose > 0) {
-                #pragma omp critical
-                {
-                    r += fb->len;
-                    prog_bar(0, fa->len * fb->len, r);
-                }
-            }
-        }    
-    }
+    }    
 }
 
 /** 
@@ -286,7 +260,7 @@ double fvec_dot(fvec_t *fa, fvec_t *fb)
 {
     assert(fa && fb);
     double a, b;
- 
+    
     /* Sort vectors according to size */
     if (fa->len > fb->len) {
         a = fa->len, b = fb->len;
@@ -320,11 +294,11 @@ fvec_t *fvec_adds(fvec_t *fa, fvec_t *fb, double s)
         error("Could not create feature vector");
         return NULL;
     }
-
+    
     f->mem = sizeof(fvec_t);
     f->total = fa->total + fb->total;
     f->src = NULL;
-
+    
     /* Allocate arrays */
     f->dim = (feat_t *) malloc((fa->len + fb->len) * sizeof(feat_t));
     f->val = (float *) malloc((fa->len + fb->len) * sizeof(float));
@@ -357,11 +331,11 @@ fvec_t *fvec_adds(fvec_t *fa, fvec_t *fb, double s)
         f->dim[len] = fa->dim[i];
         f->val[len++] = fa->val[i++];
     }
-
+    
     /* Set new length and reallocate */
     f->len = len;
     f->mem += f->len * (sizeof(feat_t) + sizeof(float));
-
+    
     /* Reallocate memory */
     fvec_realloc(f);
     
@@ -401,12 +375,12 @@ fvec_t *farray_sums(farray_t *fa, double *s)
 {
     fvec_t *g, *f = fvec_zero();
     int i;
-            
+    
     for (i = 0; i < fa->len; i++) {
         /* Skip zero elements */
         if (fabs(s[i]) < 1e-8)
             continue;
-            
+        
         /* Add elements */
         g = fvec_adds(f, fa->x[i], s[i]);
         fvec_destroy(f);
@@ -424,7 +398,7 @@ fvec_t *farray_sums(farray_t *fa, double *s)
 fvec_t *farray_sum(farray_t *fa)
 {
     int i;
-
+    
     double *s = malloc(fa->len * sizeof(double));
     for (i = 0; i < fa->len; i++)
         s[i] = 1.0;
@@ -443,7 +417,7 @@ fvec_t *farray_sum(farray_t *fa)
 fvec_t *farray_mean(farray_t *fa)
 {
     int i;
-
+    
     double *s = malloc(fa->len * sizeof(double));
     for (i = 0; i < fa->len; i++)
         s[i] = 1.0 / fa->len;
@@ -465,7 +439,7 @@ double fvec_norm1(fvec_t *f)
     int i = 0;
     double s = 0;    
     assert(f);
-
+    
     for (i = 0; i < f->len; i++)
         s += f->val[i];
     
@@ -482,7 +456,7 @@ double fvec_norm2(fvec_t *f)
     int i = 0;
     double s = 0;
     assert(f);
-
+    
     for (i = 0; i < f->len; i++)
         s += pow(f->val[i], 2);
     

@@ -68,6 +68,7 @@ int cmp_index(const void *, const void *);
 int array_max(double *, int); 
 int array_min(double *, int); 
 int check_range(int, int, int);
+unsigned long tria_size(unsigned long);
 
 #ifndef HAVE_FUNC_ROUND
 double log2(double);

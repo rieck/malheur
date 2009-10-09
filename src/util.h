@@ -21,7 +21,7 @@
 #define PROGBAR_EMPTY   ':'
 #define PROGBAR_FULL    '#'
 #define PROGBAR_DONE    '#'
-#define PROGBAR_FRONT   '#'
+#define PROGBAR_FRONT   '|'
 
 /* Fatal message */
 #ifndef fatal
@@ -59,22 +59,12 @@ void malheur_version(FILE *f);
 /* Comparison function */
 int *qsort_idx(void *b, size_t n, size_t w, int (*c)(const void *, const void *));
 int cmp_feat(const void *, const void *);
-int cmp_double(const void *, const void *);
-int cmp_uint(const void *, const void *);
-int cmp_int(const void *, const void *);
 int cmp_index(const void *, const void *);
 
 /* Useful math functions */
 int array_max(double *, int); 
 int array_min(double *, int); 
-int check_range(int, int, int);
-unsigned long tria_size(unsigned long);
-
-#ifndef HAVE_FUNC_ROUND
-double log2(double);
-#endif
-#ifndef HAVE_FUNC_LOG2
-double round(double);
-#endif
+long tria_size(long);
+long tria_pos(long, long, long);
 
 #endif                          /* UTIL_H */

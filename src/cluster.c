@@ -29,8 +29,8 @@
 extern int verbose;
 extern config_t cfg;
 
-/* Simple macro distance matrix */
-#define D(x,y)      d[x * c->len + y]
+/* Macro for convenient matrix access */
+#define D(x,y)      d[tria_pos(x,y,c->len)]
 
 /**
  * Linkage clustering algorithm by Mutargh. The algorithm has a 
@@ -45,7 +45,7 @@ static
 void linkage_murtagh(cluster_t *c, double *d, double dm, char m)
 {
     assert(c && d);
-    double dmin; 
+    double dmin, dnew; 
     long k, j, i, jj, jm, ii, im;
 
     /* Allocate stuff */
@@ -82,6 +82,7 @@ void linkage_murtagh(cluster_t *c, double *d, double dm, char m)
         }
         jm = nn[im];
         
+        /* Check for minimum distance */
         if (dmin > dm)
             break;
 
@@ -91,7 +92,7 @@ void linkage_murtagh(cluster_t *c, double *d, double dm, char m)
         
         /* Update clusters and distance matrix */
         int cm = c->cluster[jm];
-        #pragma omp parallel for default(shared)
+        #pragma omp parallel for default(shared) private(dnew)
         for (i = 0; i < c->len; i++) {
             /* Update cluster assignments */
             if (c->cluster[i] == cm)
@@ -102,19 +103,19 @@ void linkage_murtagh(cluster_t *c, double *d, double dm, char m)
             switch(m) {
                 /* Single linkage */
                 case 's':
-                    D(im, i) = fmin(D(im, i), D(jm, i));
+                    dnew = fmin(D(im, i), D(jm, i));
                     break;
                 /* Average linkage */
                 case 'a':
-                    D(im, i) = (D(im, i) + D(jm, i)) / 2;
+                    dnew = (D(im, i) + D(jm, i)) / 2;
                     break;
                 /* Complete linkage */
                 default:
                 case 'c':
-                    D(im, i) = fmax(D(im, i), D(jm, i));
+                    dnew = fmax(D(im, i), D(jm, i));
                     break;
             }
-            D(i, im) = D(im, i);
+            d[tria_pos(i,im,c->len)] = dnew;
         }
         
         /* Update nearest neighbors */
@@ -192,8 +193,8 @@ cluster_t *cluster_linkage(farray_t *fa)
     cluster_t *c = cluster_create(fa->len);
 
     /* Compute distances */
-    double *dist = malloc(sizeof(double) * fa->len * fa->len);
-    farray_dist(fa, fa, dist); 
+    double *dist = malloc(sizeof(double) * tria_size(fa->len));
+    farray_dist_tria(fa, dist); 
 
     if (verbose > 0) 
         printf("Clustering (%s linkage) with minimum distance %4.2f.\n",
@@ -219,11 +220,6 @@ void cluster_destroy(cluster_t *c)
 {
     if (!c)
         return;
-
-    int i = 0;
-    for (i = 0; i < c->len; i++)
-        printf("%d ", c->cluster[i]);
-    printf("\n");
         
     if (c->cluster)
         free(c->cluster);

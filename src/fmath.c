@@ -185,7 +185,7 @@ void farray_dist(farray_t *fa, farray_t *fb, double *d)
             #pragma omp critical
             if (verbose > 0) {
                 r += fb->len - i;
-                prog_bar(0, (fa->len * fa->len + fa->len) / 2.0, r);
+                prog_bar(0, (fa->len * fa->len + fa->len) / 2.0 + 1, r);
             }    
         }    
     } else {
@@ -201,6 +201,9 @@ void farray_dist(farray_t *fa, farray_t *fb, double *d)
             }
         }    
     }
+
+    if (verbose > 0)
+        printf("  Done. %ld distances computed.\n", fa->len * fb->len);
 }
 
 /** 
@@ -214,22 +217,25 @@ void farray_dist_tria(farray_t *fa, double *d)
     long i, r = 0, n = tria_size(fa->len);
     
     if (verbose > 0) {
-        printf("Computing distances (%lu pairs, %.2fMb).\n", n,  
+        printf("Computing distances (%lu distance pairs, %.2fMb).\n", n,  
                n * sizeof(double) / 1e6);    
         prog_bar(0, 1, 0);
     }    
     
     #pragma omp parallel for shared(d)
     for (i = 0; i < fa->len; i++) {
-        for (int j = i; j < fa->len; j++)
-            d[i * fa->len + j] = fvec_dist(fa->x[i], fa->x[j]);
+        for (int j = i; j < fa->len; j++) 
+            d[tria_pos(i, j, fa->len)] = fvec_dist(fa->x[i], fa->x[j]);
 
         #pragma omp critical
         if (verbose > 0) {
             r += fa->len - i;
             prog_bar(0, n, r);
-        }    
+        }
     }    
+    
+    if (verbose > 0)
+        printf("  Done. %ld distances computed.\n", n);
 }
 
 /** 

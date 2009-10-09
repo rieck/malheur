@@ -242,11 +242,10 @@ assign_t *proto_assign(farray_t *fa, farray_t *p)
         c->proto[i] = j;
         c->dist[i] = d;
         c->label[i] = p->y[j];
-        
+
         #pragma omp critical (cnt)
-        if (verbose) {
+        if (verbose)
             prog_bar(0, fa->len, ++cnt);
-        }
     }
     
     if (verbose > 0)
@@ -255,7 +254,6 @@ assign_t *proto_assign(farray_t *fa, farray_t *p)
      
     return c;
 }
-  
  
 /**
  * Destroys an assignment

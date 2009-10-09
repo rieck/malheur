@@ -29,7 +29,6 @@ static config_default_t defaults[] = {
     {"features",       "vect_embed",      0,   NAN, "bin"},
     {"prototypes",     "max_dist",        0,   0.65, NULL},
     {"prototypes",     "max_num",         0,   NAN, NULL},
-    {"prototypes",     "repeats",         5,   NAN, NULL},
     {"classify",       "max_dist",        0,   0.68, NULL},
     {"cluster",        "min_dist",        0,   0.95, NULL},
     {"cluster",        "reject_num",     10,   NAN, NULL},

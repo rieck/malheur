@@ -414,6 +414,48 @@ void malheur_version(FILE *f)
 }
 
 /**
+ * Determine the maximum of an array
+ * @param a array
+ * @param l length of array 
+ * @return index to maximum value
+ */
+int array_max(double *a, int l) 
+{
+    assert(a && l > 0);
+    int i, k = 0;
+    double dm = DBL_MIN;
+    
+    for (i = 0; i < l; i++) {
+        if (a[i] <= dm)
+            continue;
+        dm = a[i], k = i;
+    }
+    
+    return k;
+}
+
+/**
+ * Determine the minimum of an array
+ * @param a array
+ * @param l length of array 
+ * @return index to minimum value
+ */
+int array_min(double *a, int l) 
+{
+    assert(a && l > 0);
+    int i, k = 0;
+    double dm = DBL_MAX;
+    
+    for (i = 0; i < l; i++) {
+        if (a[i] >= dm)
+            continue;
+        dm = a[i], k = i;
+    }
+    
+    return k;
+}
+
+/**
  * Checks and fixes the range of a value 
  * @param a Value to check
  * @param mi Minimum value

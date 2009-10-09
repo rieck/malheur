@@ -382,7 +382,7 @@ long tria_size(long n)
 long tria_pos(long x, long y, long n)
 {
     if (y < x) 
-        return tria_size(y) + (n - y) * x + (x - y);
+        return tria_size(y) + (n - y) * y + (x - y);
     else 
         return tria_size(x) + (n - x) * x + (y - x);
 }

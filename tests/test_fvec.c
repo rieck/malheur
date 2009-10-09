@@ -168,7 +168,8 @@ int test_load_save()
     config_set_int(&cfg, "features.ngram_len", 2);
 
     /* Create and save feature vectors */
-    if (!(z = gzopen(TEST_FILE, "wb9"))) {
+    z = gzopen(TEST_FILE, "wb9");
+    if (!z) {
         printf("Could not create file (ignoring)\n");
         return FALSE;
     }

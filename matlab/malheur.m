@@ -12,8 +12,3 @@
 %     cmd:      Command to execute
 %     args:     Generic arguments
 %
-% For help see the following files:
-%   mal_load_mist.m     - Load reports in MIST format
-%   mal_distances.m     - Compute distances matrix from reports
-%   mal_dot_product.m   - Compute dot product matrix from reports
-%

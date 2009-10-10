@@ -26,7 +26,6 @@
 #include "export.h"
 #include "mconfig.h"
 #include "quality.h"
-#include "class.h"
 
 /* External variables */
 extern int verbose;
@@ -75,16 +74,14 @@ void export_dist(double *d, farray_t *fa, char *file)
  * Exports a structure of prototypes to a text file
  * @param p Prototype structure
  * @param fa Feature vector array
+ * @param as Assignments to protoypes
  * @param file File name
  */
-void export_proto(farray_t *p, farray_t *fa, char *file)
+void export_proto(farray_t *p, farray_t *fa, assign_t *as, char *file)
 {
     assert(p && fa && file);
     int i, j;
     FILE *f;
-
-    /* Assign data to prototypes */
-    assign_t *c = proto_assign(fa, p);
 
     if (verbose > 0)
         printf("Exporting prototypes to '%s'.\n", file);
@@ -98,7 +95,7 @@ void export_proto(farray_t *p, farray_t *fa, char *file)
     malheur_version(f);
     
     /* Evaluate some quality functions */
-    double *e = quality(fa->y, c->proto, c->len);
+    double *e = quality(fa->y, as->proto, as->len);
 
     /* Print prototype header */
     fprintf(f, "# ---\n# Prototypes for %s\n", fa->src);
@@ -109,13 +106,12 @@ void export_proto(farray_t *p, farray_t *fa, char *file)
     fprintf(f, "# ---\n# <report> <prototype> <label> <distance>\n");
     
     for (i = 0; i < fa->len; i++) {
-        j = c->proto[i];
+        j = as->proto[i];
         fprintf(f, "%s %s %s %g\n", fa->x[i]->src, p->x[j]->src, 
-                farray_get_label(p, j), c->dist[i]);
+                farray_get_label(p, j), as->dist[i]);
     }
     
     fclose(f);
-    assign_destroy(c);
 }
 
 /**
@@ -153,6 +149,54 @@ void export_cluster(cluster_t *c, farray_t *fa, char *file)
     
     fclose(f);
 }
+
+
+/**
+ * Exports classification results
+ * @param p Prototype structure
+ * @param fa Feature vector array
+ * @param as Assignments to protoypes
+ * @param file File name
+ */
+void export_class(farray_t *p, farray_t *fa, assign_t *as, char *file)
+{
+    assert(p && fa && file);
+    int i, j;
+    FILE *f;
+
+    if (verbose > 0)
+        printf("Exporting classification to '%s'.\n", file);
+    
+    if (!(f = fopen(file, "w"))) {
+        error("Could not create file '%s'.", file);
+        return;
+    }
+    
+    /* Print version header */
+    malheur_version(f);
+    
+    /* Evaluate some quality functions */
+    double *e = quality(fa->y, as->label, as->len);
+
+    /* Print prototype header */
+    fprintf(f, "# ---\n# Classification for %s\n", fa->src);
+    fprintf(f, "# Precision of classification: %4.1f%%\n", 
+            e[Q_PRECISION] * 100.0);
+    fprintf(f, "# Recall of classification: %4.1f%%\n", 
+            e[Q_RECALL] * 100.0);
+    fprintf(f, "# F-measure of classification: %4.1f%%\n", 
+            e[Q_FMEASURE] * 100.0);
+    fprintf(f, "# ---\n# <report> <label> <prototype> <distance>\n");
+    
+    for (i = 0; i < fa->len; i++) {
+        j = as->proto[i];
+        fprintf(f, "%s %s %s %g\n", fa->x[i]->src,  farray_get_label(p, j), 
+                p->x[j]->src, as->dist[i]);
+    }
+    
+    fclose(f);
+}
+
 
 
 /** @} */

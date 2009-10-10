@@ -15,6 +15,8 @@
 #define MALHEUR_H
 
 #define OUTPUT_FILE "malheur.out"
+#define REJECT_FILE "@LOCALSTATEDIR@/malheur/rejected.fvec"
+#define PROTO_FILE  "@LOCALSTATEDIR@/malheur/prototypes.fvec"
 #define CONFIG_FILE "@SYSCONFDIR@/malheur/malheur.cfg"
 
 /* Operation tasks of Malheur  */

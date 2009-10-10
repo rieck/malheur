@@ -221,8 +221,11 @@ assign_t *proto_assign(farray_t *fa, farray_t *p)
     assert(fa && p);
     int i, k, j, cnt = 0;
     double d = 0;
-    assign_t *c = assign_create(fa);
+    double maxdist;
 
+    assign_t *c = assign_create(fa);
+    config_lookup_float(&cfg, "classify.max_dist", (double *) &maxdist);
+    
     if (verbose > 0) 
         printf("Assigning feature vectors to %lu prototypes of %d classes.\n", 
                p->len, HASH_CNT(hn, fa->label_name));
@@ -241,7 +244,10 @@ assign_t *proto_assign(farray_t *fa, farray_t *p)
         /* Compute assignments */
         c->proto[i] = j;
         c->dist[i] = d;
-        c->label[i] = p->y[j];
+        if (d < maxdist)
+            c->label[i] = p->y[j];
+        else
+            c->label[i] = 0;
 
         #pragma omp critical (cnt)
         if (verbose)

@@ -36,7 +36,7 @@ static char *reject_file = REJECT_FILE;
 static char **input_files = NULL;
 static int input_len = 0;
 static malheur_task_t task = PROTOTYPE;
-static int lookup_table = FALSE;
+static incremental = FALSE;
 
 /**
  * Print usage of command line tool
@@ -52,11 +52,11 @@ static void print_usage(int argc, char **argv)
            "  cluster      Cluster malware reports into similar groups\n"
            "  classify     Classify malware reports using labeled prototypes\n"
            "Options:\n"
-           "  -c <file>    Set configuration file [%s]\n"
-           "  -p <file>    Set prototype file [%s]\n"  
-           "  -r <file>    Set rejected file [%s]\n"  
-           "  -o <file>    Set output file for analysis [%s]\n"   
-           "  -l           Enable feature lookup table.\n"
+           "  -c <file>    Set configuration file. [%s]\n"
+           "  -p <file>    Set prototype file. [%s]\n"  
+           "  -r <file>    Set rejected file. [%s]\n"  
+           "  -o <file>    Set output file for analysis. [%s]\n"
+           "  -i           Incremental analysis.\n"
            "  -v           Increase verbosity.\n"
            "  -V           Print version and copyright.\n"
            "  -h           Print this help screen.\n", 
@@ -71,8 +71,11 @@ static void print_usage(int argc, char **argv)
 static void parse_options(int argc, char **argv)
 {
     int ch;
-    while ((ch = getopt(argc, argv, "o:p:lc:hvV")) != -1) {
+    while ((ch = getopt(argc, argv, "io:p:r:c:hvV")) != -1) {
         switch (ch) {
+            case 'i':
+                incremental = TRUE;
+                break;
             case 'v':
                 verbose++;
                 break;
@@ -82,11 +85,11 @@ static void parse_options(int argc, char **argv)
             case 'o':
                 output_file = optarg;
                 break;
+            case 'r':
+                reject_file = optarg;
+                break;
             case 'p':
                 proto_file = optarg;
-                break;
-            case 'l':
-                lookup_table = TRUE;
                 break;
             case 'V':
                 malheur_version(stdout);
@@ -168,9 +171,15 @@ static void malheur_prototype()
     /* Export prototypes */
     export_proto(pr, fa, as, output_file);
     
+    /* Incremental analysis */
+    if (incremental && !access(proto_file, R_OK)) {
+        /* Load old prototypes and merge in */
+        farray_t *old = proto_load_file(proto_file);
+        pr = farray_merge(pr, old);
+    }
+    
     /* Save prototype vectors */
-    if (proto_file) 
-        proto_save_file(pr, proto_file);
+    proto_save_file(pr, proto_file);
     
     /* Clean up */
     assign_destroy(as);
@@ -195,9 +204,15 @@ static void malheur_cluster()
     /* Export prototypes */
     export_cluster(c, fa, output_file);    
 
+    /* Incremental analysis */
+    if (incremental && !access(proto_file, R_OK)) {
+        /* Load old prototypes and merge in */
+        farray_t *old = proto_load_file(proto_file);
+        pr = farray_merge(pr, old);
+    }    
+    
     /* Save prototype vectors */
-    if (proto_file) 
-        proto_save_file(pr, proto_file);
+    proto_save_file(pr, proto_file);
     
     /* Clean up */
     cluster_destroy(c);
@@ -210,8 +225,8 @@ static void malheur_cluster()
  */
 static void malheur_classify()
 {
-    if (!proto_file)
-        error("No prototype file specified.");
+    if (!access(proto_file, R_OK))
+        error("Prototype file '%s' not existent.", proto_file);
 
     /* Load prototypes */
     farray_t *pr = proto_load_file(proto_file);
@@ -224,11 +239,7 @@ static void malheur_classify()
     
     /* Export prototypes */
     export_class(pr, fa, as, output_file);
-    
-    /* Save prototype vectors */
-    if (proto_file) 
-        proto_save_file(pr, proto_file);
-    
+        
     /* Clean up */
     assign_destroy(as);
     farray_destroy(pr);
@@ -267,6 +278,8 @@ static void malheur_distance()
  */
 static void malheur_init(int argc, char **argv)
 {
+    long lookup;
+
     /* Parse options */
     parse_options(argc, argv);
     
@@ -282,7 +295,8 @@ static void malheur_init(int argc, char **argv)
         config_print(&cfg);
     
     /* Init feature lookup table */
-    if (lookup_table)
+    config_lookup_int(&cfg, "features.lookup_table", &lookup);
+    if (lookup)
         ftable_init();
 }
 
@@ -291,7 +305,11 @@ static void malheur_init(int argc, char **argv)
  */
 static void malheur_exit()
 {
-    if (lookup_table)
+    long lookup;
+
+    /* Destroy feature lookup table */
+    config_lookup_int(&cfg, "features.lookup_table", &lookup);
+    if (lookup)
         ftable_destroy();
     
     /* Destroy configuration */

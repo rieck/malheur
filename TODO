@@ -9,11 +9,7 @@
  * Fix for strange gzclose issue (valgrind)
  * Add support for rejected clusters
  * Export function for clustering
- * Loading and saving of prototypes (for incremental analysis)
+ * Loading and saving of prototypes / rejected vectors
  * Clustering with and without prototypes
  
- NICE TO HAVE
- * Filtering of arrays using file names
- * Support to merge arrays
-
  

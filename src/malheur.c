@@ -26,12 +26,15 @@
 int verbose = 0;
 config_t cfg;
 
-/* Local variables */
+/* Files */
 static char *config_file = CONFIG_FILE;
 static char *output_file = OUTPUT_FILE;
+static char *proto_file = PROTO_FILE;
+static char *reject_file = REJECT_FILE;
+
+/* Command line stuff */
 static char **input_files = NULL;
 static int input_len = 0;
-static char *proto_file = NULL;
 static malheur_task_t task = PROTOTYPE;
 static int lookup_table = FALSE;
 
@@ -44,18 +47,20 @@ static void print_usage(int argc, char **argv)
 {
     printf("Usage: malheur [options] <task> <input> ...\n"
            "Tasks:\n"
-           "  distance      Compute a distance matrix from malware reports\n"
-           "  prototype     Extract prototypes from malware reports\n"
-           "  cluster       Cluster malware reports into similar groups\n"
-           "  classify      Classify malware reports using labeled prototypes\n"
+           "  distance     Compute a distance matrix from malware reports\n"
+           "  prototype    Extract prototypes from malware reports\n"
+           "  cluster      Cluster malware reports into similar groups\n"
+           "  classify     Classify malware reports using labeled prototypes\n"
            "Options:\n"
-           "  -c <file>     Set configuration file.\n"
-           "  -p <file>     Set prototype file.\n"  
-           "  -o <file>     Set output file for analysis.\n"   
-           "  -l            Enable feature lookup table.\n"
-           "  -v            Increase verbosity.\n"
-           "  -V            Print version and copyright.\n"
-           "  -h            Print this help screen.\n");
+           "  -c <file>    Set configuration file [%s]\n"
+           "  -p <file>    Set prototype file [%s]\n"  
+           "  -r <file>    Set rejected file [%s]\n"  
+           "  -o <file>    Set output file for analysis [%s]\n"   
+           "  -l           Enable feature lookup table.\n"
+           "  -v           Increase verbosity.\n"
+           "  -V           Print version and copyright.\n"
+           "  -h           Print this help screen.\n", 
+           CONFIG_FILE, PROTO_FILE, REJECT_FILE, OUTPUT_FILE);
 }
 
 /**
@@ -157,14 +162,18 @@ static void malheur_prototype()
     if (verbose > 1)
         farray_print(pr);
     
+    /* Assign data to prototypes */
+    assign_t *as = proto_assign(fa, pr);
+    
     /* Export prototypes */
-    export_proto(pr, fa, output_file);
+    export_proto(pr, fa, as, output_file);
     
     /* Save prototype vectors */
     if (proto_file) 
         proto_save_file(pr, proto_file);
     
     /* Clean up */
+    assign_destroy(as);
     farray_destroy(pr);
     farray_destroy(fa);
 }
@@ -209,12 +218,21 @@ static void malheur_classify()
 
     /* Load data */
     farray_t *fa = malheur_load();
-
-    /* TODO */
+        
+    /* Assign data to prototypes */
+    assign_t *as = proto_assign(fa, pr);
+    
+    /* Export prototypes */
+    export_class(pr, fa, as, output_file);
+    
+    /* Save prototype vectors */
+    if (proto_file) 
+        proto_save_file(pr, proto_file);
     
     /* Clean up */
+    assign_destroy(as);
     farray_destroy(pr);
-    farray_destroy(fa);        
+    farray_destroy(fa);
 }
 
 

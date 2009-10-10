@@ -162,6 +162,7 @@ void export_class(farray_t *p, farray_t *fa, assign_t *as, char *file)
 {
     assert(p && fa && file);
     int i, j;
+    char *l;
     FILE *f;
 
     if (verbose > 0)
@@ -190,8 +191,9 @@ void export_class(farray_t *p, farray_t *fa, assign_t *as, char *file)
     
     for (i = 0; i < fa->len; i++) {
         j = as->proto[i];
-        fprintf(f, "%s %s %s %g\n", fa->x[i]->src,  farray_get_label(p, j), 
-                p->x[j]->src, as->dist[i]);
+        l = as->label[i] ? farray_get_label(p, j) : "rejected";
+        fprintf(f, "%s %s %s %g\n", fa->x[i]->src,  l, p->x[j]->src, 
+                as->dist[i]);
     }
     
     fclose(f);

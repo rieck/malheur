@@ -21,23 +21,25 @@ extern int verbose;
 /* Default configuration */
 static config_default_t defaults[] = {
     /* Input */
-    {"input",          "format",          0,   NAN, "raw"},
-    {"input",          "mist_level",      2,   NAN, NULL},
-    {"input",          "mist_rlen",       0,   NAN, NULL},
-    {"input",          "mist_tlen",       0,   NAN, NULL},
+    {"input",          "format",          0,   NAN,  "raw"},
+    {"input",          "mist_level",      2,   NAN,  NULL},
+    {"input",          "mist_rlen",       0,   NAN,  NULL},
+    {"input",          "mist_tlen",       0,   NAN,  NULL},
     /* Features */
-    {"features",       "ngram_len",       2,   NAN, NULL},
-    {"features",       "ngram_delim",     0,   NAN, "%20%0a%0d"},
-    {"features",       "vect_embed",      0,   NAN, "bin"},
+    {"features",       "ngram_len",       2,   NAN,  NULL},
+    {"features",       "ngram_delim",     0,   NAN,  "%20%0a%0d"},
+    {"features",       "vect_embed",      0,   NAN,  "bin"},
+    {"features",       "lookup_table",    0,   NAN,  NULL},
     /* Prototypes */
     {"prototypes",     "max_dist",        0,   0.65, NULL},
-    {"prototypes",     "max_num",         0,   NAN, NULL},
+    {"prototypes",     "max_num",         0,   NAN,  NULL},
     /* Clustering */
     {"cluster",        "min_dist",        0,   0.95, NULL},
-    {"cluster",        "reject_num",     10,   NAN, NULL},
-    {"cluster",        "link_mode",       0,   NAN, "complete"},
+    {"cluster",        "reject_num",     10,   NAN,  NULL},
+    {"cluster",        "link_mode",       0,   NAN,  "complete"},
     /* Classification */
     {"classify",       "max_dist",        0,   0.68, NULL},
+    /* Terminating entry */
     {NULL, NULL, 0, 0, NULL}
 };
 

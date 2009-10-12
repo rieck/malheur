@@ -15,6 +15,7 @@
 #define QUALITY_H
 
 #include "uthash.h"
+#include "util.h"
 
 /* Definitions of quality measures */
 #define Q_PRECISION     0       /* Precision */
@@ -22,13 +23,6 @@
 #define Q_FMEASURE      2       /* F-measure */
 #define Q_RAND          3       /* Rand index */
 #define Q_ARAND         4       /* Adjusted rand */
-
-/* Counts for each true label */
-typedef struct {
-    unsigned int label; /* Predicted label */
-    double count;       /* Occurences of label */
-    UT_hash_handle hh;  /* Hash table entry */
-} count_t;
 
 /* Histogram bin for each true label */
 typedef struct {

@@ -197,6 +197,10 @@ static void malheur_cluster()
     /* Cluster prototypes */
     cluster_t *c = cluster_linkage(pr);
     
+    /* Extrapolate and trim */
+    cluster_extrapolate(c, pr, fa);
+    cluster_trim(c);
+    
     /* Export prototypes */
     export_cluster(c, fa, output_file);    
 
@@ -217,6 +221,9 @@ static void malheur_cluster()
  */
 static void malheur_classify()
 {
+    printf("FIXME. Not max dist support.\n");
+    exit(0);
+
     if (!access(proto_file, R_OK))
         error("Prototype file '%s' not existent.", proto_file);
 

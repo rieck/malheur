@@ -15,6 +15,7 @@
 #define UTIL_H
 
 #include "config.h"
+#include "uthash.h"
 
 /* Progress bar stuff */
 #define PROGBAR_LEN     52
@@ -22,6 +23,13 @@
 #define PROGBAR_FULL    '#'
 #define PROGBAR_DONE    '#'
 #define PROGBAR_FRONT   '|'
+
+/* Counts for each label */
+typedef struct {
+    unsigned int label; /* Predicted label */
+    double count;       /* Occurences of label */
+    UT_hash_handle hh;  /* Hash table entry */
+} count_t;
 
 /* Fatal message */
 #ifndef fatal

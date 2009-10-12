@@ -172,14 +172,11 @@ assign_t *proto_assign(farray_t *fa, farray_t *p)
     assert(fa && p);
     int i, k, j, cnt = 0;
     double d = 0;
-    double maxdist;
 
     assign_t *c = assign_create(fa);
-    config_lookup_float(&cfg, "classify.max_dist", (double *) &maxdist);
     
     if (verbose > 0) 
-        printf("Assigning feature vectors to %lu prototypes of %d classes.\n", 
-               p->len, HASH_CNT(hn, fa->label_name));
+        printf("Assigning feature vectors to %lu prototypes.\n", p->len);
 
     #pragma omp parallel for shared(fa,c,p) private(k,j)
     for (i = 0; i < fa->len; i++) {
@@ -195,20 +192,13 @@ assign_t *proto_assign(farray_t *fa, farray_t *p)
         /* Compute assignments */
         c->proto[i] = j;
         c->dist[i] = d;
-        if (d < maxdist)
-            c->label[i] = p->y[j];
-        else
-            c->label[i] = 0;
+        c->label[i] = p->y[j];
 
         #pragma omp critical (cnt)
         if (verbose)
             prog_bar(0, fa->len, ++cnt);
     }
-    
-    if (verbose > 0)
-        printf("  Done. %ld feature vectors assigned to %lu prototypes.\n", 
-               fa->len, p->len);
-     
+         
     return c;
 }
  

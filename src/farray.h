@@ -51,14 +51,19 @@ farray_t *farray_create(char *);
 void farray_add(farray_t *, fvec_t *, char *);
 void farray_destroy(farray_t *);
 void farray_print(farray_t *);
+farray_t *farray_merge(farray_t *, farray_t *) ;
+char *farray_get_label(farray_t *fa, int i);
+
+/* Extract function */
+farray_t *farray_extract(char *);
+farray_t *farray_extract_dir(char *);
+farray_t *farray_extract_archive(char *);
+
+/* I/O functions */
 void farray_save(farray_t *, gzFile *);
 void farray_save_file(farray_t *, char *);
 farray_t *farray_load(gzFile *);
 farray_t *farray_load_file(char *);
-farray_t *farray_merge(farray_t *, farray_t *) ;
-farray_t *farray_extract(char *);
-farray_t *farray_extract_dir(char *);
-farray_t *farray_extract_archive(char *);
-char *farray_get_label(farray_t *fa, int i);
+void farray_append_file(farray_t *fa, char *f); 
 
 #endif                          /* FARRAY_H */

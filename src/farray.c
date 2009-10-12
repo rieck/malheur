@@ -492,6 +492,87 @@ farray_t *farray_load(gzFile *z)
     return f;
 }
 
+/**
+ * Saves feature vectors to a file
+ * @param fa Array of feature vectors
+ * @param f File name
+ */
+void farray_save_file(farray_t *fa, char *f) 
+{ 
+    assert(fa && f);
+
+    /* Open file */
+    gzFile *z = gzopen(f, "w9");
+    if (!z) {
+        error("Could not open '%s' for writing", f);
+        return;
+    }
+        
+    /* Save data */
+    farray_save(fa, z);
+    gzclose(z);      
+}
+
+
+/**
+ * Appends feature vectors to a file
+ * @param fa Array of feature vectors
+ * @param f File name
+ */
+void farray_append_file(farray_t *fa, char *f) 
+{ 
+    assert(fa && f);
+
+    /* Open file */
+    gzFile *z = gzopen(f, "r");
+    if (!z) {
+        error("Could not open '%s' for reading", f);
+        return;
+    }
+        
+    /* Load data */
+    farray_t *fo = farray_load(z);
+    gzclose(z);
+
+    /* Merge data */
+    fa = farray_merge(fa, fo);
+
+    /* Open file */
+    z = gzopen(f, "w9");
+    if (!z) {
+        error("Could not open '%s' for writing", f);
+        return;
+    }
+        
+    /* Save data */
+    farray_save(fa, z);
+    gzclose(z);      
+}
+
+
+/**
+ * Loads a feature vectors from a file
+ * @param f File name
+ * @return Prototypes
+ */
+farray_t *farray_load_file(char *f) 
+{ 
+    assert(f);
+    
+    /* Open file */
+    gzFile *z = gzopen(f, "r");
+    if (!z) {
+        error("Could not open '%s' for reading", f);
+        return NULL;
+    }
+        
+    /* Load data */
+    farray_t *fa = farray_load(z);
+    gzclose(z);      
+    
+    return fa;
+}
+
 /** }@ */
 
  

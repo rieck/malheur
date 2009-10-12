@@ -36,7 +36,7 @@ static char *reject_file = REJECT_FILE;
 static char **input_files = NULL;
 static int input_len = 0;
 static malheur_task_t task = PROTOTYPE;
-static incremental = FALSE;
+static int incremental = FALSE;
 
 /**
  * Print usage of command line tool
@@ -172,14 +172,10 @@ static void malheur_prototype()
     export_proto(pr, fa, as, output_file);
     
     /* Incremental analysis */
-    if (incremental && !access(proto_file, R_OK)) {
-        /* Load old prototypes and merge in */
-        farray_t *old = proto_load_file(proto_file);
-        pr = farray_merge(pr, old);
-    }
-    
-    /* Save prototype vectors */
-    proto_save_file(pr, proto_file);
+    if (incremental && !access(proto_file, R_OK))
+        farray_append_file(pr, proto_file);
+    else
+        farray_save_file(pr, proto_file);
     
     /* Clean up */
     assign_destroy(as);
@@ -205,14 +201,10 @@ static void malheur_cluster()
     export_cluster(c, fa, output_file);    
 
     /* Incremental analysis */
-    if (incremental && !access(proto_file, R_OK)) {
-        /* Load old prototypes and merge in */
-        farray_t *old = proto_load_file(proto_file);
-        pr = farray_merge(pr, old);
-    }    
-    
-    /* Save prototype vectors */
-    proto_save_file(pr, proto_file);
+    if (incremental && !access(proto_file, R_OK))
+        farray_append_file(pr, proto_file);
+    else 
+        farray_save_file(pr, proto_file);
     
     /* Clean up */
     cluster_destroy(c);
@@ -229,7 +221,7 @@ static void malheur_classify()
         error("Prototype file '%s' not existent.", proto_file);
 
     /* Load prototypes */
-    farray_t *pr = proto_load_file(proto_file);
+    farray_t *pr = farray_load_file(proto_file);
 
     /* Load data */
     farray_t *fa = malheur_load();

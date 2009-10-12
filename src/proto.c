@@ -132,55 +132,6 @@ farray_t *proto_extract(farray_t *fa)
 }
 
 /**
- * Saves a structure of prototypes to a file
- * @param p Prototypes
- * @param f File name
- */
-void proto_save_file(farray_t *p, char *f) 
-{ 
-    assert(p && f);
-
-    if (verbose)
-        printf("Saving prototypes to '%s'.\n", f);
-    
-    /* Open file */
-    gzFile *z = gzopen(f, "w9");
-    if (!z) {
-        error("Could not open '%s' for writing", f);
-        return;
-    }
-        
-    /* Save data */
-    farray_save(p, z);
-    gzclose(z);      
-}
-
-/**
- * Loads a structure of prototypes from a file
- * @param f File name
- * @return Prototypes
- */
-farray_t *proto_load_file(char *f) 
-{ 
-    assert(f);
-    if (verbose)
-        printf("Loading prototypes from '%s'.\n", f);
-    
-    /* Open file */
-    gzFile *z = gzopen(f, "r");
-    if (!z) {
-        error("Could not open '%s' for reading", f);
-        return NULL;
-    }
-        
-    /* Save data */
-    farray_t *pr = farray_load(z);
-    gzclose(z);      
-    
-    return pr;
-}
-
-/**
  * Creates an empty structure of assignments
  * @param a Array of feature vectors
  * @return assignment structure

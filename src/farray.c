@@ -97,7 +97,6 @@ farray_t *farray_create(char *s)
     return fa;
 } 
 
-
 /**
  * Destroys an array of feature vectors
  * @param fa array of feature vectors
@@ -162,7 +161,7 @@ void farray_add(farray_t *fa, fvec_t *fv, char *label)
 
 /**
  * Extracts an array of feature vectors from an archive or directory.
- * @param arc archive containing files.
+ * @param path archive containing files.
  * @return array of feature vectors
  */
 farray_t *farray_extract(char *path)
@@ -524,7 +523,6 @@ void farray_save_file(farray_t *fa, char *f, int a)
     gzclose(z);      
 }
 
-
 /**
  * Loads a feature vectors from a file
  * @param f File name
@@ -551,6 +549,4 @@ farray_t *farray_load_file(char *f)
     return fa;
 }
 
-/** }@ */
-
- 
+/** @} */

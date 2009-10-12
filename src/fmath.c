@@ -434,7 +434,6 @@ fvec_t *farray_mean(farray_t *fa)
     return f;
 } 
 
-
 /**
  * Computes the l1-norm of the feature vector (n = ||f||_1)
  * @param f Feature vector 
@@ -471,7 +470,7 @@ double fvec_norm2(fvec_t *f)
 
 /**
  * Sparsifies a feature vector by removing zero dimensions 
- * @parma f Feature vectore
+ * @param f Feature vectore
  */
 void fvec_sparsify(fvec_t *f)
 {
@@ -502,4 +501,4 @@ void fvec_sparsify(fvec_t *f)
     fvec_realloc(f);
 }
 
-/** }@ */
+/** @} */

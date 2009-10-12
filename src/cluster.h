@@ -23,7 +23,7 @@ typedef struct {
     unsigned int *cluster;  /* Assignments of clustering */
     unsigned long len;      /* Length of assignments */
     unsigned long num;      /* Number of clusters */
-    unsigned int issue;     /* Issue number of clustering */
+    unsigned int run;       /* Runnumber of clustering */
 } cluster_t;
 
 /* Functions */

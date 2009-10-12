@@ -72,7 +72,7 @@ void export_dist(double *d, farray_t *fa, char *file)
 
 /**
  * Exports a structure of prototypes to a text file
- * @param p Prototype structure
+ * @param pr Prototype structure
  * @param fa Feature vector array
  * @param as Assignments to protoypes
  * @param file File name

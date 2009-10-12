@@ -14,17 +14,20 @@
 #ifndef CLUSTER_H
 #define CLUSTER_H
 
+#include "uthash.h"
 #include "farray.h"
 
+/* Clustering structure */
 typedef struct {
     unsigned int *cluster;  /* Assignments of clustering */
     unsigned long len;      /* Length of assignments */
     unsigned long num;      /* Number of clusters */
 } cluster_t;
 
-
 /* Functions */
 cluster_t *cluster_linkage(farray_t *);
 void cluster_destroy(cluster_t *);
+void cluster_extrapolate(cluster_t *c, farray_t *pr, farray_t *fa);
+void cluster_trim(cluster_t *c);
 
 #endif                          /* CLUSTER_H */

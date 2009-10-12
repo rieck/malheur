@@ -21,6 +21,7 @@
 #include "util.h"
 #include "export.h"
 #include "cluster.h"
+#include "class.h"
 
 /* Global variables */
 int verbose = 0;
@@ -193,13 +194,15 @@ static void malheur_cluster()
     /* Cluster prototypes */
     cluster_t *c = cluster_linkage(pr, as, incr);
 
-    /* Get prototypes and rejected */
+    /* Save prototypes */
     farray_t *pn = cluster_prototypes(c, as, pr);
-    farray_t *re = cluster_rejected(c, fa);
-
-    /* Save prototypes and rejected */
     farray_save_file(pn, proto_file, incr);
+    farray_destroy(pn);
+
+    /* Save rejected feature vectors */
+    farray_t *re = cluster_rejected(c, fa);
     farray_save_file(re, reject_file, incr);
+    farray_destroy(re);
     
     /* Export clustering */
     export_cluster(c, pr, fa, as, output_file);    
@@ -207,9 +210,6 @@ static void malheur_cluster()
     /* Clean up */
     cluster_destroy(c);
     assign_destroy(as);
-    
-    farray_destroy(pn);
-    farray_destroy(re);
     farray_destroy(pr);    
     farray_destroy(fa);        
 }
@@ -219,22 +219,28 @@ static void malheur_cluster()
  */
 static void malheur_classify()
 {
-    printf("FIXME. Not max dist support.\n");
-    exit(0);
+    double maxdist;
 
-    if (!access(proto_file, R_OK))
-        error("Prototype file '%s' not existent.", proto_file);
-
-    /* Load prototypes */
-    farray_t *pr = farray_load_file(proto_file);
+    if (access(proto_file, R_OK))
+        fatal("Prototype file '%s' not existent.", proto_file);
 
     /* Load data */
     farray_t *fa = malheur_load();
-        
-    /* Assign data to prototypes */
+
+    /* Load prototypes */
+    farray_t *pr = farray_load_file(proto_file);
     assign_t *as = proto_assign(fa, pr);
+
+    /* Classify data */
+    config_lookup_float(&cfg, "classify.max_dist", &maxdist);
+    class_apply(as, fa);
     
-    /* Export prototypes */
+    /* Save rejected feature vectors */
+    farray_t *re = class_rejected(as, fa);
+    farray_save_file(re, reject_file, incr);
+    farray_destroy(re);
+    
+    /* Export classification */
     export_class(pr, fa, as, output_file);
         
     /* Clean up */

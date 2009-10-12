@@ -148,7 +148,7 @@ err:
  * Initializes an empty clustering 
  * @param n Number of points
  * @param j Issue number of clustering
- * @return clustering structure
+ * @return Clustering structure
  */
 static cluster_t *cluster_create(int n, int j)
 {
@@ -235,6 +235,8 @@ static void cluster_trim(cluster_t *c, unsigned long r)
 
 /**
  * Extrapolate a clustering from a set of prototypes
+ * @param c Clustering structure
+ * @param a Assignments to prototypes
  */
 static void cluster_extrapolate(cluster_t *c, assign_t *a)
 {
@@ -260,11 +262,11 @@ static void cluster_extrapolate(cluster_t *c, assign_t *a)
 }
 
 /**
- * Clusters a set of feature vectors using linkage clustering
+ * Cluster feature vectors using linkage clustering
  * @param pr Array of prototypes
  * @param as Assignments to prototypes
  * @param in Issue number of clustering 
- * @return clustering
+ * @return Clustering structure
  */
 cluster_t *cluster_linkage(farray_t *pr, assign_t *as, int in) 
 {
@@ -321,10 +323,10 @@ void cluster_destroy(cluster_t *c)
 } 
 
 /**
- * Return an array of feature vectors
- * @param c cluster structure
- * @param f array of feature vectors
- * @return rejected feature vectors
+ * Return an array of rejected feature vectors
+ * @param c Cluster structure
+ * @param f Array of feature vectors
+ * @return Rejected feature vectors
  */
 farray_t *cluster_rejected(cluster_t *c, farray_t *f)
 {
@@ -382,11 +384,11 @@ farray_t *cluster_prototypes(cluster_t *c, assign_t *a, farray_t *p)
 }
 
 /**
- * Returns string for a cluster. The string is returned in a static
- * array.
- * @param c clustering structure
+ * Return a name for the cluster at the i-th element. The string is 
+ * returned in a static array and must not be free'd.
+ * @param c Clustering structure
  * @param i Index in cluster
- * @return name of cluster
+ * @return Name of cluster (issue-number)
  */
 char *cluster_get_name(cluster_t *c, int i)
 {
@@ -398,7 +400,5 @@ char *cluster_get_name(cluster_t *c, int i)
         
     return label; 
 } 
-
-
 
 /** @} */

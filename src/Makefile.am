@@ -20,3 +20,9 @@ malheur_LDFLAGS         = -static
 beautify:               $(libmalheur_a_SOURCES) $(malheur_SOURCES)
 			gnuindent -i4 -kr -l77 -lc77 --no-tabs -cs \
                                   -T FILE -T fvet_t -T DIR -T DIRP $^
+
+malheur.h: malheur.h.in
+	sed -e 's|__SYSCONFDIR__|$(sysconfdir)|' \
+	    -e 's|__LOCALSTATEDIR__|$(localstatedir)|' \
+	malheur.h.in > malheur.h
+                                

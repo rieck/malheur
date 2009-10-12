@@ -12,7 +12,7 @@
  */
 
 /**
- * @defgroup quality Generic quality evaluation functions
+ * @defgroup quality Quality functions
  * The module contains functions for evaluating the quality of 
  * classification and clustering methods.
  * @author Konrad Rieck (rieck@cs.tu-berlin.de)

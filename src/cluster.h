@@ -18,7 +18,9 @@
 #include "farray.h"
 #include "proto.h"
 
-/* Clustering structure */
+/**
+ * Clustering structure. 
+ */
 typedef struct {
     unsigned int *cluster;  /* Assignments of clustering */
     unsigned long len;      /* Length of assignments */

@@ -18,7 +18,6 @@
  * @author Konrad Rieck (rieck@cs.tu-berlin.de)
  * @{
  */
-
 #include "config.h"
 #include "common.h"
 #include "quality.h"

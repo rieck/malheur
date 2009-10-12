@@ -12,4 +12,7 @@ EXTRA_DIST = README INSTALL COPYING
 
 mostlyclean-local:
 	rm -f *~
-        
+
+install-data-local:
+	$(MKDIR_P) $(localstatedir)/malheur
+	        

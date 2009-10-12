@@ -15,9 +15,9 @@
 #define MALHEUR_H
 
 #define OUTPUT_FILE "malheur.out"
-#define REJECT_FILE "@LOCALSTATEDIR@/malheur/rejected.fvec"
-#define PROTO_FILE  "@LOCALSTATEDIR@/malheur/prototypes.fvec"
-#define CONFIG_FILE "@SYSCONFDIR@/malheur/malheur.cfg"
+#define REJECT_FILE "__LOCALSTATEDIR__/malheur/rejected.fvec"
+#define PROTO_FILE  "__LOCALSTATEDIR__/malheur/prototypes.fvec"
+#define CONFIG_FILE "__SYSCONFDIR__/malheur/malheur.cfg"
 
 /* Operation tasks of Malheur  */
 typedef enum {

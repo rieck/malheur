@@ -61,7 +61,7 @@ void cluster_murtagh(cluster_t *c, double *d, double dm, char m)
     /* Main loop */
     for (k = 0; k < c->len - 1; k++) {
         /* Update nearest neighbors for each point */
-        #pragma omp parallel for default(shared) private(dmin, jj)
+        #pragma omp parallel for default(shared) private(dmin, jj, j)
         for (i = 0; i < c->len; i++) {
             if (done[i] || (k > 0 && (nn[i] != im && nn[i] != jm)))
                 continue;
@@ -135,6 +135,9 @@ void cluster_murtagh(cluster_t *c, double *d, double dm, char m)
     }
     
 err:    
+    if (verbose > 0)
+        prog_bar(0, 1, 1);
+
     /* Free remaining arrays */
     free(done);
     free(nn);
@@ -144,9 +147,10 @@ err:
 /**
  * Initializes an empty clustering 
  * @param n Number of points
+ * @param j Issue number of clustering
  * @return clustering structure
  */
-static cluster_t *cluster_create(int n)
+static cluster_t *cluster_create(int n, int j)
 {
     int i;
 
@@ -168,6 +172,7 @@ static cluster_t *cluster_create(int n)
     /* Initialize cluster assignements */
     c->num = n;
     c->len = n;
+    c->issue = j;
     for (i = 0; i < n; i++)
         c->cluster[i] = i + 1;
         
@@ -175,66 +180,14 @@ static cluster_t *cluster_create(int n)
 }
 
 /**
- * Clusters a set of feature vectors using linkage clustering
- * @param pr Array of feature vectors
- * @return clustering
- */
-cluster_t *cluster_linkage(farray_t *pr) 
-{
-    assert(pr);
-    double dmin;
-    const char *mode;
-    
-    /* Get cluster configuration */
-    config_lookup_float(&cfg, "cluster.min_dist", (double *) &dmin);
-    config_lookup_string(&cfg, "cluster.link_mode", &mode);
-
-    /* Allocate cluster structure */
-    cluster_t *c = cluster_create(pr->len);
-
-    /* Compute distances */
-    double *dist = malloc(sizeof(double) * tria_size(pr->len));
-    farray_dist_tria(pr, dist); 
-
-    if (verbose > 0) 
-        printf("Clustering (%s linkage) with minimum distance %4.2f.\n",
-               mode, dmin);
-    
-    /* Run clustering */
-    cluster_murtagh(c, dist, dmin, mode[0]);
-    
-    if (verbose > 0)
-        prog_bar(0, 1, 1);
-
-    free(dist);
-    return c;
-} 
-
-/**
- * Destroy a cluster structure
- * @param  c Cluster structure
- */
-void cluster_destroy(cluster_t *c)
-{
-    if (!c)
-        return;
-        
-    if (c->cluster)
-        free(c->cluster);
-    free(c);
-} 
-
-/**
  * Trim clustering by rejecting small clusters
  * @param c Clustering structure
+ * @param r Rejection cluster size
  */
-void cluster_trim(cluster_t *c)
+static void cluster_trim(cluster_t *c, unsigned long r)
 {
     count_t *counts = NULL, *entry;
     unsigned int i, j;
-    long r;
-    
-    config_lookup_int(&cfg, "cluster.reject_num", &r);
     
     for (i = 0; i < c->len; i++) {
         /* Look for cluster in hash table */
@@ -281,32 +234,171 @@ void cluster_trim(cluster_t *c)
 } 
 
 /**
- * Extrapolates a clustering using prototypes to feature vector
- * @param c clustering structute
- * @param pr Prototypes
- * @param fa Feature vectors
+ * Extrapolate a clustering from a set of prototypes
  */
-void cluster_extrapolate(cluster_t *c, farray_t *pr, farray_t *fa)
+static void cluster_extrapolate(cluster_t *c, assign_t *a)
 {
     unsigned int *n, i;
-    assign_t *a = proto_assign(fa, pr);    
     
-    n = malloc(fa->len * sizeof(unsigned int));
+    /* Allucate new cluster assignments */
+    n = malloc(a->len * sizeof(unsigned int));
     if (!n) {
-        error("Could not allocate cluster assignments");
+        error("Could not allocate new cluster assignments");
         return;
     }
         
     /* Extrapolate */
-    for (i = 0; i < fa->len ; i++) {
+    for (i = 0; i < a->len ; i++) {
         int j = a->proto[i];
         n[i] = c->cluster[j];
     }
-    assign_destroy(a);
 
+    /* Clean up */
     free(c->cluster);
     c->cluster = n;
-    c->len = fa->len;
+    c->len = a->len;
+}
+
+/**
+ * Clusters a set of feature vectors using linkage clustering
+ * @param pr Array of prototypes
+ * @param as Assignments to prototypes
+ * @param in Issue number of clustering 
+ * @return clustering
+ */
+cluster_t *cluster_linkage(farray_t *pr, assign_t *as, int in) 
+{
+    assert(pr && as);
+    double dmin;
+    const char *mode;
+    long rej;
+    
+    /* Get cluster configuration */
+    config_lookup_float(&cfg, "cluster.min_dist", (double *) &dmin);
+    config_lookup_string(&cfg, "cluster.link_mode", &mode);
+    config_lookup_int(&cfg, "cluster.reject_num", &rej);
+
+    /* Allocate cluster structure */
+    cluster_t *c = cluster_create(pr->len, in);
+
+    /* Compute distances */
+    double *dist = malloc(sizeof(double) * tria_size(pr->len));
+    farray_dist_tria(pr, dist); 
+
+    if (verbose > 0) 
+        printf("Clustering (%s linkage) with minimum distance %4.2f.\n",
+               mode, dmin);
+    
+    /* Run clustering */
+    cluster_murtagh(c, dist, dmin, mode[0]);
+
+    /* Extrapolate from prototypes */
+    cluster_extrapolate(c, as);
+
+    /* Trim cluster */
+    cluster_trim(c, rej);
+    
+    if (verbose > 0)
+        printf("  Done. %ld clusters.\n", c->num);    
+
+    /* Clean up */
+    free(dist);
+    return c;
 } 
+
+/**
+ * Destroy a cluster structure
+ * @param  c Cluster structure
+ */
+void cluster_destroy(cluster_t *c)
+{
+    if (!c)
+        return;
+        
+    if (c->cluster)
+        free(c->cluster);
+    free(c);
+} 
+
+/**
+ * Return an array of feature vectors
+ * @param c cluster structure
+ * @param f array of feature vectors
+ * @return rejected feature vectors
+ */
+farray_t *cluster_rejected(cluster_t *c, farray_t *f)
+{
+    int i;
+    farray_t *r = farray_create("rejected");
+    
+    for (i = 0; i < f->len; i++)
+        if (!c->cluster[i])
+            farray_add(r, fvec_clone(f->x[i]), farray_get_label(f, i));
+    
+    return r;
+}
+
+/**
+ * Return an array of prototypes labeled with cluster numbers
+ * @param c cluster structure
+ * @param a assignment of prototypes
+ * @param p prototypes 
+ * @return rejected feature vectors
+ */
+farray_t *cluster_prototypes(cluster_t *c, assign_t *a, farray_t *p)
+{
+    int i;
+    farray_t *n = farray_create("prototypes");
+    count_t *hash = NULL, *entry;
+    
+    for (i = 0; i < a->len; i++) {
+        /* Skip rejected clusters */
+        if (!c->cluster[i])
+            continue;
+    
+        /* Check if prototype has been added */
+        int j = a->proto[i];
+        HASH_FIND_INT(hash, &j, entry);
+        if (entry) 
+            continue;
+
+        /* Add new prototype */
+        entry = malloc(sizeof(count_t));
+        entry->label = j;
+        HASH_ADD_INT(hash, label, entry);
+        
+        /* Add prototype */
+        farray_add(n, fvec_clone(p->x[j]), cluster_get_name(c, i));
+    }
+
+    /* Delete hash table */
+    while (hash) {
+        entry = hash;     
+        HASH_DEL(hash, entry);  
+        free(entry);            
+    }    
+    
+    return n;
+}
+
+/**
+ * Returns string for a cluster. The string is returned in a static
+ * array.
+ * @param c clustering structure
+ * @param i Index in cluster
+ * @return name of cluster
+ */
+char *cluster_get_name(cluster_t *c, int i)
+{
+    static char label[16];
+    if (c->cluster[i])
+        snprintf(label, 16, "clust-%.3d-%.4d", c->issue, c->cluster[i]);
+    else
+        snprintf(label, 16, "rejected");
+        
+    return label; 
+} 
+
+
 
 /** @} */

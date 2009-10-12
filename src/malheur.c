@@ -36,7 +36,7 @@ static char *reject_file = REJECT_FILE;
 static char **input_files = NULL;
 static int input_len = 0;
 static malheur_task_t task = PROTOTYPE;
-static int incremental = FALSE;
+static int incr = 0;
 
 /**
  * Print usage of command line tool
@@ -56,7 +56,7 @@ static void print_usage(int argc, char **argv)
            "  -p <file>    Set prototype file. [%s]\n"  
            "  -r <file>    Set rejected file. [%s]\n"  
            "  -o <file>    Set output file for analysis. [%s]\n"
-           "  -i           Incremental analysis.\n"
+           "  -i <index>   Incremental analysis.\n"
            "  -v           Increase verbosity.\n"
            "  -V           Print version and copyright.\n"
            "  -h           Print this help screen.\n", 
@@ -71,10 +71,10 @@ static void print_usage(int argc, char **argv)
 static void parse_options(int argc, char **argv)
 {
     int ch;
-    while ((ch = getopt(argc, argv, "io:p:r:c:hvV")) != -1) {
+    while ((ch = getopt(argc, argv, "i:o:p:r:c:hvV")) != -1) {
         switch (ch) {
             case 'i':
-                incremental = TRUE;
+                incr = atoi(optarg);
                 break;
             case 'v':
                 verbose++;
@@ -161,21 +161,16 @@ static void malheur_prototype()
     
     /* Extract prototypes */
     farray_t *pr = proto_extract(fa);
+    assign_t *as = proto_assign(fa, pr);
     
     if (verbose > 1)
         farray_print(pr);
     
-    /* Assign data to prototypes */
-    assign_t *as = proto_assign(fa, pr);
-    
     /* Export prototypes */
     export_proto(pr, fa, as, output_file);
     
-    /* Incremental analysis */
-    if (incremental && !access(proto_file, R_OK))
-        farray_append_file(pr, proto_file);
-    else
-        farray_save_file(pr, proto_file);
+    /* Save prototypes */
+    farray_save_file(pr, proto_file, incr);
     
     /* Clean up */
     assign_destroy(as);
@@ -193,25 +188,28 @@ static void malheur_cluster()
 
     /* Extract prototypes */
     farray_t *pr = proto_extract(fa);    
+    assign_t *as = proto_assign(fa, pr);
 
     /* Cluster prototypes */
-    cluster_t *c = cluster_linkage(pr);
-    
-    /* Extrapolate and trim */
-    cluster_extrapolate(c, pr, fa);
-    cluster_trim(c);
-    
-    /* Export prototypes */
-    export_cluster(c, fa, output_file);    
+    cluster_t *c = cluster_linkage(pr, as, incr);
 
-    /* Incremental analysis */
-    if (incremental && !access(proto_file, R_OK))
-        farray_append_file(pr, proto_file);
-    else 
-        farray_save_file(pr, proto_file);
+    /* Get prototypes and rejected */
+    farray_t *pn = cluster_prototypes(c, as, pr);
+    farray_t *re = cluster_rejected(c, fa);
+
+    /* Save prototypes and rejected */
+    farray_save_file(pn, proto_file, incr);
+    farray_save_file(re, reject_file, incr);
+    
+    /* Export clustering */
+    export_cluster(c, pr, fa, as, output_file);    
     
     /* Clean up */
     cluster_destroy(c);
+    assign_destroy(as);
+    
+    farray_destroy(pn);
+    farray_destroy(re);
     farray_destroy(pr);    
     farray_destroy(fa);        
 }

@@ -198,6 +198,10 @@ assign_t *proto_assign(farray_t *fa, farray_t *p)
         if (verbose)
             prog_bar(0, fa->len, ++cnt);
     }
+    
+    if (verbose > 0)
+        printf("  Done. Assigened %ld feature vectors to %ld prototypes.\n", 
+               fa->len, p->len);
          
     return c;
 }

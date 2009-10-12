@@ -16,18 +16,21 @@
 
 #include "uthash.h"
 #include "farray.h"
+#include "proto.h"
 
 /* Clustering structure */
 typedef struct {
     unsigned int *cluster;  /* Assignments of clustering */
     unsigned long len;      /* Length of assignments */
     unsigned long num;      /* Number of clusters */
+    unsigned int issue;     /* Issue number of clustering */
 } cluster_t;
 
 /* Functions */
-cluster_t *cluster_linkage(farray_t *);
+cluster_t *cluster_linkage(farray_t *, assign_t *, int);
 void cluster_destroy(cluster_t *);
-void cluster_extrapolate(cluster_t *c, farray_t *pr, farray_t *fa);
-void cluster_trim(cluster_t *c);
+farray_t *cluster_prototypes(cluster_t *, assign_t *, farray_t *);
+farray_t *cluster_rejected(cluster_t *, farray_t *);
+char *cluster_get_name(cluster_t *c, int i);
 
 #endif                          /* CLUSTER_H */

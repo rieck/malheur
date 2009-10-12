@@ -77,9 +77,9 @@ void export_dist(double *d, farray_t *fa, char *file)
  * @param as Assignments to protoypes
  * @param file File name
  */
-void export_proto(farray_t *p, farray_t *fa, assign_t *as, char *file)
+void export_proto(farray_t *pr, farray_t *fa, assign_t *as, char *file)
 {
-    assert(p && fa && file);
+    assert(pr && fa && file);
     int i, j;
     FILE *f;
 
@@ -99,16 +99,15 @@ void export_proto(farray_t *p, farray_t *fa, assign_t *as, char *file)
 
     /* Print prototype header */
     fprintf(f, "# ---\n# Prototypes for %s\n", fa->src);
-    fprintf(f, "# Number of prototypes: %ld (%3.1f%%)\n", p->len, 
-            p->len * 100.0 / (double) fa->len);
+    fprintf(f, "# Number of prototypes: %ld (%3.1f%%)\n", pr->len, 
+            pr->len * 100.0 / (double) fa->len);
     fprintf(f, "# Precision of prototypes: %4.1f%%\n", 
             e[Q_PRECISION] * 100.0);
-    fprintf(f, "# ---\n# <report> <prototype> <label> <distance>\n");
+    fprintf(f, "# ---\n# <report> <prototype> <distance>\n");
     
     for (i = 0; i < fa->len; i++) {
         j = as->proto[i];
-        fprintf(f, "%s %s %s %g\n", fa->x[i]->src, p->x[j]->src, 
-                farray_get_label(p, j), as->dist[i]);
+        fprintf(f, "%s %s %g\n", fa->x[i]->src, pr->x[j]->src, as->dist[i]);
     }
     
     fclose(f);
@@ -118,13 +117,17 @@ void export_proto(farray_t *p, farray_t *fa, assign_t *as, char *file)
  * Exports a clustering structure to a text file
  * @param c Clustering structure
  * @param fa Feature vector array
+ * @param p Prototype struture
+ * @param a Assignments of prototypes
  * @param file File name
  */
-void export_cluster(cluster_t *c, farray_t *fa, char *file)
+void export_cluster(cluster_t *c, farray_t *p, farray_t *fa, assign_t *a, 
+                    char *file)
 {
     assert(c && fa && file);
     FILE *f;
-
+    int i, j;
+    
     if (verbose > 0)
         printf("Exporting clusters to '%s'.\n", file);
     
@@ -145,7 +148,13 @@ void export_cluster(cluster_t *c, farray_t *fa, char *file)
     fprintf(f, "# Precision of clusters: %4.1f%%\n", e[Q_PRECISION] * 100.0);
     fprintf(f, "# Recall of clusters: %4.1f%%\n", e[Q_RECALL] * 100.0);
     fprintf(f, "# F-measure of clusters: %4.1f%%\n", e[Q_FMEASURE] * 100.0);
-    fprintf(f, "# ---\n# <report> <cluster> <prototype> <label> <distance>\n");
+    fprintf(f, "# ---\n# <report> <cluster> <prototype> <distance>\n");
+    
+    for (i = 0; i < fa->len; i++) {
+        j = a->proto[i];
+        fprintf(f, "%s %s %s %g\n", fa->x[i]->src, cluster_get_name(c, i), 
+                p->x[j]->src, a->dist[i]);
+    }
     
     fclose(f);
 }

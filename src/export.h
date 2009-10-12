@@ -19,10 +19,10 @@
 #include "cluster.h"
 
 /* I/O functions */
-void export_cluster(cluster_t *c, farray_t *fa, char *file);
-void export_dist(double *d, farray_t *f, char *file);
 void export_proto(farray_t *p, farray_t *fa, assign_t *a, char *file);
-void export_class(farray_t *p, farray_t *fa, assign_t *a, char *file);
+void export_cluster(cluster_t *c, farray_t *pr, farray_t *fa, assign_t *a, char *file);
+void export_dist(double *d, farray_t *f, char *file);
+void export_class(farray_t *p, farray_t *fa, assign_t *as, char *file);
 
 
 

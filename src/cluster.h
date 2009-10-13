@@ -29,10 +29,13 @@ typedef struct {
 } cluster_t;
 
 /* Functions */
-cluster_t *cluster_linkage(farray_t *, assign_t *, int);
+cluster_t *cluster_linkage(farray_t *);
 void cluster_destroy(cluster_t *);
-farray_t *cluster_prototypes(cluster_t *, assign_t *, farray_t *);
-farray_t *cluster_rejected(cluster_t *, farray_t *);
+void cluster_extrapolate(cluster_t *c, assign_t *a);
+void cluster_trim(cluster_t *c);
+
+farray_t *cluster_get_prototypes(cluster_t *, assign_t *, farray_t *);
+farray_t *cluster_get_rejected(cluster_t *, farray_t *);
 char *cluster_get_name(cluster_t *c, int i);
 
 #endif                          /* CLUSTER_H */

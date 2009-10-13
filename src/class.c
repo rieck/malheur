@@ -34,7 +34,7 @@ extern config_t cfg;
  * @param as Classification assignments
  * @param fa Array of feature vectors 
  */
-void class_apply(assign_t *as, farray_t *fa )
+void class_apply(assign_t *as, farray_t *fa)
 {
     int i;
     double maxdist;
@@ -54,7 +54,7 @@ void class_apply(assign_t *as, farray_t *fa )
  * @param fa Array of feature vectors
  * @return Rejected feature vectors
  */
-farray_t *class_rejected(assign_t *as, farray_t *fa)
+farray_t *class_get_rejected(assign_t *as, farray_t *fa)
 {
     int i;
     farray_t *r = farray_create("rejected");

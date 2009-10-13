@@ -491,13 +491,13 @@ farray_t *farray_load(gzFile *z)
     return f;
 }
 
+
 /**
- * Appends feature vectors to a file
+ * Save feature vectors to a file
  * @param fa Array of feature vectors
  * @param f File name
- * @param a append to old file
  */
-void farray_save_file(farray_t *fa, char *f, int a) 
+void farray_save_file(farray_t *fa, char *f)
 { 
     assert(fa && f);
     gzFile *z;
@@ -505,9 +505,34 @@ void farray_save_file(farray_t *fa, char *f, int a)
     if (verbose > 0)
         printf("Saving %ld feature vectors to '%s'.\n", fa->len, f);
 
+     /* Open file */
+    z = gzopen(f, "w9");
+    if (!z) {
+        error("Could not open '%s' for writing", f);
+        return;
+    }
+        
+    /* Save data */
+    farray_save(fa, z);
+    gzclose(z);      
+}
+/**
+ * Append feature vectors to a file
+ * @param fa Array of feature vectors
+ * @param f File name
+ */
+void farray_append_file(farray_t *fa, char *f) 
+{ 
+    assert(fa && f);
+    gzFile *z;
+
+    if (verbose > 0)
+        printf("Appending %ld feature vectors to '%s'.\n", fa->len, f);
+
     /* Open file and merge*/
-    if (a && !access(f, R_OK)) {
-        farray_t *fo = farray_load_file(f);
+    if ((z = gzopen(f, "r"))) {
+        farray_t *fo = farray_load(z);
+        gzclose(z);     
         fa = farray_merge(fa, fo);
     }
 

@@ -101,8 +101,6 @@ int test_stress()
             
             /* Extract features */
             f = fvec_extract(buf, strlen(buf), "test");
-
-            /* Get label */
             snprintf(label, 32, "label%.2d", rand() % 10);
             
             /* Add to array */

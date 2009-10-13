@@ -7,9 +7,6 @@
  TODO  
  * Fix for broken Matlab interface
  * Fix for strange gzclose issue (valgrind)
- * Add support for rejected clusters
- * Export function for clustering
- * Loading and saving of prototypes / rejected vectors
  * Clustering with and without prototypes
  
  

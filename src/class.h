@@ -19,6 +19,6 @@
 
 /* Functions */
 void class_apply(assign_t *, farray_t *);
-farray_t *class_rejected(assign_t *, farray_t *f);
+farray_t *class_get_rejected(assign_t *, farray_t *f);
 
 #endif                          /* CLASSIFY_H */

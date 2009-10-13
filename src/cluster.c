@@ -144,10 +144,9 @@ err:
 /**
  * Initializes an empty clustering.
  * @param n Number of points
- * @param r Run of clustering
  * @return Clustering structure
  */
-static cluster_t *cluster_create(int n, int r)
+static cluster_t *cluster_create(int n)
 {
     int i;
     
@@ -172,7 +171,6 @@ static cluster_t *cluster_create(int n, int r)
     
     c->num = n;
     c->len = n;
-    c->run = r;
     
     return c;
 }
@@ -181,14 +179,16 @@ static cluster_t *cluster_create(int n, int r)
  * Trim a clustering by rejecting small clusters. The provided clustering
  * structure is updated by assigning reports of rejected clusters to the
  * label 0.
- * @param c Clustering structure
  * @param r Rejection cluster size
  */
-static void cluster_trim(cluster_t *c, long r)
+void cluster_trim(cluster_t *c)
 {
-    assert(c && r >= 0);
+    assert(c);
     count_t *counts = NULL, *entry;
     unsigned int i, j;
+    long rej;
+
+    config_lookup_int(&cfg, "cluster.reject_num", &rej);
     
     for (i = 0; i < c->len; i++) {
         /* Look for cluster in hash table */
@@ -214,7 +214,7 @@ static void cluster_trim(cluster_t *c, long r)
     for (i = 0; i < c->len; i++) {
         /* Look for cluster in hash table */
         HASH_FIND_INT(counts, &(c->cluster[i]), entry); 
-        if (entry->count >= r)
+        if (entry->count >= rej)
             c->cluster[i] = entry->label;
         else
             c->cluster[i] = 0;
@@ -224,7 +224,7 @@ static void cluster_trim(cluster_t *c, long r)
     for(j = 0; counts; ) {
         /* Count rejected clusters */
         entry = counts;     
-        if (entry->count < r)
+        if (entry->count < rej)
             j++;                
         HASH_DEL(counts, entry);  
         free(entry);            
@@ -239,7 +239,7 @@ static void cluster_trim(cluster_t *c, long r)
  * @param c Clustering structure
  * @param a Assignments to prototypes
  */
-static void cluster_extrapolate(cluster_t *c, assign_t *a)
+void cluster_extrapolate(cluster_t *c, assign_t *a)
 {
     assert(c && a);
     unsigned int *n, i;
@@ -265,38 +265,32 @@ static void cluster_extrapolate(cluster_t *c, assign_t *a)
 
 /**
  * Cluster feature vectors using linkage clustering. The function uses
- * the provided prototypes for computing a linkage clustering and 
- * extrapolates the clusters to all feature vectors (implicitly contained
- * by the prototype assignment).
- * @param pr Array of prototypes
- * @param as Assignments to prototypes
- * @param r Run of clustering 
- * @return Clustering structure
+ * the feature vectors for computing a linkage clustering  
+ * @param fa Array of prototypes
+ * @return clustering structure
  */
-cluster_t *cluster_linkage(farray_t *pr, assign_t *as, int r) 
+cluster_t *cluster_linkage(farray_t *fa) 
 {
-    assert(pr && as);
+    assert(fa);
     double dmin;
     const char *mode;
-    long rej;
     
     /* Get cluster configuration */
     config_lookup_float(&cfg, "cluster.min_dist", (double *) &dmin);
     config_lookup_string(&cfg, "cluster.link_mode", &mode);
-    config_lookup_int(&cfg, "cluster.reject_num", &rej);
     
     /* Allocate cluster structure */
-    cluster_t *c = cluster_create(pr->len, r);
+    cluster_t *c = cluster_create(fa->len);
     
     /* Allocate distances */
-    double *dist = malloc(sizeof(double) * tria_size(pr->len));
+    double *dist = malloc(sizeof(double) * tria_size(fa->len));
     if (!dist) {
         error("Could not allocate distance matrix.");
         return NULL;
     }
     
     /* Compute distances */
-    farray_dist_tria(pr, dist); 
+    farray_dist_tria(fa, dist); 
     
     if (verbose > 0) 
         printf("Clustering (%s linkage) with minimum distance %4.2f.\n",
@@ -305,19 +299,9 @@ cluster_t *cluster_linkage(farray_t *pr, assign_t *as, int r)
     /* Run clustering */
     cluster_murtagh(c, dist, dmin, mode[0]);
     
-    /* Extrapolate from prototypes */
-    cluster_extrapolate(c, as);
-    
-    /* Trim cluster */
-    cluster_trim(c, rej);
-    
-    if (verbose > 0)
-        printf("  Done. %ld clusters.\n", c->num);    
-    
-    /* Clean up */
     free(dist);
     return c;
-} 
+}    
 
 /**
  * Destroy a cluster structure
@@ -339,14 +323,16 @@ void cluster_destroy(cluster_t *c)
  * @param f Array of feature vectors
  * @return Rejected feature vectors
  */
-farray_t *cluster_rejected(cluster_t *c, farray_t *f)
+farray_t *cluster_get_rejected(cluster_t *c, farray_t *f)
 {
     int i;
     farray_t *r = farray_create("rejected");
     
-    for (i = 0; i < f->len; i++)
-        if (!c->cluster[i])
-            farray_add(r, fvec_clone(f->x[i]), farray_get_label(f, i));
+    for (i = 0; i < f->len; i++) {
+        if (c->cluster[i])
+            continue;
+        farray_add(r, fvec_clone(f->x[i]), farray_get_label(f, i));
+    }
     
     return r;
 }
@@ -358,7 +344,7 @@ farray_t *cluster_rejected(cluster_t *c, farray_t *f)
  * @param p prototypes 
  * @return rejected feature vectors
  */
-farray_t *cluster_prototypes(cluster_t *c, assign_t *a, farray_t *p)
+farray_t *cluster_get_prototypes(cluster_t *c, assign_t *a, farray_t *p)
 {
     int i;
     farray_t *n = farray_create("prototypes");

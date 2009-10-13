@@ -61,7 +61,8 @@ farray_t *farray_extract_archive(char *);
 
 /* I/O functions */
 void farray_save(farray_t *, gzFile *);
-void farray_save_file(farray_t *, char *, int);
+void farray_save_file(farray_t *, char *);
+void farray_append_file(farray_t *, char *);
 farray_t *farray_load(gzFile *);
 farray_t *farray_load_file(char *);
 

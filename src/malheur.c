@@ -37,7 +37,6 @@ static char *reject_file = REJECT_FILE;
 static char **input_files = NULL;
 static int input_len = 0;
 static malheur_task_t task = PROTOTYPE;
-static int incr = 0;
 
 /**
  * Print usage of command line tool
@@ -52,12 +51,13 @@ static void print_usage(int argc, char **argv)
            "  prototype    Extract prototypes from malware reports\n"
            "  cluster      Cluster malware reports into similar groups\n"
            "  classify     Classify malware reports using labeled prototypes\n"
+           "  combined     Combined analysis of malware reports\n"
            "Options:\n"
            "  -c <file>    Set configuration file. [%s]\n"
            "  -p <file>    Set prototype file. [%s]\n"  
            "  -r <file>    Set rejected file. [%s]\n"  
            "  -o <file>    Set output file for analysis. [%s]\n"
-           "  -i <index>   Incremental analysis.\n"
+           "  -t           Reset internal state of Malheur.\n"            
            "  -v           Increase verbosity.\n"
            "  -V           Print version and copyright.\n"
            "  -h           Print this help screen.\n", 
@@ -72,10 +72,11 @@ static void print_usage(int argc, char **argv)
 static void parse_options(int argc, char **argv)
 {
     int ch;
-    while ((ch = getopt(argc, argv, "i:o:p:r:c:hvV")) != -1) {
+    while ((ch = getopt(argc, argv, "to:p:r:c:hvV")) != -1) {
         switch (ch) {
-            case 'i':
-                incr = atoi(optarg);
+            case 't':
+                unlink(proto_file);
+                unlink(reject_file);
                 break;
             case 'v':
                 verbose++;
@@ -111,16 +112,19 @@ static void parse_options(int argc, char **argv)
         fatal("<task> and <input> arguments are required");
     
     /* Argument: Task */
-    if (!strcasecmp(argv[0], "prototype"))
+    if (!strcasecmp(argv[0], "prototype")) {
         task = PROTOTYPE;
-    else if (!strcasecmp(argv[0], "distance"))
+    } else if (!strcasecmp(argv[0], "distance")) {
         task = DISTANCE;
-    else if (!strcasecmp(argv[0], "cluster"))
+    } else if (!strcasecmp(argv[0], "cluster")) {
         task = CLUSTER;
-    else if (!strcasecmp(argv[0], "classify"))
+    } else if (!strcasecmp(argv[0], "classify")) {
         task = CLASSIFY;
-    else
+        if (access(proto_file, R_OK)) 
+            fatal("Prototype file '%s' not found.", proto_file);
+    } else {
         fatal("Unknown analysis task '%s'", argv[0]);
+    }
 
     /* Assign input files */
     input_files = argv + 1;
@@ -171,7 +175,7 @@ static void malheur_prototype()
     export_proto(pr, fa, as, output_file);
     
     /* Save prototypes */
-    farray_save_file(pr, proto_file, incr);
+    farray_save_file(pr, proto_file);
     
     /* Clean up */
     assign_destroy(as);
@@ -191,18 +195,20 @@ static void malheur_cluster()
     farray_t *pr = proto_extract(fa);    
     assign_t *as = proto_assign(fa, pr);
 
-    /* Cluster prototypes */
-    cluster_t *c = cluster_linkage(pr, as, incr);
-
+    /* Cluster prototypes and extrapolate */
+    cluster_t *c = cluster_linkage(pr);
+    cluster_extrapolate(c, as);
+    cluster_trim(c);
+    
     /* Save prototypes */
-    farray_t *pn = cluster_prototypes(c, as, pr);
-    farray_save_file(pn, proto_file, incr);
+    farray_t *pn = cluster_get_prototypes(c, as, pr);
+    farray_save_file(pn, proto_file);
     farray_destroy(pn);
 
     /* Save rejected feature vectors */
-    farray_t *re = cluster_rejected(c, fa);
-    farray_save_file(re, reject_file, incr);
-    farray_destroy(re);
+    farray_t *re = cluster_get_rejected(c, fa);
+    farray_save_file(re, reject_file);
+    farray_destroy(re);    
     
     /* Export clustering */
     export_cluster(c, pr, fa, as, output_file);    
@@ -219,11 +225,6 @@ static void malheur_cluster()
  */
 static void malheur_classify()
 {
-    double maxdist;
-
-    if (access(proto_file, R_OK))
-        fatal("Prototype file '%s' not existent.", proto_file);
-
     /* Load data */
     farray_t *fa = malheur_load();
 
@@ -231,13 +232,12 @@ static void malheur_classify()
     farray_t *pr = farray_load_file(proto_file);
     assign_t *as = proto_assign(fa, pr);
 
-    /* Classify data */
-    config_lookup_float(&cfg, "classify.max_dist", &maxdist);
+    /* Apply classification */
     class_apply(as, fa);
     
     /* Save rejected feature vectors */
-    farray_t *re = class_rejected(as, fa);
-    farray_save_file(re, reject_file, incr);
+    farray_t *re = class_get_rejected(as, fa);
+    farray_save_file(re, reject_file);
     farray_destroy(re);
     
     /* Export classification */

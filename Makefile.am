@@ -10,7 +10,7 @@ SUBDIRS = src doc matlab tests
 ACLOCAL_AMFLAGS = -I m4
 EXTRA_DIST = README INSTALL COPYING
 
-mostlyclean-local:
+clean-local:
 	rm -f *~
 
 install-data-local:

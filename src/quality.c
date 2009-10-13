@@ -46,8 +46,8 @@ double *quality(unsigned int *y, unsigned int *a, int n)
 
     /* Compute precision. This is ugly code. */
     h = hist_create(a, y, n);
-    for(hi = h, i = 0, ac = 0; hi != NULL; hi = hi->hh.next, i++) {
-        for(ai = hi->count, mn = 0; ai != NULL; ai = ai->hh.next)
+    for (hi = h, i = 0, ac = 0; hi != NULL; hi = hi->hh.next, i++) {
+        for (ai = hi->count, mn = 0; ai != NULL; ai = ai->hh.next)
             if (ai->count > mn)
                 mn = ai->count;
         ac += mn;
@@ -57,19 +57,19 @@ double *quality(unsigned int *y, unsigned int *a, int n)
 
     /* Compute recall. This is again ugly code. */
     h = hist_create(y, a, n);
-    for(hi = h, i = 0, ac = 0; hi != NULL; hi = hi->hh.next, i++) {
-        for(ai = hi->count, mn = 0; ai != NULL; ai = ai->hh.next)
+    for (hi = h, i = 0, ac = 0; hi != NULL; hi = hi->hh.next, i++) {
+        for (ai = hi->count, mn = 0; ai != NULL; ai = ai->hh.next)
             if (ai->count > mn)
                 mn = ai->count;
         ac += mn;
     }
     hist_destroy(h);
-    r[Q_RECALL] = ac / n ;
-    
+    r[Q_RECALL] = ac / n;
+
     /* Compute f-measure */
-    r[Q_FMEASURE] = (2 * r[Q_RECALL] * r[Q_PRECISION]) / 
-                    (r[Q_RECALL] + r[Q_PRECISION]);
-    
+    r[Q_FMEASURE] = (2 * r[Q_RECALL] * r[Q_PRECISION]) /
+        (r[Q_RECALL] + r[Q_PRECISION]);
+
     /* Compute similarity coefficients */
     ac = bc = cc = dc = 0;
     for (i = 0; i < n; i++) {
@@ -81,9 +81,9 @@ double *quality(unsigned int *y, unsigned int *a, int n)
         }
     }
     r[Q_RAND] = (ac + bc) / (ac + bc + cc + dc);
-    r[Q_ARAND] = 2 * (ac * bc - cc * dc) / 
-                 ((ac + dc) * (dc + bc) + (ac + cc) * (cc + bc));
-    
+    r[Q_ARAND] = 2 * (ac * bc - cc * dc) /
+        ((ac + dc) * (dc + bc) + (ac + cc) * (cc + bc));
+
     return r;
 }
 
@@ -100,28 +100,28 @@ hist_t *hist_create(unsigned int *y, unsigned int *a, int n)
     hist_t *entry, *hist = NULL;
     count_t *count = NULL;
     int i;
-    
+
     /* Loop over  labels */
     for (i = 0; i < n; i++) {
-        HASH_FIND_INT(hist, &y[i], entry); 
+        HASH_FIND_INT(hist, &y[i], entry);
         if (!entry) {
             entry = malloc(sizeof(hist_t));
             if (!entry) {
                 error("Could not allocate histogram");
                 hist_destroy(hist);
                 return NULL;
-            }    
-            
+            }
+
             /* Create new entry */
             entry->label = y[i];
             entry->count = NULL;
-            entry->total  =0;
-            
+            entry->total = 0;
+
             /* Add entry */
             HASH_ADD_INT(hist, label, entry);
         }
         entry->total++;
-        
+
         HASH_FIND_INT(entry->count, &a[i], count);
         if (!count) {
             count = malloc(sizeof(count_t));
@@ -132,13 +132,13 @@ hist_t *hist_create(unsigned int *y, unsigned int *a, int n)
             }
             count->label = a[i];
             count->count = 0;
-            
+
             /* Add entry */
             HASH_ADD_INT(entry->count, label, count);
         }
         count->count++;
     }
-    
+
     return hist;
 }
 
@@ -146,12 +146,12 @@ hist_t *hist_create(unsigned int *y, unsigned int *a, int n)
  * Prints the contents of a histogram for labels
  * @param h histogram struct
  */
-void hist_print(hist_t *h)
+void hist_print(hist_t * h)
 {
     hist_t *hi;
     count_t *ai;
-    
-    for(hi = h; hi != NULL; hi = hi->hh.next) {
+
+    for (hi = h; hi != NULL; hi = hi->hh.next) {
         printf("Label: %d\n", hi->label);
         printf("Total: %f\n", hi->total);
 
@@ -166,26 +166,25 @@ void hist_print(hist_t *h)
  * Destroys a histogram.
  * @param h histrogram struct
  */
-void hist_destroy(hist_t *h)
+void hist_destroy(hist_t * h)
 {
     hist_t *hi;
     count_t *ai;
-    
+
     /* Iterate over classes */
-    while(h) {
-        hi = h;           
-        
+    while (h) {
+        hi = h;
+
         /* Delete indices */
-        while(hi->count) {
-            ai = hi->count;            
-            HASH_DEL(hi->count, ai);  
-            free(ai);            
+        while (hi->count) {
+            ai = hi->count;
+            HASH_DEL(hi->count, ai);
+            free(ai);
         }
-        
-        HASH_DEL(h, hi);  
-        free(hi);            
+
+        HASH_DEL(h, hi);
+        free(hi);
     }
 }
 
 /** @} */
- 

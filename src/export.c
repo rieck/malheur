@@ -42,15 +42,15 @@ void export_dist(double *d, farray_t *fa, char *file)
     assert(d && fa && file);
     int i, j;
     FILE *f;
-    
+
     if (verbose > 0)
         printf("Exporting distance matrix to '%s'.\n", file);
-    
+
     if (!(f = fopen(file, "w"))) {
         error("Could not create file '%s'.", file);
         return;
     }
-    
+
     /* Print version header */
     malheur_version(f);
 
@@ -58,7 +58,7 @@ void export_dist(double *d, farray_t *fa, char *file)
     fprintf(f, "# ---\n# Distance matrix for %s\n", fa->src);
     fprintf(f, "# Matrix size: %ld x %ld\n# ---\n", fa->len, fa->len);
     fprintf(f, "# <report> <dist1> <dist2> ... <distn>\n");
-    
+
     /* Print matrix */
     for (i = 0; i < fa->len; i++) {
         fprintf(f, "%s ", fa->x[i]->src);
@@ -66,7 +66,7 @@ void export_dist(double *d, farray_t *fa, char *file)
             fprintf(f, "%g ", d[i * fa->len + j]);
         fprintf(f, "\n");
     }
-    
+
     fclose(f);
 }
 
@@ -85,31 +85,31 @@ void export_proto(farray_t *pr, farray_t *fa, assign_t *as, char *file)
 
     if (verbose > 0)
         printf("Exporting prototypes to '%s'.\n", file);
-    
+
     if (!(f = fopen(file, "w"))) {
         error("Could not create file '%s'.", file);
         return;
     }
-    
+
     /* Print version header */
     malheur_version(f);
-    
+
     /* Evaluate some quality functions */
     double *e = quality(fa->y, as->proto, as->len);
 
     /* Print prototype header */
     fprintf(f, "# ---\n# Prototypes for %s\n", fa->src);
-    fprintf(f, "# Number of prototypes: %ld (%3.1f%%)\n", pr->len, 
+    fprintf(f, "# Number of prototypes: %ld (%3.1f%%)\n", pr->len,
             pr->len * 100.0 / (double) fa->len);
-    fprintf(f, "# Precision of prototypes: %4.1f%%\n", 
+    fprintf(f, "# Precision of prototypes: %4.1f%%\n",
             e[Q_PRECISION] * 100.0);
     fprintf(f, "# ---\n# <report> <prototype> <distance>\n");
-    
+
     for (i = 0; i < fa->len; i++) {
         j = as->proto[i];
         fprintf(f, "%s %s %g\n", fa->x[i]->src, pr->x[j]->src, as->dist[i]);
     }
-    
+
     fclose(f);
 }
 
@@ -121,24 +121,24 @@ void export_proto(farray_t *pr, farray_t *fa, assign_t *as, char *file)
  * @param a Assignments of prototypes
  * @param file File name
  */
-void export_cluster(cluster_t *c, farray_t *p, farray_t *fa, assign_t *a, 
+void export_cluster(cluster_t *c, farray_t *p, farray_t *fa, assign_t *a,
                     char *file)
 {
     assert(c && fa && file);
     FILE *f;
     int i, j;
-    
+
     if (verbose > 0)
         printf("Exporting clusters to '%s'.\n", file);
-    
+
     if (!(f = fopen(file, "w"))) {
         error("Could not create file '%s'.", file);
         return;
     }
-    
+
     /* Print version header */
     malheur_version(f);
-    
+
     /* Evaluate some quality functions */
     double *e = quality(fa->y, c->cluster, c->len);
 
@@ -149,13 +149,13 @@ void export_cluster(cluster_t *c, farray_t *p, farray_t *fa, assign_t *a,
     fprintf(f, "# Recall of clusters: %4.1f%%\n", e[Q_RECALL] * 100.0);
     fprintf(f, "# F-measure of clusters: %4.1f%%\n", e[Q_FMEASURE] * 100.0);
     fprintf(f, "# ---\n# <report> <cluster> <prototype> <distance>\n");
-    
+
     for (i = 0; i < fa->len; i++) {
         j = a->proto[i];
-        fprintf(f, "%s %s %s %g\n", fa->x[i]->src, cluster_get_name(c, i), 
+        fprintf(f, "%s %s %s %g\n", fa->x[i]->src, cluster_get_name(c, i),
                 p->x[j]->src, a->dist[i]);
     }
-    
+
     fclose(f);
 }
 
@@ -176,35 +176,35 @@ void export_class(farray_t *p, farray_t *fa, assign_t *as, char *file)
 
     if (verbose > 0)
         printf("Exporting classification to '%s'.\n", file);
-    
+
     if (!(f = fopen(file, "w"))) {
         error("Could not create file '%s'.", file);
         return;
     }
-    
+
     /* Print version header */
     malheur_version(f);
-    
+
     /* Evaluate some quality functions */
     double *e = quality(fa->y, as->label, as->len);
 
     /* Print prototype header */
     fprintf(f, "# ---\n# Classification for %s\n", fa->src);
-    fprintf(f, "# Precision of classification: %4.1f%%\n", 
+    fprintf(f, "# Precision of classification: %4.1f%%\n",
             e[Q_PRECISION] * 100.0);
     fprintf(f, "# Recall of classification: %4.1f%%\n", 
             e[Q_RECALL] * 100.0);
     fprintf(f, "# F-measure of classification: %4.1f%%\n", 
             e[Q_FMEASURE] * 100.0);
     fprintf(f, "# ---\n# <report> <label> <prototype> <distance>\n");
-    
+
     for (i = 0; i < fa->len; i++) {
         j = as->proto[i];
         l = as->label[i] ? farray_get_label(p, j) : "rejected";
-        fprintf(f, "%s %s %s %g\n", fa->x[i]->src,  l, p->x[j]->src, 
+        fprintf(f, "%s %s %s %g\n", fa->x[i]->src, l, p->x[j]->src,
                 as->dist[i]);
     }
-    
+
     fclose(f);
 }
 

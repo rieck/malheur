@@ -26,31 +26,31 @@
 
 /* Counts for each label */
 typedef struct {
-    unsigned int label; /* Predicted label */
-    double count;       /* Occurences of label */
-    UT_hash_handle hh;  /* Hash table entry */
+    unsigned int label;         /* Predicted label */
+    double count;               /* Occurences of label */
+    UT_hash_handle hh;          /* Hash table entry */
 } count_t;
 
 /* Fatal message */
 #ifndef fatal
-#define fatal(...)     {err_msg("Error", __func__, __VA_ARGS__); exit(-1);} 
+#define fatal(...)     {err_msg("Error", __func__, __VA_ARGS__); exit(-1);}
 #endif
 /* Error message */
 #ifndef error
-#define error(...)     {err_msg("Error", __func__, __VA_ARGS__);} 
+#define error(...)     {err_msg("Error", __func__, __VA_ARGS__);}
 #endif
 /* Warning message */
 #ifndef warning
-#define warning(...)   {err_msg("Warning", __func__, __VA_ARGS__);} 
+#define warning(...)   {err_msg("Warning", __func__, __VA_ARGS__);}
 #endif
 
 /* Structure for comparing data with indices */
 typedef struct {
-    void *ptr;  /* Pointer to original data */
-    int idx;    /* Index number */
-    int (*cmp)(const void *, const void *);
+    void *ptr;                  /* Pointer to original data */
+    int idx;                    /* Index number */
+    int (*cmp) (const void *, const void *);
 } index_t;
- 
+
 /* Utility functions functions */
 void err_msg(char *, const char *, char *, ...);
 void prog_bar(double, double, double);
@@ -65,13 +65,14 @@ void list_arc_entries(char *arc, int *, int *);
 void malheur_version(FILE *f);
 
 /* Comparison function */
-int *qsort_idx(void *b, size_t n, size_t w, int (*c)(const void *, const void *));
+int *qsort_idx(void *b, size_t n, size_t w,
+               int (*c) (const void *, const void *));
 int cmp_feat(const void *, const void *);
 int cmp_index(const void *, const void *);
 
 /* Useful math functions */
-int array_max(double *, int); 
-int array_min(double *, int); 
+int array_max(double *, int);
+int array_min(double *, int);
 long tria_size(long);
 long tria_pos(long, long, long);
 

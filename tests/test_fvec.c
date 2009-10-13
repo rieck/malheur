@@ -22,24 +22,24 @@ config_t cfg;
 /* Test structure */
 typedef struct {
     char *str;
-    char *dlm;   
+    char *dlm;
     int nlen;
     int len;
 } test_t;
 
 /* Test array of strings */
 test_t tests[] = {
-   { " a:a a:a a:a a:a ", " ",  1, 1 },   
-   { " a:a a:b a:c a:d ", " ",  1, 4 },   
-   { " a:a b:c a:a b:c ", " :", 1, 3 },
-   { " a:a a:b a:c a:d ", " :", 1, 4 },      
-   { " a:a a:a a:a a:a ", " ",  2, 1 },   
-   { " a:a a:b a:c a:d ", " ",  2, 3 },      
-   { " a:a a:a a:a a:a ", " :", 2, 1 },   
-   { " a:a a:a a:a a:a ", "",   1, 3 },   
-   { " a:a a:b a:c a:d ", "",   1, 6 },      
-   { " a:a a:a a:a a:a ", "",   2, 4 },
-   { NULL, NULL, 0 }
+    {" a:a a:a a:a a:a ", " ", 1, 1},
+    {" a:a a:b a:c a:d ", " ", 1, 4},
+    {" a:a b:c a:a b:c ", " :", 1, 3},
+    {" a:a a:b a:c a:d ", " :", 1, 4},
+    {" a:a a:a a:a a:a ", " ", 2, 1},
+    {" a:a a:b a:c a:d ", " ", 2, 3},
+    {" a:a a:a a:a a:a ", " :", 2, 1},
+    {" a:a a:a a:a a:a ", "", 1, 3},
+    {" a:a a:b a:c a:d ", "", 1, 6},
+    {" a:a a:a a:a a:a ", "", 2, 4},
+    {NULL, NULL, 0}
 };
 
 /* Test file */
@@ -52,30 +52,30 @@ test_t tests[] = {
 /* 
  * A simple static test for the feature vectors
  */
-int test_static() 
+int test_static()
 {
     int i, err = 0;
-    fvec_t *f;  
+    fvec_t *f;
 
     test_printf("Extraction of feature vectors");
-    
+
     for (i = 0; tests[i].str; i++) {
         fvec_reset_delim();
-        config_set_string(&cfg, "features.ngram_delim", tests[i].dlm);    
-        config_set_int(&cfg, "features.ngram_len", tests[i].nlen);    
-   
+        config_set_string(&cfg, "features.ngram_delim", tests[i].dlm);
+        config_set_int(&cfg, "features.ngram_len", tests[i].nlen);
+
         /* Extract features */
         f = fvec_extract(tests[i].str, strlen(tests[i].str), "test");
-        
+
         /* Check for correct number of dimensions */
-        if (f->len != tests[i].len) { 
+        if (f->len != tests[i].len) {
             test_error("(%d) len %d != %d", i, f->len, tests[i].len);
             err++;
         }
-            
+
         fvec_destroy(f);
     }
-    
+
     test_return(err, i);
     return err;
 }
@@ -83,34 +83,34 @@ int test_static()
 /* 
  * A simple stress test for the feature table
  */
-int test_stress() 
+int test_stress()
 {
     int i, j, err = 0;
-    fvec_t *f;  
+    fvec_t *f;
     char buf[STR_LENGTH + 1];
 
     test_printf("Stress test for feature vectors");
 
-    config_set_string(&cfg, "features.ngram_delim", "0");    
+    config_set_string(&cfg, "features.ngram_delim", "0");
 
     ftable_init();
 
     for (i = 0; i < STRESS_RUNS; i++) {
-        config_set_int(&cfg, "features.ngram_len", rand() % 10 + 1);    
-   
+        config_set_int(&cfg, "features.ngram_len", rand() % 10 + 1);
+
         /* Create random key and string */
         for (j = 0; j < STR_LENGTH; j++)
             buf[j] = rand() % 10 + '0';
-        buf[j] = 0;    
-           
+        buf[j] = 0;
+
         /* Extract features */
         f = fvec_extract(buf, strlen(buf), "test");
-        /* Destroy features */            
+        /* Destroy features */
         fvec_destroy(f);
     }
-    
+
     ftable_destroy();
-    
+
     test_return(err, STRESS_RUNS);
     return err;
 }
@@ -118,35 +118,35 @@ int test_stress()
 /* 
  * A simple stress test for the feature table
  */
-int test_stress_omp() 
+int test_stress_omp()
 {
     int i, j, err = 0;
-    fvec_t *f;  
+    fvec_t *f;
     char buf[STR_LENGTH + 1];
 
     test_printf("Stress test for feature vectors (OpenMP)");
 
-    config_set_string(&cfg, "features.ngram_delim", "0");    
+    config_set_string(&cfg, "features.ngram_delim", "0");
 
     ftable_init();
 
-    #pragma omp parallel for 
+#pragma omp parallel for
     for (i = 0; i < STRESS_RUNS; i++) {
-        config_set_int(&cfg, "features.ngram_len", rand() % 10 + 1);    
-   
+        config_set_int(&cfg, "features.ngram_len", rand() % 10 + 1);
+
         /* Create random key and string */
         for (j = 0; j < STR_LENGTH; j++)
             buf[j] = rand() % 10 + '0';
-        buf[j] = 0;    
-           
+        buf[j] = 0;
+
         /* Extract features */
         f = fvec_extract(buf, strlen(buf), "test");
-        /* Destroy features */            
+        /* Destroy features */
         fvec_destroy(f);
     }
-    
+
     ftable_destroy();
-    
+
     test_return(err, STRESS_RUNS);
     return err;
 }
@@ -155,12 +155,12 @@ int test_stress_omp()
 /* 
  * A simple load and save test case
  */
-int test_load_save() 
+int test_load_save()
 {
     int i, j, err = 0;
-    fvec_t *f, *g; 
+    fvec_t *f, *g;
     gzFile *z;
-    
+
     test_printf("Loading and saving of feature vectors");
 
     fvec_reset_delim();
@@ -183,32 +183,32 @@ int test_load_save()
 
 
     /* Load and compare feature vectors */
-    z = gzopen(TEST_FILE, "r");    
+    z = gzopen(TEST_FILE, "r");
 
     for (i = 0; tests[i].str; i++) {
         f = fvec_extract(tests[i].str, strlen(tests[i].str), "test");
         g = fvec_load(z);
-        
+
         /* Check dimensions and values */
         for (j = 0; j < f->len && j < g->len; j++) {
             if (f->dim[j] != g->dim[j]) {
                 test_error("(%d) f->dim[%d] != g->dim[%d]", i, j, j);
                 break;
-            }    
+            }
             if (fabs(f->val[j] - g->val[j]) > 10e-10) {
                 test_error("(%d) f->val[%d] != g->val[%d]", i, j, j);
                 break;
-            }                
-        }  
+            }
+        }
         err += (j < f->len || j < g->len);
-        
+
         fvec_destroy(f);
         fvec_destroy(g);
     }
 
     gzclose(z);
     unlink(TEST_FILE);
-    
+
     test_return(err, i);
     return err;
 }
@@ -219,16 +219,16 @@ int test_load_save()
 int main(int argc, char **argv)
 {
     int err = FALSE;
-    
+
     /* Create config */
     config_init(&cfg);
     config_check(&cfg);
-        
-    err |= test_static(); 
-    err |= test_stress();    
+
+    err |= test_static();
+    err |= test_stress();
     err |= test_stress_omp();
     err |= test_load_save();
-    
+
     config_destroy(&cfg);
     return err;
-} 
+}

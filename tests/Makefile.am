@@ -36,3 +36,10 @@ test_cluster_LDADD      = $(top_builddir)/src/libmalheur.a
 
 test_classify_SOURCES   = test_classify.c tests.c tests.h
 test_classify_LDADD     = $(top_builddir)/src/libmalheur.a
+
+beautify:               
+			gnuindent -i4 -kr -l77 -lc77 --no-tabs -cs \
+                        -T FILE -T fvec_t -T farray_t -T cluster_t \
+                        -T assign_t -T config_t -T config_setting_T \
+                        -T DIR -T DIRP *.c *.h
+                        

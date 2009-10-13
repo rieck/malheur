@@ -31,7 +31,7 @@ typedef enum {
 void fvec_mul(fvec_t *, double);
 void fved_div(fvec_t *, double);
 fvec_t *fvec_adds(fvec_t *, fvec_t *, double);
-fvec_t *fvec_add(fvec_t *, fvec_t *); 
+fvec_t *fvec_add(fvec_t *, fvec_t *);
 fvec_t *fvec_sub(fvec_t *, fvec_t *);
 double fvec_dist(fvec_t *fa, fvec_t *fb);
 fvec_t *farray_sums(farray_t *, double *);

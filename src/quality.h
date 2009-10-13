@@ -26,16 +26,16 @@
 
 /* Histogram bin for each true label */
 typedef struct {
-    unsigned int label;     /* Label */
-    double total;           /* Number of elements */
-    count_t *count;         /* Counts  */
-    UT_hash_handle hh;      /* Hash table entry */
+    unsigned int label;         /* Label */
+    double total;               /* Number of elements */
+    count_t *count;             /* Counts  */
+    UT_hash_handle hh;          /* Hash table entry */
 } hist_t;
 
 /* Evaluation functions */
 hist_t *hist_create(unsigned int *, unsigned int *, int);
 void hist_print(hist_t *);
 void hist_destroy(hist_t *);
-double *quality(unsigned int *, unsigned int *, int );
+double *quality(unsigned int *, unsigned int *, int);
 
 #endif                          /* EVAL_H */

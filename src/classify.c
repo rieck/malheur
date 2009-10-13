@@ -38,9 +38,9 @@ void classify_apply(assign_t *as, farray_t *fa)
 {
     int i;
     double maxdist;
-    
+
     config_lookup_float(&cfg, "classify.max_dist", &maxdist);
-    
+
     /* Determine rejected reports */
     for (i = 0; i < as->len; i++) {
         if (as->dist[i] > maxdist)
@@ -58,13 +58,13 @@ farray_t *classify_get_rejected(assign_t *as, farray_t *fa)
 {
     int i;
     farray_t *r = farray_create("rejected");
-    
+
     for (i = 0; i < fa->len; i++) {
         if (as->label[i])
             continue;
         farray_add(r, fvec_clone(fa->x[i]), farray_get_label(fa, i));
     }
-    
+
     return r;
 }
 

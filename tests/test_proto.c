@@ -35,9 +35,9 @@ int verbose = 0;
 
 /* Data set for prototype extraction */
 static char *test_data[] = {
-    "XX YY XX YY XX YY", "XX YY XX ZZ XX YY", "XX ZZ XX YY XX YY", 
+    "XX YY XX YY XX YY", "XX YY XX ZZ XX YY", "XX ZZ XX YY XX YY",
     "AA BB AA BB AA BB", "AA BB AA CC AA BB", "AA CC AA BB AA BB",
-    "MM NN MM NN MM NN", "MM NN MM OO MM NN", "MM OO MM NN MM NN", 
+    "MM NN MM NN MM NN", "MM NN MM OO MM NN", "MM OO MM NN MM NN",
     "UU VV UU VV UU VV", "UU VV UU WW UU VV", "UU WW UU VV UU VV",
     "RR SS RR SS RR SS", "RR SS RR TT RR SS", "RR TT RR SS RR SS"
 };
@@ -45,14 +45,14 @@ static char *test_data[] = {
 /**
  * Test the extraction of prototypes
  */
-int test_proto() 
+int test_proto()
 {
     int i, err = 0;
     double dist[DATA_LEN * DATA_PROTO];
-    
+
     test_printf("Prototype extraction");
-    
-    /* Prepare test data */;
+
+    /* Prepare test data */ ;
     farray_t *fa = farray_create("test");
     for (i = 0; i < DATA_LEN; i++) {
         fvec_t *f = fvec_extract(test_data[i], strlen(test_data[i]), NULL);
@@ -64,24 +64,24 @@ int test_proto()
 
     /* Check number of prototypes */
     err += (pr->len != DATA_PROTO);
-    
+
     /* Check position of prototypes */
     farray_dist(fa, pr, dist);
     for (i = 0; i < DATA_PROTO; i++)
         err += fabs(dist[i * DATA_LEN + i]) > 1e-3;
-    
+
     /* Clean up */
     farray_destroy(pr);
     farray_destroy(fa);
-    
-    test_return(err, 1 + DATA_PROTO);    
+
+    test_return(err, 1 + DATA_PROTO);
     return err;
 }
 
 /* 
  * A simple stress test for prototype extraction
  */
-int test_stress() 
+int test_stress()
 {
     int i, j, k, err = 0;
     fvec_t *f;
@@ -93,28 +93,28 @@ int test_stress()
     for (i = 0; i < STRESS_RUNS; i++) {
         /* Create array */
         fa = farray_create("test");
-        
+
         for (j = 0; j < NUM_VECTORS; j++) {
             for (k = 0; k < STR_LENGTH; k++)
                 buf[k] = rand() % 10 + '0';
-            buf[k] = 0;    
-            
+            buf[k] = 0;
+
             /* Extract features */
             f = fvec_extract(buf, strlen(buf), "test");
             snprintf(label, 32, "label%.2d", rand() % 10);
-            
+
             /* Add to array */
             farray_add(fa, f, label);
-        }    
-           
+        }
+
         /* Extract prototypes */
         farray_t *pr = proto_extract(fa);
-           
-        /* Destroy features */            
+
+        /* Destroy features */
         farray_destroy(fa);
         farray_destroy(pr);
     }
-    
+
     test_return(err, STRESS_RUNS);
     return err;
 }
@@ -125,18 +125,18 @@ int test_stress()
 int main(int argc, char **argv)
 {
     int err = FALSE;
-    
+
     /* Create config */
     config_init(&cfg);
     config_check(&cfg);
-        
+
     ftable_init();
-        
-    err |= test_proto(); 
+
+    err |= test_proto();
     err |= test_stress();
-    
+
     ftable_destroy();
-    
+
     config_destroy(&cfg);
     return err;
-} 
+}

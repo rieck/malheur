@@ -22,10 +22,10 @@
  * Clustering structure. 
  */
 typedef struct {
-    unsigned int *cluster;  /* Assignments of clustering */
-    unsigned long len;      /* Length of assignments */
-    unsigned long num;      /* Number of clusters */
-    unsigned int run;       /* Runnumber of clustering */
+    unsigned int *cluster;      /* Assignments of clustering */
+    unsigned long len;          /* Length of assignments */
+    unsigned long num;          /* Number of clusters */
+    unsigned int run;           /* Runnumber of clustering */
 } cluster_t;
 
 /* Functions */

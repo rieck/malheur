@@ -9,7 +9,7 @@
  * option) any later version.  This program is distributed without any
  * warranty. See the GNU General Public License for more details. 
  */
- 
+
 #include "tests.h"
 #include "mconfig.h"
 #include "farray.h"
@@ -22,7 +22,7 @@ config_t cfg;
 /* String length */
 #define STR_LENGTH              2000
 /* Number of vector */
-#define NUM_VECTORS             200 
+#define NUM_VECTORS             200
 /* Number of stress runs */
 #define STRESS_RUNS             5
 
@@ -61,10 +61,10 @@ test_t test_dot[] = {
 /* 
  * A simple static test for the addition of feature vectors
  */
-int test_static_add() 
+int test_static_add()
 {
     int i, err = 0;
-    fvec_t *fx, *fy, *fz;  
+    fvec_t *fx, *fy, *fz;
 
     test_printf("Addition of feature vectors");
 
@@ -77,11 +77,11 @@ int test_static_add()
         fz = fvec_add(fx, fy);
         err += fabs(fvec_norm1(fz) - test_add[i].res) > 1e-7;
 
-        fvec_destroy(fz);        
+        fvec_destroy(fz);
         fvec_destroy(fx);
         fvec_destroy(fy);
     }
-    
+
     test_return(err, i);
     return err;
 }
@@ -89,7 +89,7 @@ int test_static_add()
 /* 
  * A simple static test for the dot-product of feature vectors
  */
-int test_static_dot() 
+int test_static_dot()
 {
     int i, err = 0;
     fvec_t *fx, *fy;
@@ -108,7 +108,7 @@ int test_static_dot()
         fvec_destroy(fx);
         fvec_destroy(fy);
     }
-    
+
     test_return(err, i);
     return err;
 }
@@ -116,41 +116,41 @@ int test_static_dot()
 /* 
  * A stres test for the addition of feature vectors
  */
-int test_stress_add() 
+int test_stress_add()
 {
     int i, j, err = 0;
-    fvec_t *fx, *fy, *fz;  
+    fvec_t *fx, *fy, *fz;
     char buf[STR_LENGTH + 1];
 
     test_printf("Stress test for addition of feature vectors");
 
     /* Create empty vector */
     fz = fvec_extract("aa0bb0cc", 8, "zero");
-    for (i = 0; i< NUM_VECTORS; i++) {
-    
+    for (i = 0; i < NUM_VECTORS; i++) {
+
         /* Create random key and string */
         for (j = 0; j < STR_LENGTH; j++)
             buf[j] = rand() % 10 + '0';
-        buf[j] = 0; 
-    
+        buf[j] = 0;
+
         /* Extract features */
         fx = fvec_extract(buf, strlen(buf), "test");
-        
+
         /* Add fx to fz */
         fy = fvec_add(fz, fx);
         fvec_destroy(fz);
 
         err += fabs(fvec_norm2(fy) - 1.4142135623) > 1e-7;
-        
+
         /* Substract fx from fz */
         fz = fvec_sub(fy, fx);
         fvec_sparsify(fz);
-        
+
         /* Clean up */
         fvec_destroy(fy);
         fvec_destroy(fx);
     }
-    
+
     fvec_destroy(fz);
     test_return(err, i);
     return err;
@@ -159,7 +159,7 @@ int test_stress_add()
 /* 
  * A stres test for the addition of feature vectors
  */
-int test_stress_dot() 
+int test_stress_dot()
 {
     int i, j, err = 0;
     fvec_t *fx, *fy;
@@ -168,18 +168,18 @@ int test_stress_dot()
     test_printf("Stress test for dot product of feature vectors");
 
     /* Create empty vector */
-    for (i = 0; i< NUM_VECTORS; i++) {
-    
+    for (i = 0; i < NUM_VECTORS; i++) {
+
         /* Create random key and string */
         for (j = 0; j < STR_LENGTH; j++)
             buf[j] = rand() % 10 + '0';
-        buf[j] = 0; 
+        buf[j] = 0;
         fx = fvec_extract(buf, strlen(buf), "test");
 
         /* Create random key and string */
         for (j = 0; j < STR_LENGTH; j++)
             buf[j] = rand() % 10 + '0';
-        buf[j] = 0; 
+        buf[j] = 0;
         fy = fvec_extract(buf, strlen(buf), "test");
 
         double nx = fvec_dot(fx, fx);
@@ -204,22 +204,20 @@ int test_stress_dot()
 int main(int argc, char **argv)
 {
     int err = FALSE;
-    
+
     /* Create config */
     config_init(&cfg);
     config_check(&cfg);
 
-    config_set_string(&cfg, "features.vect_embed", "cnt");    
-    config_set_string(&cfg, "features.ngram_delim", "0");    
-    config_set_int(&cfg, "features.ngram_len", 1);  
-    
-    err |= test_static_add(); 
+    config_set_string(&cfg, "features.vect_embed", "cnt");
+    config_set_string(&cfg, "features.ngram_delim", "0");
+    config_set_int(&cfg, "features.ngram_len", 1);
+
+    err |= test_static_add();
     err |= test_stress_add();
-    err |= test_static_dot(); 
+    err |= test_static_dot();
     err |= test_stress_dot();
 
     config_destroy(&cfg);
     return err;
-} 
-
-
+}

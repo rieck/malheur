@@ -23,8 +23,8 @@ int verbose = 0;
 
 /* Test structure */
 typedef struct {
-    char *str;            /* String */
-    char *label;          /* String */
+    char *str;                  /* String */
+    char *label;                /* String */
 } test_t;
 
 /* Number of stress runs */
@@ -40,15 +40,15 @@ typedef struct {
 
 /* Data set for prototype extraction */
 static test_t train_data[] = {
-    {"A B B B X", "1"}, {"A A B B X", "1"}, {"B B A B X", "1"}, 
-    {"X Y B B Z", "2"}, {"A B Z X Y", "2"}, {"A X Y B Z", "2"}, 
+    {"A B B B X", "1"}, {"A A B B X", "1"}, {"B B A B X", "1"},
+    {"X Y B B Z", "2"}, {"A B Z X Y", "2"}, {"A X Y B Z", "2"},
     {NULL, NULL}
 };
 
 /* Data set for prototype extraction */
 static test_t test_data[] = {
-    {"A A B B X", "1"}, {"Z A B B X", "1"}, {"A B B X A", "1"}, 
-    {"A A B B X", "1"}, {"X Y B Z Z", "2"}, {"B Z X Y X", "2"}, 
+    {"A A B B X", "1"}, {"Z A B B X", "1"}, {"A B B X A", "1"},
+    {"A A B B X", "1"}, {"X Y B Z Z", "2"}, {"B Z X Y X", "2"},
     {"A X Y B Z", "2"}, {"A X B B Z", "2"}, {"A Z X Y A", "2"},
     {NULL, NULL},
 };
@@ -56,9 +56,9 @@ static test_t test_data[] = {
 /**
  * Test clustering
  */
-int test_classify() 
+int test_classify()
 {
-    int i, k, err = 0;    
+    int i, k, err = 0;
     fvec_t *f;
 
     test_printf("Nearest-neighbor classification");
@@ -69,7 +69,7 @@ int test_classify()
         f = fvec_extract(train_data[i].str, strlen(train_data[i].str), NULL);
         farray_add(fa1, f, train_data[i].label);
     }
-    
+
     /* Prepare testing data */
     farray_t *fa2 = farray_create("train");
     for (i = 0; test_data[i].str; i++) {
@@ -82,11 +82,10 @@ int test_classify()
     for (k = 0; test_data[k].str; k++) {
         char *l = farray_get_label(fa1, a->proto[k]);
         err += strcmp(l, test_data[k].label) != 0;
-    }    
-    
+    }
+
     assign_destroy(a);
-    farray_destroy(fa1),
-    farray_destroy(fa2);
+    farray_destroy(fa1), farray_destroy(fa2);
 
     test_return(err, i);
     return err;
@@ -95,7 +94,7 @@ int test_classify()
 /* 
  * A simple stress test for clustering
  */
-int test_stress() 
+int test_stress()
 {
     int i, j, k, err = 0;
     fvec_t *f;
@@ -107,25 +106,25 @@ int test_stress()
     for (i = 0; i < STRESS_RUNS; i++) {
         /* Create array */
         fa = farray_create("test");
-        
+
         for (j = 0; j < NUM_VECTORS; j++) {
             for (k = 0; k < STR_LENGTH; k++)
                 buf[k] = rand() % 10 + '0';
-            buf[k] = 0;    
-            
+            buf[k] = 0;
+
             /* Extract features */
             f = fvec_extract(buf, strlen(buf), "test");
             snprintf(label, 32, "label%.2d", rand() % 10);
-            
+
             /* Add to array */
             farray_add(fa, f, label);
-        }    
-           
+        }
+
         assign_t *a = proto_assign(fa, fa);
         assign_destroy(a);
         farray_destroy(fa);
     }
-    
+
     test_return(err, STRESS_RUNS);
     return err;
 }
@@ -137,16 +136,16 @@ int test_stress()
 int main(int argc, char **argv)
 {
     int err = FALSE;
-    
+
     /* Create config */
     config_init(&cfg);
     config_check(&cfg);
-        
+
     ftable_init();
-    err |= test_classify();    
+    err |= test_classify();
     err |= test_stress();
     ftable_destroy();
-    
+
     config_destroy(&cfg);
     return err;
-} 
+}

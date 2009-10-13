@@ -40,7 +40,7 @@ extern int verbose;
  * @param a Feature array
  * @param name label name
  * @return index of label 
- */ 
+ */
 static unsigned int label_add(farray_t *fa, char *name)
 {
     label_t *entry;
@@ -48,22 +48,22 @@ static unsigned int label_add(farray_t *fa, char *name)
     unsigned char buf[MD5_DIGEST_LENGTH];
 
     /* Check if label is known */
-    HASH_FIND(hn, fa->label_name, name, strlen(name), entry);    
-    if (entry) 
+    HASH_FIND(hn, fa->label_name, name, strlen(name), entry);
+    if (entry)
         return entry->index;
 
     /* Create new label */
     entry = malloc(sizeof(label_t));
-    strncpy(entry->name, name, sizeof(entry->name)); 
+    strncpy(entry->name, name, sizeof(entry->name));
     entry->name[sizeof(entry->name) - 1] = 0;
-    
+
     MD5((unsigned char *) entry->name, strlen(entry->name), buf);
-    memcpy(&entry->index, buf, sizeof(unsigned int));    
-             
+    memcpy(&entry->index, buf, sizeof(unsigned int));
+
     /* Add label to both tables */
     HASH_ADD(hi, fa->label_index, index, sizeof(unsigned int), entry);
-    HASH_ADD(hn, fa->label_name, name, strlen(entry->name), entry);     
-                    
+    HASH_ADD(hn, fa->label_name, name, strlen(entry->name), entry);
+
     /* Update memory */
     fa->mem += sizeof(label_t) + sizeof(name);
 
@@ -87,15 +87,15 @@ farray_t *farray_create(char *s)
     /* Init elements of array */
     fa->len = 0;
     fa->mem = sizeof(farray_t);
-    
+
     /* Set source */
     if (s) {
         fa->src = strdup(s);
         fa->mem += strlen(s);
-    }    
-    
+    }
+
     return fa;
-} 
+}
 
 /**
  * Destroys an array of feature vectors
@@ -105,7 +105,7 @@ void farray_destroy(farray_t *fa)
 {
     if (!fa)
         return;
-    
+
     /* Free feature vectors */
     if (fa->x) {
         for (int i = 0; i < fa->len; i++)
@@ -117,15 +117,15 @@ void farray_destroy(farray_t *fa)
         free(fa->y);
     if (fa->src)
         free(fa->src);
-        
+
     /* Free lable table */
-    while(fa->label_name) {
-        label_t *current = fa->label_name;        
+    while (fa->label_name) {
+        label_t *current = fa->label_name;
         HASH_DELETE(hn, fa->label_name, current);
         HASH_DELETE(hi, fa->label_index, current);
-        free(current);           
-    }    
-       
+        free(current);
+    }
+
     free(fa);
 }
 
@@ -151,11 +151,11 @@ void farray_add(farray_t *fa, fvec_t *fv, char *label)
             return;
         }
     }
-    
+
     /* Update table */
     fa->x[fa->len] = fv;
     fa->y[fa->len] = label_add(fa, label);
-    fa->len++;    
+    fa->len++;
     fa->mem += fv->mem;
 }
 
@@ -166,29 +166,29 @@ void farray_add(farray_t *fa, fvec_t *fv, char *label)
  */
 farray_t *farray_extract(char *path)
 {
-    struct stat st; 
+    struct stat st;
     assert(path);
     farray_t *fa = NULL;
-        
+
     if (stat(path, &st)) {
         error("Could not access file '%s'", path);
         return NULL;
-    }    
+    }
 
     if (verbose > 0)
         printf("Extracting features from '%s'.\n", path);
-    
-    if (S_ISREG(st.st_mode)) 
+
+    if (S_ISREG(st.st_mode))
         fa = farray_extract_archive(path);
     else if (S_ISDIR(st.st_mode))
         fa = farray_extract_dir(path);
     else
         error("Unsupported file type of input '%s'", path);
-    
+
     if (verbose > 0)
-        printf("  Done. %ld feature vectors using %.2fMb extracted.\n", 
+        printf("  Done. %ld feature vectors using %.2fMb extracted.\n",
                fa->len, fa->mem / 1e6);
-    
+
     return fa;
 }
 
@@ -206,14 +206,14 @@ farray_t *farray_extract_archive(char *arc)
     int i, fnum, total;
     char *x, *l;
     assert(arc);
-    
+
     /* Allocate empty array */
     farray_t *fa = farray_create(arc);
-    if (!fa) 
+    if (!fa)
         return NULL;
-        
+
     list_arc_entries(arc, &fnum, &total);
-    
+
     /* Open archive */
     a = archive_read_new();
     archive_read_support_compression_all(a);
@@ -221,10 +221,10 @@ farray_t *farray_extract_archive(char *arc)
     archive_read_open_filename(a, arc, 4096);
 
     /* Read contents */
-    #pragma omp parallel for shared(a) private(x,l)
+#pragma omp parallel for shared(a) private(x,l)
     for (i = 0; i < total; i++) {
-    
-        #pragma omp critical (farray)
+
+#pragma omp critical (farray)
         {
             /* Perform reading of archive in critical region */
             archive_read_next_header(a, &entry);
@@ -234,18 +234,18 @@ farray_t *farray_extract_archive(char *arc)
                 archive_read_data_skip(a);
                 l = NULL;
             } else {
-                x = malloc((s->st_size + 1) * sizeof(char));            
+                x = malloc((s->st_size + 1) * sizeof(char));
                 archive_read_data(a, x, s->st_size);
                 l = strdup((char *) archive_entry_pathname(entry));
                 x[s->st_size] = 0;
             }
-        }    
-        
+        }
+
         /* Skip non-regular files */
         if (!x && !l)
             continue;
 
-        /* Preprocess and extract feature vector*/
+        /* Preprocess and extract feature vector */
         x = fvec_preproc(x);
         fvec_t *fv = fvec_extract(x, strlen(x), l);
         if (fv->len == 0) {
@@ -254,17 +254,16 @@ farray_t *farray_extract_archive(char *arc)
             fnum--;
             continue;
         }
-        
-        #pragma omp critical (farray)
+#pragma omp critical (farray)
         {
             /* Add feature vector to array */
-            farray_add(fa, fv, file_suffix(l));            
+            farray_add(fa, fv, file_suffix(l));
             if (verbose > 0)
-                prog_bar(0, fnum, fa->len);        
-        }    
-            
+                prog_bar(0, fnum, fa->len);
+        }
+
         free(x);
-        free(l);            
+        free(l);
     }
 
     /* Close archive */
@@ -286,18 +285,18 @@ farray_t *farray_extract_dir(char *dir)
 
     /* Allocate empty array */
     farray_t *fa = farray_create(dir);
-    if (!fa) 
+    if (!fa)
         return NULL;
-    
-    /* Open directory */    
+
+    /* Open directory */
     DIR *d = opendir(dir);
     if (!d) {
         farray_destroy(fa);
         error("Could not open directory '%s'", dir);
         return NULL;
     }
-    
-    
+
+
     /*
      * Prepare concurrent readdir_r(). There is a race condition in the 
      * following code. The maximum  length 'maxlen' could have changed 
@@ -308,20 +307,20 @@ farray_t *farray_extract_dir(char *dir)
     maxlen = pathconf(dir, _PC_NAME_MAX);
 
     /* Loop over directory entries */
-    #pragma omp parallel for shared(d,fa)
-    for (i = 0; i < total; i++) {        
-        
+#pragma omp parallel for shared(d,fa)
+    for (i = 0; i < total; i++) {
+
         /* Read directory entry to local buffer */
         struct dirent *buf, *dp;
-        buf = malloc(offsetof(struct dirent, d_name) + maxlen + 1);                
+        buf = malloc(offsetof(struct dirent, d_name) + maxlen + 1);
         readdir_r(d, buf, &dp);
 
         /* Skip non-regular entries */
         if (dp->d_type != DT_REG) {
             free(buf);
             continue;
-        }    
-    
+        }
+
         /* Extract feature vector from file */
         char *raw = load_file(dir, dp->d_name);
         raw = fvec_preproc(raw);
@@ -332,19 +331,18 @@ farray_t *farray_extract_dir(char *dir)
             fnum--;
             continue;
         }
-
-        #pragma omp critical (farray)
-        {        
-            /* Add feature vector to array */        
+#pragma omp critical (farray)
+        {
+            /* Add feature vector to array */
             farray_add(fa, fv, file_suffix(dp->d_name));
             if (verbose > 0)
                 prog_bar(0, fnum, fa->len);
         }
-        
+
         /* Clean string and  directory buffer */
         free(raw);
         free(buf);
-    }   
+    }
 
     closedir(d);
     return fa;
@@ -360,20 +358,20 @@ void farray_print(farray_t *fa)
     int i;
     label_t *entry;
 
-    printf("feature array\n  len: %lu, labels: %d, mem: %.2fMb\n", 
+    printf("feature array\n  len: %lu, labels: %d, mem: %.2fMb\n",
            fa->len, HASH_CNT(hn, fa->label_name), fa->mem / 1e6);
-           
+
     if (fa->src)
         printf("  src: '%s'\n", fa->src);
-           
+
     if (verbose < 2)
         return;
-    
+
     for (i = 0; i < fa->len; i++) {
-        HASH_FIND(hi, fa->label_index, &fa->y[i], sizeof(int), entry);        
+        HASH_FIND(hi, fa->label_index, &fa->y[i], sizeof(int), entry);
         fvec_print(fa->x[i]);
-        printf("  label: %s, index: %u\n", entry->name, fa->y[i]);                
-    }   
+        printf("  label: %s, index: %u\n", entry->name, fa->y[i]);
+    }
 }
 
 /**
@@ -383,10 +381,10 @@ void farray_print(farray_t *fa)
  * @param y Second array of feature vectors
  * @return array of feature vectors
  */
-farray_t *farray_merge(farray_t *x, farray_t *y) 
+farray_t *farray_merge(farray_t *x, farray_t *y)
 {
     int i;
-    
+
     /* Check for arguments */
     if (!x && y)
         return y;
@@ -394,13 +392,13 @@ farray_t *farray_merge(farray_t *x, farray_t *y)
         return x;
 
     /* Add to old array */
-    for (i = 0; i < y->len; i++) { 
+    for (i = 0; i < y->len; i++) {
         farray_add(x, y->x[i], farray_get_label(y, i));
         y->x[i] = NULL;
     }
 
     /* Clean up */
-    farray_destroy(y); 
+    farray_destroy(y);
     return x;
 }
 
@@ -409,18 +407,18 @@ farray_t *farray_merge(farray_t *x, farray_t *y)
  * @param fa Array of feature vectors
  * @param z Stream pointer
  */
-void farray_save(farray_t *fa, gzFile *z)
+void farray_save(farray_t *fa, gzFile * z)
 {
     assert(fa && z);
     int i;
 
-    gzprintf(z, "feature array: len=%lu, labels=%d, mem=%lu, src=%s\n", 
-            fa->len, HASH_CNT(hn, fa->label_name), fa->mem, fa->src);
-            
+    gzprintf(z, "feature array: len=%lu, labels=%d, mem=%lu, src=%s\n",
+             fa->len, HASH_CNT(hn, fa->label_name), fa->mem, fa->src);
+
     for (i = 0; i < fa->len; i++) {
         fvec_save(fa->x[i], z);
         gzprintf(z, "  label=%s\n", farray_get_label(fa, i));
-    }    
+    }
 }
 
 /**
@@ -434,16 +432,16 @@ char *farray_get_label(farray_t *fa, int i)
     assert(fa);
     label_t *entry;
 
-    HASH_FIND(hi, fa->label_index, &fa->y[i], sizeof(int), entry);   
+    HASH_FIND(hi, fa->label_index, &fa->y[i], sizeof(int), entry);
     return entry->name;
-} 
+}
 
 /**
  * Loads an array of feature vector form a file stream
  * @param z Stream point
  * @return  Array of feature vectors
 */
-farray_t *farray_load(gzFile *z)
+farray_t *farray_load(gzFile * z)
 {
     assert(z);
     char buf[512], str[512];
@@ -452,30 +450,30 @@ farray_t *farray_load(gzFile *z)
 
     /* Allocate feature array */
     farray_t *f = farray_create(NULL);
-    if (!f) 
+    if (!f)
         return NULL;
 
     gzgets(z, buf, 512);
-    r = sscanf(buf, "feature array: len=%lu, labels=%d, mem=%lu, src=%s\n", 
-              (unsigned long *) &len, (int *) &lab, 
-              (unsigned long *) &mem, str);              
-    if (r != 4)  {
+    r = sscanf(buf, "feature array: len=%lu, labels=%d, mem=%lu, src=%s\n",
+               (unsigned long *) &len, (int *) &lab,
+               (unsigned long *) &mem, str);
+    if (r != 4) {
         error("Could not parse feature array");
         farray_destroy(f);
         return NULL;
     }
-       
+
     /* Set source */
-    if (strcmp(str, "(null)"))  {
+    if (strcmp(str, "(null)")) {
         f->src = strdup(str);
         f->mem += strlen(str);
-    }    
-    
+    }
+
     /* Load contents */
     for (i = 0; i < len; i++) {
         /* Load feature vector */
         fvec_t *fv = fvec_load(z);
-        
+
         /* Load labels */
         gzgets(z, buf, 512);
         r = sscanf(buf, "  label=%s\n", str);
@@ -484,10 +482,10 @@ farray_t *farray_load(gzFile *z)
             farray_destroy(f);
             return NULL;
         }
-        
+
         /* Add to array */
-        farray_add(f, fv, str); 
-    }           
+        farray_add(f, fv, str);
+    }
     return f;
 }
 
@@ -498,41 +496,42 @@ farray_t *farray_load(gzFile *z)
  * @param f File name
  */
 void farray_save_file(farray_t *fa, char *f)
-{ 
+{
     assert(fa && f);
     gzFile *z;
 
     if (verbose > 0)
         printf("Saving %ld feature vectors to '%s'.\n", fa->len, f);
 
-     /* Open file */
+    /* Open file */
     z = gzopen(f, "w9");
     if (!z) {
         error("Could not open '%s' for writing", f);
         return;
     }
-        
+
     /* Save data */
     farray_save(fa, z);
-    gzclose(z);      
+    gzclose(z);
 }
+
 /**
  * Append feature vectors to a file
  * @param fa Array of feature vectors
  * @param f File name
  */
-void farray_append_file(farray_t *fa, char *f) 
-{ 
+void farray_append_file(farray_t *fa, char *f)
+{
     assert(fa && f);
     gzFile *z;
 
     if (verbose > 0)
         printf("Appending %ld feature vectors to '%s'.\n", fa->len, f);
 
-    /* Open file and merge*/
+    /* Open file and merge */
     if ((z = gzopen(f, "r"))) {
         farray_t *fo = farray_load(z);
-        gzclose(z);     
+        gzclose(z);
         fa = farray_merge(fa, fo);
     }
 
@@ -542,10 +541,10 @@ void farray_append_file(farray_t *fa, char *f)
         error("Could not open '%s' for writing", f);
         return;
     }
-        
+
     /* Save data */
     farray_save(fa, z);
-    gzclose(z);      
+    gzclose(z);
 }
 
 /**
@@ -553,24 +552,24 @@ void farray_append_file(farray_t *fa, char *f)
  * @param f File name
  * @return Prototypes
  */
-farray_t *farray_load_file(char *f) 
-{ 
+farray_t *farray_load_file(char *f)
+{
     assert(f);
 
     if (verbose > 0)
         printf("Load feature vectors from '%s'.\n", f);
-    
+
     /* Open file */
     gzFile *z = gzopen(f, "r");
     if (!z) {
         error("Could not open '%s' for reading", f);
         return NULL;
     }
-        
+
     /* Load data */
     farray_t *fa = farray_load(z);
-    gzclose(z);      
-    
+    gzclose(z);
+
     return fa;
 }
 

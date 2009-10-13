@@ -49,7 +49,7 @@ static int mist_read_line(char **ptr, char *buffer)
         buffer[i] = (*ptr)[i];
     }
     buffer[i] = 0;
-                
+
     /* Move line */
     *ptr += strlen(buffer) + 1;
     return TRUE;
@@ -70,13 +70,13 @@ static char *mist_copy_instr(char *ptr, char *line, int level)
             l++;
         if (l >= level)
             break;
-    
+
         ptr[i] = line[i];
     }
 
-    /* Add a carriage return */    
+    /* Add a carriage return */
     ptr[i] = '\n';
-        
+
     /* Update pointer */
     return ptr + i + 1;
 }
@@ -93,38 +93,39 @@ char *mist_preproc(char *report)
     long level, rlen, tlen, ti = 0, ri = 0;
     char *read_ptr = report, *write_ptr = report;
     char line[BUFFER_SIZE];
-    
+
     /* Get MIST configuration */
-    config_lookup_int(&cfg, "input.mist_level", (long *) &level);  
+    config_lookup_int(&cfg, "input.mist_level", (long *) &level);
     config_lookup_int(&cfg, "input.mist_rlen", (long *) &rlen);
     config_lookup_int(&cfg, "input.mist_tlen", (long *) &tlen);
 
     /* Process MIST file */
-    while(mist_read_line(&read_ptr, line)) {   
-        switch(line[0]) {
-        
-        /* Instruction in MIST format */
+    while (mist_read_line(&read_ptr, line)) {
+        switch (line[0]) {
+
+            /* Instruction in MIST format */
         case MIST_INSTRUCT:
             if (tlen == 0 || ti < tlen) {
                 write_ptr = mist_copy_instr(write_ptr, line, level);
-                ri++; ti++;
+                ri++;
+                ti++;
             }
             break;
-            
-        /* Comment in MIST format */
+
+            /* Comment in MIST format */
         case MIST_COMMENT:
             /* Reset threat counter on new thread */
-            if (strstr(line, MIST_THREAD)) 
+            if (strstr(line, MIST_THREAD))
                 ti = 0;
             break;
         }
-        
+
         if (rlen > 0 && ri >= rlen)
             break;
-    } 
-    
+    }
+
     /* Terminate string */
-    *write_ptr = 0;          
+    *write_ptr = 0;
     return report;
 }
 

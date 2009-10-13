@@ -39,7 +39,7 @@ typedef struct {
     unsigned int *y;            /**< Array of label indices */
     unsigned long len;          /**< Length of array */
     unsigned long mem;          /**< Allocated memory in bytes */
-    
+
     label_t *label_name;        /**< Table of label names */
     label_t *label_index;       /**< Table of label indices */
     char *src;                  /**< Source of array, e.g. dir */
@@ -51,7 +51,7 @@ farray_t *farray_create(char *);
 void farray_add(farray_t *, fvec_t *, char *);
 void farray_destroy(farray_t *);
 void farray_print(farray_t *);
-farray_t *farray_merge(farray_t *, farray_t *) ;
+farray_t *farray_merge(farray_t *, farray_t *);
 char *farray_get_label(farray_t *fa, int i);
 
 /* Extract function */

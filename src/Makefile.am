@@ -18,11 +18,19 @@ bin_PROGRAMS            = malheur
 malheur_SOURCES         = $(libmalheur_a_SOURCES) malheur.c
 malheur_LDFLAGS         = -static
 
-beautify:               $(libmalheur_a_SOURCES) $(malheur_SOURCES)
-			gnuindent -i4 -kr -l77 -lc77 --no-tabs -cs \
-                                  -T FILE -T fvet_t -T DIR -T DIRP $^
 
 malheur.h: $(top_srcdir)/src/malheur.h.in
-	sed -e 's|__SYSCONFDIR__|$(sysconfdir)|' \
-	    -e 's|__LOCALSTATEDIR__|$(localstatedir)|' \
-	$(top_srcdir)/src/malheur.h.in > $(top_srcdir)/src/malheur.h
+			sed -e 's|__SYSCONFDIR__|$(sysconfdir)|' \
+			    -e 's|__LOCALSTATEDIR__|$(localstatedir)|' \
+			$(top_srcdir)/src/malheur.h.in \
+			    > $(top_srcdir)/src/malheur.h
+
+mostlyclean-local:
+	rm -f *~
+        
+beautify:               $(libmalheur_a_SOURCES) $(malheur_SOURCES)
+			gnuindent -i4 -kr -l77 -lc77 --no-tabs -cs \
+                        -T FILE -T fvec_t -T farray_t -T cluster_t \
+                        -T assign_t -T config_t -T config_setting_T \
+                        -T DIR -T DIRP $^
+        

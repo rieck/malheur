@@ -32,6 +32,7 @@ static char *config_file = CONFIG_FILE;
 static char *output_file = OUTPUT_FILE;
 static char *proto_file = PROTO_FILE;
 static char *reject_file = REJECT_FILE;
+static char *state_file = STATE_FILE;
 
 /* Command line stuff */
 static char **input_files = NULL;
@@ -55,13 +56,14 @@ static void print_usage(int argc, char **argv)
            "Options:\n"
            "  -c <file>    Set configuration file. [%s]\n"
            "  -p <file>    Set prototype file. [%s]\n"  
-           "  -r <file>    Set rejected file. [%s]\n"  
+           "  -r <file>    Set rejected file. [%s]\n" 
+           "  -s <file>    Set internal state file. [%s]\n" 
            "  -o <file>    Set output file for analysis. [%s]\n"
            "  -t           Reset internal state of Malheur.\n"            
            "  -v           Increase verbosity.\n"
            "  -V           Print version and copyright.\n"
            "  -h           Print this help screen.\n", 
-           CONFIG_FILE, PROTO_FILE, REJECT_FILE, OUTPUT_FILE);
+           CONFIG_FILE, PROTO_FILE, REJECT_FILE, STATE_FILE, OUTPUT_FILE);
 }
 
 /**
@@ -72,11 +74,12 @@ static void print_usage(int argc, char **argv)
 static void parse_options(int argc, char **argv)
 {
     int ch;
-    while ((ch = getopt(argc, argv, "to:p:r:c:hvV")) != -1) {
+    while ((ch = getopt(argc, argv, "ts:o:p:r:c:hvV")) != -1) {
         switch (ch) {
             case 't':
                 unlink(proto_file);
                 unlink(reject_file);
+                unlink(state_file);
                 break;
             case 'v':
                 verbose++;

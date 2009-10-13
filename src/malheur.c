@@ -19,9 +19,9 @@
 #include "fmath.h"
 #include "proto.h"
 #include "util.h"
-#include "export.h"
 #include "cluster.h"
-#include "class.h"
+#include "classify.h"
+#include "export.h"
 
 /* Global variables */
 int verbose = 0;
@@ -236,10 +236,10 @@ static void malheur_classify()
     assign_t *as = proto_assign(fa, pr);
 
     /* Apply classification */
-    class_apply(as, fa);
+    classify_apply(as, fa);
     
     /* Save rejected feature vectors */
-    farray_t *re = class_get_rejected(as, fa);
+    farray_t *re = classify_get_rejected(as, fa);
     farray_save_file(re, reject_file);
     farray_destroy(re);
     

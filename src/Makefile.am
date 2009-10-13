@@ -8,10 +8,11 @@ EXTRA_DIST              = malheur.h.in
 
 noinst_LIBRARIES        = libmalheur.a			  
 libmalheur_a_SOURCES	= md5.c md5.h common.h util.c util.h fvec.c \
-                          fvec.h uthash.h ftable.c ftable.h mist.c mist.h \
-                          fmath.c fmath.h export.c export.h farray.c farray.h \
-                          proto.c proto.h mconfig.c mconfig.h cluster.c \
-                          cluster.h quality.c quality.h class.c class.h
+                          fvec.h uthash.h ftable.c ftable.h mist.c \
+                          mist.h fmath.c fmath.h export.c export.h \
+                          farray.c farray.h proto.c proto.h mconfig.c \
+                          mconfig.h cluster.c cluster.h quality.c \
+                          quality.h classify.c classify.h
 
 bin_PROGRAMS            = malheur
 malheur_SOURCES         = $(libmalheur_a_SOURCES) malheur.c
@@ -21,8 +22,7 @@ beautify:               $(libmalheur_a_SOURCES) $(malheur_SOURCES)
 			gnuindent -i4 -kr -l77 -lc77 --no-tabs -cs \
                                   -T FILE -T fvet_t -T DIR -T DIRP $^
 
-malheur.h: malheur.h.in
+malheur.h: $(top_srcdir)/src/malheur.h.in
 	sed -e 's|__SYSCONFDIR__|$(sysconfdir)|' \
 	    -e 's|__LOCALSTATEDIR__|$(localstatedir)|' \
-	malheur.h.in > malheur.h
-                                
+	$(top_srcdir)/src/malheur.h.in > $(top_srcdir)/src/malheur.h

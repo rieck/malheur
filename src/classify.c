@@ -21,7 +21,7 @@
 #include "config.h"
 #include "common.h"
 #include "util.h"
-#include "class.h"
+#include "classify.h"
 
 /* External variables */
 extern int verbose;
@@ -34,7 +34,7 @@ extern config_t cfg;
  * @param as Classification assignments
  * @param fa Array of feature vectors 
  */
-void class_apply(assign_t *as, farray_t *fa)
+void classify_apply(assign_t *as, farray_t *fa)
 {
     int i;
     double maxdist;
@@ -54,7 +54,7 @@ void class_apply(assign_t *as, farray_t *fa)
  * @param fa Array of feature vectors
  * @return Rejected feature vectors
  */
-farray_t *class_get_rejected(assign_t *as, farray_t *fa)
+farray_t *classify_get_rejected(assign_t *as, farray_t *fa)
 {
     int i;
     farray_t *r = farray_create("rejected");

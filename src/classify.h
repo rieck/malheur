@@ -18,7 +18,7 @@
 #include "proto.h"
 
 /* Functions */
-void class_apply(assign_t *, farray_t *);
-farray_t *class_get_rejected(assign_t *, farray_t *f);
+void classify_apply(assign_t *, farray_t *);
+farray_t *classify_get_rejected(assign_t *, farray_t *f);
 
 #endif                          /* CLASSIFY_H */

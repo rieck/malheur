@@ -4,8 +4,8 @@
 # Berlin Institute of Technology (TU Berlin).
 #
 
+BUILT_SOURCES		= malheur.h
 EXTRA_DIST              = malheur.h.in
-
 noinst_LIBRARIES        = libmalheur.a			  
 libmalheur_a_SOURCES	= md5.c md5.h common.h util.c util.h fvec.c \
                           fvec.h uthash.h ftable.c ftable.h mist.c \
@@ -14,15 +14,15 @@ libmalheur_a_SOURCES	= md5.c md5.h common.h util.c util.h fvec.c \
                           mconfig.h cluster.c cluster.h quality.c \
                           quality.h classify.c classify.h 
 
-bin_PROGRAMS            = malheur
-malheur_SOURCES         = $(libmalheur_a_SOURCES) malheur.c
+bin_PROGRAMS            = malheur 
+malheur_DEPENDENCIES	= malheur.h
+malheur_SOURCES    	= $(libmalheur_a_SOURCES) malheur.c
 malheur_LDFLAGS         = -static
 
-malheur.h: $(top_srcdir)/src/malheur.h.in
+malheur.h: 		malheur.h.in
 			sed -e 's|__SYSCONFDIR__|$(sysconfdir)|' \
-			    -e 's|__LOCALSTATEDIR__|$(localstatedir)|' \
-			$(top_srcdir)/src/malheur.h.in \
-			    > $(top_srcdir)/src/malheur.h
+    -e 's|__LOCALSTATEDIR__|$(localstatedir)|' \
+    $(top_srcdir)/src/malheur.h.in > malheur.h
 
 clean-local:
 	rm -f malheur.h

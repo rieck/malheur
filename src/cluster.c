@@ -122,7 +122,7 @@ static void cluster_murtagh(cluster_t *c, double *d, double dm, char m)
         /* Update nearest neighbors */
         dmin = DBL_MAX, ii = 0;
         for (i = 0; i < c->len; i++) {
-            if (done[i] || i == m || D(im, i) >= dmin)
+            if (done[i] || i == im || D(im, i) >= dmin)
                 continue;
             dmin = D(im, i), ii = i;
         }

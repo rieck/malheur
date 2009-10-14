@@ -14,6 +14,7 @@
 #include "config.h"
 
 #include <mex.h>
+#include <math.h>
 #include <stdarg.h>
 #include <string.h>
 #include <libconfig.h>
@@ -141,7 +142,7 @@ void mexFunction(MEX_SIGNATURE)
     char buf[256];
 
     if (nrhs == 0) {
-        mex_print_version();
+        malheur_version(stdout);
         return;
     }
 
@@ -152,6 +153,10 @@ void mexFunction(MEX_SIGNATURE)
     /* Process commands */    
     if (!strcasecmp(buf, "version")) {
         malheur_version(stdout);
+    } else if (!strcasecmp(buf, "verbose")) {
+        if (!mxIsNumeric(prhs[1]))
+            error("Verbosity level needs to be an integer number");
+        verbose = floor(mxGetScalar(prhs[1]));
     } else if (!strcasecmp(buf, "distance")) {
         mex_distance(nlhs, plhs, nrhs, prhs);
     } else {

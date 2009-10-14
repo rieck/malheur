@@ -29,7 +29,7 @@ typedef struct {
 } cluster_t;
 
 /* Functions */
-cluster_t *cluster_linkage(farray_t *);
+cluster_t *cluster_linkage(farray_t *, int);
 void cluster_destroy(cluster_t *);
 void cluster_extrapolate(cluster_t *c, assign_t *a);
 void cluster_trim(cluster_t *c);

@@ -52,6 +52,8 @@ static void cluster_murtagh(cluster_t *c, double *d, double dm, char m)
     char *done = calloc(1, sizeof(char) * c->len);
     long *nn = malloc(sizeof(long) * c->len);
     double *dnn = malloc(sizeof(double) * c->len);
+    
+    /* Check for memory problems */
     if (!done || !nn || !dnn) {
         error("Could not allocate memory for clustering algorithm.");
         goto err;
@@ -144,9 +146,10 @@ static void cluster_murtagh(cluster_t *c, double *d, double dm, char m)
 /**
  * Initializes an empty clustering.
  * @param n Number of points
+ * @param r Run of clustering
  * @return Clustering structure
  */
-static cluster_t *cluster_create(int n)
+static cluster_t *cluster_create(int n, int r)
 {
     int i;
 
@@ -171,6 +174,7 @@ static cluster_t *cluster_create(int n)
 
     c->num = n;
     c->len = n;
+    c->run = r;
 
     return c;
 }
@@ -267,9 +271,10 @@ void cluster_extrapolate(cluster_t *c, assign_t *a)
  * Cluster feature vectors using linkage clustering. The function uses
  * the feature vectors for computing a linkage clustering  
  * @param fa Array of prototypes
+ * @param r Run of clustering
  * @return clustering structure
  */
-cluster_t *cluster_linkage(farray_t *fa)
+cluster_t *cluster_linkage(farray_t *fa, int r)
 {
     assert(fa);
     double dmin;
@@ -280,7 +285,7 @@ cluster_t *cluster_linkage(farray_t *fa)
     config_lookup_string(&cfg, "cluster.link_mode", &mode);
 
     /* Allocate cluster structure */
-    cluster_t *c = cluster_create(fa->len);
+    cluster_t *c = cluster_create(fa->len, r);
 
     /* Allocate distances */
     double *dist = malloc(sizeof(double) * tria_size(fa->len));

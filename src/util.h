@@ -58,6 +58,7 @@ double time_stamp();
 int decode_string(char *);
 char *file_suffix(char *file);
 char *load_file(char *, char *);
+int copy_file(char *src, char *dst);
 void list_dir_entries(char *dir, int *, int *);
 void list_arc_entries(char *arc, int *, int *);
 

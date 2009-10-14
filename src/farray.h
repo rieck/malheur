@@ -45,7 +45,6 @@ typedef struct {
     char *src;                  /**< Source of array, e.g. dir */
 } farray_t;
 
-
 /* Feature array functions */
 farray_t *farray_create(char *);
 void farray_add(farray_t *, fvec_t *, char *);

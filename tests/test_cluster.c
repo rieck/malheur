@@ -59,7 +59,7 @@ int test_cluster_complete()
 
     /* Get clustering */
     config_set_string(&cfg, "cluster.link_mode", "complete");
-    cluster_t *c = cluster_linkage(fa);
+    cluster_t *c = cluster_linkage(fa, 0);
 
     /* Check number of clusters */
     err += (c->num != DATA_CLUSTER);
@@ -95,7 +95,7 @@ int test_cluster_single()
 
     /* Get clustering */
     config_set_string(&cfg, "cluster.link_mode", "single");
-    cluster_t *c = cluster_linkage(fa);
+    cluster_t *c = cluster_linkage(fa, 0);
 
     /* Check number of clusters */
     err += (c->num != DATA_CLUSTER);
@@ -131,7 +131,7 @@ int test_cluster_average()
 
     /* Get clustering */
     config_set_string(&cfg, "cluster.link_mode", "average");
-    cluster_t *c = cluster_linkage(fa);
+    cluster_t *c = cluster_linkage(fa, 0);
 
     /* Check number of clusters */
     err += (c->num != DATA_CLUSTER);
@@ -179,7 +179,7 @@ int test_stress()
         }
 
         /* Extract prototypes */
-        cluster_t *c = cluster_linkage(fa);
+        cluster_t *c = cluster_linkage(fa, 0);
 
         /* Destroy features */
         cluster_destroy(c);

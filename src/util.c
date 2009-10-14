@@ -229,6 +229,40 @@ char *load_file(char *path, char *name)
 }
 
 /**
+ * Simple copy function. This function is likely inefficient and 
+ * should only be used to copy small files, e.g. stuff from /etc
+ * @param src Name of source file
+ * @param dst Name of destination fie
+ * @return true on success, false otherwise
+ */ 
+int copy_file(char *src, char *dst)
+{
+    FILE *sf, *df;
+    int c;
+    
+    sf = fopen(src, "r");
+    if (!sf) {
+        error("Could not open file '%s'.", src);
+        return FALSE;
+    }
+
+    df = fopen(dst, "w");
+    if (!df) {
+        error("Could not open file '%s'.", dst);
+        return FALSE;
+    }
+    
+    while ((c = getc(sf)) != EOF)
+        putc(c, df);
+
+    fclose(sf);
+    fclose(df);
+    
+    return TRUE;
+}
+
+
+/**
  * Returns the number of entries in a directory. 
  * @param dir Directory to analyse
  * @param fnum Return pointer for number of regular files

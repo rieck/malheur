@@ -77,7 +77,8 @@ static void parse_options(int argc, char **argv)
             verbose++;
             break;
         case 'm':
-            strlcpy(malheur_dir, optarg, MAX_PATH_LEN);
+            strncpy(malheur_dir, optarg, MAX_PATH_LEN);
+            malheur_dir[MAX_PATH_LEN - 1] = 0;
             break;
         case 'o':
             output_file = optarg;

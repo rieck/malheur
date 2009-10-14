@@ -32,6 +32,7 @@ static char *output_file = OUTPUT_FILE;
 static char malheur_dir[MAX_PATH_LEN];
 static char **input_files = NULL;
 static int input_len = 0;
+static int reset = FALSE;
 static malheur_task_t task = PROTOTYPE;
 static malheur_cfg_t mcfg;
 
@@ -70,9 +71,7 @@ static void parse_options(int argc, char **argv)
     while ((ch = getopt(argc, argv, "ts:o:m:hvV")) != -1) {
         switch (ch) {
         case 't':
-            unlink(mcfg.proto_file);
-            unlink(mcfg.reject_file);
-            unlink(mcfg.state_file);
+            reset = TRUE;
             break;
         case 'v':
             verbose++;
@@ -174,6 +173,13 @@ static void malheur_init(int argc, char **argv)
     config_lookup_int(&cfg, "features.lookup_table", &lookup);
     if (lookup)
         ftable_init();
+    
+    /* Reset current state */
+    if (reset) {
+        unlink(mcfg.reject_file);
+        unlink(mcfg.proto_file);
+        unlink(mcfg.state_file);
+    }
 }
 
 
@@ -353,8 +359,8 @@ static void malheur_classify()
  */
 static void malheur_increment()
 {
-    farray_t *pr, *tmp;
-    assign_t *as; 
+    farray_t *pr = NULL, *tmp;
+    assign_t *as = NULL; 
 
     /* Load internal state */
     int run = malheur_load_state();
@@ -377,11 +383,17 @@ static void malheur_increment()
         /* Get rejected reports */
         tmp = classify_get_rejected(as, fa);
         
+        /* Export results */
+        export_increment1(pr, fa, as, output_file);
+        
         /* Clean up */
         farray_destroy(fa);
         farray_destroy(pr);
         assign_destroy(as);
         fa = tmp;        
+    } else {
+        /* Export results */
+        export_increment1(pr, fa, as, output_file);
     }
 
     /* Extract prototypes */
@@ -404,8 +416,8 @@ static void malheur_increment()
     /* Save state */
     malheur_save_state(run + 1, pn->len, re->len);
 
-    /* Export classification */
-    //export_class(pr, fa, as, output_file);
+    /* Export results */
+    export_increment2(c, pr, fa, as, output_file);
 
     /* Clean up */
     cluster_destroy(c);

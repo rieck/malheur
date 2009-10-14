@@ -208,6 +208,79 @@ void export_class(farray_t *p, farray_t *fa, assign_t *as, char *file)
     fclose(f);
 }
 
+/**
+ * Exports results from the incremental analysis (phase 1)
+ * @param fa Feature vector array
+ * @param p Prototype struture
+ * @param a Assignments of prototypes
+ * @param file File name
+ */
+void export_increment1(farray_t *p, farray_t *fa, assign_t *as, char *file)
+{
+    int i, j;
+    FILE *f;
 
+    if (verbose > 0)
+        printf("Exporting incremental analysis (1) to '%s'.\n", file);
+
+    if (!(f = fopen(file, "w"))) {
+        error("Could not create file '%s'.", file);
+        return;
+    }
+
+    /* Print version header */
+    malheur_version(f);
+
+    /* Print incremental header */
+    fprintf(f, "# ---\n# Incremental analysis for %s\n", fa->src);
+    fprintf(f, "# ---\n# <report> <cluster> <prototype> <distance>\n");
+
+    if (!p || !as) {
+        fclose(f);
+        return;
+    }
+
+    for (i = 0; i < fa->len; i++) {
+        if (!as->label[i])
+            continue;
+        j = as->proto[i];
+        fprintf(f, "%s %s %s %g\n", fa->x[i]->src, farray_get_label(p, j), 
+                p->x[j]->src, as->dist[i]);
+    }
+
+    fclose(f);
+}
+
+/**
+ * Exports results from the incremental analysis (phase 2)
+ * @param c Clustering structure
+ * @param fa Feature vector array
+ * @param p Prototype struture
+ * @param a Assignments of prototypes
+ * @param file File name
+ */
+void export_increment2(cluster_t *c, farray_t *p, farray_t *fa, assign_t *as, 
+                       char *file)
+{
+    assert(c && p && fa && as && file);
+    int i, j;
+    FILE *f;
+
+    if (verbose > 0)
+        printf("Exporting incremental analysis (2) to '%s'.\n", file);
+
+    if (!(f = fopen(file, "a"))) {
+        error("Could not create file '%s'.", file);
+        return;
+    }
+
+    for (i = 0; i < fa->len; i++) {
+        j = as->proto[i];
+        fprintf(f, "%s %s %s %g\n", fa->x[i]->src, cluster_get_name(c, i),
+                p->x[j]->src, as->dist[i]);
+    }
+
+    fclose(f);
+}
 
 /** @} */

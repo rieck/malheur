@@ -358,7 +358,13 @@ static void malheur_excluster()
     cluster_trim(c);
     rt_stop(cluster);
 
+    assign_t *as = assign_create(fa);
+
+    /* Export clustering */
+    export_cluster(c, fa, fa, as, output_file);
+
     /* Clean up */
+    assign_destroy(as);    
     cluster_destroy(c);
     farray_destroy(fa);
 }

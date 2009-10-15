@@ -37,6 +37,7 @@ extern runtime_t runtime;
 assign_t *assign_create(farray_t *fa)
 {
     assert(fa);
+    int i;
 
     /* Allocate assignment structure */
     assign_t *c = malloc(sizeof(assign_t));
@@ -56,6 +57,14 @@ assign_t *assign_create(farray_t *fa)
         assign_destroy(c);
         return NULL;
     }
+    
+    /* Dummy assignments */
+    for (i = 0; i < fa->len; i++) {
+        c->label[i] = fa->y[i];
+        c->proto[i] = i;
+        c->dist[i] = 0;
+    }
+    
 
     return c;
 }

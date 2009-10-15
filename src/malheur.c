@@ -27,6 +27,7 @@
 int verbose = 0;
 config_t cfg;
 runtime_t runtime;
+double memory = 0;
 
 /* Global variables */
 static char *output_file = OUTPUT_FILE;
@@ -309,11 +310,14 @@ static void malheur_cluster()
     rt_start(extract);
     fa = malheur_load();
     rt_stop(extract);
+    memory += fa->mem;
 
     /* Extract prototypes */
     rt_start(proto);
     pr = proto_extract(fa, &as);
     rt_stop(proto);
+    memory += pr->mem;
+    memory += fa->len * (sizeof(int) + sizeof(int) + sizeof(double));
 
     /* Cluster prototypes and extrapolate */
     rt_start(cluster);
@@ -321,6 +325,9 @@ static void malheur_cluster()
     cluster_extrapolate(c, as);
     cluster_trim(c);
     rt_stop(cluster);
+    memory += tria_size(pr->len) * sizeof(double);
+    memory += pr->len * (sizeof(long) + sizeof(char) + sizeof(double));    
+    memory += fa->len * sizeof(double);
 
     /* Save prototypes */
     pn = cluster_get_prototypes(c, as, pr);
@@ -351,12 +358,16 @@ static void malheur_excluster()
     rt_start(extract);
     farray_t *fa = malheur_load();
     rt_stop(extract);
+    memory += fa->mem;
 
     /* Cluster prototypes and extrapolate */
     rt_start(cluster);
     cluster_t *c = cluster_linkage(fa, 0);
     cluster_trim(c);
     rt_stop(cluster);
+    memory += tria_size(fa->len) * sizeof(double);
+    memory += fa->len * (sizeof(long) + sizeof(char) + sizeof(double));
+    memory += fa->len * sizeof(double);
 
     assign_t *as = assign_create(fa);
 
@@ -424,6 +435,7 @@ static void malheur_increment()
         fa = farray_merge(fa, tmp);
     }
     rt_stop(state);
+    memory += fa->mem;
 
     /* Classification */
     if (!access(mcfg.proto_file, R_OK)) {
@@ -435,7 +447,9 @@ static void malheur_increment()
         as = classify_apply(fa, pr);
         tmp = classify_get_rejected(as, fa);
         rt_stop(classify);
-        
+        memory += pr->mem;
+        memory += fa->len * (sizeof(int) + sizeof(int) + sizeof(double));  
+            
         /* Export results */
         export_increment1(pr, fa, as, output_file);
         
@@ -453,6 +467,8 @@ static void malheur_increment()
     rt_start(proto);
     pr = proto_extract(fa, &as);
     rt_stop(proto);
+    memory += pr->mem;
+    memory += fa->len * (sizeof(int) + sizeof(int) + sizeof(double));    
     
     /* Cluster prototypes and extrapolate */
     rt_start(cluster);
@@ -460,6 +476,9 @@ static void malheur_increment()
     cluster_extrapolate(c, as);
     cluster_trim(c);
     rt_stop(cluster);
+    memory += tria_size(pr->len) * sizeof(double);
+    memory += pr->len * (sizeof(long) + sizeof(char) + sizeof(double));    
+    memory += fa->len * sizeof(double);
 
     /* Save prototypes and rejected feature vectors */
     rt_start(state);
@@ -524,9 +543,10 @@ static void malheur_exit()
     /* Destroy configuration */
     config_destroy(&cfg);
     
-    printf("%f %f %f %f %f %f %f %f\n", runtime.extract_time, runtime.proto_time, 
-       runtime.cluster_time, runtime.classify_time, runtime.state_time, 
-       runtime.distproto_time, runtime.distclust_time, runtime.distclass_time);
+    printf("%f %f %f %f %f %f %f %f %f\n", runtime.extract_time, 
+       runtime.proto_time, runtime.cluster_time, runtime.classify_time, 
+       runtime.state_time, runtime.distproto_time, runtime.distclust_time, 
+       runtime.distclass_time, memory);
 }
 
 /**

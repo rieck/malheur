@@ -30,7 +30,7 @@ case $arg in
        PKG_CONFIG_PATH="$HOME/usr/lib/pkgconfig" \
        CC="gcc" \
        CPPFLAGS="-I $HOME/usr/include" \
-       CFLAGS="-DDEBUG -fomit-frame-pointer -pedantic -pipe -O3 -march=native -mfpmath=sse -msse -msse2" \
+       CFLAGS="-fomit-frame-pointer -pedantic -pipe -O3 -march=native" \
        ./configure --enable-matlab -with-matlab=/usr/local/matlab2009a \
                    --prefix=$HOME/usr
        ;;       

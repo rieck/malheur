@@ -504,7 +504,7 @@ void farray_save_file(farray_t *fa, char *f)
         printf("Saving %ld feature vectors to '%s'.\n", fa->len, f);
 
     /* Open file */
-    z = gzopen(f, "w9");
+    z = gzopen(f, "wb");
     if (!z) {
         error("Could not open '%s' for writing", f);
         return;
@@ -529,14 +529,14 @@ void farray_append_file(farray_t *fa, char *f)
         printf("Appending %ld feature vectors to '%s'.\n", fa->len, f);
 
     /* Open file and merge */
-    if ((z = gzopen(f, "r"))) {
+    if ((z = gzopen(f, "rb"))) {
         farray_t *fo = farray_load(z);
         gzclose(z);
         fa = farray_merge(fa, fo);
     }
 
     /* Open file */
-    z = gzopen(f, "w9");
+    z = gzopen(f, "wb");
     if (!z) {
         error("Could not open '%s' for writing", f);
         return;
@@ -560,7 +560,7 @@ farray_t *farray_load_file(char *f)
         printf("Load feature vectors from '%s'.\n", f);
 
     /* Open file */
-    gzFile *z = gzopen(f, "r");
+    gzFile *z = gzopen(f, "rb");
     if (!z) {
         error("Could not open '%s' for reading", f);
         return NULL;

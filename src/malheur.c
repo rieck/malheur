@@ -342,10 +342,9 @@ static void malheur_classify()
 
     /* Load prototypes */
     pr = farray_load_file(mcfg.proto_file);
-    as = proto_assign(fa, pr);
 
     /* Apply classification */
-    classify_apply(as, fa);
+    as = classify_apply(fa, pr);
 
     /* Save rejected feature vectors */
     re = classify_get_rejected(as, fa);
@@ -382,10 +381,9 @@ static void malheur_increment()
     /* Classification */
     if (!access(mcfg.proto_file, R_OK)) {
         pr = farray_load_file(mcfg.proto_file);
-        as = proto_assign(fa, pr);
 
         /* Apply classification */
-        classify_apply(as, fa);
+        as = classify_apply(fa, pr);
         tmp = classify_get_rejected(as, fa);
         
         /* Export results */

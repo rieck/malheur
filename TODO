@@ -5,7 +5,8 @@
  --
 
  TODO  
-
- * Filtering of arrays using file names
- * Support to merge arrays
+ * Fix for broken Matlab interface
+ * Fix for strange gzclose issue (valgrind)
  * Clustering with and without prototypes
+ 
+ 

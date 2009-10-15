@@ -14,13 +14,28 @@
 #ifndef CLUSTER_H
 #define CLUSTER_H
 
+#include "uthash.h"
 #include "farray.h"
+#include "proto.h"
 
+/**
+ * Clustering structure. 
+ */
 typedef struct {
-    int *cluster;           /* Assignments of clustering */
-    unsigned long len;      /* Length of assignments */
-    unsigned long num;      /* Number of clusters */
-    double param;           /* Clustering parameter */
-} clustering_t;
+    unsigned int *cluster;      /* Assignments of clustering */
+    unsigned long len;          /* Length of assignments */
+    unsigned long num;          /* Number of clusters */
+    unsigned int run;           /* Runnumber of clustering */
+} cluster_t;
+
+/* Functions */
+cluster_t *cluster_linkage(farray_t *, int);
+void cluster_destroy(cluster_t *);
+void cluster_extrapolate(cluster_t *c, assign_t *a);
+void cluster_trim(cluster_t *c);
+
+farray_t *cluster_get_prototypes(cluster_t *, assign_t *, farray_t *);
+farray_t *cluster_get_rejected(cluster_t *, farray_t *);
+char *cluster_get_name(cluster_t *c, int i);
 
 #endif                          /* CLUSTER_H */

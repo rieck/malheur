@@ -51,16 +51,16 @@ static char delim[256] = { DELIM_NOT_INIT };
  * @param x Raw string
  * @return Preprocessed output.
  */
-char *fvec_preproc(char *x) 
+char *fvec_preproc(char *x)
 {
     const char *fm_str;
 
     config_lookup_string(&cfg, "input.format", &fm_str);
-    
+
     /* MIST transformation */
     if (!strcasecmp(fm_str, "mist")) {
         x = mist_preproc(x);
-    }    
+    }
 
     return x;
 }
@@ -69,7 +69,7 @@ char *fvec_preproc(char *x)
  * Condense a feature vector by counting duplicate features.
  * @param fv Feature vector
  */
-static void fvec_condense(fvec_t * fv, embed_t e)
+static void fvec_condense(fvec_t *fv, embed_t e)
 {
     feat_t *p_dim = fv->dim;
     float n = 0, *p_val = fv->val;
@@ -101,9 +101,9 @@ static void fvec_condense(fvec_t * fv, embed_t e)
     /* Update length */
     fv->len = p_dim - fv->dim;
     fv->mem += fv->len * (sizeof(feat_t) + sizeof(float));
- 
+
     /* Reallocate memory */
-    fvec_realloc(fv);    
+    fvec_realloc(fv);
 }
 
 /**
@@ -145,7 +145,7 @@ fvec_t *fvec_extract(char *x, int l, char *s)
     fv->dim = (feat_t *) malloc(l * sizeof(feat_t));
     fv->val = (float *) malloc(l * sizeof(float));
     fv->mem = sizeof(fvec_t);
-    
+
     /* Set source */
     if (s) {
         fv->src = strdup(s);
@@ -166,13 +166,13 @@ fvec_t *fvec_extract(char *x, int l, char *s)
     config_lookup_int(&cfg, "features.ngram_len", (long *) &nlen);
 
     /* Construct delimiter lookup table */
-    config_lookup_string(&cfg, "features.ngram_delim", &dlm_str);    
+    config_lookup_string(&cfg, "features.ngram_delim", &dlm_str);
 
     /* N-grams of bytes */
     if (!dlm_str || strlen(dlm_str) == 0) {
-        /* Feature extraction */    
-        extract_ngrams(fv, x, l, nlen);    
-    } else { 
+        /* Feature extraction */
+        extract_ngrams(fv, x, l, nlen);
+    } else {
         if (delim[0] == DELIM_NOT_INIT) {
             memset(delim, 0, 256);
             decode_delim(dlm_str);
@@ -182,7 +182,7 @@ fvec_t *fvec_extract(char *x, int l, char *s)
         extract_wgrams(fv, x, l, nlen);
     }
     fv->total = fv->len;
-    
+
     /* Sort extracted features */
     qsort(fv->dim, fv->len, sizeof(feat_t), cmp_feat);
 
@@ -207,7 +207,7 @@ fvec_t *fvec_extract(char *x, int l, char *s)
  * the memory of features and its values, such that the required space
  * is reduced to a minimum.
  */
-void fvec_realloc(fvec_t *fv) 
+void fvec_realloc(fvec_t *fv)
 {
     feat_t *p_dim;
     float *p_val;
@@ -218,7 +218,7 @@ void fvec_realloc(fvec_t *fv)
      * Consequently, realloc() here results in a huge memory leak. 
      */
     p_dim = malloc(fv->len * sizeof(feat_t));
-    p_val = malloc(fv->len * sizeof(float));        
+    p_val = malloc(fv->len * sizeof(float));
     if (!p_dim || !p_val) {
         error("Could not re-allocate feature vector");
         free(p_dim);
@@ -232,9 +232,9 @@ void fvec_realloc(fvec_t *fv)
 
     /* Free old */
     free(fv->dim);
-    free(fv->val); 
+    free(fv->val);
     fv->val = p_val;
-    fv->dim = p_dim; 
+    fv->dim = p_dim;
 
 }
 
@@ -306,22 +306,22 @@ fvec_t *fvec_clone(fvec_t *o)
  * Print the content of a feature vector
  * @param fv feature vector
  */
-void fvec_print(fvec_t * fv)
+void fvec_print(fvec_t *fv)
 {
     assert(fv);
     int i, j;
 
-    printf("feature vector\n  len: %lu, total: %lu, mem: %.2fkb\n", 
+    printf("feature vector\n  len: %lu, total: %lu, mem: %.2fkb\n",
            fv->len, fv->total, fv->mem / 1e3);
-        
+
     if (fv->src)
         printf("  src: '%s'\n", fv->src);
-           
+
     if (verbose < 3)
         return;
-        
+
     for (i = 0; i < fv->len; i++) {
-        printf("    0x%.16llx: %6.4f", (long long unsigned int) fv->dim[i], 
+        printf("    0x%.16llx: %6.4f", (long long unsigned int) fv->dim[i],
                fv->val[i]);
 
         /* Lookup feature */
@@ -330,15 +330,15 @@ void fvec_print(fvec_t * fv)
             printf("\n");
             continue;
         }
-    
+
         /* Print feature string */
         printf(" [");
         for (j = 0; j < fe->len; j++) {
             if (isprint(fe->data[j]) || fe->data[j] == '%')
                 printf("%c", fe->data[j]);
-            else   
+            else
                 printf("%%%.2x", fe->data[j]);
-        }        
+        }
         printf("]\n");
     }
 }
@@ -357,15 +357,15 @@ void fvec_print(fvec_t * fv)
 static void extract_wgrams(fvec_t *fv, char *x, int l, int nlen)
 {
     unsigned int i, j = l, k = 0, s = 0, n = 0, d;
-    unsigned char buf[MD5_DIGEST_LENGTH];    
+    unsigned char buf[MD5_DIGEST_LENGTH];
     char *t = malloc(l + 1);
     fentry_t *cache = NULL;
-     
+
     assert(fv && x);
 
     if (ftable_enabled())
         cache = malloc(l * sizeof(fentry_t));
-    
+
     /* Find first delimiter symbol */
     for (d = 0; !delim[(unsigned char) d] && d < 256; d++);
 
@@ -383,7 +383,7 @@ static void extract_wgrams(fvec_t *fv, char *x, int l, int nlen)
     /* Add trailing delimiter */
     if (t[j - 1] != d)
         t[j++] = d;
-        
+
     /* Extract n-grams */
     for (k = i = 0; i < j; i++) {
         /* Count delimiters */
@@ -404,29 +404,29 @@ static void extract_wgrams(fvec_t *fv, char *x, int l, int nlen)
                 cache[fv->len].len = i - k;
                 cache[fv->len].key = fv->dim[fv->len];
                 cache[fv->len].data = malloc(i - k);
-                if (cache[fv->len].data) 
+                if (cache[fv->len].data)
                     memcpy(cache[fv->len].data, (t + k), i - k);
-                else    
+                else
                     error("Could not allocate feature data");
             }
-            
+
             fv->val[fv->len] = 1;
             k = s + 1, i = s, n = 0;
             fv->len++;
         }
     }
     free(t);
-    
+
     if (!ftable_enabled())
         return;
-    
+
     /* Flush cache and add features to hash */
-    #pragma omp critical 
+#pragma omp critical
     {
         for (i = 0; i < fv->len; i++) {
             ftable_put(cache[i].key, cache[i].data, cache[i].len);
             free(cache[i].data);
-        }    
+        }
     }
     free(cache);
 }
@@ -442,15 +442,15 @@ static void extract_wgrams(fvec_t *fv, char *x, int l, int nlen)
  * @param l Length of sequence
  * @param nlen N-gram length
  */
-static void extract_ngrams(fvec_t *fv, char *x, int l, int nlen) 
+static void extract_ngrams(fvec_t *fv, char *x, int l, int nlen)
 {
     unsigned int i = 0;
-    unsigned char buf[MD5_DIGEST_LENGTH];    
+    unsigned char buf[MD5_DIGEST_LENGTH];
     char *t = x;
     fentry_t *cache = NULL;
 
     assert(fv && x && nlen > 0);
-    
+
     if (ftable_enabled())
         cache = malloc(l * sizeof(fentry_t));
 
@@ -467,12 +467,12 @@ static void extract_ngrams(fvec_t *fv, char *x, int l, int nlen)
             cache[fv->len].len = nlen;
             cache[fv->len].key = fv->dim[fv->len];
             cache[fv->len].data = malloc(nlen);
-            if (cache[fv->len].data) 
+            if (cache[fv->len].data)
                 memcpy(cache[fv->len].data, t, nlen);
             else
                 error("Could not allocate feature data");
         }
-        
+
         fv->val[fv->len] = 1;
         t++;
         fv->len++;
@@ -480,17 +480,17 @@ static void extract_ngrams(fvec_t *fv, char *x, int l, int nlen)
 
     if (!ftable_enabled())
         return;
-    
+
     /* Flush cache and add features to hash */
-    #pragma omp critical 
+#pragma omp critical
     {
         for (i = 0; i < fv->len; i++) {
             ftable_put(cache[i].key, cache[i].data, cache[i].len);
             free(cache[i].data);
-        }    
+        }
     }
     free(cache);
-}      
+}
 
 /**
  * Decodes a string containing delimiters to a global array
@@ -523,16 +523,16 @@ static void decode_delim(const char *s)
  * @param f Feature vector
  * @param z Stream pointer
  */
-void fvec_save(fvec_t *f, gzFile *z)
+void fvec_save(fvec_t *f, gzFile * z)
 {
     assert(f && z);
     int i;
 
-    gzprintf(z, "feature vector: len=%lu, total=%lu, mem=%lu, src=%s\n", 
+    gzprintf(z, "feature vector: len=%lu, total=%lu, mem=%lu, src=%s\n",
              f->len, f->total, f->mem, f->src);
     for (i = 0; i < f->len; i++)
-        gzprintf(z, "  %.16llx:%.16g\n", (unsigned long long) f->dim[i], 
-                                         (float) f->val[i]);
+        gzprintf(z, "  %.16llx:%.16g\n", (unsigned long long) f->dim[i],
+                 (float) f->val[i]);
 }
 
 
@@ -541,7 +541,7 @@ void fvec_save(fvec_t *f, gzFile *z)
  * @param z Stream point
  * @return Feature vector
  */
-fvec_t *fvec_load(gzFile *z)
+fvec_t *fvec_load(gzFile * z)
 {
     assert(z);
     fvec_t *f;
@@ -556,23 +556,23 @@ fvec_t *fvec_load(gzFile *z)
     }
 
     gzgets(z, buf, 512);
-    r = sscanf(buf, "feature vector: len=%lu, total=%lu, mem=%lu, src=%s\n", 
-              (unsigned long *) &f->len, (unsigned long *) &f->total,
-              (unsigned long *) &f->mem, str);
-    if (r != 4)  {
+    r = sscanf(buf, "feature vector: len=%lu, total=%lu, mem=%lu, src=%s\n",
+               (unsigned long *) &f->len, (unsigned long *) &f->total,
+               (unsigned long *) &f->mem, str);
+    if (r != 4) {
         error("Could not parse feature vector");
         fvec_destroy(f);
         return NULL;
     }
 
     /* Set source */
-    if (!strcmp(str, "(null)")) 
+    if (!strcmp(str, "(null)"))
         f->src = NULL;
     else
         f->src = strdup(str);
-    
+
     /* Empty feature vector */
-    if (f->len == 0) 
+    if (f->len == 0)
         return f;
 
     /* Allocate arrays */
@@ -587,15 +587,15 @@ fvec_t *fvec_load(gzFile *z)
     /* Load features */
     for (i = 0; i < f->len; i++) {
         gzgets(z, buf, 512);
-        r = sscanf(buf, "  %llx:%g\n", (unsigned long long *) &f->dim[i], 
-                                       (float *) &f->val[i]);
+        r = sscanf(buf, "  %llx:%g\n", (unsigned long long *) &f->dim[i],
+                   (float *) &f->val[i]);
         if (r != 2) {
             error("Could not parse feature vector contents");
             fvec_destroy(f);
             return NULL;
         }
-    }      
-     
+    }
+
     return f;
 }
 
@@ -609,5 +609,4 @@ void fvec_reset_delim()
     delim[0] = DELIM_NOT_INIT;
 }
 
-/** @} */ 
- 
+/** @} */

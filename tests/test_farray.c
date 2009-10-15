@@ -31,7 +31,7 @@ config_t cfg;
 /* 
  * A simple stress test for feature arrays
  */
-int test_stress() 
+int test_stress()
 {
     int i, j, k, err = 0;
     fvec_t *f;
@@ -43,26 +43,26 @@ int test_stress()
     for (i = 0; i < STRESS_RUNS; i++) {
         /* Create array */
         fa = farray_create("test");
-        
+
         for (j = 0; j < NUM_VECTORS; j++) {
             for (k = 0; k < STR_LENGTH; k++)
                 buf[k] = rand() % 10 + '0';
-            buf[k] = 0;    
-            
+            buf[k] = 0;
+
             /* Extract features */
             f = fvec_extract(buf, strlen(buf), "test");
 
             /* Get label */
             snprintf(label, 32, "label%.2d", rand() % 10);
-            
+
             /* Add to array */
             farray_add(fa, f, label);
-        }    
-           
-        /* Destroy features */            
+        }
+
+        /* Destroy features */
         farray_destroy(fa);
     }
-    
+
     test_return(err, STRESS_RUNS);
     return err;
 }
@@ -70,7 +70,7 @@ int test_stress()
 /* 
  * A simple stress test for feature arrays using OpenMP
  */
-int test_stress_omp() 
+int test_stress_omp()
 {
     int i, j, k, err = 0;
     char buf[STR_LENGTH + 1], label[32];
@@ -80,17 +80,17 @@ int test_stress_omp()
     for (i = 0; i < STRESS_RUNS; i++) {
         /* Create array */
         farray_t *fa = farray_create("test");
-        
-        #pragma omp parallel for
+
+#pragma omp parallel for
         for (j = 0; j < NUM_VECTORS; j++) {
             for (k = 0; k < STR_LENGTH; k++)
                 buf[k] = rand() % 10 + '0';
-            buf[k] = 0;    
-            
+            buf[k] = 0;
+
             /* Extract features */
             fvec_t *f = fvec_extract(buf, strlen(buf), "test");
 
-            #pragma omp critical 
+#pragma omp critical
             {
                 /* Get label */
                 snprintf(label, 32, "label%.2d", rand() % 10);
@@ -98,11 +98,11 @@ int test_stress_omp()
                 farray_add(fa, f, label);
             }
         }
-           
-        /* Destroy features */            
+
+        /* Destroy features */
         farray_destroy(fa);
     }
-    
+
     test_return(err, STRESS_RUNS);
     return err;
 }
@@ -110,7 +110,7 @@ int test_stress_omp()
 /* 
  * A simple stress test for feature arrays
  */
-int test_load_save() 
+int test_load_save()
 {
     int i, j, k, err = 0;
     char buf[STR_LENGTH + 1], label[32];
@@ -123,14 +123,14 @@ int test_load_save()
     for (j = 0; j < NUM_VECTORS; j++) {
         for (k = 0; k < STR_LENGTH; k++)
             buf[k] = rand() % 10 + '0';
-        buf[k] = 0;    
-            
+        buf[k] = 0;
+
         /* Extract features and add to array */
         fvec_t *f = fvec_extract(buf, strlen(buf), "test");
         snprintf(label, 32, "label%.2d", rand() % 10);
         farray_add(fa, f, label);
-    }    
-         
+    }
+
     /* Create and save feature vectors */
     if (!(z = gzopen(TEST_FILE, "wb9"))) {
         printf("Could not create file (ignoring)\n");
@@ -144,7 +144,7 @@ int test_load_save()
     farray_t *fb = farray_load(z);
     gzclose(z);
     unlink(TEST_FILE);
-    
+
     /* Compare each vector mathematically */
     for (i = 0; i < fa->len; i++) {
         fvec_t *c = fvec_sub(fa->x[i], fb->x[i]);
@@ -155,10 +155,10 @@ int test_load_save()
     err += fa->len != fb->len;
     err += fa->mem != fb->mem;
 
-    /* Destroy features */            
+    /* Destroy features */
     farray_destroy(fa);
     farray_destroy(fb);
-    
+
     test_return(err, NUM_VECTORS + 2);
     return err;
 }
@@ -170,15 +170,15 @@ int test_load_save()
 int main(int argc, char **argv)
 {
     int err = FALSE;
-    
+
     /* Create config */
     config_init(&cfg);
     config_check(&cfg);
-        
+
     err |= test_stress();
     err |= test_stress_omp();
-    err |= test_load_save();    
-    
+    err |= test_load_save();
+
     config_destroy(&cfg);
     return err;
-} 
+}

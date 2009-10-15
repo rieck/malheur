@@ -28,60 +28,60 @@ int verbose = 5;
 
 /* Test structure */
 typedef struct {
-    feat_t  f;
-    char*   s;
+    feat_t f;
+    char *s;
 } test_t;
 
 /* Test features */
 test_t tests[] = {
-    {     0, "a b c d e f" },
-    {    -1, "a b c d e" },
-    {     1, "a b c d" },    
-    {  0x10, "a b" }, 
-    { 0x100, "a" },
-    { 0xFFF, "" },         
-    {     0, 0 }
+    {0, "a b c d e f"},
+    {-1, "a b c d e"},
+    {1, "a b c d"},
+    {0x10, "a b"},
+    {0x100, "a"},
+    {0xFFF, ""},
+    {0, 0}
 };
 
 /* 
  * A simple static test for the feature table
  */
-int test_static() 
+int test_static()
 {
     int i, j, k, err = 0;
     fentry_t *f;
 
-    test_printf("Creation and maintenance of feature table"); 
+    test_printf("Creation and maintenance of feature table");
 
     /* Initialize table */
     ftable_init();
-    for (i = 0; tests[i].s != 0; i++) 
+    for (i = 0; tests[i].s != 0; i++)
         ftable_put(tests[i].f, tests[i].s, strlen(tests[i].s) + 1);
 
-    /* Randomly query elements */    
+    /* Randomly query elements */
     for (j = 0; j < 100; j++) {
         k = rand() % i;
-        f = ftable_get(tests[k].f); 
+        f = ftable_get(tests[k].f);
 
-        /* Check for correct feature string */  
+        /* Check for correct feature string */
         if (memcmp(f->data, tests[k].s, f->len)) {
             test_error("(%d) '%s' != '%s'", k, f->data, tests[k].s);
             /* ftable_print(); */
             err++;
-        }    
-    }    
-    
+        }
+    }
+
     /* Destroy table */
     ftable_destroy();
 
-    test_return(err, 100);    
+    test_return(err, 100);
     return err;
 }
 
 /* 
  * A simple stress test for the feature table
  */
-int test_stress() 
+int test_stress()
 {
     int i, j, err = 0;
     fentry_t *f;
@@ -92,29 +92,29 @@ int test_stress()
 
     /* Initialize table */
     ftable_init();
-    
+
     for (i = 0; i < STRESS_RUNS; i++) {
         /* Create random key and string */
         key = rand() % 100;
         for (j = 0; j < STR_LENGTH; j++)
             buf[j] = rand() % 10 + '0';
-        buf[j] = 0;    
-        
-        switch(rand() % 2) {
+        buf[j] = 0;
+
+        switch (rand() % 2) {
         case 0:
             /* Insert random string */
             ftable_put(key, buf, strlen(buf));
             break;
         case 1:
             /* Query for string */
-            f = ftable_get(key);    
+            f = ftable_get(key);
             break;
-        } 
-    }       
-    
+        }
+    }
+
     /* Destroy table */
     ftable_destroy();
-    
+
     test_return(err, STRESS_RUNS);
     return err;
 }
@@ -122,7 +122,7 @@ int test_stress()
 /* 
  * A test for loading and saving the feature table
  */
-int test_load_save() 
+int test_load_save()
 {
     int i, j, err = 0;
     gzFile *z;
@@ -132,35 +132,35 @@ int test_load_save()
 
     /* Initialize table */
     ftable_init();
-    for (i = 0; tests[i].s != 0; i++) 
+    for (i = 0; tests[i].s != 0; i++)
         ftable_put(tests[i].f, tests[i].s, strlen(tests[i].s) + 1);
-    
+
     /* Create and save feature vectors */
     if (!(z = gzopen(TEST_FILE, "wb9"))) {
         printf("Could not create file (ignoring)\n");
         return FALSE;
-    } 
+    }
     ftable_save(z);
     gzclose(z);
     ftable_destroy();
-    
+
     /* Init and load */
     ftable_init();
     z = gzopen(TEST_FILE, "r");
     ftable_load(z);
-    gzclose(z);    
-    
-    /* Check elements */    
-    for (j = 0; j < i; j++) {
-        f = ftable_get(tests[j].f); 
+    gzclose(z);
 
-        /* Check for correct feature string */  
+    /* Check elements */
+    for (j = 0; j < i; j++) {
+        f = ftable_get(tests[j].f);
+
+        /* Check for correct feature string */
         if (memcmp(f->data, tests[j].s, f->len)) {
             test_error("(%d) '%s' != '%s'", j, f->data, tests[j].s);
             err++;
-        }    
-    }     
-    
+        }
+    }
+
     /* Destroy table */
     ftable_destroy();
     unlink(TEST_FILE);
@@ -176,10 +176,10 @@ int test_load_save()
 int main(int argc, char **argv)
 {
     int err = FALSE;
-    
-    err |= test_static(); 
+
+    err |= test_static();
     err |= test_stress();
     err |= test_load_save();
-    
+
     return err;
-} 
+}

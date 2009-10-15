@@ -20,18 +20,26 @@ extern int verbose;
 
 /* Default configuration */
 static config_default_t defaults[] = {
-    {"input",          "format",          0,   NAN, "raw"},
-    {"input",          "mist_level",      2,   NAN, NULL},
-    {"input",          "mist_rlen",       0,   NAN, NULL},
-    {"input",          "mist_tlen",       0,   NAN, NULL},
-    {"features",       "ngram_len",       3,   NAN, NULL},
-    {"features",       "ngram_delim",     0,   NAN, "%20%0a%0d"},
-    {"features",       "vect_embed",      0,   NAN, "bin"},
-    {"prototypes",     "max_dist",        0,   0.5, NULL},
-    {"prototypes",     "max_num",         0,   NAN, NULL},
-    {"prototypes",     "repeats",         5,   NAN, NULL},    
-    {"classify",       "max_dist",        0,   0.5, NULL},
-    {"output",         "cws_urls",        1,   NAN, NULL},
+    /* Input */
+    {"input", "format", 0, NAN, "raw"},
+    {"input", "mist_level", 2, NAN, NULL},
+    {"input", "mist_rlen", 0, NAN, NULL},
+    {"input", "mist_tlen", 0, NAN, NULL},
+    /* Features */
+    {"features", "ngram_len", 2, NAN, NULL},
+    {"features", "ngram_delim", 0, NAN, "%20%0a%0d"},
+    {"features", "vect_embed", 0, NAN, "bin"},
+    {"features", "lookup_table", 0, NAN, NULL},
+    /* Prototypes */
+    {"prototypes", "max_dist", 0, 0.65, NULL},
+    {"prototypes", "max_num", 0, NAN, NULL},
+    /* Clustering */
+    {"cluster", "min_dist", 0, 0.95, NULL},
+    {"cluster", "reject_num", 10, NAN, NULL},
+    {"cluster", "link_mode", 0, NAN, "complete"},
+    /* Classification */
+    {"classify", "max_dist", 0, 0.68, NULL},
+    /* Terminating entry */
     {NULL, NULL, 0, 0, NULL}
 };
 
@@ -41,24 +49,24 @@ static config_default_t defaults[] = {
  * @param cs Configuration setting
  * @param d Current depth.
  */
-static void config_setting_fprint(FILE *f, config_setting_t *cs, int d)
+static void config_setting_fprint(FILE *f, config_setting_t * cs, int d)
 {
     assert(cs && d >= 0);
 
     int i;
     for (i = 0; i < d; i++)
         fprintf(f, "  ");
-    
+
     char *n = config_setting_name(cs);
-    
-    switch(config_setting_type(cs)) {
+
+    switch (config_setting_type(cs)) {
     case CONFIG_TYPE_GROUP:
         if (d > 0)
             fprintf(f, "%s = {\n", n);
 
         for (i = 0; i < config_setting_length(cs); i++)
-            config_setting_fprint(f, config_setting_get_elem(cs, i), d + 1); 
-        
+            config_setting_fprint(f, config_setting_get_elem(cs, i), d + 1);
+
         if (d > 0) {
             for (i = 0; i < d; i++)
                 fprintf(f, "  ");
@@ -111,14 +119,14 @@ void config_check(config_t *cfg)
     const char *s;
     double f;
     config_setting_t *cs, *vs;
-    
+
     for (i = 0; defaults[i].name; i++) {
         /* Lookup setting group */
         cs = config_lookup(cfg, defaults[i].group);
-        if (!cs) 
+        if (!cs)
             cs = config_setting_add(config_root_setting(cfg),
                                     defaults[i].group, CONFIG_TYPE_GROUP);
-    
+
         /* Lookup variable */
         if (defaults[i].str) {
             /* Check for string */
@@ -127,17 +135,17 @@ void config_check(config_t *cfg)
 
             /* Add default value */
             vs = config_setting_add(cs, defaults[i].name, CONFIG_TYPE_STRING);
-            config_setting_set_string (vs, defaults[i].str);
+            config_setting_set_string(vs, defaults[i].str);
         } else if (!isnan(defaults[i].fnum)) {
             /* Check for float */
             if (config_setting_lookup_float(cs, defaults[i].name, &f))
                 continue;
-            
+
             /* Check for mis-interpreted integer */
             if (config_setting_lookup_int(cs, defaults[i].name, &j)) {
                 config_setting_remove(cs, defaults[i].name);
                 vs = config_setting_add(cs, defaults[i].name, CONFIG_TYPE_FLOAT);
-                config_setting_set_float(vs, (double) j);                
+                config_setting_set_float(vs, (double) j);
                 continue;
             }
 
@@ -153,7 +161,7 @@ void config_check(config_t *cfg)
             if (config_setting_lookup_float(cs, defaults[i].name, &f)) {
                 config_setting_remove(cs, defaults[i].name);
                 vs = config_setting_add(cs, defaults[i].name, CONFIG_TYPE_INT);
-                config_setting_set_float(vs, (long) round(f));                
+                config_setting_set_float(vs, (long) round(f));
                 continue;
             }
 

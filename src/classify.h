@@ -11,10 +11,14 @@
  * --
  */
 
-#ifndef CLASS_H
-#define CLASS_H
+#ifndef CLASSIFY_H
+#define CLASSIFY_H
 
+#include "farray.h"
+#include "proto.h"
 
+/* Functions */
+void classify_apply(assign_t *, farray_t *);
+farray_t *classify_get_rejected(assign_t *, farray_t *f);
 
-
-#endif                          /* CLASS_H */
+#endif                          /* CLASSIFY_H */

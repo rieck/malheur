@@ -28,11 +28,7 @@ typedef struct {
 
 /* Function declarations */
 farray_t *proto_extract(farray_t *);
-farray_t *proto_load_file(char *);
-void proto_save_file(farray_t *, char *);
-
-/* Functions */
-void assign_destroy(assign_t *c);
-assign_t *proto_assign(farray_t *fa, farray_t *p);
+assign_t *proto_assign(farray_t *, farray_t *);
+void assign_destroy(assign_t *);
 
 #endif                          /* PROTO_H */

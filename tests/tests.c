@@ -36,10 +36,10 @@ void test_printf(char *fmt, ...)
     for (i = strlen(s) + 1; i < LINE_WIDTH; i++)
         printf(".");
     printf(" ");
-    
+
     /* Save start time */
-    start_time = time_stamp(); 
-    
+    start_time = time_stamp();
+
     fflush(stdout);
 }
 
@@ -62,7 +62,7 @@ void test_error(char *fmt, ...)
     printf("\nError: %s", s);
     for (i = strlen(s) + 6; i < LINE_WIDTH; i++)
         printf(" ");
-    
+
     fflush(stdout);
 }
 
@@ -72,9 +72,9 @@ void test_error(char *fmt, ...)
  * @param e number of failed tests
  * @param m number of all tests
  */
-void test_return(int e, int m) 
+void test_return(int e, int m)
 {
     double time = time_stamp() - start_time;
-    printf("%s [%3.0f%%] %.2fs\n", e == 0 ? "  OK" : "FAIL", 
-           100.0 * (m - e) /  m, time);
+    printf("%s [%3.0f%%] %.2fs\n", e == 0 ? "  OK" : "FAIL",
+           100.0 * (m - e) / m, time);
 }

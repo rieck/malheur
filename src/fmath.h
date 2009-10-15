@@ -31,23 +31,19 @@ typedef enum {
 void fvec_mul(fvec_t *, double);
 void fved_div(fvec_t *, double);
 fvec_t *fvec_adds(fvec_t *, fvec_t *, double);
-fvec_t *fvec_add(fvec_t *, fvec_t *); 
+fvec_t *fvec_add(fvec_t *, fvec_t *);
 fvec_t *fvec_sub(fvec_t *, fvec_t *);
 double fvec_dist(fvec_t *fa, fvec_t *fb);
 fvec_t *farray_sums(farray_t *, double *);
 fvec_t *farray_sum(farray_t *);
 fvec_t *farray_mean(farray_t *);
 double fvec_dot(fvec_t *, fvec_t *);
-double fvec_jaccard(fvec_t *, fvec_t *);
-double fvec_ncd(fvec_t *, fvec_t *);
 double fvec_norm1(fvec_t *);
 double fvec_norm2(fvec_t *);
 void fvec_normalize(fvec_t *, norm_t);
 void fvec_sparsify(fvec_t *);
-void farray_dot(farray_t *, farray_t *, double *);
 void farray_dist(farray_t *fa, farray_t *fb, double *d);
-void farray_ncd(farray_t *fa, farray_t *fb, double *d);
-void farray_jaccard(farray_t *fa, farray_t *fb, double *d);
+void farray_dist_tria(farray_t *fa, double *d);
 void farray_normalize(farray_t *f, norm_t n);
 
 #endif                          /* FMATH_H */

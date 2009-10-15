@@ -26,7 +26,6 @@
 #include "export.h"
 #include "mconfig.h"
 #include "quality.h"
-#include "class.h"
 
 /* External variables */
 extern int verbose;
@@ -38,242 +37,250 @@ extern config_t cfg;
  * @param fa Feature vector array
  * @param file File name 
  */
-void export_distance_text(double *d, farray_t *fa, char *file)
+void export_dist(double *d, farray_t *fa, char *file)
 {
     assert(d && fa && file);
-    int i,j;
-    
+    int i, j;
+    FILE *f;
+
     if (verbose > 0)
         printf("Exporting distance matrix to '%s'.\n", file);
-    
-    FILE *f = fopen(file, "w");
-    if (!f) {
+
+    if (!(f = fopen(file, "w"))) {
         error("Could not create file '%s'.", file);
         return;
     }
-    
+
+    /* Print version header */
+    malheur_version(f);
+
+    /* Print distance header */
+    fprintf(f, "# ---\n# Distance matrix for %s\n", fa->src);
+    fprintf(f, "# Matrix size: %ld x %ld\n# ---\n", fa->len, fa->len);
+    fprintf(f, "# <report> <dist1> <dist2> ... <distn>\n");
+
+    /* Print matrix */
     for (i = 0; i < fa->len; i++) {
-        fprintf(f, "%s:", fa->x[i]->src);
+        fprintf(f, "%s ", fa->x[i]->src);
         for (j = 0; j < fa->len; j++)
-            fprintf(f, " %g", d[i * fa->len + j]);
+            fprintf(f, "%g ", d[i * fa->len + j]);
         fprintf(f, "\n");
     }
-    
+
     fclose(f);
-}
-
-/**
- * Exports a distance matrix to a text file
- * @param d Pointer to matrix
- * @param fa Feature vector array
- * @param file File name 
- */
-void export_distance_html(double *d, farray_t *fa, char *file)
-{
-    assert(d && fa && file);
-    int i,j;
-    char bg[8];
-    double min = DBL_MAX, max = DBL_MIN, avg = 0;
-    
-    if (verbose > 0)
-        printf("Exporting distance matrix to '%s'.\n", file);
-    
-    FILE *f = fopen(file, "w");
-    if (!f) {
-        error("Could not create file '%s'.", file);
-        return;
-    }
-    
-    /* Determine minimum, average and maximum values */
-    for (i = 0; i < fa->len; i++)
-        for (j = i; j < fa->len; j++) {
-            if (d[i * fa->len + j] < min)
-                min = d[i * fa->len + j];
-            if (d[i * fa->len + j] > max)
-                max = d[i * fa->len + j];
-            avg += d[i * fa->len + j];
-        }
-    avg /= (fa->len * fa->len) / 2 + fa->len;
-    
-    
-    fprintf(f, "<html><body>%s<h1>Distance Matrix</h1>", BODY);
-    
-    fprintf(f, "<table cellpadding='0' cellspacing='0' style='font-size: 11pt;'>");
-    fprintf(f, TS "Number of total reports:" TM "%lu" TE, fa->len);
-    fprintf(f, TS "Report source:" TM "%s", fa->src);    
-    fprintf(f, TS "Minimum distance:" TM "%7.5f" TE, min);
-    fprintf(f, TS "Average distance:" TM "%7.5f" TE, avg);
-    fprintf(f, TS "Maximum distance:" TM "%7.5f" TE, max);
-    fprintf(f, "</table>\n");
-    
-    /* Write configuration */
-    fprintf(f, "<h2>Configuration</h2><pre>");
-    config_fprint(f, &cfg);
-    fprintf(f, "</pre>");   
-    
-    
-    fprintf(f, "<table cellpadding='0' cellspacing='1' style='font-size: 6pt;'>");
-    for (i = 0; i < fa->len; i++) {
-        fprintf(f, "<tr><td>%s:&nbsp;&nbsp;", fa->x[i]->src);
-        for (j = 0; j < fa->len; j++) {
-            int x = (int) round(255 * (d[i * fa->len + j] - min) / (max - min));
-            snprintf(bg, 8, "#%.2xff%.2x", x, x);
-            fprintf(f, "</td><td bgcolor='%s'>%4.2f", bg, d[i * fa->len + j]);
-        }
-        fprintf(f, "</td></tr>\n");
-    }
-    fprintf(f, "</table></body></html>\n");
-    
-    fclose(f);
-}
-
-
-/**
- * Extracts a CWSandbox URL from a filename. The function uses a static 
- * buffer and thus is not thread-safe.
- * @param f File name
- * @return URL to CWSandbox report
- */
-static char *cwsandbox_url(char *f)
-{
-    static char buf[1024];
-    char *ptr = f + strlen(f) - 1;
-    int sid, aid;
-    
-    /* Determine basename */
-    while(ptr != f && *(ptr - 1) != '/')
-        ptr--;
-    
-    /* Get sample and analysis id */
-    sscanf(ptr, "%d_%d.%*s\n", &sid, &aid);
-    
-    /* Construct URL */
-    snprintf(buf, 1024, "%s&analysisid=%d", CWS_URL, aid);
-    return buf;
 }
 
 /**
  * Exports a structure of prototypes to a text file
- * @param p Prototype structure
+ * @param pr Prototype structure
  * @param fa Feature vector array
+ * @param as Assignments to protoypes
  * @param file File name
  */
-void export_proto_text(farray_t *p, farray_t *fa, char *file)
+void export_proto(farray_t *pr, farray_t *fa, assign_t *as, char *file)
 {
-    assert(p && fa && file);
+    assert(pr && fa && file);
     int i, j;
-
-    /* Assign data to prototypes */
-    assign_t *c = proto_assign(fa, p);
+    FILE *f;
 
     if (verbose > 0)
         printf("Exporting prototypes to '%s'.\n", file);
-    
-    FILE *f = fopen(file, "w");
-    if (!f) {
+
+    if (!(f = fopen(file, "w"))) {
         error("Could not create file '%s'.", file);
         return;
     }
-    
+
+    /* Print version header */
+    malheur_version(f);
+
+    /* Evaluate some quality functions */
+    double *e = quality(fa->y, as->proto, as->len);
+
+    /* Print prototype header */
+    fprintf(f, "# ---\n# Prototypes for %s\n", fa->src);
+    fprintf(f, "# Number of prototypes: %ld (%3.1f%%)\n", pr->len,
+            pr->len * 100.0 / (double) fa->len);
+    fprintf(f, "# Precision of prototypes: %4.1f%%\n",
+            e[Q_PRECISION] * 100.0);
+    fprintf(f, "# ---\n# <report> <prototype> <distance>\n");
+
     for (i = 0; i < fa->len; i++) {
-        j = c->proto[i];
-        fprintf(f, "%s: %s (%s)\n", fa->x[i]->src, p->x[j]->src, 
-                farray_get_label(p, j));
+        j = as->proto[i];
+        fprintf(f, "%s %s %g\n", fa->x[i]->src, pr->x[j]->src, as->dist[i]);
     }
-    
+
     fclose(f);
-    assign_destroy(c);
 }
 
 /**
- * Exports a structure of prototypes to a HTML file. This function is 
- * ugly and should be replaced by some template engine.
- * @param p Prototype structure
+ * Exports a clustering structure to a text file
+ * @param c Clustering structure
  * @param fa Feature vector array
+ * @param p Prototype struture
+ * @param a Assignments of prototypes
  * @param file File name
  */
-void export_proto_html(farray_t *p, farray_t *fa, char *file)
+void export_cluster(cluster_t *c, farray_t *p, farray_t *fa, assign_t *a,
+                    char *file)
 {
-    assert(p && fa && file);
-    int i, j, x = 0, *lidx, *pidx, *cnt;
-    long cws_urls;
+    assert(c && fa && file);
     FILE *f;
+    int i, j;
 
-    /* Assign data to prototypes */
-    assign_t *c = proto_assign(fa, p);
-    
     if (verbose > 0)
-        printf("Exporting prototypes to '%s'.\n", file);
-    
+        printf("Exporting clusters to '%s'.\n", file);
+
     if (!(f = fopen(file, "w"))) {
-        error("Could not open '%s' for writing", file);
+        error("Could not create file '%s'.", file);
         return;
     }
-    
-    /* Get configuration */
-    config_lookup_int(&cfg, "output.cws_urls", &cws_urls);
-    
-    /* Sort labels and compute quality */
-    lidx = qsort_idx(fa->y, fa->len, sizeof(unsigned int), cmp_uint);
-    double *e = quality(fa->y, c->proto, fa->len);
-    
-    /* Sort prototypes by members */
-    cnt = calloc(p->len, sizeof(unsigned int));
-    for (i = 0; i < p->len; i++) 
-        for (j = 0; j < fa->len; j++) 
-            if (c->proto[j] == i) 
-                cnt[i]--;
-    pidx = qsort_idx(cnt, p->len, sizeof(int), cmp_int);        
-    
-    /* Write generic */
-    fprintf(f, "<html><body>%s<h1>Prototypes</h1>", BODY);
-    fprintf(f, "<table cellpadding='0' cellspacing='0' style='font-size: 11pt;'>");
-    fprintf(f, TS "Number of prototypes:" TM "%lu (%3.1f%%)" TE, p->len, 
-            p->len / (double) fa->len * 100);    
-    fprintf(f, TS "Number of total reports:" TM "%lu" TE, fa->len);
-    fprintf(f, TS "Report source:" TM "%s", p->src);    
-    fprintf(f, TS "Precision of labels:" TM "%7.5f" TE, e[Q_PRECISION]);
-    fprintf(f, "</table>\n");
-    
-    /* Write configuration */
-    fprintf(f, "<h2>Configuration</h2><pre>");
-    config_fprint(f, &cfg);
-    fprintf(f, "</pre>");    
-    
-    /* Write prototypes and assignments */
-    fprintf(f, "<h2>Assignments</h2><ol>\n");
-    for (i = 0; i < p->len; i++) {
-        fprintf(f, "<li><a href='%s'><b>Prototype</b></a> (members: %d)<br>\n", 
-                cws_urls ? cwsandbox_url(p->x[pidx[i]]->src) : 
-                p->x[pidx[i]]->src, -cnt[pidx[i]]);
-        
-        /* Write list of assignments */
-        for (j = 0, x = 0; j < fa->len; j++) {
-            if (c->proto[lidx[j]] != pidx[i])
-                continue;
-            
-            fprintf(f, "<a href='%s' style='text-decoration: none;'>", 
-                    cws_urls ? cwsandbox_url(fa->x[lidx[j]]->src) : 
-                    fa->x[lidx[j]]->src);
-            
-            /* Print dots if label is repreated */
-            if (x && x == fa->y[lidx[j]]) 
-                fprintf(f, "&middot;");
-            else
-                fprintf(f, "%s", farray_get_label(fa, lidx[j]));
-            
-            x = fa->y[lidx[j]];
-            fprintf(f, "</a> ");
-        }
-        fprintf(f, "<br>\n");
-    }
-    fprintf(f,"</ol></body></html>\n");
-    fclose(f);
 
-    assign_destroy(c);
-    free(pidx);
-    free(lidx);
+    /* Print version header */
+    malheur_version(f);
+
+    /* Evaluate some quality functions */
+    double *e = quality(fa->y, c->cluster, c->len);
+
+    /* Print prototype header */
+    fprintf(f, "# ---\n# Clusters for %s\n", fa->src);
+    fprintf(f, "# Number of cluster: %ld\n", c->num);
+    fprintf(f, "# Precision of clusters: %4.1f%%\n", e[Q_PRECISION] * 100.0);
+    fprintf(f, "# Recall of clusters: %4.1f%%\n", e[Q_RECALL] * 100.0);
+    fprintf(f, "# F-measure of clusters: %4.1f%%\n", e[Q_FMEASURE] * 100.0);
+    fprintf(f, "# ---\n# <report> <cluster> <prototype> <distance>\n");
+
+    for (i = 0; i < fa->len; i++) {
+        j = a->proto[i];
+        fprintf(f, "%s %s %s %g\n", fa->x[i]->src, cluster_get_name(c, i),
+                p->x[j]->src, a->dist[i]);
+    }
+
+    fclose(f);
+}
+
+
+/**
+ * Exports classification results
+ * @param p Prototype structure
+ * @param fa Feature vector array
+ * @param as Assignments to protoypes
+ * @param file File name
+ */
+void export_class(farray_t *p, farray_t *fa, assign_t *as, char *file)
+{
+    assert(p && fa && file);
+    int i, j;
+    char *l;
+    FILE *f;
+
+    if (verbose > 0)
+        printf("Exporting classification to '%s'.\n", file);
+
+    if (!(f = fopen(file, "w"))) {
+        error("Could not create file '%s'.", file);
+        return;
+    }
+
+    /* Print version header */
+    malheur_version(f);
+
+    /* Evaluate some quality functions */
+    double *e = quality(fa->y, as->label, as->len);
+
+    /* Print prototype header */
+    fprintf(f, "# ---\n# Classification for %s\n", fa->src);
+    fprintf(f, "# Precision of classification: %4.1f%%\n",
+            e[Q_PRECISION] * 100.0);
+    fprintf(f, "# Recall of classification: %4.1f%%\n", 
+            e[Q_RECALL] * 100.0);
+    fprintf(f, "# F-measure of classification: %4.1f%%\n", 
+            e[Q_FMEASURE] * 100.0);
+    fprintf(f, "# ---\n# <report> <label> <prototype> <distance>\n");
+
+    for (i = 0; i < fa->len; i++) {
+        j = as->proto[i];
+        l = as->label[i] ? farray_get_label(p, j) : "rejected";
+        fprintf(f, "%s %s %s %g\n", fa->x[i]->src, l, p->x[j]->src,
+                as->dist[i]);
+    }
+
+    fclose(f);
+}
+
+/**
+ * Exports results from the incremental analysis (phase 1)
+ * @param fa Feature vector array
+ * @param p Prototype struture
+ * @param a Assignments of prototypes
+ * @param file File name
+ */
+void export_increment1(farray_t *p, farray_t *fa, assign_t *as, char *file)
+{
+    int i, j;
+    FILE *f;
+
+    if (verbose > 0)
+        printf("Exporting incremental analysis (1) to '%s'.\n", file);
+
+    if (!(f = fopen(file, "w"))) {
+        error("Could not create file '%s'.", file);
+        return;
+    }
+
+    /* Print version header */
+    malheur_version(f);
+
+    /* Print incremental header */
+    fprintf(f, "# ---\n# Incremental analysis for %s\n", fa->src);
+    fprintf(f, "# ---\n# <report> <cluster> <prototype> <distance>\n");
+
+    if (!p || !as) {
+        fclose(f);
+        return;
+    }
+
+    for (i = 0; i < fa->len; i++) {
+        if (!as->label[i])
+            continue;
+        j = as->proto[i];
+        fprintf(f, "%s %s %s %g\n", fa->x[i]->src, farray_get_label(p, j), 
+                p->x[j]->src, as->dist[i]);
+    }
+
+    fclose(f);
+}
+
+/**
+ * Exports results from the incremental analysis (phase 2)
+ * @param c Clustering structure
+ * @param fa Feature vector array
+ * @param p Prototype struture
+ * @param a Assignments of prototypes
+ * @param file File name
+ */
+void export_increment2(cluster_t *c, farray_t *p, farray_t *fa, assign_t *as, 
+                       char *file)
+{
+    assert(c && p && fa && as && file);
+    int i, j;
+    FILE *f;
+
+    if (verbose > 0)
+        printf("Exporting incremental analysis (2) to '%s'.\n", file);
+
+    if (!(f = fopen(file, "a"))) {
+        error("Could not create file '%s'.", file);
+        return;
+    }
+
+    for (i = 0; i < fa->len; i++) {
+        j = as->proto[i];
+        fprintf(f, "%s %s %s %g\n", fa->x[i]->src, cluster_get_name(c, i),
+                p->x[j]->src, as->dist[i]);
+    }
+
+    fclose(f);
 }
 
 /** @} */
-

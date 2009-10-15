@@ -19,21 +19,22 @@
 #include "fmath.h"
 #include "proto.h"
 #include "util.h"
+#include "cluster.h"
+#include "classify.h"
 #include "export.h"
 
 /* Global variables */
 int verbose = 0;
 config_t cfg;
 
-/* Local variables */
-static char *config_file = CONFIG_FILE;
-static char *output_file = NULL;
+/* Global variables */
+static char *output_file = OUTPUT_FILE;
+static char malheur_dir[MAX_PATH_LEN];
 static char **input_files = NULL;
 static int input_len = 0;
-static char *proto_file = NULL;
+static int reset = FALSE;
 static malheur_task_t task = PROTOTYPE;
-static int lookup_table = FALSE;
-static int html_output = FALSE;
+static malheur_cfg_t mcfg;
 
 /**
  * Print usage of command line tool
@@ -44,29 +45,19 @@ static void print_usage(int argc, char **argv)
 {
     printf("Usage: malheur [options] <task> <input> ...\n"
            "Tasks:\n"
-           "  distance      Compute a distance matrix from malware reports\n"
-           "  prototype     Extract prototypes from malware reports\n"
-           "  cluster       Cluster malware reports into similar groups\n"
-           "  classify      Classify malware reports using labeled prototypes\n"
+           "  distance     Compute a distance matrix from malware reports\n"
+           "  prototype    Extract prototypes from malware reports\n"
+           "  cluster      Cluster malware reports into similar groups\n"
+           "  classify     Classify malware reports using labeled prototypes\n"
+           "  increment    Incremental analysis of malware reports\n"
            "Options:\n"
-           "  -c <file>     Set configuration file.\n"
-           "  -p <file>     Set prototype file.\n"  
-           "  -o <file>     Set output file for analysis.\n"   
-           "  -l            Enable feature lookup table.\n"
-           "  -t            Enable HTML output for analysis.\n"
-           "  -v            Increase verbosity.\n"
-           "  -V            Print version and copyright.\n"
-           "  -h            Print this help screen.\n");
-}
-
-/**
- * Print version and copyright information
- */
-static void print_version()
-{
-    printf(" MALHEUR - Automatic Malware Analysis on Steroids\n"
-           " Copyright (c) 2009 Konrad Rieck (rieck@cs.tu-berlin.de)\n"
-           " Berlin Institute of Technology (TU Berlin).\n");
+           "  -m <file>    Set malheur directory. [%s]\n"
+           "  -o <file>    Set output file for analysis. [%s]\n"
+           "  -t           Reset internal state of Malheur.\n"
+           "  -v           Increase verbosity.\n"
+           "  -V           Print version and copyright.\n"
+           "  -h           Print this help screen.\n",
+           malheur_dir, output_file);
 }
 
 /**
@@ -77,64 +68,121 @@ static void print_version()
 static void parse_options(int argc, char **argv)
 {
     int ch;
-    while ((ch = getopt(argc, argv, "o:p:ltc:hvV")) != -1) {
+    while ((ch = getopt(argc, argv, "ts:o:m:hvV")) != -1) {
         switch (ch) {
-            case 'v':
-                verbose++;
-                break;
-            case 'c':
-                config_file = optarg;
-                break;
-            case 'o':
-                output_file = optarg;
-                break;
-            case 'p':
-                proto_file = optarg;
-                break;
-            case 'l':
-                lookup_table = TRUE;
-                break;
-            case 't':
-                html_output = TRUE;
-                break;
-            case 'V':
-                print_version();
-                exit(EXIT_SUCCESS);
-                break;
-            case 'h':
-            case '?':
-                print_usage(argc, argv);
-                exit(EXIT_SUCCESS);
-                break;
+        case 't':
+            reset = TRUE;
+            break;
+        case 'v':
+            verbose++;
+            break;
+        case 'm':
+            strncpy(malheur_dir, optarg, MAX_PATH_LEN);
+            malheur_dir[MAX_PATH_LEN - 1] = 0;
+            break;
+        case 'o':
+            output_file = optarg;
+            break;
+        case 'V':
+            malheur_version(stdout);
+            exit(EXIT_SUCCESS);
+            break;
+        case 'h':
+        case '?':
+            print_usage(argc, argv);
+            exit(EXIT_SUCCESS);
+            break;
         }
     }
-    
+
     argc -= optind;
     argv += optind;
-    
+
     if (argc < 2)
         fatal("<task> and <input> arguments are required");
-    
+
     /* Argument: Task */
-    if (!strcasecmp(argv[0], "prototype"))
+    if (!strcasecmp(argv[0], "prototype")) {
         task = PROTOTYPE;
-    else if (!strcasecmp(argv[0], "distance"))
+    } else if (!strcasecmp(argv[0], "distance")) {
         task = DISTANCE;
-    else if (!strcasecmp(argv[0], "cluster"))
+    } else if (!strcasecmp(argv[0], "cluster")) {
         task = CLUSTER;
-    else if (!strcasecmp(argv[0], "classify"))
+    } else if (!strcasecmp(argv[0], "classify")) {
         task = CLASSIFY;
-    else
+    } else if (!strcasecmp(argv[0], "increment")) {
+        task = INCREMENT;
+    } else {
         fatal("Unknown analysis task '%s'", argv[0]);
+    }
 
     /* Assign input files */
     input_files = argv + 1;
     input_len = argc - 1;
 
     /* Check for output fle */
-    if (!output_file)
-        fatal("No output file specified. See '-o' option.");
+    if (task == CLASSIFY && access(mcfg.proto_file, R_OK))
+        fatal("No prototype file for classifcation available");
 }
+
+
+/**
+ * Initialize malheur tool
+ * @param argc Number of arguments
+ * @param argv Argument values
+ */
+static void malheur_init(int argc, char **argv)
+{
+    long lookup;
+
+    /* Prepare dir */
+    snprintf(malheur_dir, MAX_PATH_LEN, "%s/%s", getenv("HOME"), MALHEUR_DIR);
+
+    /* Parse options */
+    parse_options(argc, argv);
+
+    /* Prepare malheur files */
+    snprintf(mcfg.reject_file, MAX_PATH_LEN, "%s/%s", malheur_dir, REJECT_FILE);
+    snprintf(mcfg.config_file, MAX_PATH_LEN,"%s/%s", malheur_dir, CONFIG_FILE);
+    snprintf(mcfg.proto_file, MAX_PATH_LEN, "%s/%s", malheur_dir, PROTO_FILE);
+    snprintf(mcfg.state_file, MAX_PATH_LEN, "%s/%s", malheur_dir, STATE_FILE);
+
+    /* Check for directories and files */
+    if (access(malheur_dir, F_OK))
+        if(mkdir(malheur_dir, 0700)) 
+            fatal("Could not create directory '%s'.", malheur_dir);
+                    
+    /* Copy configuration file */
+    if (access(mcfg.config_file, R_OK)) {
+        if (verbose > 0)
+            printf("Copying configuration to '%s'.\n", mcfg.config_file);
+        copy_file(GLOBAL_CONFIG_FILE, mcfg.config_file);
+    }
+
+    /* Init and load configuration */
+    config_init(&cfg);
+    if (config_read_file(&cfg, mcfg.config_file) != CONFIG_TRUE)
+        fatal("Could not read configuration (%s in line %d)",
+              config_error_text(&cfg), config_error_line(&cfg));
+
+    /* Check configuration */
+    config_check(&cfg);
+    if (verbose > 1)
+        config_print(&cfg);
+
+    /* Init feature lookup table */
+    config_lookup_int(&cfg, "features.lookup_table", &lookup);
+    if (lookup)
+        ftable_init();
+    
+    /* Reset current state */
+    if (reset) {
+        unlink(mcfg.reject_file);
+        unlink(mcfg.proto_file);
+        unlink(mcfg.state_file);
+    }
+}
+
 
 
 /**
@@ -147,14 +195,71 @@ static farray_t *malheur_load()
     for (int i = 0; i < input_len; i++) {
         /* Argument: Input */
         if (access(input_files[i], R_OK)) {
-            warning("Could not access '%s'. Skipping", input_files[i]);         
+            warning("Could not access '%s'. Skipping", input_files[i]);
             continue;
         }
-        
+
         farray_t *f = farray_extract(input_files[i]);
         fa = farray_merge(fa, f);
-    } 
+    }
     return fa;
+}
+
+/**
+ * Saves the internal Malheur state. The state is used during incremental
+ * analysis to distinguig clusters obtained during different runs
+ * @param run Current run of analysis
+ * @param proto Number of prototypes
+ * @param rej Number of rejected reports
+ */
+static void malheur_save_state(int run, int proto, int rej)
+{
+    FILE *f;
+
+    if (verbose > 0)
+        printf("Saving internal state to '%s'.\n", mcfg.state_file);
+    
+    f = fopen(mcfg.state_file, "w");
+    if (!f) {
+        error("Could not open state file '%s'.", mcfg.state_file);
+        return;
+    }
+        
+    fprintf(f, "run = %d\nprototypes = %d\nrejected = %d\n", 
+            run, proto, rej);
+    
+    fclose(f);
+}
+
+/**
+ * Loads the internal Malheur state. The state is used during incremental
+ * analysis to distinguig clusters obtained during different runs
+ * @return previous number of run
+ */
+static int malheur_load_state()
+{
+    FILE *f;
+    int ret, run, proto, rej;
+    
+    if (access(mcfg.state_file, R_OK))
+        return 0;
+    
+    f = fopen(mcfg.state_file, "r");
+    if (!f) {
+        error("Could not open state file '%s'.", mcfg.state_file);
+        return 0;
+    }
+        
+    ret = fscanf(f, "run = %d\nprototypes = %d\nrejected = %d\n", 
+                &run, &proto, &rej);
+    
+    if (ret != 3) {
+        error("Could not parse state file '%s'.", mcfg.state_file);
+        return 0;
+    }
+    
+    fclose(f);
+    return run;
 }
 
 /**
@@ -164,24 +269,22 @@ static void malheur_prototype()
 {
     /* Load data */
     farray_t *fa = malheur_load();
-    
+
     /* Extract prototypes */
     farray_t *pr = proto_extract(fa);
-    
+    assign_t *as = proto_assign(fa, pr);
+
     if (verbose > 1)
         farray_print(pr);
-    
+
+    /* Save prototypes */
+    farray_save_file(pr, mcfg.proto_file);
+
     /* Export prototypes */
-    if (html_output)
-        export_proto_html(pr, fa, output_file);
-    else 
-        export_proto_text(pr, fa, output_file);
-    
-    /* Save prototype vectors */
-    if (proto_file) 
-        proto_save_file(pr, proto_file);
-    
+    export_proto(pr, fa, as, output_file);
+
     /* Clean up */
+    assign_destroy(as);
     farray_destroy(pr);
     farray_destroy(fa);
 }
@@ -195,17 +298,32 @@ static void malheur_cluster()
     farray_t *fa = malheur_load();
 
     /* Extract prototypes */
-    farray_t *pr = proto_extract(fa);    
+    farray_t *pr = proto_extract(fa);
+    assign_t *as = proto_assign(fa, pr);
 
-    /* TODO */
+    /* Cluster prototypes and extrapolate */
+    cluster_t *c = cluster_linkage(pr, 0);
+    cluster_extrapolate(c, as);
+    cluster_trim(c);
 
-    /* Save prototype vectors */
-    if (proto_file) 
-        proto_save_file(pr, proto_file);
-    
+    /* Save prototypes */
+    farray_t *pn = cluster_get_prototypes(c, as, pr);
+    farray_save_file(pn, mcfg.proto_file);
+    farray_destroy(pn);
+
+    /* Save rejected feature vectors */
+    farray_t *re = cluster_get_rejected(c, fa);
+    farray_save_file(re, mcfg.reject_file);
+    farray_destroy(re);
+
+    /* Export clustering */
+    export_cluster(c, pr, fa, as, output_file);
+
     /* Clean up */
-    farray_destroy(pr);    
-    farray_destroy(fa);        
+    cluster_destroy(c);
+    assign_destroy(as);
+    farray_destroy(pr);
+    farray_destroy(fa);
 }
 
 /**
@@ -213,20 +331,103 @@ static void malheur_cluster()
  */
 static void malheur_classify()
 {
-    if (!proto_file)
-        error("No prototype file specified.");
-
-    /* Load prototypes */
-    farray_t *pr = proto_load_file(proto_file);
-
     /* Load data */
     farray_t *fa = malheur_load();
 
-    /* TODO */
-    
+    /* Load prototypes */
+    farray_t *pr = farray_load_file(mcfg.proto_file);
+    assign_t *as = proto_assign(fa, pr);
+
+    /* Apply classification */
+    classify_apply(as, fa);
+
+    /* Save rejected feature vectors */
+    farray_t *re = classify_get_rejected(as, fa);
+    farray_save_file(re, mcfg.reject_file);
+    farray_destroy(re);
+
+    /* Export classification */
+    export_class(pr, fa, as, output_file);
+
     /* Clean up */
+    assign_destroy(as);
     farray_destroy(pr);
-    farray_destroy(fa);        
+    farray_destroy(fa);
+}
+
+/**
+ * Classify the given malware reports
+ */
+static void malheur_increment()
+{
+    farray_t *pr = NULL, *tmp;
+    assign_t *as = NULL; 
+
+    /* Load internal state */
+    int run = malheur_load_state();
+
+    /* Load data including rejected stuff */
+    farray_t *fa = malheur_load();
+    if (!access(mcfg.reject_file, F_OK)) {
+        tmp = farray_load_file(mcfg.reject_file);
+        fa = farray_merge(fa, tmp);
+    }
+
+    if (!access(mcfg.proto_file, R_OK)) {
+        /* Load prototypes */
+        pr = farray_load_file(mcfg.proto_file);
+        as = proto_assign(fa, pr);
+
+        /* Apply classification */
+        classify_apply(as, fa);
+        
+        /* Get rejected reports */
+        tmp = classify_get_rejected(as, fa);
+        
+        /* Export results */
+        export_increment1(pr, fa, as, output_file);
+        
+        /* Clean up */
+        farray_destroy(fa);
+        farray_destroy(pr);
+        assign_destroy(as);
+        fa = tmp;        
+    } else {
+        /* Export results */
+        export_increment1(pr, fa, as, output_file);
+    }
+
+    /* Extract prototypes */
+    pr = proto_extract(fa);
+    as = proto_assign(fa, pr);
+    
+    /* Cluster prototypes and extrapolate */
+    cluster_t *c = cluster_linkage(pr, run + 1);
+    cluster_extrapolate(c, as);
+    cluster_trim(c);
+
+    /* Save prototypes */
+    farray_t *pn = cluster_get_prototypes(c, as, pr);
+    farray_append_file(pn, mcfg.proto_file);
+
+    /* Save rejected feature vectors */
+    farray_t *re = cluster_get_rejected(c, fa);
+    farray_save_file(re, mcfg.reject_file);
+
+    /* Save state */
+    malheur_save_state(run + 1, pn->len, re->len);
+
+    /* Export results */
+    export_increment2(c, pr, fa, as, output_file);
+
+    /* Clean up */
+    cluster_destroy(c);
+    assign_destroy(as);
+
+    farray_destroy(re);
+    farray_destroy(pn);
+    farray_destroy(pr);
+    farray_destroy(fa);
 }
 
 
@@ -242,55 +443,31 @@ static void malheur_distance()
     double *d = malloc(fa->len * fa->len * sizeof(double));
     if (!d)
         fatal("Could not allocate similarity matrix");
-        
+
     /* Compute distance matrix */
     farray_dist(fa, fa, d);
-    
+
     /* Save distance matrix */
-    if (html_output)
-        export_distance_html(d, fa, output_file);
-    else
-        export_distance_text(d, fa, output_file);
-    
+    export_dist(d, fa, output_file);
+
     /* Clean up */
     free(d);
     farray_destroy(fa);
 }
 
-/**
- * Initialize malheur tool
- * @param argc Number of arguments
- * @param argv Argument values
- */
-static void malheur_init(int argc, char **argv)
-{
-    /* Parse options */
-    parse_options(argc, argv);
-    
-    /* Init and load configuration */
-    config_init(&cfg);
-    if (config_read_file(&cfg, config_file) != CONFIG_TRUE)
-        fatal("Could not read configuration (%s in line %d)",
-              config_error_text(&cfg), config_error_line(&cfg));
-    
-    /* Check configuration */
-    config_check(&cfg);
-    if (verbose > 1)
-        config_print(&cfg);
-    
-    /* Init feature lookup table */
-    if (lookup_table)
-        ftable_init();
-}
 
 /**
  * Exits the malheur tool.
  */
 static void malheur_exit()
 {
-    if (lookup_table)
+    long lookup;
+
+    /* Destroy feature lookup table */
+    config_lookup_int(&cfg, "features.lookup_table", &lookup);
+    if (lookup)
         ftable_destroy();
-    
+
     /* Destroy configuration */
     config_destroy(&cfg);
 }
@@ -304,23 +481,26 @@ static void malheur_exit()
 int main(int argc, char **argv)
 {
     malheur_init(argc, argv);
-    
+
     /* Perform task */
     switch (task) {
-        case DISTANCE:
-            malheur_distance();
-            break;
-        case PROTOTYPE:
-            malheur_prototype();
-            break;
-        case CLUSTER:
-            malheur_cluster();
-            break;
-        case CLASSIFY:
-            malheur_classify();
-            break;
+    case DISTANCE:
+        malheur_distance();
+        break;
+    case PROTOTYPE:
+        malheur_prototype();
+        break;
+    case CLUSTER:
+        malheur_cluster();
+        break;
+    case CLASSIFY:
+        malheur_classify();
+        break;
+    case INCREMENT:
+        malheur_increment();
+        break;
     }
-    
+
     malheur_exit();
     return EXIT_SUCCESS;
 }

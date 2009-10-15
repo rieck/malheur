@@ -4,12 +4,13 @@
 #
  
 # Malheur version
-AC_INIT([malheur], [0.2.2], [rieck@cs.tu-berlin.de])
+AC_INIT([malheur], [0.2.3], [rieck@cs.tu-berlin.de])
+AC_PREFIX_DEFAULT("/usr/local")
 
 # Defines (suitable for loading and saving versioned files)
 AC_DEFINE(MALHEUR_MAJOR, 0, Major version number)
 AC_DEFINE(MALHEUR_MINOR, 2, Minor version number)
-AC_DEFINE(MALHEUR_PATCH, 2, Patch version number)
+AC_DEFINE(MALHEUR_PATCH, 3, Patch version number)
 
 echo
 echo " :: MALHEUR - Automatic Malware Analysis on Steroids"
@@ -136,19 +137,13 @@ if test "x$MATLAB_TOOLS" = "xyes" && test "x$HAVE_MATLAB" = "xno" ; then
 fi 
 AM_CONDITIONAL(MATLAB_TOOLS, test "x$MATLAB_TOOLS" = "xyes")
 
-
-# Prepare sysconfdir
-eval "eval SYSCONFDIR=$sysconfdir"
-AC_SUBST([SYSCONFDIR])
 AC_SUBST([INCLUDES])
-
 AC_CONFIG_FILES([ 
    Makefile \
    src/Makefile \
    doc/Makefile \
    matlab/Makefile \
    tests/Makefile \
-   src/malheur.h \
 ])
 
 AC_OUTPUT_COMMANDS([],[

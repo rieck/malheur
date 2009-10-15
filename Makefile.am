@@ -8,8 +8,11 @@
 AUTOMAKE_OPTIONS = foreign
 SUBDIRS = src doc matlab tests
 ACLOCAL_AMFLAGS = -I m4
-EXTRA_DIST = CHANGES README INSTALL COPYING
+EXTRA_DIST = README INSTALL COPYING
 
-mostlyclean-local:
+clean-local:
 	rm -f *~
-        
+
+install-data-local:
+	$(MKDIR_P) $(localstatedir)/malheur
+	        

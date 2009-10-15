@@ -13,8 +13,8 @@
 
 /**
  * @defgroup proto Extraction of prototypes
- * The module contains functions for extracting prototypical feature
- * vectors 
+ * The module contains functions for extracting prototypical 
+ * feature vectors 
  * @author Konrad Rieck (rieck@cs.tu-berlin.de)
  * @{
  */
@@ -29,23 +29,18 @@
 extern int verbose;
 extern config_t cfg;
 
-/* Global variables */
-static long counter = 0;
-
 /**
- * Extracts a set of prototypes using the prototype algorithm.
+ * Extracts prototypes using an extended version of Gonzalez' algorithm.
  * @param fa Array of feature vectors
  * @param n Maximum number of prototypes
- * @param m Minimum distance
- * @param z Number of repeats
+ * @param m Minimum distance between prototypes
  * @return Prototypes
  */
-static farray_t *proto_run(farray_t *fa, long n, double m, double z) 
+static farray_t *proto_gonzalez(farray_t *fa, long n, double m)
 {
     assert(fa);
     int i, j, k;
-    double dm, *di;
-
+    double *di;
 
     /* Allocate prototype structure and distance arrays */
     farray_t *pr = farray_create(fa->src);
@@ -57,26 +52,20 @@ static farray_t *proto_run(farray_t *fa, long n, double m, double z)
 
     /* Init distances to maximum value */
     for (i = 0; i < fa->len; i++)
-        di[i] = DBL_MAX;    
-        
+        di[i] = DBL_MAX;
+
     /* Check for maximum number of protos */
     if (n == 0)
         n = fa->len;
 
-    /* Loop over feature vectors */
+    /* Loop over feature vectors. First prototype: j = 0. */
     for (i = 0; i < n; i++) {
-        if (i == 0) {
-            /* Select random prototype */
-            j = rand() % fa->len;
-        } else {
-            /* Determine largest distance */
-            for(k = 0, j = 0, dm = 0; k < fa->len; k++)
-                if (dm < di[k]) {
-                    dm = di[k];
-                    j = k;
-                }
-        }
-        
+        /* Determine largest distance */
+        if (i > 0)
+            j = array_max(di, fa->len);
+        else
+            j = 0;
+
         /* Check for minimum distance between prototypes */
         if (di[j] < m)
             break;
@@ -86,29 +75,28 @@ static farray_t *proto_run(farray_t *fa, long n, double m, double z)
         farray_add(pr, pv, farray_get_label(fa, j));
 
         /* Update distances and assignments */
-        #pragma omp parallel for shared(fa, pv)
+#pragma omp parallel for shared(fa, pv)
         for (k = 0; k < fa->len; k++) {
             double d = fvec_dist(pv, fa->x[k]);
-            if (d < di[k]) 
+            if (d < di[k])
                 di[k] = d;
-            
+
             if (j == k)
                 di[k] = 0;
-        } 
-        
-        #pragma omp critical (counter)
-        {
-            counter++;
-            if (verbose) 
-                prog_bar(0, n * z, counter);
         }
+
+        if (verbose)
+            prog_bar(0, n, i);
     }
-        
+
+    /* Update progress bar */
+    if (verbose)
+        prog_bar(0, n, n);
+
     /* Free memory */
     free(di);
-        
     return pr;
-} 
+}
 
 
 /**
@@ -118,100 +106,29 @@ static farray_t *proto_run(farray_t *fa, long n, double m, double z)
  * @param fa Array of feature vectors
  * @return Prototypes
  */
-farray_t *proto_extract(farray_t *fa) 
+farray_t *proto_extract(farray_t *fa)
 {
     assert(fa);
-    long i, repeats, maxnum;
+    farray_t *p;
+    long maxnum;
     double maxdist;
-    farray_t **p, *pr;
 
-    /* Get configuration */    
+    /* Get configuration */
     config_lookup_float(&cfg, "prototypes.max_dist", (double *) &maxdist);
-    config_lookup_int(&cfg, "prototypes.repeats", (long *) &repeats);
     config_lookup_int(&cfg, "prototypes.max_num", (long *) &maxnum);
 
-    /* Allocate multiple prototype structures */
-    p = malloc(repeats * sizeof(farray_t *));
-    if (verbose > 0) 
-        printf("Extracting prototypes with maximum distance %4.2f "
-               "and %ld repeats.\n", maxdist, repeats);
-    
-    counter = 0;
-    
-    #pragma omp parallel for shared(p)
-    for (i = 0; i < repeats; i++)
-        p[i] = proto_run(fa, maxnum, maxdist, repeats);
-
-    if (verbose) 
-       prog_bar(0, 1, 1);
-
-    /* Determine best prototypes */
-    for (i = 1; i < repeats; i++) {
-        if (p[0]->len > p[i]->len) {
-            farray_destroy(p[0]);
-            p[0] = p[i];
-        } else {
-            farray_destroy(p[i]);
-        }
-    }
-    
-    pr = p[0];
-    free(p);
-    
     if (verbose > 0)
-        printf("  Done. %ld prototypes using %.2fMb extracted.\n", 
-               pr->len, pr->mem / 1e6);
-    
-    return pr;
-}
+        printf("Extracting prototypes with maximum distance %4.2f.\n",
+               maxdist);
 
-/**
- * Saves a structure of prototypes to a file
- * @param p Prototypes
- * @param f File name
- */
-void proto_save_file(farray_t *p, char *f) 
-{ 
-    assert(p && f);
+    /* Extract prototypes */
+    p = proto_gonzalez(fa, maxnum, maxdist);
 
-    if (verbose)
-        printf("Saving prototypes to '%s'.\n", f);
-    
-    /* Open file */
-    gzFile *z = gzopen(f, "w9");
-    if (!z) {
-        error("Could not open '%s' for writing", f);
-        return;
-    }
-        
-    /* Save data */
-    farray_save(p, z);
-    gzclose(z);      
-}
+    if (verbose > 0)
+        printf("  Done. %ld prototypes using %.2fMb extracted.\n",
+               p->len, p->mem / 1e6);
 
-/**
- * Loads a structure of prototypes from a file
- * @param f File name
- * @return Prototypes
- */
-farray_t *proto_load_file(char *f) 
-{ 
-    assert(f);
-    if (verbose)
-        printf("Loading prototypes from '%s'.\n", f);
-    
-    /* Open file */
-    gzFile *z = gzopen(f, "r");
-    if (!z) {
-        error("Could not open '%s' for reading", f);
-        return NULL;
-    }
-        
-    /* Save data */
-    farray_t *pr = farray_load(z);
-    gzclose(z);      
-    
-    return pr;
+    return p;
 }
 
 /**
@@ -224,7 +141,7 @@ static assign_t *assign_create(farray_t *fa)
     assert(fa);
 
     /* Allocate assignment structure */
-    assign_t *c = malloc(sizeof(assign_t));    
+    assign_t *c = malloc(sizeof(assign_t));
     if (!c) {
         error("Could not allocate assignment structure");
         return NULL;
@@ -235,13 +152,13 @@ static assign_t *assign_create(farray_t *fa)
     c->proto = calloc(fa->len, sizeof(unsigned int));
     c->dist = calloc(fa->len, sizeof(double));
     c->len = fa->len;
-    
+
     if (!c->label || !c->proto || !c->dist) {
         error("Could not allocate assignment structure");
         assign_destroy(c);
         return NULL;
     }
-        
+
     return c;
 }
 
@@ -255,13 +172,13 @@ assign_t *proto_assign(farray_t *fa, farray_t *p)
     assert(fa && p);
     int i, k, j, cnt = 0;
     double d = 0;
+
     assign_t *c = assign_create(fa);
 
-    if (verbose > 0) 
-        printf("Assigning feature vectors to %lu prototypes of %d classes.\n", 
-               p->len, HASH_CNT(hn, fa->label_name));
+    if (verbose > 0)
+        printf("Assigning feature vectors to %lu prototypes.\n", p->len);
 
-    #pragma omp parallel for shared(fa,c,p) private(k,j)
+#pragma omp parallel for shared(fa,c,p) private(k,j)
     for (i = 0; i < fa->len; i++) {
         double min = DBL_MAX;
         for (k = 0, j = 0; k < p->len; k++) {
@@ -271,28 +188,24 @@ assign_t *proto_assign(farray_t *fa, farray_t *p)
                 j = k;
             }
         }
-        
+
         /* Compute assignments */
         c->proto[i] = j;
-        c->dist[i] = d;
+        c->dist[i] = min;
         c->label[i] = p->y[j];
-        
-        #pragma omp critical (cnt)
-        {
-            cnt++;
-            if (verbose) 
-                prog_bar(0, fa->len, cnt);
-        } 
+
+#pragma omp critical (cnt)
+        if (verbose)
+            prog_bar(0, fa->len, ++cnt);
     }
-    
+
     if (verbose > 0)
-        printf("  Done. %ld feature vectors assigned to %lu prototypes.\n", 
+        printf("  Done. Assigened %ld feature vectors to %ld prototypes.\n",
                fa->len, p->len);
-     
+
     return c;
 }
-  
- 
+
 /**
  * Destroys an assignment
  * @param c Assignment structure

@@ -22,7 +22,7 @@ typedef uint64_t feat_t;
 
 /** Placeholder for non-initialized delimiters */
 #define DELIM_NOT_INIT    42
-  
+
 /**
  * Sparse feature vector. The vector is stored as a sorted list 
  * of non-zero dimensions containing real numbers. The dimensions
@@ -36,7 +36,7 @@ typedef struct {
     unsigned long total;    /**< Total features in sequence */
     unsigned long mem;      /**< Allocated memory in bytes */
     char *src;              /**< Source of features, e.g. file */
-} fvec_t;  
+} fvec_t;
 
 /* Functions */
 char *fvec_preproc(char *);
@@ -49,6 +49,5 @@ void fvec_save(fvec_t *, gzFile *);
 fvec_t *fvec_load(gzFile *);
 void fvec_reset_delim();
 void fvec_realloc(fvec_t *);
-
 
 #endif                          /* FVEC_H */

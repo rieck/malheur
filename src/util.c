@@ -30,13 +30,13 @@ static double pb_start = 0;
  * @param y Index structure y
  * @return comparison using internal function (cmp)
  */
-int cmp_index(const void *x, const void *y) 
+int cmp_index(const void *x, const void *y)
 {
     index_t *xi = (index_t *) x;
     index_t *yi = (index_t *) y;
-    
+
     assert(xi->cmp == yi->cmp);
-    
+
     return xi->cmp(xi->ptr, yi->ptr);
 }
 
@@ -55,51 +55,6 @@ int cmp_feat(const void *x, const void *y)
     return 0;
 }
 
-/**
- * Compares two double values
- * @param x double X
- * @param y double Y
- * @return result as a signed integer
- */
-int cmp_double(const void *x, const void *y)
-{
-    if (*((double *) x) > *((double *) y))
-        return +1;
-    if (*((double *) x) < *((double *) y))
-        return -1;
-    return 0;
-}
-
-/**
- * Compares two unsigned integer values
- * @param x double X
- * @param y double Y
- * @return result as a signed integer
- */
-int cmp_uint(const void *x, const void *y)
-{
-    if (*((unsigned int *) x) > *((unsigned int *) y))
-        return +1;
-    if (*((unsigned int *) x) < *((unsigned int *) y))
-        return -1;
-    return 0;
-}
-
-/**
- * Compares two integer values
- * @param x double X
- * @param y double Y
- * @return result as a signed integer
- */
-int cmp_int(const void *x, const void *y)
-{
-    if (*((int *) x) > *((int *) y))
-        return +1;
-    if (*((int *) x) < *((int *) y))
-        return -1;
-    return 0;
-}
-
 /*
  * Sorts the provided array and also returns an array of corresponding
  * indices. The array's memory need to be free'd.
@@ -109,7 +64,8 @@ int cmp_int(const void *x, const void *y)
  * @param c Comparison function
  * @return array of indices according to sorting
  */
-int *qsort_idx(void *b, size_t n, size_t w, int (*c)(const void *, const void *))
+int *qsort_idx(void *b, size_t n, size_t w,
+               int (*c) (const void *, const void *))
 {
     int i;
     index_t *x = malloc(sizeof(index_t) * n);
@@ -118,23 +74,23 @@ int *qsort_idx(void *b, size_t n, size_t w, int (*c)(const void *, const void *)
         error("Could not allocate memory for sorting");
         return NULL;
     }
-    
+
     /* Prepare new array */
     for (i = 0; i < n; i++) {
         x[i].idx = i;
         x[i].ptr = ((char *) b) + i * w;
         x[i].cmp = c;
     }
-    
+
     /* Sort new array */
     qsort(x, n, sizeof(index_t), cmp_index);
-    
+
     /* Copy sorted indices */
     for (i = 0; i < n; i++)
         y[i] = x[i].idx;
     free(x);
 
-    return y;    
+    return y;
 }
 
 /**
@@ -173,11 +129,6 @@ void prog_bar(double min, double max, double in)
     double perc, ptime = 0;
     char *descr = "";
 
-#ifdef DEBUG
-    /* Skip progress bars when debugging */
-    /*return; */
-#endif
-
     perc = (in - min) / (max - min);
     first = fabs(in - min) < 1e-10;
     last = fabs(in - max) < 1e-10;
@@ -189,7 +140,7 @@ void prog_bar(double min, double max, double in)
             pb_string[i] = PROGBAR_EMPTY;
         descr = "start";
         perc = 0.0;
-    } 
+    }
 
     /* End of progress */
     if (last) {
@@ -200,9 +151,9 @@ void prog_bar(double min, double max, double in)
         perc = 1.0;
         pb_start = 0;
     }
-    
+
     /* Middle of progress */
-    if (!first && !last) {    
+    if (!first && !last) {
         int len = round(perc * PROGBAR_LEN);
         for (i = 0; i < len; i++)
             if (i < len - 1)
@@ -210,19 +161,19 @@ void prog_bar(double min, double max, double in)
             else
                 pb_string[i] = PROGBAR_FRONT;
         ptime = (max - in) * (time_stamp() - pb_start) / (in - min);
-        descr = "   in";     
+        descr = "   in";
     }
 
     int mins = floor(ptime / 60);
     int secs = floor(ptime - mins * 60);
     pb_string[PROGBAR_LEN] = 0;
 
-    printf("\r  [%s] %5.1f%%  %s %.2dm %.2ds", pb_string,
+    printf("\r  [%s] %5.1f%%  %s %.2dm %.2ds ", pb_string,
            perc * 100, descr, mins, secs);
-           
+
     if (last)
         printf("\n");
-        
+
     fflush(stdout);
     fflush(stderr);
 }
@@ -235,14 +186,14 @@ void prog_bar(double min, double max, double in)
  * @param name file name or NULL
  * @return string 
  */
-char *load_file(char *path, char *name) 
+char *load_file(char *path, char *name)
 {
     assert(path);
     long len, size = 0;
     char *str = NULL, file[1024];
-    struct stat st;    
-     
-    #pragma omp critical (snprintf) 
+    struct stat st;
+
+#pragma omp critical (snprintf)
     {
         if (name)
             snprintf(file, 1024, "%s/%s", path, name);
@@ -269,13 +220,47 @@ char *load_file(char *path, char *name)
     /* Read data */
     len = fread(str, sizeof(char), size, fptr);
     fclose(fptr);
-    
-    if (len != size) 
+
+    if (len != size)
         warning("Could not read all data from file '%s'", file);
-    
+
     str[size] = '\0';
     return str;
 }
+
+/**
+ * Simple copy function. This function is likely inefficient and 
+ * should only be used to copy small files, e.g. stuff from /etc
+ * @param src Name of source file
+ * @param dst Name of destination fie
+ * @return true on success, false otherwise
+ */ 
+int copy_file(char *src, char *dst)
+{
+    FILE *sf, *df;
+    int c;
+    
+    sf = fopen(src, "r");
+    if (!sf) {
+        error("Could not open file '%s'.", src);
+        return FALSE;
+    }
+
+    df = fopen(dst, "w");
+    if (!df) {
+        error("Could not open file '%s'.", dst);
+        return FALSE;
+    }
+    
+    while ((c = getc(sf)) != EOF)
+        putc(c, df);
+
+    fclose(sf);
+    fclose(df);
+    
+    return TRUE;
+}
+
 
 /**
  * Returns the number of entries in a directory. 
@@ -294,9 +279,9 @@ void list_dir_entries(char *dir, int *fnum, int *total)
     d = opendir(dir);
     while (d && (dp = readdir(d)) != NULL) {
         if (dp->d_type == DT_REG)
-            ++*fnum;
-        ++*total;           
-    }            
+            ++ * fnum;
+        ++*total;
+    }
     closedir(d);
 }
 
@@ -306,31 +291,32 @@ void list_dir_entries(char *dir, int *fnum, int *total)
  * @param fnum Return pointer for number of regular files
  * @param total Return pointer for number of total files
  */
-void list_arc_entries(char *arc, int *fnum, int *total) 
+void list_arc_entries(char *arc, int *fnum, int *total)
 {
     struct archive *a;
     struct archive_entry *entry;
     assert(arc);
-    
+
     *fnum = 0;
     *total = 0;
-    
+
     /* Open archive */
     a = archive_read_new();
     archive_read_support_compression_all(a);
     archive_read_support_format_all(a);
     archive_read_open_filename(a, arc, 4096);
-    
+
     /* Jump through archive */
     while (archive_read_next_header(a, &entry) == ARCHIVE_OK) {
         const struct stat *s = archive_entry_stat(entry);
-        if (S_ISREG(s->st_mode))      
-            ++*fnum;
-        ++*total;    
+        if (S_ISREG(s->st_mode))
+            ++ * fnum;
+
+        ++*total;
         archive_read_data_skip(a);
     }
     archive_read_finish(a);
-}  
+}
 
 
 /**
@@ -350,19 +336,19 @@ double time_stamp()
  * @param str Stirng to escape.
  * @return length of decoded sequence
  */
-int decode_string(char *str) 
+int decode_string(char *str)
 {
     int j, k, r;
     char hex[5] = "0x00";
-    
+
     /* Loop over string */
     for (j = 0, k = 0; j < strlen(str); j++, k++) {
         if (str[j] != '%') {
             str[k] = str[j];
-        } else {   
+        } else {
             /* Check for truncated string */
             if (strlen(str) - j < 2)
-                    break;
+                break;
 
             /* Parse hexadecimal number */
             hex[2] = str[++j];
@@ -378,13 +364,13 @@ int decode_string(char *str)
 /**
  * Extracts the suffix from a file name. If the file does not
  * have a suffix, the function returns "unknown". 
- */ 
+ */
 char *file_suffix(char *file)
 {
     char *name = file + strlen(file) - 1;
 
     /* Determine dot in file name */
-    while (name != file && *name != '.') 
+    while (name != file && *name != '.')
         name--;
 
     /* Check for files with no suffix */
@@ -392,49 +378,84 @@ char *file_suffix(char *file)
         name = "unknown";
     else
         name++;
-        
+
     return name;
 }
 
 /**
- * Checks and fixes the range of a value 
- * @param a Value to check
- * @param mi Minimum value
- * @param ma Maximum value
- * @return fixed value
+ * Print version and copyright information
  */
-int check_range(int a, int mi, int ma)
+void malheur_version(FILE *f)
 {
-    a = a < mi ? mi : a;
-    a = a > ma ? ma : a;
-    return a;
-} 
- 
-
-#ifndef HAVE_FUNC_LOG2
-/** 
- * Logarithm of x to base 2
- * @param x input value
- * @return logarithm 
- */
-double log2(double x)
-{
-    return log10(x) * 3.32192809488736234;
+    fprintf(f,
+            "# MALHEUR (%d.%d.%d) - Automatic Malware Analysis on Steroids\n"
+            "# Copyright (c) 2009 Konrad Rieck (rieck@cs.tu-berlin.de)\n"
+            "# Berlin Institute of Technology (TU Berlin).\n", MALHEUR_MAJOR,
+            MALHEUR_MINOR, MALHEUR_PATCH);
 }
-#endif
 
-#ifndef HAVE_FUNC_ROUND
 /** 
- * Round function 
- * @param x input value
- * @return integer number
+ * Size of upper triangle of a symmatrix matrix
+ * @param n length of one dimension
+ * @return size of triangle
  */
-long round(double x)
+long tria_size(long n)
 {
-    double f = floor(x);
-    if (s - f >= 0.5)
-        return (long) f + 1;
-    return (long) f;
+    return n * (n + 1) / 2;
 }
-#endif
 
+/** 
+ * Index of point in the upper triangle of a symmetric matrix
+ * @param x coordinate in x axis
+ * @param y coordinate in y axis
+ * @param n length of one dimension 
+ */
+long tria_pos(long x, long y, long n)
+{
+    if (y < x)
+        return tria_size(y) + (n - y) * y + (x - y);
+    else
+        return tria_size(x) + (n - x) * x + (y - x);
+}
+
+/**
+ * Determine the maximum of an array
+ * @param a array
+ * @param l length of array 
+ * @return index to maximum value
+ */
+int array_max(double *a, int l)
+{
+    assert(a && l > 0);
+    int i, k = 0;
+    double dm = DBL_MIN;
+
+    for (i = 0; i < l; i++) {
+        if (a[i] <= dm)
+            continue;
+        dm = a[i], k = i;
+    }
+
+    return k;
+}
+
+/**
+ * Determine the minimum of an array
+ * @param a array
+ * @param l length of array 
+ * @return index to minimum value
+ */
+int array_min(double *a, int l)
+{
+    assert(a && l > 0);
+    int i, k = 0;
+    double dm = DBL_MAX;
+
+    for (i = 0; i < l; i++) {
+        if (a[i] >= dm)
+            continue;
+        dm = a[i], k = i;
+    }
+
+    return k;
+}

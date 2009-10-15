@@ -270,13 +270,14 @@ static int malheur_load_state()
  */
 static void malheur_prototype()
 {
+    assign_t *as;
+    farray_t *fa, *pr;
+    
     /* Load data */
-    farray_t *fa = malheur_load();
+    fa = malheur_load();
 
     /* Extract prototypes */
-    farray_t *pr = proto_extract(fa);
-    assign_t *as = proto_assign(fa, pr);
-
+    pr = proto_extract(fa, &as);
     if (verbose > 1)
         farray_print(pr);
 
@@ -297,12 +298,14 @@ static void malheur_prototype()
  */
 static void malheur_cluster()
 {
+    assign_t *as;
+    farray_t *fa, *pr, *pn, *re;
+
     /* Load data */
-    farray_t *fa = malheur_load();
+    fa = malheur_load();
 
     /* Extract prototypes */
-    farray_t *pr = proto_extract(fa);
-    assign_t *as = proto_assign(fa, pr);
+    pr = proto_extract(fa, &as);
 
     /* Cluster prototypes and extrapolate */
     cluster_t *c = cluster_linkage(pr, 0);
@@ -310,12 +313,12 @@ static void malheur_cluster()
     cluster_trim(c);
 
     /* Save prototypes */
-    farray_t *pn = cluster_get_prototypes(c, as, pr);
+    pn = cluster_get_prototypes(c, as, pr);
     farray_save_file(pn, mcfg.proto_file);
     farray_destroy(pn);
 
     /* Save rejected feature vectors */
-    farray_t *re = cluster_get_rejected(c, fa);
+    re = cluster_get_rejected(c, fa);
     farray_save_file(re, mcfg.reject_file);
     farray_destroy(re);
 
@@ -351,18 +354,21 @@ static void malheur_excluster()
  */
 static void malheur_classify()
 {
+    assign_t *as;
+    farray_t *fa, *pr, *re;
+
     /* Load data */
-    farray_t *fa = malheur_load();
+    fa = malheur_load();
 
     /* Load prototypes */
-    farray_t *pr = farray_load_file(mcfg.proto_file);
-    assign_t *as = proto_assign(fa, pr);
+    pr = farray_load_file(mcfg.proto_file);
+    as = proto_assign(fa, pr);
 
     /* Apply classification */
     classify_apply(as, fa);
 
     /* Save rejected feature vectors */
-    farray_t *re = classify_get_rejected(as, fa);
+    re = classify_get_rejected(as, fa);
     farray_save_file(re, mcfg.reject_file);
     farray_destroy(re);
 
@@ -380,8 +386,8 @@ static void malheur_classify()
  */
 static void malheur_increment()
 {
-    farray_t *pr = NULL, *tmp;
-    assign_t *as = NULL; 
+    farray_t *pr, *tmp, *pn, *re;
+    assign_t *as; 
 
     /* Load internal state */
     int run = malheur_load_state();
@@ -393,15 +399,13 @@ static void malheur_increment()
         fa = farray_merge(fa, tmp);
     }
 
+    /* Classification */
     if (!access(mcfg.proto_file, R_OK)) {
-        /* Load prototypes */
         pr = farray_load_file(mcfg.proto_file);
         as = proto_assign(fa, pr);
 
         /* Apply classification */
         classify_apply(as, fa);
-        
-        /* Get rejected reports */
         tmp = classify_get_rejected(as, fa);
         
         /* Export results */
@@ -418,20 +422,17 @@ static void malheur_increment()
     }
 
     /* Extract prototypes */
-    pr = proto_extract(fa);
-    as = proto_assign(fa, pr);
+    pr = proto_extract(fa, &as);
     
     /* Cluster prototypes and extrapolate */
     cluster_t *c = cluster_linkage(pr, run + 1);
     cluster_extrapolate(c, as);
     cluster_trim(c);
 
-    /* Save prototypes */
-    farray_t *pn = cluster_get_prototypes(c, as, pr);
+    /* Save prototypes and rejected feature vectors */
+    pn = cluster_get_prototypes(c, as, pr);
     farray_append_file(pn, mcfg.proto_file);
-
-    /* Save rejected feature vectors */
-    farray_t *re = cluster_get_rejected(c, fa);
+    re = cluster_get_rejected(c, fa);
     farray_save_file(re, mcfg.reject_file);
 
     /* Save state */

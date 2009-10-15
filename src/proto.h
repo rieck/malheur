@@ -27,7 +27,7 @@ typedef struct {
 } assign_t;
 
 /* Function declarations */
-farray_t *proto_extract(farray_t *);
+farray_t *proto_extract(farray_t *, assign_t **);
 assign_t *proto_assign(farray_t *, farray_t *);
 void assign_destroy(assign_t *);
 

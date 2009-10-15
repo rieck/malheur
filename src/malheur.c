@@ -50,6 +50,7 @@ static void print_usage(int argc, char **argv)
            "  cluster      Cluster malware reports into similar groups\n"
            "  classify     Classify malware reports using labeled prototypes\n"
            "  increment    Incremental analysis of malware reports\n"
+           "  excluster	   Cluster malware reports using exact clustering\n"
            "Options:\n"
            "  -m <file>    Set malheur directory. [%s]\n"
            "  -o <file>    Set output file for analysis. [%s]\n"
@@ -112,6 +113,8 @@ static void parse_options(int argc, char **argv)
         task = CLASSIFY;
     } else if (!strcasecmp(argv[0], "increment")) {
         task = INCREMENT;
+    } else if (!strcasecmp(argv[0], "excluster")) {
+        task = EXCLUSTER;
     } else {
         fatal("Unknown analysis task '%s'", argv[0]);
     }
@@ -327,6 +330,23 @@ static void malheur_cluster()
 }
 
 /**
+ * Clusters the given malware reports using exact clustering
+ */
+static void malheur_excluster()
+{
+    /* Load data */
+    farray_t *fa = malheur_load();
+
+    /* Cluster prototypes and extrapolate */
+    cluster_t *c = cluster_linkage(fa, 0);
+    cluster_trim(c);
+
+    /* Clean up */
+    cluster_destroy(c);
+    farray_destroy(fa);
+}
+
+/**
  * Classify the given malware reports
  */
 static void malheur_classify()
@@ -498,6 +518,9 @@ int main(int argc, char **argv)
         break;
     case INCREMENT:
         malheur_increment();
+        break;
+    case EXCLUSTER:
+        malheur_excluster();
         break;
     }
 

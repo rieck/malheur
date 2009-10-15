@@ -32,7 +32,7 @@
 
 /* Operation tasks of Malheur  */
 typedef enum {
-    DISTANCE, PROTOTYPE, CLUSTER, CLASSIFY, INCREMENT
+    DISTANCE, PROTOTYPE, CLUSTER, CLASSIFY, INCREMENT, EXCLUSTER
 } malheur_task_t;
 
 /* Structure for generic configuration */

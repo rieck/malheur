@@ -60,7 +60,9 @@ int test_proto()
     }
 
     /* Extract prototypes */
-    farray_t *pr = proto_extract(fa);
+    assign_t *as;
+    farray_t *pr = proto_extract(fa, &as);
+    assign_destroy(as);
 
     /* Check number of prototypes */
     err += (pr->len != DATA_PROTO);
@@ -108,7 +110,9 @@ int test_stress()
         }
 
         /* Extract prototypes */
-        farray_t *pr = proto_extract(fa);
+        assign_t *as;
+        farray_t *pr = proto_extract(fa, &as);
+        assign_destroy(as);
 
         /* Destroy features */
         farray_destroy(fa);

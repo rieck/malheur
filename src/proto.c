@@ -32,42 +32,41 @@ extern config_t cfg;
 /**
  * Extracts prototypes using an extended version of Gonzalez' algorithm.
  * @param fa Array of feature vectors
+ * @param as Empty assignment structure
  * @param n Maximum number of prototypes
  * @param m Minimum distance between prototypes
  * @return Prototypes
  */
-static farray_t *proto_gonzalez(farray_t *fa, long n, double m)
+static farray_t *proto_gonzalez(farray_t *fa, assign_t *as, long n, double m)
 {
     assert(fa);
     int i, j, k;
-    double *di;
 
     /* Allocate prototype structure and distance arrays */
     farray_t *pr = farray_create(fa->src);
-    di = malloc(fa->len * sizeof(double));
-    if (!pr || !di) {
+    if (!pr) {
         error("Could not allocate memory for prototype extraction");
         return NULL;
     }
 
     /* Init distances to maximum value */
     for (i = 0; i < fa->len; i++)
-        di[i] = DBL_MAX;
+        as->dist[i] = DBL_MAX;
 
     /* Check for maximum number of protos */
     if (n == 0)
-        n = fa->len;
+        n = as->len;
 
     /* Loop over feature vectors. First prototype: j = 0. */
     for (i = 0; i < n; i++) {
         /* Determine largest distance */
         if (i > 0)
-            j = array_max(di, fa->len);
+            j = array_max(as->dist, as->len);
         else
             j = 0;
 
         /* Check for minimum distance between prototypes */
-        if (di[j] < m)
+        if (as->dist[j] < m)
             break;
 
         /* Add prototype */
@@ -78,11 +77,11 @@ static farray_t *proto_gonzalez(farray_t *fa, long n, double m)
 #pragma omp parallel for shared(fa, pv)
         for (k = 0; k < fa->len; k++) {
             double d = fvec_dist(pv, fa->x[k]);
-            if (d < di[k])
-                di[k] = d;
-
-            if (j == k)
-                di[k] = 0;
+            if (d < as->dist[k]) {
+                as->dist[k] = d;
+                as->proto[k] = pr->len - 1;
+                as->label[k] = pr->y[pr->len - 1];
+            }
         }
 
         if (verbose)
@@ -93,42 +92,7 @@ static farray_t *proto_gonzalez(farray_t *fa, long n, double m)
     if (verbose)
         prog_bar(0, n, n);
 
-    /* Free memory */
-    free(di);
     return pr;
-}
-
-
-/**
- * Extracts a set of prototypes using the prototype algorithm.
- * Prototype algorithm is run multiple times and the smallest set
- * of prototypes is returned.
- * @param fa Array of feature vectors
- * @return Prototypes
- */
-farray_t *proto_extract(farray_t *fa)
-{
-    assert(fa);
-    farray_t *p;
-    long maxnum;
-    double maxdist;
-
-    /* Get configuration */
-    config_lookup_float(&cfg, "prototypes.max_dist", (double *) &maxdist);
-    config_lookup_int(&cfg, "prototypes.max_num", (long *) &maxnum);
-
-    if (verbose > 0)
-        printf("Extracting prototypes with maximum distance %4.2f.\n",
-               maxdist);
-
-    /* Extract prototypes */
-    p = proto_gonzalez(fa, maxnum, maxdist);
-
-    if (verbose > 0)
-        printf("  Done. %ld prototypes using %.2fMb extracted.\n",
-               p->len, p->mem / 1e6);
-
-    return p;
 }
 
 /**
@@ -161,6 +125,44 @@ static assign_t *assign_create(farray_t *fa)
 
     return c;
 }
+
+
+/**
+ * Extracts a set of prototypes using the prototype algorithm.
+ * Prototype algorithm is run multiple times and the smallest set
+ * of prototypes is returned.
+ * @param fa Array of feature vectors
+ * @param as Pointer for new assignment structure
+ * @return Prototypes
+ */
+farray_t *proto_extract(farray_t *fa, assign_t **as)
+{
+    assert(fa);
+    farray_t *p;
+    long maxnum;
+    double maxdist;
+
+    /* Get configuration */
+    config_lookup_float(&cfg, "prototypes.max_dist", (double *) &maxdist);
+    config_lookup_int(&cfg, "prototypes.max_num", (long *) &maxnum);
+
+    if (verbose > 0)
+        printf("Extracting prototypes with maximum distance %4.2f.\n",
+               maxdist);
+
+    /* Create assignments */
+    *as = assign_create(fa);
+
+    /* Extract prototypes */
+    p = proto_gonzalez(fa, *as, maxnum, maxdist);
+
+    if (verbose > 0)
+        printf("  Done. %ld prototypes using %.2fMb extracted.\n",
+               p->len, p->mem / 1e6);
+
+    return p;
+}
+
 
 /**
  * Assign a set of vector to prototypes

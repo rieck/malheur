@@ -41,12 +41,12 @@ typedef struct {
     double state_time;      /* State loading/saving run-time */
 
     /* Distance run-times */
-    double dist_proto_start;
-    double dist_proto_time;
-    double dist_clust_start;
-    double dist_clust_time;
-    double dist_class_start;
-    double dist_class_time;
+    double distproto_start;
+    double distproto_time;
+    double distclust_start;
+    double distclust_time;
+    double distclass_start;
+    double distclass_time;
 } runtime_t;
 
 /* Counts for each label */

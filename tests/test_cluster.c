@@ -20,6 +20,7 @@
 /* Global variables */
 config_t cfg;
 int verbose = 0;
+runtime_t runtime;
 
 /* Number of stress runs */
 #define STRESS_RUNS             20

@@ -20,7 +20,7 @@
 #include "proto.h"
 #include "util.h"
 #include "cluster.h"
-#include "classify.h"
+#include "class.h"
 #include "export.h"
 
 /* Global variables */
@@ -376,10 +376,9 @@ static void malheur_classify()
 
     /* Load prototypes */
     pr = farray_load_file(mcfg.proto_file);
-    as = proto_assign(fa, pr);
 
     /* Apply classification */
-    classify_apply(as, fa);
+    as = classify_apply(fa, pr);
 
     /* Save rejected feature vectors */
     re = classify_get_rejected(as, fa);
@@ -427,8 +426,7 @@ static void malheur_increment()
         rt_stop(state);
         
         rt_start(classify);
-        as = proto_assign(fa, pr);
-        classify_apply(as, fa);
+        as = classify_apply(fa, pr);
         tmp = classify_get_rejected(as, fa);
         rt_stop(classify);
         

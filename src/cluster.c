@@ -296,9 +296,9 @@ cluster_t *cluster_linkage(farray_t *fa, int r)
     }
 
     /* Compute distances */
-    rt_start(dist_clust);
+    rt_start(distclust);
     farray_dist_tria(fa, dist);
-    rt_stop(dist_clust);
+    rt_stop(distclust);
 
     if (verbose > 0)
         printf("Clustering (%s linkage) with minimum distance %4.2f.\n",

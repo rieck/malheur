@@ -20,6 +20,7 @@
 /* Global variables */
 config_t cfg;
 int verbose = 0;
+runtime_t runtime;
 
 /* Test structure */
 typedef struct {

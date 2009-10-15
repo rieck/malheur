@@ -15,20 +15,10 @@
 #define PROTO_H
 
 #include "farray.h"
-
-/**
- * Assignment structure. 
- */
-typedef struct {
-    unsigned int *label;        /* Predicted labels */
-    unsigned int *proto;        /* Nearest prototypes */
-    double *dist;               /* Distance to prototypes */
-    unsigned long len;          /* Length of assign arrays */
-} assign_t;
+#include "class.h"
 
 /* Function declarations */
 farray_t *proto_extract(farray_t *, assign_t **);
 assign_t *proto_assign(farray_t *, farray_t *);
-void assign_destroy(assign_t *);
 
 #endif                          /* PROTO_H */

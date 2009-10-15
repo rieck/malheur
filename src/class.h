@@ -15,10 +15,21 @@
 #define CLASSIFY_H
 
 #include "farray.h"
-#include "proto.h"
+
+/**
+ * Assignment structure. 
+ */
+typedef struct {
+    unsigned int *label;        /* Predicted labels */
+    unsigned int *proto;        /* Nearest prototypes */
+    double *dist;               /* Distance to prototypes */
+    unsigned long len;          /* Length of assign arrays */
+} assign_t;
 
 /* Functions */
-void classify_apply(assign_t *, farray_t *);
+assign_t *classify_apply(farray_t *, farray_t *);
 farray_t *classify_get_rejected(assign_t *, farray_t *f);
+assign_t *assign_create(farray_t *);
+void assign_destroy(assign_t *);
 
 #endif                          /* CLASSIFY_H */

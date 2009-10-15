@@ -96,38 +96,6 @@ static farray_t *proto_gonzalez(farray_t *fa, assign_t *as, long n, double m)
 }
 
 /**
- * Creates an empty structure of assignments
- * @param a Array of feature vectors
- * @return assignment structure
- */
-static assign_t *assign_create(farray_t *fa)
-{
-    assert(fa);
-
-    /* Allocate assignment structure */
-    assign_t *c = malloc(sizeof(assign_t));
-    if (!c) {
-        error("Could not allocate assignment structure");
-        return NULL;
-    }
-
-    /* Allocate structure fields */
-    c->label = calloc(fa->len, sizeof(unsigned int));
-    c->proto = calloc(fa->len, sizeof(unsigned int));
-    c->dist = calloc(fa->len, sizeof(double));
-    c->len = fa->len;
-
-    if (!c->label || !c->proto || !c->dist) {
-        error("Could not allocate assignment structure");
-        assign_destroy(c);
-        return NULL;
-    }
-
-    return c;
-}
-
-
-/**
  * Extracts a set of prototypes using the prototype algorithm.
  * Prototype algorithm is run multiple times and the smallest set
  * of prototypes is returned.
@@ -207,23 +175,5 @@ assign_t *proto_assign(farray_t *fa, farray_t *p)
 
     return c;
 }
-
-/**
- * Destroys an assignment
- * @param c Assignment structure
- */
-void assign_destroy(assign_t *c)
-{
-    if (!c)
-        return;
-    if (c->label)
-        free(c->label);
-    if (c->proto)
-        free(c->proto);
-    if (c->dist)
-        free(c->dist);
-    free(c);
-}
-
 
 /** @} */

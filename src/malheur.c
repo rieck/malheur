@@ -517,6 +517,10 @@ static void malheur_exit()
 
     /* Destroy configuration */
     config_destroy(&cfg);
+    
+    printf("%f %f %f %f %f %f %f %f\n", runtime.extract_time, runtime.proto_time, 
+       runtime.cluster_time, runtime.classify_time, runtime.state_time, 
+       runtime.distproto_time, runtime.distclust_time, runtime.distclass_time);
 }
 
 /**

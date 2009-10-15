@@ -28,6 +28,7 @@
 /* External variables */
 extern int verbose;
 extern config_t cfg;
+extern runtime_t runtime;
 
 /**
  * Extracts prototypes using an extended version of Gonzalez' algorithm.
@@ -76,7 +77,9 @@ static farray_t *proto_gonzalez(farray_t *fa, assign_t *as, long n, double m)
         /* Update distances and assignments */
 #pragma omp parallel for shared(fa, pv)
         for (k = 0; k < fa->len; k++) {
+            rt_start(dist_proto);
             double d = fvec_dist(pv, fa->x[k]);
+            rt_stop(dist_proto);
             if (d < as->dist[k]) {
                 as->dist[k] = d;
                 as->proto[k] = pr->len - 1;

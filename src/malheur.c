@@ -26,6 +26,7 @@
 /* Global variables */
 int verbose = 0;
 config_t cfg;
+runtime_t runtime;
 
 /* Global variables */
 static char *output_file = OUTPUT_FILE;
@@ -184,6 +185,9 @@ static void malheur_init(int argc, char **argv)
         unlink(mcfg.proto_file);
         unlink(mcfg.state_file);
     }
+    
+    /* Init runtimes to zero */
+    memset(&runtime, 0, sizeof(runtime_t));
 }
 
 
@@ -302,15 +306,21 @@ static void malheur_cluster()
     farray_t *fa, *pr, *pn, *re;
 
     /* Load data */
+    rt_start(extract);
     fa = malheur_load();
+    rt_stop(extract);
 
     /* Extract prototypes */
+    rt_start(proto);
     pr = proto_extract(fa, &as);
+    rt_stop(proto);
 
     /* Cluster prototypes and extrapolate */
+    rt_start(cluster);
     cluster_t *c = cluster_linkage(pr, 0);
     cluster_extrapolate(c, as);
     cluster_trim(c);
+    rt_stop(cluster);
 
     /* Save prototypes */
     pn = cluster_get_prototypes(c, as, pr);
@@ -338,11 +348,15 @@ static void malheur_cluster()
 static void malheur_excluster()
 {
     /* Load data */
+    rt_start(extract);
     farray_t *fa = malheur_load();
+    rt_stop(extract);
 
     /* Cluster prototypes and extrapolate */
+    rt_start(cluster);
     cluster_t *c = cluster_linkage(fa, 0);
     cluster_trim(c);
+    rt_stop(cluster);
 
     /* Clean up */
     cluster_destroy(c);
@@ -386,27 +400,37 @@ static void malheur_classify()
  */
 static void malheur_increment()
 {
-    farray_t *pr, *tmp, *pn, *re;
-    assign_t *as; 
+    farray_t *pr = NULL, *tmp, *pn, *re;
+    assign_t *as = NULL; 
 
     /* Load internal state */
+    rt_start(state);
     int run = malheur_load_state();
+    rt_stop(state);
 
     /* Load data including rejected stuff */
+    rt_start(extract);
     farray_t *fa = malheur_load();
+    rt_stop(extract);
+    
+    rt_start(state);
     if (!access(mcfg.reject_file, F_OK)) {
         tmp = farray_load_file(mcfg.reject_file);
         fa = farray_merge(fa, tmp);
     }
+    rt_stop(state);
 
     /* Classification */
     if (!access(mcfg.proto_file, R_OK)) {
+        rt_start(state);
         pr = farray_load_file(mcfg.proto_file);
+        rt_stop(state);
+        
+        rt_start(classify);
         as = proto_assign(fa, pr);
-
-        /* Apply classification */
         classify_apply(as, fa);
         tmp = classify_get_rejected(as, fa);
+        rt_stop(classify);
         
         /* Export results */
         export_increment1(pr, fa, as, output_file);
@@ -422,21 +446,25 @@ static void malheur_increment()
     }
 
     /* Extract prototypes */
+    rt_start(proto);
     pr = proto_extract(fa, &as);
+    rt_stop(proto);
     
     /* Cluster prototypes and extrapolate */
+    rt_start(cluster);
     cluster_t *c = cluster_linkage(pr, run + 1);
     cluster_extrapolate(c, as);
     cluster_trim(c);
+    rt_stop(cluster);
 
     /* Save prototypes and rejected feature vectors */
+    rt_start(state);
     pn = cluster_get_prototypes(c, as, pr);
     farray_append_file(pn, mcfg.proto_file);
     re = cluster_get_rejected(c, fa);
     farray_save_file(re, mcfg.reject_file);
-
-    /* Save state */
     malheur_save_state(run + 1, pn->len, re->len);
+    rt_stop(state);
 
     /* Export results */
     export_increment2(c, pr, fa, as, output_file);

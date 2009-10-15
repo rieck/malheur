@@ -29,6 +29,7 @@
 /* External variables */
 extern int verbose;
 extern config_t cfg;
+extern runtime_t runtime;
 
 /* Macro for convenient matrix access */
 #define D(x,y)  d[tria_pos(x,y,c->len)]
@@ -295,7 +296,9 @@ cluster_t *cluster_linkage(farray_t *fa, int r)
     }
 
     /* Compute distances */
+    rt_start(dist_clust);
     farray_dist_tria(fa, dist);
+    rt_stop(dist_clust);
 
     if (verbose > 0)
         printf("Clustering (%s linkage) with minimum distance %4.2f.\n",

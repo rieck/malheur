@@ -24,6 +24,31 @@
 #define PROGBAR_DONE    '#'
 #define PROGBAR_FRONT   '|'
 
+#define rt_start(X)     { runtime.X ## _start = time_stamp(); }
+#define rt_stop(X)      { runtime.X ## _time += time_stamp() - runtime.X ## _start; }
+
+/* Run-time structure */
+typedef struct {
+    double extract_start;   /* Start time of extract measurement */
+    double extract_time;    /* Feature extraction run-time */
+    double cluster_start;   /* Start time of clustering */
+    double cluster_time;    /* Clustering run-time */
+    double classify_start;  /* Start time of classification */
+    double classify_time;   /* Classification run-time */
+    double proto_start;     /* Start time of prototype extraction */
+    double proto_time;      /* Prototype extraction */
+    double state_start;     /* Start time of state loading/saving */ 
+    double state_time;      /* State loading/saving run-time */
+
+    /* Distance run-times */
+    double dist_proto_start;
+    double dist_proto_time;
+    double dist_clust_start;
+    double dist_clust_time;
+    double dist_class_start;
+    double dist_class_time;
+} runtime_t;
+
 /* Counts for each label */
 typedef struct {
     unsigned int label;         /* Predicted label */

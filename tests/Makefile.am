@@ -8,10 +8,10 @@
 INCLUDES                = @INCLUDES@ -I$(top_srcdir)/src 
 TESTS                   = test_ftable test_fvec test_farray test_fmath \
                           test_quality test_proto test_cluster \
-                          test_classify
+                          test_class
 noinst_PROGRAMS         = test_ftable test_fvec test_farray test_fmath \
                           test_quality test_proto test_cluster \
-                          test_classify
+                          test_class
 
 test_ftable_SOURCES     = test_ftable.c tests.c tests.h
 test_ftable_LDADD       = $(top_builddir)/src/libmalheur.a
@@ -34,8 +34,8 @@ test_proto_LDADD        = $(top_builddir)/src/libmalheur.a
 test_cluster_SOURCES    = test_cluster.c tests.c tests.h
 test_cluster_LDADD      = $(top_builddir)/src/libmalheur.a
 
-test_classify_SOURCES   = test_classify.c tests.c tests.h
-test_classify_LDADD     = $(top_builddir)/src/libmalheur.a
+test_class_SOURCES   = test_class.c tests.c tests.h
+test_class_LDADD     = $(top_builddir)/src/libmalheur.a
 
 beautify:               
 			gnuindent -i4 -kr -l77 -lc77 --no-tabs -cs \

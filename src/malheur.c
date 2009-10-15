@@ -20,7 +20,7 @@
 #include "proto.h"
 #include "util.h"
 #include "cluster.h"
-#include "classify.h"
+#include "class.h"
 #include "export.h"
 
 /* Global variables */

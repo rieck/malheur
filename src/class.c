@@ -21,7 +21,7 @@
 #include "config.h"
 #include "common.h"
 #include "util.h"
-#include "classify.h"
+#include "class.h"
 
 /* External variables */
 extern int verbose;

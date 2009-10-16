@@ -23,8 +23,8 @@ int verbose = 0;
 
 /* Test structure */
 typedef struct {
-    char *str;                  /* String */
-    char *label;                /* String */
+    char *str;                  /* Test report */
+    char *label;                /* Test label */
 } test_t;
 
 /* Number of stress runs */
@@ -33,19 +33,15 @@ typedef struct {
 #define STR_LENGTH              500
 /* Number of vector */
 #define NUM_VECTORS             500
-/* Number of elements in test data */
-#define DATA_LEN                15
-/* Number of correct prototypes */
-#define DATA_CLUSTER            5
 
-/* Data set for prototype extraction */
+/* Training set for classification */
 static test_t train_data[] = {
     {"A B B B X", "1"}, {"A A B B X", "1"}, {"B B A B X", "1"},
     {"X Y B B Z", "2"}, {"A B Z X Y", "2"}, {"A X Y B Z", "2"},
     {NULL, NULL}
 };
 
-/* Data set for prototype extraction */
+/* Test set for classification */
 static test_t test_data[] = {
     {"A A B B X", "1"}, {"Z A B B X", "1"}, {"A B B X A", "1"},
     {"A A B B X", "1"}, {"X Y B Z Z", "2"}, {"B Z X Y X", "2"},
@@ -54,7 +50,7 @@ static test_t test_data[] = {
 };
 
 /**
- * Test clustering
+ * Simple test cases classification
  */
 int test_classify()
 {
@@ -77,22 +73,27 @@ int test_classify()
         farray_add(fa2, f, test_data[i].label);
     }
 
-    /* Assign data to training instances */
-    assign_t *a = proto_assign(fa2, fa1);
+    /* Classification of test data */
+    config_set_float(&cfg, "classify.max_dist", 1.41);
+    assign_t *a = class_assign(fa2, fa1);
+    
+    /* Check predicted labels */
     for (k = 0; test_data[k].str; k++) {
         char *l = farray_get_label(fa1, a->proto[k]);
         err += strcmp(l, test_data[k].label) != 0;
     }
 
+    /* Clean up */
     assign_destroy(a);
-    farray_destroy(fa1), farray_destroy(fa2);
+    farray_destroy(fa1); 
+    farray_destroy(fa2);
 
     test_return(err, i);
     return err;
 }
 
 /* 
- * A simple stress test for clustering
+ * A simple stress test for classification
  */
 int test_stress()
 {
@@ -120,7 +121,7 @@ int test_stress()
             farray_add(fa, f, label);
         }
 
-        assign_t *a = proto_assign(fa, fa);
+        assign_t *a = class_assign(fa, fa);
         assign_destroy(a);
         farray_destroy(fa);
     }

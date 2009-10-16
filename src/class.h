@@ -17,18 +17,20 @@
 #include "farray.h"
 
 /**
- * Assignment structure. 
+ * Assignment structure. Assignments are used to either associate 
+ * feature vectors to prototypes or to assign labels to feature 
+ * vectors. 
  */
 typedef struct {
-    unsigned int *label;        /* Predicted labels */
-    unsigned int *proto;        /* Nearest prototypes */
-    double *dist;               /* Distance to prototypes */
-    unsigned long len;          /* Length of assign arrays */
+    unsigned int *label;        /**< Predicted labels */
+    unsigned int *proto;        /**< Nearest prototypes */
+    double *dist;               /**< Distance to prototypes */
+    unsigned long len;          /**< Length of assign arrays */
 } assign_t;
 
 /* Functions */
-assign_t *classify_apply(farray_t *, farray_t *);
-farray_t *classify_get_rejected(assign_t *, farray_t *f);
+assign_t *class_assign(farray_t *, farray_t *);
+farray_t *class_get_rejected(assign_t *, farray_t *f);
 assign_t *assign_create(farray_t *);
 void assign_destroy(assign_t *);
 

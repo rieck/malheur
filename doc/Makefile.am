@@ -5,6 +5,7 @@
 #
 
 sysconf_DATA = malheur.cfg
-EXTRA_DIST = malheur.cfg doxygen.cfg
+EXTRA_DIST = malheur.cfg doxygen.cfg modules
+
 
 	

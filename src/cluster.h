@@ -19,13 +19,15 @@
 #include "proto.h"
 
 /**
- * Clustering structure. 
+ * Clustering structure. The structure holds a clustering in form of 
+ * indices to clusters. Moreover, the number and the run of the clustering
+ * are saved for incremental analysis.
  */
 typedef struct {
-    unsigned int *cluster;      /* Assignments of clustering */
-    unsigned long len;          /* Length of assignments */
-    unsigned long num;          /* Number of clusters */
-    unsigned int run;           /* Runnumber of clustering */
+    unsigned int *cluster;      /**< Assignments of clustering */
+    unsigned long len;          /**< Length of assignments */
+    unsigned long num;          /**< Number of clusters */
+    unsigned int run;           /**< Run number of clustering */
 } cluster_t;
 
 /* Functions */

@@ -10,7 +10,13 @@
  * warranty. See the GNU General Public License for more details. 
  * --
  */
-
+/**
+ * @defgroup util Utility functions
+ * The module contains utility functions.
+ * @author Konrad Rieck (rieck@cs.tu-berlin.de)
+ * @{
+ */
+ 
 #include <archive.h>
 #include <archive_entry.h>
 
@@ -459,3 +465,6 @@ int array_min(double *a, int l)
 
     return k;
 }
+
+/** @} */
+

@@ -12,7 +12,7 @@
  */
 
 /** 
- * @defgroup ftable Feature lookup table
+ * @defgroup ftable Lookup table for features
  * Lookup table for extracted features. The extracted feature, such as
  * substrings and n-grams, a stored in sparse feature vectors with each
  * feature represented by hash value. This global hash table is used

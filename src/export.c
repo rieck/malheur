@@ -12,7 +12,7 @@
  */
 
 /**
- * @defgroup data Export functions
+ * @defgroup export Export functions
  * The module contains functions for exporting data computed by 
  * Malheur to external format such as plain text and HTML documents.
  * @author Konrad Rieck (rieck@cs.tu-berlin.de)
@@ -208,10 +208,12 @@ void export_class(farray_t *p, farray_t *fa, assign_t *as, char *file)
 }
 
 /**
- * Exports results from the incremental analysis (phase 1)
- * @param fa Feature vector array
+ * Exports results from the incremental analysis (phase 1). The results are
+ * obtained by first classifying and then clustering reports. In the first
+ * phase the classified reports are written to the output file.
  * @param p Prototype struture
- * @param a Assignments of prototypes
+ * @param fa Feature vector array
+ * @param as Assignments to prototypes
  * @param file File name
  */
 void export_increment1(farray_t *p, farray_t *fa, assign_t *as, char *file)
@@ -251,11 +253,13 @@ void export_increment1(farray_t *p, farray_t *fa, assign_t *as, char *file)
 }
 
 /**
- * Exports results from the incremental analysis (phase 2)
+ * Exports results from the incremental analysis (phase 2). The results are
+ * obtained by first classifying and then clustering reports. The function
+ * appends the output of clustering to an existing file from phase 1. 
  * @param c Clustering structure
- * @param fa Feature vector array
  * @param p Prototype struture
- * @param a Assignments of prototypes
+ * @param fa Feature vector array
+ * @param as Assignments to prototypes
  * @param file File name
  */
 void export_increment2(cluster_t *c, farray_t *p, farray_t *fa, assign_t *as, 

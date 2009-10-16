@@ -12,9 +12,10 @@
  */
 
 /**
- * @defgroup classify Classification functionality
- * The module contains functions for classifying feature vectors 
- * to known clusters
+ * @defgroup class Classification using prototypes
+ * The module contains functions for assigning and classifying feature 
+ * vectors to known clusters. Clusters and classes are both represented
+ * by appropriate prototype vectors.
  * @author Konrad Rieck (rieck@cs.tu-berlin.de)
  * @{
  */
@@ -30,8 +31,10 @@ extern config_t cfg;
 extern runtime_t runtime;
 
 /**
- * Creates an empty structure of assignments
- * @param a Array of feature vectors
+ * Creates an empty structure of assignments. The assignments can be 
+ * either computed for matching prototypes against feature vectors or 
+ * for classification of feature vectors.
+ * @param fa Array of feature vectors
  * @return assignment structure
  */
 assign_t *assign_create(farray_t *fa)
@@ -71,7 +74,7 @@ assign_t *assign_create(farray_t *fa)
 
 
 /**
- * Destroys an assignment
+ * Destroys an assignment structure.
  * @param c Assignment structure
  */
 void assign_destroy(assign_t *c)
@@ -89,13 +92,15 @@ void assign_destroy(assign_t *c)
 
 
 /**
- * Classify feature vectors using prototypes und update assignments. 
+ * Classify feature vectors using labeled prototypes. The function assigns
+ * the given feature vectors to the given prototypes and predicts labels. 
  * Feature vectors with a too large distance are rejected from the 
  * classification by setting their label to 0.
- * @param as Array of feature vectors
+ * @param fa Array of feature vectors
  * @param p Array of prototypes
+ * @return Assignment structure
  */
-assign_t *classify_apply(farray_t *fa, farray_t *p)
+assign_t *class_assign(farray_t *fa, farray_t *p)
 {
     assert(fa && p);
     int i, k, j, cnt = 0;
@@ -143,12 +148,12 @@ assign_t *classify_apply(farray_t *fa, farray_t *p)
 }
 
 /**
- * Return an array of rejected feature vectors
- * @param as Classification assignments
+ * Return an array of rejected feature vectors.
+ * @param as Assignment structure
  * @param fa Array of feature vectors
  * @return Rejected feature vectors
  */
-farray_t *classify_get_rejected(assign_t *as, farray_t *fa)
+farray_t *class_get_rejected(assign_t *as, farray_t *fa)
 {
     int i;
     farray_t *r = farray_create("rejected");

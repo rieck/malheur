@@ -12,9 +12,8 @@
  */
 
 /**
- * @defgroup proto Extraction of prototypes
- * The module contains functions for extracting prototypical 
- * feature vectors 
+ * @defgroup proto Prototype extraction
+ * The module contains functions for extracting prototype feature vectors.s
  * @author Konrad Rieck (rieck@cs.tu-berlin.de)
  * @{
  */

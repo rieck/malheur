@@ -10,6 +10,14 @@
  * warranty. See the GNU General Public License for more details. 
  * --
  */
+ 
+ /** 
+ * @defgroup mconfig Configuration functions
+ * Functions for configuration of the Malheur tool. Additionally default
+ * values for each configruation parameter are specified in this module. 
+ * @author Konrad Rieck (rieck@cs.tu-berlin.de)
+ * @{
+ */
 
 #include "common.h"
 #include "util.h"
@@ -88,7 +96,7 @@ static void config_setting_fprint(FILE *f, config_setting_t * cs, int d)
 }
 
 /**
- * Print the Malheur configuration is valid. 
+ * Print the Malheur configuration.
  * @param cfg configuration
  */
 void config_print(config_t *cfg)
@@ -98,9 +106,9 @@ void config_print(config_t *cfg)
 }
 
 /**
- * Print the Malheur configuration is valid. 
+ * Print the Malheur configuration to a file. 
+ * @param f pointer to file stream
  * @param cfg configuration
- * @param 
  */
 void config_fprint(FILE *f, config_t *cfg)
 {
@@ -171,3 +179,5 @@ void config_check(config_t *cfg)
         }
     }
 }
+
+/** @} */

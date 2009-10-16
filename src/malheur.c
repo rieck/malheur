@@ -395,10 +395,10 @@ static void malheur_classify()
     pr = farray_load_file(mcfg.proto_file);
 
     /* Apply classification */
-    as = classify_apply(fa, pr);
+    as = class_assign(fa, pr);
 
     /* Save rejected feature vectors */
-    re = classify_get_rejected(as, fa);
+    re = class_get_rejected(as, fa);
     farray_save_file(re, mcfg.reject_file);
     farray_destroy(re);
 
@@ -444,8 +444,8 @@ static void malheur_increment()
         rt_stop(state);
         
         rt_start(classify);
-        as = classify_apply(fa, pr);
-        tmp = classify_get_rejected(as, fa);
+        as = class_assign(fa, pr);
+        tmp = class_get_rejected(as, fa);
         rt_stop(classify);
         memory += pr->mem;
         memory += fa->len * (sizeof(int) + sizeof(int) + sizeof(double));  

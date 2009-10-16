@@ -33,7 +33,7 @@ runtime_t runtime;
 /* Number of correct prototypes */
 #define DATA_CLUSTER            5
 
-/* Data set for prototype extraction */
+/* Data set for clustering */
 static char *test_data[] = {
     "XX YY XX YY XX 11", "XX YY XX ZZ XX 66", "XX ZZ XX YY XX YY",
     "AA BB AA BB AA 22", "AA BB AA CC AA 77", "AA CC AA BB AA BB",
@@ -65,7 +65,7 @@ int test_cluster_complete()
     /* Check number of clusters */
     err += (c->num != DATA_CLUSTER);
 
-    /* Check position of prototypes */
+    /* Check match of clusters */
     for (k = 0; k < DATA_LEN; k += DATA_LEN / DATA_CLUSTER)
         for (j = 0; j < DATA_LEN / DATA_CLUSTER - 1; j++)
             err += c->cluster[k + j] != c->cluster[k + j + 1];

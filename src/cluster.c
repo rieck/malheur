@@ -12,9 +12,11 @@
  */
 
 /**
- * @defgroup cluster Clustering functionality
+ * @defgroup cluster Clustering using prototypes
  * The module contains functions for grouping feature vectors using
- * linkage clustering.
+ * linkage clustering. Besides an implementation of linkage clustering
+ * the module also contains functions for extrapolating results to 
+ * further feature vectors and for triming of small clusters.
  * @author Konrad Rieck (rieck@cs.tu-berlin.de)
  * @{
  */
@@ -183,9 +185,9 @@ static cluster_t *cluster_create(int n, int r)
 /**
  * Trim a clustering by rejecting small clusters. The provided clustering
  * structure is updated by assigning reports of rejected clusters to the
- * label 0.
- * @param r Rejection cluster size
- */
+ * cluster label 0.
+ * @param c Clustering structure
+ */ 
 void cluster_trim(cluster_t *c)
 {
     assert(c);

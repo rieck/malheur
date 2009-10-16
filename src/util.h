@@ -24,6 +24,7 @@
 #define PROGBAR_DONE    '#'
 #define PROGBAR_FRONT   '|'
 
+<<<<<<< HEAD
 #define rt_start(X)     { runtime.X ## _start = time_stamp(); }
 #define rt_stop(X)      { runtime.X ## _time += time_stamp() - runtime.X ## _start; }
 
@@ -49,11 +50,13 @@ typedef struct {
     double distclass_time;
 } runtime_t;
 
-/* Counts for each label */
+/**
+ * Counts for predicted labels 
+ */
 typedef struct {
-    unsigned int label;         /* Predicted label */
-    double count;               /* Occurences of label */
-    UT_hash_handle hh;          /* Hash table entry */
+    unsigned int label;         /**< Predicted label */
+    double count;               /**< Number of elemtns with label */
+    UT_hash_handle hh;          /**< Hash table entry */
 } count_t;
 
 /* Fatal message */
@@ -69,11 +72,15 @@ typedef struct {
 #define warning(...)   {err_msg("Warning", __func__, __VA_ARGS__);}
 #endif
 
-/* Structure for comparing data with indices */
+/** 
+ * Structure for indexed data. The structure enables comparing and sorting 
+ * data along with its indices, such that the order of indices can be later 
+ * retrieved.
+ */
 typedef struct {
-    void *ptr;                  /* Pointer to original data */
-    int idx;                    /* Index number */
-    int (*cmp) (const void *, const void *);
+    void *ptr;                  /**< Pointer to original data */
+    int idx;                    /**< Index number */
+    int (*cmp) (const void *, const void *);    /**< Comparison function */
 } index_t;
 
 /* Utility functions functions */

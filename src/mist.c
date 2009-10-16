@@ -12,7 +12,7 @@
  */
 
 /**
- * @defgroup mist Functions for MIST reports
+ * @defgroup mist Preprocessing of MIST
  * The module contains functions for processing of so-called MIST 
  * reports as developed at University of Mannheim.
  * @author Konrad Rieck (rieck@cs.tu-berlin.de)

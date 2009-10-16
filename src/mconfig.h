@@ -14,13 +14,17 @@
 #ifndef MCONFIG_H
 #define MCONFIG_H
 
-/* Default configuration struct */
+/** 
+ * Default configuration. This structure is used to define a default
+ * configuration. The type can be determined by first testing for a 
+ * string and then for a float argument.
+ */
 typedef struct {
-    char *group;
-    char *name;
-    long inum;
-    double fnum;
-    char *str;
+    char *group;        /**< Configuration group */
+    char *name;         /**< Configuration name */
+    long inum;          /**< Integer value of configuration (or 0) */
+    double fnum;        /**< Float value of configuraiton (or NAN) */
+    char *str;          /**< String of configuration (or NULL) */
 } config_default_t;
 
 /* Functions */

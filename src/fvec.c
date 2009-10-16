@@ -12,7 +12,7 @@
  */
 
 /** 
- * @defgroup fvec Feature vector
+ * @defgroup fvec Sparse feature vector
  * Generic implementation of a feature vector. A feature vector contains 
  * a sparse representation of non-zero dimensions in the feature space. 
  * This allows for operating with vectors of high and even infinite 

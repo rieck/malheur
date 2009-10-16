@@ -19,8 +19,7 @@
 #include "uthash.h"
 
 /** 
- * Entry of feature table
- * @private
+ * Entry of lookup table. 
  */
 typedef struct {
     feat_t key;            /**< Feature key */

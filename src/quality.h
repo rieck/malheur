@@ -24,12 +24,16 @@
 #define Q_RAND          3       /* Rand index */
 #define Q_ARAND         4       /* Adjusted rand */
 
-/* Histogram bin for each true label */
+/** 
+ * Histogram bin for labels. The histogram is used to compute
+ * performance measure such as precision and recall over a set
+ * of predicited labels. 
+ */
 typedef struct {
-    unsigned int label;         /* Label */
-    double total;               /* Number of elements */
-    count_t *count;             /* Counts  */
-    UT_hash_handle hh;          /* Hash table entry */
+    unsigned int label;         /**< True label */
+    double total;               /**< Number of elements with labels */
+    count_t *count;             /**< Predicted labels */
+    UT_hash_handle hh;          /**< Hash table entry */
 } hist_t;
 
 /* Evaluation functions */

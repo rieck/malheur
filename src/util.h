@@ -24,7 +24,6 @@
 #define PROGBAR_DONE    '#'
 #define PROGBAR_FRONT   '|'
 
-<<<<<<< HEAD
 #define rt_start(X)     { runtime.X ## _start = time_stamp(); }
 #define rt_stop(X)      { runtime.X ## _time += time_stamp() - runtime.X ## _start; }
 

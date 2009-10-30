@@ -1,0 +1,226 @@
+=pod
+
+=head1 NAME
+
+B<malheur> - Automatic analysis of malware behavior
+
+=head1 SYNOPSIS
+
+B<malheur> [B<-htvV>] [B<-m> F<maldir>] [B<-o> F<outfile>] I<action> F<dataset>
+
+=head1 DESCRIPTION
+
+B<malheur> is a tool for analysis of malware behavior recorded in a
+sandbox environment. In particular, B<malheur> provides functionality
+for automatic analysis, classification and clustering of textual
+reports containing recorded behavior.
+
+The input of B<malheur> is a F<dataset> containing reports of malware
+behavior. The F<dataset> is provided either as a directory or a
+compressed archive containing the reports. B<malheur> supports the
+following formats for compressed archives: zip, tar.gz, pax and cpio.
+
+A F<report> is a textual document describing the recorded activity of
+a malware program, where individual events are separated by delimiter
+characters, such as white space or carriage return.  The events in a
+report are expected to be in sequential order if n-grams with S<n
+E<gt> 1> are extracted. If the behavior is represented using the
+I<malware instruction set> (MIST) further options may be selected.
+
+The result of an analysis is written to F<outfile>, a textual file
+containing columns corresponding to particular analysis results.  By
+default F<outfile> is set to C<malheur.out>. 
+
+The configuration and internal state of B<malheur> are stored in the
+directory F<maldir>. If this directory does not exist, it is created
+and the system-wide configuration is copied. A detailed description of
+the malheur configuration is provided in Section L<"CONFIGURATION">.
+By default F<maldir> is set to C<$HOME/.malheur>.
+
+=head2 ACTIONS
+
+B<malheur> supported different I<actions> for analysis of a
+F<dataset>.  For all actions the reports are first mapped to a
+high-dimensional vector space, such that each report is represented as
+a feature vector. Recorded events or n-grams of events are reflected
+in different dimensions and the dissimilarity of behavior can be
+assessed geometrically by computing distances and angles.
+
+=over 12
+
+=item I<distance>
+
+If this action is specified, B<malheur> computes a distance matrix for
+F<dataset>. The entry (i,j) of this matrix reflects the distance
+(dissimilarity) of the reports i and j. The distance values lie in the
+range 0 to sqrt(2). The distance matrix is written to F<outfile>.
+
+=item I<prototype>
+
+If this action is specified, B<malheur> determines a set of
+I<prototypes> representing F<dataset>. The prototypes are selected
+from the contained reports, such that the distance from any report to
+its nearest prototype is minimized. The prototype assignment of
+F<dataset> is written to F<outfile>.
+
+=item I<cluster>
+
+If this action is specified, B<malheur> performs a I<clustering> of
+F<dataset>. The clustering is first determined on prototypes and then
+propagated to all reports. Small clusters with too few members are
+merged in a I<rejected> cluster. The prototypes representing accepted
+clusters are stored as internal state of B<malheur> for later
+classification and incremental analysis. The clustering of F<dataset>
+is written to F<outfile>.
+
+=item I<classify> 
+
+If this action is specified, B<malheur> performs a I<classification>
+of F<dataset>. Each report is either assigned to the nearest prototype
+of a known cluster or rejected as unknown. This action requires that a
+clustering has been performed beforehand and an internal state of
+B<malheur> exists. The classification of F<dataset> is written to
+F<outfile>.
+
+=item I<increment>
+
+If this action is specified, B<malheur> performs an I<incremental
+analysis> of the reports. The reports are first classified to known
+clusters as in the action I<classify>. Reports rejected from the
+classification and then clusered as in the action I<cluster>. The
+prototypes of the accepted clusters and the rejected reports are
+written to the internal state of B<malheur> for next incremental
+analysis. The classification and clustering of F<dataset> are written
+to F<outfile>.
+
+=back
+
+=head2 CONFIGRUATION
+
+The configuration file C<malheur.cfg> in F<maldir> determines how the
+malware behavior in a data set is analysis. The configuration contains
+five groups of settings which are described in the following.
+
+=over 4
+
+=item I<input = {>
+
+=over 4
+
+=item I<format = "mist">;
+
+This parameter specifies the input format. Supported values are
+I<"text"> for textual and XML reports, and I<"mist"> for reports using
+the malware instruction set (MIST).
+
+=item I<mist_level = 2>;
+
+This parameter specifies the MIST level. If the input format is set to
+I<"mist">, this parameter controls the analysis level of MIST
+instructions.
+
+=item I<mist_rlen = 0>;
+
+This parameter specifies the report truncation length. If the input
+format is set to I<"mist">, this parameter controls the truncation of
+MIST reports. If set to I<0> the parameter is ignored.
+
+=item I<mist_tlen = 0>;
+
+This parameter specifies the thread truncation length. If the input
+format is set to I<"mist">, this parameter controls the truncation of
+MIST threads. If set to I<0> the parameter is ignored.
+
+=back
+
+=item I<};>
+
+=item I<features = {>
+
+=over 4
+
+=item I<ngram_delim = "%20%0a%0d";>
+
+This parameter defines characters for delimiting events in report
+files. The characters can be either specified as regular bytes or as
+hexdecimal numbers prefixed by "%". If no characters are specified,
+the reports are analysed at byte-level, as if each byte would reflect
+one event.
+
+=item I<ngram_len = 2;>
+
+This parameter specified the length of n-grams. If the events in the
+reports are not sequential, this parameter need to be set to I<1>. In
+all other cases, it determines the length of event sequences to be
+mapped to the vector space, so called n-grams.
+
+=item I<vect_embed = "bin";>
+
+This parameter specifies how the feature are embedded in the vector
+space. Support values are I<"bin"> for associating each dimension with
+a binary value or I<"cnt"> for associating each dimension with a count
+value for the occurences of features.
+
+=item I<lookup_table = 0;>
+
+This parameter is used to enable an optional feature lookup table.
+The table can be used during debugging and verbose output for tracing
+dimensions in feature vectors back to events. For performance reasons
+it should be disabled by default.
+
+=back
+
+=item I<};>
+
+=item I<prototypes = { ...>
+
+=over 4
+
+=item I<max_dist = 0.65;>
+
+=item I<max_num = 0;>
+
+=back
+
+=item I<};>
+
+=item I<cluster = { ...>
+
+=over 4
+
+=item I<link_mode = "complete";>
+
+=item I<min_dist = 0.95;>
+
+=item I<reject_num = 10;>
+
+=back
+
+=item I<};>
+
+=item I<classify = {>
+
+=over 12
+
+=item I<max_dist= 0.68;>
+
+=back
+
+=item I<};>
+
+=back
+
+=head1 EXAMPLES
+
+=head1 COPYRIGHT and LICENCE
+
+Copyright (c) 2009 Konrad Rieck,
+Berlin Institute of Technology.
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 3 of the License, or (at
+your option) any later version.  This program is distributed without
+any warranty. See the GNU General Public License for more details.
+
+=cut

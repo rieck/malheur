@@ -6,12 +6,12 @@
 
 sysconf_DATA = malheur.cfg
 man1_MANS = malheur.man 
-EXTRA_DIST = malheur.cfg malheur.man.in doxygen.cfg modules
+EXTRA_DIST = malheur.cfg malheur.pod doxygen.cfg modules
 
-malheur.man: malheur.man.in
-	sed -e 's|__VERSION__|$(VERSION)|' \
-        	$(top_srcdir)/doc/malheur.man.in > malheur.man
-
+%.man: %.pod
+	pod2man --center "User Manual" --section=1 \
+	        --release="malheur $(VERSION)" $< > $@
+        
 clean-local:
 	rm -f malheur.man
         

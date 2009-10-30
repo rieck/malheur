@@ -33,7 +33,7 @@ static char malheur_dir[MAX_PATH_LEN];
 static char **input_files = NULL;
 static int input_len = 0;
 static int reset = FALSE;
-static malheur_task_t task = PROTOTYPE;
+static malheur_action_t action = PROTOTYPE;
 static malheur_cfg_t mcfg;
 
 /**
@@ -43,20 +43,20 @@ static malheur_cfg_t mcfg;
  */
 static void print_usage(int argc, char **argv)
 {
-    printf("Usage: malheur [options] <task> <input> ...\n"
-           "Tasks:\n"
-           "  distance     Compute a distance matrix from malware reports\n"
-           "  prototype    Extract prototypes from malware reports\n"
-           "  cluster      Cluster malware reports into similar groups\n"
-           "  classify     Classify malware reports using labeled prototypes\n"
-           "  increment    Incremental analysis of malware reports\n"
+    printf("Usage: malheur [options] <action> <dataset>\n"
+           "actions:\n"
+           "  distance       Compute a distance matrix from malware reports\n"
+           "  prototype      Extract prototypes from malware reports\n"
+           "  cluster        Cluster malware reports into similar groups\n"
+           "  classify       Classify malware reports using labeled prototypes\n"
+           "  increment      Incremental analysis of malware reports\n"
            "Options:\n"
-           "  -m <file>    Set malheur directory. [%s]\n"
-           "  -o <file>    Set output file for analysis. [%s]\n"
-           "  -t           Reset internal state of Malheur.\n"
-           "  -v           Increase verbosity.\n"
-           "  -V           Print version and copyright.\n"
-           "  -h           Print this help screen.\n",
+           "  -m <maldir>    Set malheur directory. [%s]\n"
+           "  -o <outfile>   Set output file for analysis. [%s]\n"
+           "  -t             Reset internal state of Malheur.\n"
+           "  -v             Increase verbosity.\n"
+           "  -V             Print version and copyright.\n"
+           "  -h             Print this help screen.\n",
            malheur_dir, output_file);
 }
 
@@ -99,21 +99,21 @@ static void parse_options(int argc, char **argv)
     argv += optind;
 
     if (argc < 2)
-        fatal("<task> and <input> arguments are required");
+        fatal("<action> and <dataset> arguments are required");
 
-    /* Argument: Task */
+    /* Argument: action */
     if (!strcasecmp(argv[0], "prototype")) {
-        task = PROTOTYPE;
+        action = PROTOTYPE;
     } else if (!strcasecmp(argv[0], "distance")) {
-        task = DISTANCE;
+        action = DISTANCE;
     } else if (!strcasecmp(argv[0], "cluster")) {
-        task = CLUSTER;
+        action = CLUSTER;
     } else if (!strcasecmp(argv[0], "classify")) {
-        task = CLASSIFY;
+        action = CLASSIFY;
     } else if (!strcasecmp(argv[0], "increment")) {
-        task = INCREMENT;
+        action = INCREMENT;
     } else {
-        fatal("Unknown analysis task '%s'", argv[0]);
+        fatal("Unknown analysis action '%s'", argv[0]);
     }
 
     /* Assign input files */
@@ -121,7 +121,7 @@ static void parse_options(int argc, char **argv)
     input_len = argc - 1;
 
     /* Check for output fle */
-    if (task == CLASSIFY && access(mcfg.proto_file, R_OK))
+    if (action == CLASSIFY && access(mcfg.proto_file, R_OK))
         fatal("No prototype file for classifcation available");
 }
 
@@ -485,8 +485,8 @@ int main(int argc, char **argv)
 {
     malheur_init(argc, argv);
 
-    /* Perform task */
-    switch (task) {
+    /* Perform action */
+    switch (action) {
     case DISTANCE:
         malheur_distance();
         break;

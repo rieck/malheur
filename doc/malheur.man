@@ -1,0 +1,13 @@
+.TH malheur 1  "version @VERSION@" "" "User Manuals"
+.SH NAME
+malheur \- automatic analysis of malware behavior
+.SH SYNOPSIS
+.B malheur [-tvVh] [-m 
+.I cfgdir
+.B ] [-o 
+.I outfile
+.B ] 
+.I action 
+.I input 
+.B ...
+.SH DESCRIPTION

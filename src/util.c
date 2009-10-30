@@ -1,5 +1,5 @@
 /*
- * MALHEUR - Automatic Malware Analysis on Steroids
+ * MALHEUR - Automatic Analysis of Malware Behavior
  * Copyright (c) 2009 Konrad Rieck (rieck@cs.tu-berlin.de)
  * Berlin Institute of Technology (TU Berlin).
  * --
@@ -394,7 +394,7 @@ char *file_suffix(char *file)
 void malheur_version(FILE *f)
 {
     fprintf(f,
-            "# MALHEUR (%d.%d.%d) - Automatic Malware Analysis on Steroids\n"
+            "# MALHEUR (%d.%d.%d) - Automatic Analysis of Malware Behavior\n"
             "# Copyright (c) 2009 Konrad Rieck (rieck@cs.tu-berlin.de)\n"
             "# Berlin Institute of Technology (TU Berlin).\n", MALHEUR_MAJOR,
             MALHEUR_MINOR, MALHEUR_PATCH);

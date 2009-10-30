@@ -14,9 +14,19 @@
 #ifndef MALHEUR_H
 #define MALHEUR_H
 
+/* Operation actions of Malheur  */
+typedef enum {
+    DISTANCE, PROTOTYPE, CLUSTER, CLASSIFY, INCREMENT
+} malheur_action_t;
+
 /* Malheur directory */
 #define MALHEUR_DIR         ".malheur"
+
+/* Output file */
 #define OUTPUT_FILE         "malheur.out"
+
+/* Global malheur files */
+#define GLOBAL_CONFIG_FILE  "__SYSCONFDIR__/malheur.cfg"
 
 /* Local malheur files */
 #define REJECT_FILE         "rejected.zfa"
@@ -24,18 +34,10 @@
 #define STATE_FILE          "malheur.state"
 #define CONFIG_FILE         "malheur.cfg"
 
-/* Global malheur files */
-#define GLOBAL_CONFIG_FILE  "__SYSCONFDIR__/malheur.cfg"
-
 /* Maximum length of path names. */
 #define MAX_PATH_LEN    512
 
-/* Operation tasks of Malheur  */
-typedef enum {
-    DISTANCE, PROTOTYPE, CLUSTER, CLASSIFY, INCREMENT
-} malheur_task_t;
-
-/* Structure for generic configuration */
+/* Structure for files in malheur directory */
 typedef struct {
     char reject_file[MAX_PATH_LEN];      /* File for rejected reports */
     char proto_file[MAX_PATH_LEN];       /* File for prototypes */ 

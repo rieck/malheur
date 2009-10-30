@@ -17,3 +17,22 @@ is a tool for analysis of program behavior recorded in a sandbox
 environment. It provides functionality for automatically assigning
 recorded behavior to known malware (classification) and determining
 groups of similar behavior for unknown malware (clustering).
+
+.SS ACTIONS 
+.B malheur 
+supports the following actions for analysis of program behavior
+.IP distance
+The provided set of behavior reports is loaded and features are extracted.
+Based on the feature a distance matrix is computed, where the matrix entry
+and row i and column j reflects the dissimilarity of the malware report i
+and j.
+.IP prototype
+Blabla
+
+.IP cluster
+
+.IP classify
+
+
+
+.SH EXAMPLES

@@ -172,8 +172,9 @@ static void malheur_init(int argc, char **argv)
 
     /* Init feature lookup table */
     config_lookup_int(&cfg, "features.lookup_table", &lookup);
-    if (lookup)
+    if (lookup) {
         ftable_init();
+    }
     
     /* Reset current state */
     if (reset) {
@@ -464,8 +465,11 @@ static void malheur_exit()
 
     /* Destroy feature lookup table */
     config_lookup_int(&cfg, "features.lookup_table", &lookup);
-    if (lookup)
+    if (lookup) {
+        if (verbose > 0)
+            ftable_print();
         ftable_destroy();
+    }
 
     /* Destroy configuration */
     config_destroy(&cfg);

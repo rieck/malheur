@@ -11,3 +11,9 @@ malheur \- automatic analysis of malware behavior
 .I input 
 .B ...
 .SH DESCRIPTION
+
+.B malheur
+is a tool for analysis of program behavior recorded in a sandbox 
+environment. It provides functionality for automatically assigning
+recorded behavior to known malware (classification) and determining
+groups of similar behavior for unknown malware (clustering).

@@ -53,7 +53,7 @@ static void print_usage(int argc, char **argv)
            "Options:\n"
            "  -m <maldir>    Set malheur directory. [%s]\n"
            "  -o <outfile>   Set output file for analysis. [%s]\n"
-           "  -t             Reset internal state of Malheur.\n"
+           "  -r             Reset internal state of Malheur.\n"
            "  -v             Increase verbosity.\n"
            "  -V             Print version and copyright.\n"
            "  -h             Print this help screen.\n",
@@ -68,9 +68,9 @@ static void print_usage(int argc, char **argv)
 static void parse_options(int argc, char **argv)
 {
     int ch;
-    while ((ch = getopt(argc, argv, "ts:o:m:hvV")) != -1) {
+    while ((ch = getopt(argc, argv, "rs:o:m:hvV")) != -1) {
         switch (ch) {
-        case 't':
+        case 'r':
             reset = TRUE;
             break;
         case 'v':

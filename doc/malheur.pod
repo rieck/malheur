@@ -6,26 +6,25 @@ B<malheur> - Automatic analysis of malware behavior
 
 =head1 SYNOPSIS
 
-B<malheur> [B<-htvV>] [B<-m> F<maldir>] [B<-o> F<outfile>] I<action> F<dataset>
+B<malheur> [B<-hrvV>] [B<-m> F<maldir>] [B<-o> F<outfile>] I<action> F<dataset>
 
 =head1 DESCRIPTION
 
 B<malheur> is a tool for analysis of malware behavior recorded in a
 sandbox environment. In particular, B<malheur> provides functionality
 for automatic analysis, classification and clustering of textual
-reports containing recorded behavior.
+reports containing recorded behavior. 
 
 The input of B<malheur> is a F<dataset> containing reports of malware
 behavior. The F<dataset> is provided either as a directory or a
 compressed archive containing the reports. B<malheur> supports the
 following formats for compressed archives: zip, tar.gz, pax and cpio.
-
 A F<report> is a textual document describing the recorded activity of
 a malware program, where individual events are separated by delimiter
 characters, such as white space or carriage return.  The events in a
 report are expected to be in sequential order if n-grams with S<n
 E<gt> 1> are extracted. If the behavior is represented using the
-I<malware instruction set> (MIST) further options may be selected.
+malware instruction set (MIST) further options may be selected.
 
 The result of an analysis is written to F<outfile>, a textual file
 containing columns corresponding to particular analysis results.  By
@@ -37,7 +36,7 @@ and the system-wide configuration is copied. A detailed description of
 the malheur configuration is provided in Section L<"CONFIGURATION">.
 By default F<maldir> is set to C<$HOME/.malheur>.
 
-=head2 ACTIONS
+=head1 ACTIONS & OPTIONS
 
 B<malheur> supported different I<actions> for analysis of a
 F<dataset>.  For all actions the reports are first mapped to a
@@ -48,14 +47,14 @@ assessed geometrically by computing distances and angles.
 
 =over 12
 
-=item I<distance>
+=item B<distance>
 
 If this action is specified, B<malheur> computes a distance matrix for
 F<dataset>. The entry (i,j) of this matrix reflects the distance
 (dissimilarity) of the reports i and j. The distance values lie in the
 range 0 to sqrt(2). The distance matrix is written to F<outfile>.
 
-=item I<prototype>
+=item B<prototype>
 
 If this action is specified, B<malheur> determines a set of
 I<prototypes> representing F<dataset>. The prototypes are selected
@@ -63,17 +62,17 @@ from the contained reports, such that the distance from any report to
 its nearest prototype is minimized. The prototype assignment of
 F<dataset> is written to F<outfile>.
 
-=item I<cluster>
+=item B<cluster>
 
 If this action is specified, B<malheur> performs a I<clustering> of
 F<dataset>. The clustering is first determined on prototypes and then
 propagated to all reports. Small clusters with too few members are
-merged in a I<rejected> cluster. The prototypes representing accepted
+merged in a I<rejection cluster>. The prototypes representing accepted
 clusters are stored as internal state of B<malheur> for later
 classification and incremental analysis. The clustering of F<dataset>
 is written to F<outfile>.
 
-=item I<classify> 
+=item B<classify> 
 
 If this action is specified, B<malheur> performs a I<classification>
 of F<dataset>. Each report is either assigned to the nearest prototype
@@ -82,20 +81,59 @@ clustering has been performed beforehand and an internal state of
 B<malheur> exists. The classification of F<dataset> is written to
 F<outfile>.
 
-=item I<increment>
+=item B<increment>
 
 If this action is specified, B<malheur> performs an I<incremental
 analysis> of the reports. The reports are first classified to known
-clusters as in the action I<classify>. Reports rejected from the
-classification and then clusered as in the action I<cluster>. The
+clusters as in the action I<classify>. Reports rejected from
+classification are then clustered as in the action I<cluster>. The
 prototypes of the accepted clusters and the rejected reports are
-written to the internal state of B<malheur> for next incremental
+written to the internal state of B<malheur> for further incremental
 analysis. The classification and clustering of F<dataset> are written
 to F<outfile>.
 
 =back
 
-=head2 CONFIGRUATION
+B<malheur> also supports the following command-line I<options> which
+are used to further control the analysis process
+
+=over 12
+
+=item B<-m> F<maldir>
+
+This option specifies the malheur directory F<maldir> which holds the
+configuration and internal state of B<malheur>. If the directory does
+not exist, it is created and the system-wide configuration is copied.
+
+=item B<-o> F<outfile>
+
+This option specifies the output file F<outfile> for analysis. The
+file is created during analysis and the results are stored in textual
+form.
+
+=item B<-t>
+
+This option resets the internal state of B<malheur>. Prototypes of
+clusters and rejected reports from previous runs of B<malheur> are
+removed.
+
+=item B<-v>
+
+This option is used to increase the verbosity of B<malheur> during
+analysis, where the verbosity level corresponds to the number 
+of "-v" options.
+
+=item B<-h>
+
+This option prints a brief help screen.
+
+=item B<-V>
+
+This option prints a version and copyright string.
+
+=back
+
+=head1 CONFIGURATION
 
 The configuration file C<malheur.cfg> in F<maldir> determines how the
 malware behavior in a data set is analysis. The configuration contains
@@ -103,65 +141,67 @@ five groups of settings which are described in the following.
 
 =over 4
 
-=item I<input = {>
+=item B<input = {>
 
 =over 4
 
-=item I<format = "mist">;
+=item B<format = "mist";>
 
-This parameter specifies the input format. Supported values are
-I<"text"> for textual and XML reports, and I<"mist"> for reports using
-the malware instruction set (MIST).
+This parameter specifies the input format. Supported values are "text"
+for textual and XML reports, and "mist" for reports using the malware
+instruction set (MIST).
 
-=item I<mist_level = 2>;
+=item B<mist_level = 2;>
 
 This parameter specifies the MIST level. If the input format is set to
-I<"mist">, this parameter controls the analysis level of MIST
-instructions.
+"mist", this parameter controls the analysis level of MIST
+instructions, otherwise it is ignored.
 
-=item I<mist_rlen = 0>;
+=item B<mist_rlen = 0;>
 
 This parameter specifies the report truncation length. If the input
-format is set to I<"mist">, this parameter controls the truncation of
-MIST reports. If set to I<0> the parameter is ignored.
+format is set to "mist", this parameter controls the truncation of
+MIST reports, otherwise it is ignored. If set to 0 the parameter is
+ignored in all cases.
 
-=item I<mist_tlen = 0>;
+=item B<mist_tlen = 0;>
 
 This parameter specifies the thread truncation length. If the input
-format is set to I<"mist">, this parameter controls the truncation of
-MIST threads. If set to I<0> the parameter is ignored.
+format is set to "mist", this parameter controls the truncation of
+MIST threads, otherwise it is ignored. If set to 0 the parameter is
+ignored in all cases.
 
 =back
 
-=item I<};>
+=item B<};>
 
-=item I<features = {>
+=item B<features = {>
 
 =over 4
 
-=item I<ngram_delim = "%20%0a%0d";>
+=item B<ngram_delim = "%20%0a%0d";>
 
 This parameter defines characters for delimiting events in report
 files. The characters can be either specified as regular bytes or as
-hexdecimal numbers prefixed by "%". If no characters are specified,
+hexadecimal numbers prefixed by "%". If no characters are specified,
 the reports are analysed at byte-level, as if each byte would reflect
 one event.
 
-=item I<ngram_len = 2;>
+=item B<ngram_len = 2;>
 
 This parameter specified the length of n-grams. If the events in the
-reports are not sequential, this parameter need to be set to I<1>. In
-all other cases, it determines the length of event sequences to be
-mapped to the vector space, so called n-grams.
+reports are not sequential, this parameter need to be set to 1. In all
+other cases, it determines the length of event sequences to be mapped
+to the vector space, so called n-grams.
 
-=item I<vect_embed = "bin";>
+=item B<vect_embed = "bin";>
 
 This parameter specifies how the feature are embedded in the vector
-space. Support values are I<"bin"> for associating each dimension with
-a binary value or I<"cnt"> for associating each dimension with a count
-value for the occurences of features.
+space. Support values are "bin" for associating each dimension with a
+binary value or "cnt" for associating each dimension with a count
+value for the occurrences of features.
 
-=item I<lookup_table = 0;>
+=item B<lookup_table = 0;>
 
 This parameter is used to enable an optional feature lookup table.
 The table can be used during debugging and verbose output for tracing
@@ -170,49 +210,118 @@ it should be disabled by default.
 
 =back
 
-=item I<};>
+=item B<};>
 
-=item I<prototypes = { ...>
-
-=over 4
-
-=item I<max_dist = 0.65;>
-
-=item I<max_num = 0;>
-
-=back
-
-=item I<};>
-
-=item I<cluster = { ...>
+=item B<prototypes = {>
 
 =over 4
 
-=item I<link_mode = "complete";>
+=item B<max_dist = 0.65;>
 
-=item I<min_dist = 0.95;>
+This parameter specifies the maximum distance to a prototype. During
+analysis prototypes are selected in a way such that the distance from
+each report to its nearest prototype is below this value. The
+parameter lies in the range 0 to sqrt(2). If set to 0 all reports are
+considered as prototypes.
 
-=item I<reject_num = 10;>
+=item B<max_num = 0;>
+
+This parameter defines the maximum number of prototypes. During
+analysis prototypes are selected until this value is reached.  If too
+many prototypes are determined, this parameter can be used to reduce
+computational costs at the price of a coarser approximation.  If set
+to 0 this parameter is ignored.
 
 =back
 
-=item I<};>
+=item };
 
-=item I<classify = {>
+=item B<cluster = {>
 
-=over 12
+=over 4
 
-=item I<max_dist= 0.68;>
+=item B<link_mode = "complete";>
+
+This parameter specifies the clustering mode. Supported values are
+"complete" for complete-linkage clustering, "average" for
+average-linkage clustering and "single" for single-linkage clustering.
+
+=item B<min_dist = 0.95;>
+
+This parameter defines the minimum distance between clusters.  The
+clustering operates in a bottom-up manner. That is, clusters are
+successfully merged until the minimum distance between the closest
+pair of clusters is above this value. The parameters lies in the range
+0 to sqrt(2).
+
+
+=item B<reject_num = 10;>
+
+This parameter specifies the minimum number of members in a clusters.
+Small clusters containing less members than this value are rejected.
+The corresponds reports are assigned to a global rejection cluster.
+If set 0 no all clusters are accepted.
 
 =back
 
-=item I<};>
+=item B<};>
+
+=item B<classify = {>
+
+=over 4
+
+=item B<max_dist = 0.68;>
+
+This parameter defines the maximum distance to prototypes during
+classification. Reports that are closer to the nearest prototype than
+this value are assigned to the cluster represented by prototype,
+whereas reports that are farther away than this value are rejected
+from classification. The parameter lies in the range 0 to sqrt(2). If
+set 0 all reports are classified, irrespective of the distance to a
+prototype.
+
+=back
+
+=item B<};>
 
 =back
 
 =head1 EXAMPLES
 
-=head1 COPYRIGHT and LICENCE
+B<Distance computation.> The following example shows how a distance
+matrix is computed for the archive "dataset.zip".  The resulting
+matrix is written to the file "out.txt"
+
+    malheur -o out.txt -v distance dataset.zip
+
+B<Clustering and classification.> This example demonstrates how first
+the reports in the archive "dataset1.zip" are clustered into groups
+and then how the reports in "dataset2.zip" are classified to the
+determines clusters. The clustering results are written to the file
+"out1.txt", the classification results to "out2.txt"
+
+    malheur -o out1.txt -v cluster dataset1.zip 
+    malheur -o out2.txt -v classify dataset2.zip
+
+B<Incremental analysis.> In the last example B<malheur> is applied for
+incremental analysis. First, the archive "dataset1.zip" is analysed
+where the internal state is reset using the option "-r". The the files
+"dataset2.zip" and "dataset3.zip" are analysed and the incremental
+state is updated accordingly. The incremental results are written to
+the files "out1.txt", "out2.txt" and "out3.txt".
+
+    malheur -o out1.txt -v -r increment dataset1.zip
+    malheur -o out2.txt -v increment dataset2.zip
+    malheur -o out3.txt -v increment dataset2.zip
+
+=head1 BUGS
+
+The reports for analysis need to be textual documents. Although
+non-printable characters may be contained in the report files, no
+occurrences of the NUL character (0x00) are allowed. The behavior of
+B<malheur> is undefined in this case.
+
+=head1 COPYRIGHT & LICENCE
 
 Copyright (c) 2009 Konrad Rieck,
 Berlin Institute of Technology.

@@ -366,7 +366,7 @@ static void malheur_classify()
  */
 static void malheur_increment()
 {
-    farray_t *pr, *tmp, *pn, *re;
+    farray_t *pr = NULL, *tmp, *pn, *re;
     assign_t *as; 
 
     /* Load internal state */

@@ -7,7 +7,7 @@
 
 \begin{document}
 
-\title{Malheur\\  Automatic Analysis of Malware Behavior\\
+\title{\textbf{Malheur Version __VERSION__}\\  
        --- User Manual ---}
 \author{Konrad Rieck}
 \maketitle

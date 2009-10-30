@@ -4,12 +4,10 @@
 # Berlin Institute of Technology (TU Berlin).
 #
 
-BUILT_SOURCES = malheur.txt malheur.man malheur.pdf
-
 sysconf_DATA = malheur.cfg
 man1_MANS = malheur.man 
 EXTRA_DIST = malheur.cfg malheur.pod malheur.man malheur.pdf malheur.txt \
-             doxygen.cfg modules latex-pre.inc latex-post.inc
+             doxygen.cfg modules latex-pre.inc.in latex-post.inc
 
 malheur.man: malheur.pod
 	pod2man -c "User Manual" -s 1 -r "malheur $(VERSION)" $< > $@
@@ -17,16 +15,25 @@ malheur.man: malheur.pod
 malheur.txt: malheur.pod
 	pod2text -w 72 $< > $@
 
-malheur.pdf: malheur.pod
-	pod2latex -prefile latex-pre.inc -postfile latex-post.inc \
+malheur.pdf: malheur.pod latex-pre.inc latex-post.inc
+	pod2latex -prefile $(top_builddir)/doc/latex-pre.inc \
+	          -postfile $(top_srcdir)/doc/latex-post.inc \
 	          -full -out malheur.tex $<
 	pdflatex malheur.tex
 	pdflatex malheur.tex	
 	pdflatex malheur.tex	
 	rm -f *.tex *.log *.aux *.toc
-        
+
+latex-pre.inc: latex-pre.inc.in
+	sed -e 's|__VERSION__|$(VERSION)|' \
+        	$(top_srcdir)/doc/latex-pre.inc.in \
+        	> $(top_builddir)/doc/latex-pre.inc
+
 clean-local:
-	rm -f malheur.man malheur.pdf malheur.txt
-	rm -f *.tex *.log *.aux *.toc
+	rm -f *.tex *.log *.aux *.toc latex-pre.inc
 	
-        
+distclean-local:
+	rm -f malheur.pdf malheur.txt malheur.man
+		
+dist-hook: distclean-local malheur.txt malheur.pdf malheur.man
+	

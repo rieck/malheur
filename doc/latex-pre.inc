@@ -1,0 +1,16 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[width=13cm]{geometry}
+\usepackage{palatino}
+
+\setlength{\parskip}{6pt}
+\setlength{\parindent}{0pt}
+
+\begin{document}
+
+\title{Malheur\\  Automatic Analysis of Malware Behavior\\
+       --- User Manual ---}
+\author{Konrad Rieck}
+\maketitle
+
+\tableofcontents
+\pagebreak

@@ -6,35 +6,35 @@ B<malheur> - Automatic analysis of malware behavior
 
 =head1 SYNOPSIS
 
-B<malheur> [B<-hrvV>] [B<-m> F<maldir>] [B<-o> F<outfile>] I<action> F<dataset>
+B<malheur> [B<-hrvV>] [B<-m> I<maldir>] [B<-o> I<outfile>] I<action> I<dataset>
 
 =head1 DESCRIPTION
 
 B<malheur> is a tool for analysis of malware behavior recorded in a
 sandbox environment. In particular, B<malheur> provides functionality
 for automatic analysis, classification and clustering of textual
-reports containing recorded behavior. 
+reports containing recorded behavior.
 
-The input of B<malheur> is a F<dataset> containing reports of malware
+The input of B<malheur> is a I<dataset> containing reports of malware
 behavior. The F<dataset> is provided either as a directory or a
 compressed archive containing the reports. B<malheur> supports the
 following formats for compressed archives: zip, tar.gz, pax and cpio.
-A F<report> is a textual document describing the recorded activity of
+A I<report> is a textual document describing the recorded activity of
 a malware program, where individual events are separated by delimiter
 characters, such as white space or carriage return.  The events in a
 report are expected to be in sequential order if n-grams with S<n
 E<gt> 1> are extracted. If the behavior is represented using the
 malware instruction set (MIST) further options may be selected.
 
-The result of an analysis is written to F<outfile>, a textual file
+The result of an analysis is written to I<outfile>, a textual file
 containing columns corresponding to particular analysis results.  By
-default F<outfile> is set to C<malheur.out>. 
+default F<outfile> is set to F<malheur.out>.
 
 The configuration and internal state of B<malheur> are stored in the
-directory F<maldir>. If this directory does not exist, it is created
+directory I<maldir>. If this directory does not exist, it is created
 and the system-wide configuration is copied. A detailed description of
-the malheur configuration is provided in Section L<"CONFIGURATION">.
-By default F<maldir> is set to C<$HOME/.malheur>.
+the malheur configuration is provided in L<"CONFIGURATION">. By
+default I<maldir> is set to F<~/.malheur>.
 
 =head1 ACTIONS & OPTIONS
 
@@ -50,36 +50,36 @@ assessed geometrically by computing distances and angles.
 =item B<distance>
 
 If this action is specified, B<malheur> computes a distance matrix for
-F<dataset>. The entry (i,j) of this matrix reflects the distance
+I<dataset>. The entry (i,j) of this matrix reflects the distance
 (dissimilarity) of the reports i and j. The distance values lie in the
-range 0 to sqrt(2). The distance matrix is written to F<outfile>.
+range 0 to sqrt(2). The distance matrix is written to I<outfile>.
 
 =item B<prototype>
 
 If this action is specified, B<malheur> determines a set of
-I<prototypes> representing F<dataset>. The prototypes are selected
+I<prototypes> representing I<dataset>. The prototypes are selected
 from the contained reports, such that the distance from any report to
 its nearest prototype is minimized. The prototype assignment of
-F<dataset> is written to F<outfile>.
+I<dataset> is written to I<outfile>.
 
 =item B<cluster>
 
 If this action is specified, B<malheur> performs a I<clustering> of
-F<dataset>. The clustering is first determined on prototypes and then
+I<dataset>. The clustering is first determined on prototypes and then
 propagated to all reports. Small clusters with too few members are
 merged in a I<rejection cluster>. The prototypes representing accepted
 clusters are stored as internal state of B<malheur> for later
-classification and incremental analysis. The clustering of F<dataset>
-is written to F<outfile>.
+classification and incremental analysis. The clustering of I<dataset>
+is written to I<outfile>.
 
 =item B<classify> 
 
 If this action is specified, B<malheur> performs a I<classification>
-of F<dataset>. Each report is either assigned to the nearest prototype
+of I<dataset>. Each report is either assigned to the nearest prototype
 of a known cluster or rejected as unknown. This action requires that a
 clustering has been performed beforehand and an internal state of
-B<malheur> exists. The classification of F<dataset> is written to
-F<outfile>.
+B<malheur> exists. The classification of I<dataset> is written to
+I<outfile>.
 
 =item B<increment>
 
@@ -89,8 +89,8 @@ clusters as in the action I<classify>. Reports rejected from
 classification are then clustered as in the action I<cluster>. The
 prototypes of the accepted clusters and the rejected reports are
 written to the internal state of B<malheur> for further incremental
-analysis. The classification and clustering of F<dataset> are written
-to F<outfile>.
+analysis. The classification and clustering of I<dataset> are written
+to I<outfile>.
 
 =back
 
@@ -99,15 +99,15 @@ are used to further control the analysis process
 
 =over 12
 
-=item B<-m> F<maldir>
+=item B<-m> I<maldir>
 
-This option specifies the malheur directory F<maldir> which holds the
+This option specifies the malheur directory I<maldir> which holds the
 configuration and internal state of B<malheur>. If the directory does
 not exist, it is created and the system-wide configuration is copied.
 
-=item B<-o> F<outfile>
+=item B<-o> I<outfile>
 
-This option specifies the output file F<outfile> for analysis. The
+This option specifies the output file I<outfile> for analysis. The
 file is created during analysis and the results are stored in textual
 form.
 
@@ -135,7 +135,7 @@ This option prints a version and copyright string.
 
 =head1 CONFIGURATION
 
-The configuration file C<malheur.cfg> in F<maldir> determines how the
+The configuration file F<malheur.cfg> in I<maldir> determines how the
 malware behavior in a data set is analysis. The configuration contains
 five groups of settings which are described in the following.
 
@@ -286,6 +286,33 @@ prototype.
 
 =back
 
+=head1 FILES
+
+=over 4
+
+=item F<__SYSCONFDIR__/malheur.cfg> 
+
+The system wide configuration file of B<malheur>. See
+L<"CONFIGURATION"> for further details.
+
+=item F<~/.malheur/malheur.cfg>
+
+Per user configuration file of B<malheur>.  See L<"CONFIGURATION"> for
+further details. If this file does not exist, it is automatically
+created using the system wide configuration as template.
+
+=item F<~/.malheur/prototypes.zfa>
+
+=item F<~/.malheur/rejected.zfa>
+
+Internal state files of B<malheur> containing compressed feature
+vector array (zfa) of B<prototypes> and B<rejected reports>. The
+feature vectors are used for classification and incremental
+analysis. See L<"ACTIONS & OPTIONS"> for further details.
+
+=back
+
+
 =head1 EXAMPLES
 
 B<Distance computation.> The following example shows how a distance
@@ -321,7 +348,24 @@ non-printable characters may be contained in the report files, no
 occurrences of the NUL character (0x00) are allowed. The behavior of
 B<malheur> is undefined in this case.
 
-=head1 COPYRIGHT & LICENCE
+
+=head1 DEPENDENCIES
+
+=over 4
+
+=item F<libconfig> E<gt>=1.3.2
+
+Debian package F<libconfig6-dev>, SuSE package F<libconfig>, 
+Macports port F<libconfig-hr>, OpenBSD port F<devel/libconfig>.
+
+=item F<libarchive> E<gt>=2.70  
+
+Debian package F<libarchive-dev>, SuSE package F<libarchive>,
+Macports port F<libarchive>, OpenBSD port F<archivers/libarchive>.
+
+=back
+
+=head1 COPYRIGHT
 
 Copyright (c) 2009 Konrad Rieck,
 Berlin Institute of Technology.
@@ -332,4 +376,6 @@ the Free Software Foundation; either version 3 of the License, or (at
 your option) any later version.  This program is distributed without
 any warranty. See the GNU General Public License for more details.
 
+      
 =cut
+

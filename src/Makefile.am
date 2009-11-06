@@ -22,7 +22,6 @@ malheur_LDFLAGS         = -static
 
 malheur.h: malheur.h.in
 	sed -e 's|__SYSCONFDIR__|$(sysconfdir)|' \
-    	    -e 's|__LOCALSTATEDIR__|$(localstatedir)|' \
         	$(top_srcdir)/src/malheur.h.in > malheur.h
          
 clean-local:

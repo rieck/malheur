@@ -6,7 +6,7 @@
 
 sysconf_DATA = malheur.cfg
 man1_MANS = malheur.man 
-EXTRA_DIST = malheur.cfg malheur.pod malheur.man malheur.pdf malheur.txt \
+EXTRA_DIST = malheur.cfg malheur.pod.in malheur.man malheur.pdf malheur.txt \
              doxygen.cfg modules latex-pre.inc.in latex-post.inc
 
 malheur.man: malheur.pod
@@ -29,8 +29,13 @@ latex-pre.inc: latex-pre.inc.in
         	$(top_srcdir)/doc/latex-pre.inc.in \
         	> $(top_builddir)/doc/latex-pre.inc
 
+malheur.pod: malheur.pod.in
+	sed -e 's|__SYSCONFDIR__|$(sysconfdir)|' \
+        	$(top_srcdir)/doc/malheur.pod.in \
+        	> $(top_builddir)/doc/malheur.pod
+
 clean-local:
-	rm -f *.tex *.log *.aux *.toc latex-pre.inc
+	rm -f *.tex *.log *.aux *.toc latex-pre.inc malheur.pod
 	
 distclean-local:
 	rm -f malheur.pdf malheur.txt malheur.man

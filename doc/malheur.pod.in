@@ -10,10 +10,14 @@ B<malheur> [B<-hrvV>] [B<-m> I<maldir>] [B<-o> I<outfile>] I<action> I<dataset>
 
 =head1 DESCRIPTION
 
-B<malheur> is a tool for analysis of malware behavior recorded in a
-sandbox environment. In particular, B<malheur> provides functionality
-for automatic analysis, classification and clustering of textual
-reports containing recorded behavior.
+B<malheur> is a tool for analysis of malware behavior recorded in a sandbox
+environment.  In particular, B<malheur> provides functionality for automatic
+analysis, classification and clustering of textual reports containing
+recorded behavior.  B<malheur> has been written with effectivity and
+efficiency in mind.  The classification and clustering routines both provide
+state-of-the-art performance in terms of accuracy, while the respective
+functions make use of multi-processing and run signficantly faster on
+multi-core architectures.
 
 The input of B<malheur> is a I<dataset> containing reports of malware
 behavior. The F<dataset> is provided either as a directory or a
@@ -35,6 +39,7 @@ directory I<maldir>. If this directory does not exist, it is created
 and the system-wide configuration is copied. A detailed description of
 the malheur configuration is provided in L<"CONFIGURATION">. By
 default I<maldir> is set to F<~/.malheur>.
+
 
 =head1 ACTIONS & OPTIONS
 
@@ -348,6 +353,9 @@ non-printable characters may be contained in the report files, no
 occurrences of the NUL character (0x00) are allowed. The behavior of
 B<malheur> is undefined in this case.
 
+The vectorial analysis underlying B<malheur> does not handle null vectors,
+as they can not be scaled to a fixed norm. Consequently, empty files are
+discarded during exraction of feature vectors.
 
 =head1 DEPENDENCIES
 

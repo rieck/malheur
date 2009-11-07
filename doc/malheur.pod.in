@@ -14,7 +14,7 @@ B<malheur> is a tool for analysis of malware behavior recorded in a
 sandbox environment.  In particular, B<malheur> provides functionality
 for automatic analysis, classification and clustering of textual
 reports containing recorded behavior.  In the clustering task a set of
-reports is analysed for determining groups of similar behavior
+reports is analyzed for determining groups of similar behavior
 (clusters) likely originating from the same malware family.  Clusters
 with too few members are rejected. In the classification task reports
 of unknown behavior are automatically assigned to known
@@ -25,7 +25,7 @@ B<malheur> has been written with effectivity and efficiency in mind.
 The classification and clustering routines both provide
 state-of-the-art performance in terms of accuracy, while the
 respective functions make use of multi-processing and thus run
-signficantly faster on multi-core architectures.
+significantly faster on multi-core architectures.
 
 The input of B<malheur> is a I<dataset> containing reports of malware
 behavior. The F<dataset> is provided either as a directory or a
@@ -197,7 +197,7 @@ ignored in all cases.
 This parameter defines characters for delimiting events in report
 files. The characters can be either specified as regular bytes or as
 hexadecimal numbers prefixed by "%". If no characters are specified,
-the reports are analysed at byte-level, as if each byte would reflect
+the reports are analyzed at byte-level, as if each byte would reflect
 one event.
 
 =item B<ngram_len = 2;>
@@ -344,9 +344,9 @@ determined clusters. The clustering results are written to the file
     malheur -o out2.txt -v classify dataset2.zip
 
 B<Incremental analysis.> In the last example B<malheur> is applied for
-incremental analysis. First, the archive "dataset1.zip" is analysed
+incremental analysis. First, the archive "dataset1.zip" is analyzed
 where the internal state is reset using the option "-r". Then the files
-"dataset2.zip" and "dataset3.zip" are analysed and the incremental
+"dataset2.zip" and "dataset3.zip" are analyzed and the incremental
 state is updated accordingly. The incremental results are written to
 the files "out1.txt", "out2.txt" and "out3.txt".
 
@@ -363,12 +363,12 @@ B<malheur> is undefined in this case.
 
 The vectorial analysis underlying B<malheur> does not handle null vectors,
 as they can not be scaled to a fixed norm. Consequently, empty files are
-discarded during exraction of feature vectors.
+discarded during extraction of feature vectors.
 
 =head1 DEPENDENCIES
 
-For building B<malheur> from source the following library dependendies need
-to be satisified. Depending on the particular operating system, further 
+For building B<malheur> from source the following library dependencies need
+to be satisfied. Depending on the particular operating system, further 
 development tools and packages need to be installed.
 
 =over 4

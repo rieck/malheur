@@ -13,11 +13,16 @@ B<malheur> [B<-hrvV>] [B<-m> I<maldir>] [B<-o> I<outfile>] I<action> I<dataset>
 B<malheur> is a tool for analysis of malware behavior recorded in a sandbox
 environment.  In particular, B<malheur> provides functionality for automatic
 analysis, classification and clustering of textual reports containing
-recorded behavior.  B<malheur> has been written with effectivity and
-efficiency in mind.  The classification and clustering routines both provide
-state-of-the-art performance in terms of accuracy, while the respective
-functions make use of multi-processing and run signficantly faster on
-multi-core architectures.
+recorded behavior.  In the clustering task, a set of behavior reports is
+analysed for determining groups of similar behavior (clusters), likely
+originating from the same malware familiy.  Clusters with too few members
+are rejected.  In the classification task, reports of unknown malware
+behavior are automatically assigned to known clusters or rejected if their
+behavior does not match any known cluster.  B<malheur> has been written with
+effectivity and efficiency in mind.  The classification and clustering
+routines both provide state-of-the-art performance in terms of accuracy,
+while the respective functions make use of multi-processing and run
+signficantly faster on multi-core architectures.
 
 The input of B<malheur> is a I<dataset> containing reports of malware
 behavior. The F<dataset> is provided either as a directory or a
@@ -36,7 +41,7 @@ default F<outfile> is set to F<malheur.out>.
 
 The configuration and internal state of B<malheur> are stored in the
 directory I<maldir>. If this directory does not exist, it is created
-and the system-wide configuration is copied. A detailed description of
+and the system wide configuration is copied. A detailed description of
 the malheur configuration is provided in L<"CONFIGURATION">. By
 default I<maldir> is set to F<~/.malheur>.
 
@@ -108,7 +113,7 @@ are used to further control the analysis process
 
 This option specifies the malheur directory I<maldir> which holds the
 configuration and internal state of B<malheur>. If the directory does
-not exist, it is created and the system-wide configuration is copied.
+not exist, it is created and the system wide configuration is copied.
 
 =item B<-o> I<outfile>
 
@@ -116,7 +121,7 @@ This option specifies the output file I<outfile> for analysis. The
 file is created during analysis and the results are stored in textual
 form.
 
-=item B<-t>
+=item B<-r>
 
 This option resets the internal state of B<malheur>. Prototypes of
 clusters and rejected reports from previous runs of B<malheur> are
@@ -195,7 +200,7 @@ one event.
 =item B<ngram_len = 2;>
 
 This parameter specified the length of n-grams. If the events in the
-reports are not sequential, this parameter need to be set to 1. In all
+reports are not sequential, this parameter should be set to 1. In all
 other cases, it determines the length of event sequences to be mapped
 to the vector space, so called n-grams.
 
@@ -329,7 +334,7 @@ matrix is written to the file "out.txt"
 B<Clustering and classification.> This example demonstrates how first
 the reports in the archive "dataset1.zip" are clustered into groups
 and then how the reports in "dataset2.zip" are classified to the
-determines clusters. The clustering results are written to the file
+determined clusters. The clustering results are written to the file
 "out1.txt", the classification results to "out2.txt"
 
     malheur -o out1.txt -v cluster dataset1.zip 
@@ -337,7 +342,7 @@ determines clusters. The clustering results are written to the file
 
 B<Incremental analysis.> In the last example B<malheur> is applied for
 incremental analysis. First, the archive "dataset1.zip" is analysed
-where the internal state is reset using the option "-r". The the files
+where the internal state is reset using the option "-r". Then the files
 "dataset2.zip" and "dataset3.zip" are analysed and the incremental
 state is updated accordingly. The incremental results are written to
 the files "out1.txt", "out2.txt" and "out3.txt".
@@ -358,6 +363,10 @@ as they can not be scaled to a fixed norm. Consequently, empty files are
 discarded during exraction of feature vectors.
 
 =head1 DEPENDENCIES
+
+For building B<malheur> from source the following library dependendies need
+to be satisified. Depending on the particular operating system, further 
+development tools and packages need to be installed.
 
 =over 4
 

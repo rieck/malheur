@@ -32,7 +32,7 @@ case $arg in
        CPPFLAGS="-I $HOME/usr/include" \
        CFLAGS="-fomit-frame-pointer -pedantic -pipe -O3 -march=native" \
        ./configure --enable-matlab -with-matlab=/usr/local/matlab2009a \
-                   --prefix=$HOME/usr
+                   --enable-openmp --prefix=$HOME/usr
        ;;       
    twoface*|rieck*|gwlan*)
        echo "# Configuration: Twoface/Rieck"

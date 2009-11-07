@@ -6,25 +6,26 @@
  Introduction 
  --
 
- Malheur is a software suite for automatic analysis of malware behavior. 
- The suite provides functionality for description, classification and
- clustering of program behavior recorded using sandbox techniques, such
- as CWSandbox and Anubis. The components of Malheur have been designed
- with effectivity and efficiency in mind using modern analysis and
- learning techniques. Malheur supports textual reports as well as XML
- data of monitored program behavior as input format.
+ Malheur is a tool for analysis of malware behavior recorded in a sandbox
+ environment. In particular, Malheur provides functionality for automatic
+ analysis, classification and clustering of textual reports containing
+ recorded behavior. In the clustering task a set of reports is analysed
+ for determining groups of similar behavior (clusters) likely originating
+ from the same malware family. Clusters with too few members are
+ rejected. In the classification task reports of unknown behavior are
+ automatically assigned to known clusters. Reports strongly deviating
+ from known clusters are also rejected.
 
- *Warning*: Malheur is currently in a pre-alpha stage. Check back later.
- Most of the code is either not documented or not functional.  If you
- are interested in working with a preliminary version of Malheur, please
- drop an email to <rieck@cs.tu-berlin.de>.
-
+ Malheur has been written with effectivity and efficiency in mind. The
+ classification and clustering routines both provide state-of-the-art
+ performance in terms of accuracy, while the respective functions make
+ use of multi-processing and thus run signficantly faster on multi-core
+ architectures.
 
  Dependencies
  --
       >= libconfig-1.3.2
       >= libarchive-2.70
-      zlib
 
  Compilation & Installation
  --

@@ -9,6 +9,10 @@
 /configure
 /depcomp
 /doc/test.cfg
+/doc/latex-pre.inc
+/doc/malheur.man
+/doc/malheur.pdf
+/doc/malheur.pod
 /install-sh
 /libtool
 /ltmain.sh

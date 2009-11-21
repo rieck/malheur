@@ -5,6 +5,7 @@
  --
 
  TODO  
+ ! Seed for hash function in feature extraction
  * Fix for broken Matlab interface
  * Fix for strange gzclose issue (valgrind)
  * Clustering with and without prototypes

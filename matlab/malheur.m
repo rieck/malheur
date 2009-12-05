@@ -3,12 +3,15 @@
 % Copyright (c) 2009 Konrad Rieck (rieck@cs.tu-berlin.de)
 % Berlin Institute of Technology (TU Berlin).
 % 
-% Internal interface to MEX file
+% Minimalistic interface to Malheur functionality
 %
 % Synopsis:
 %    out = malheur(cmd, args);
 %
 % Arguments:
 %     cmd:      Command to execute
-%     args:     Generic arguments
+%        
+%          'mal_distance'   -  See help of mal_distance.m
+%          'version'        -  Print Mindy version
+%          'verbose'        -  Increase verbosity
 %

@@ -150,15 +150,21 @@ void mexFunction(MEX_SIGNATURE)
     if (mxGetString(cmd, buf, 255)) 
         mal_error("Invalid Malheur command");
 
-    /* Process commands */    
+    /* Command: "version" */
     if (!strcasecmp(buf, "version")) {
         malheur_version(stdout);
+        
+    /* Command: "verbose" */
     } else if (!strcasecmp(buf, "verbose")) {
         if (!mxIsNumeric(prhs[1]))
             error("Verbosity level needs to be an integer number");
         verbose = floor(mxGetScalar(prhs[1]));
+        
+    /* Command: "distance" */
     } else if (!strcasecmp(buf, "distance")) {
         mex_distance(nlhs, plhs, nrhs, prhs);
+        
+    /* Unknown command */
     } else {
         mal_error("Unknown Malheur command");
     }

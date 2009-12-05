@@ -48,7 +48,8 @@ static void cluster_murtagh(cluster_t *c, double *d, double dm, char m)
 {
     assert(c && d);
     double dmin, dnew;
-    long k, j, i, jj, jm, ii, im;
+    long k, j, i, jj, ii;
+    long jm = 0, im = 0;
 
     /* Allocate stuff */
     char *done = calloc(1, sizeof(char) * c->len);

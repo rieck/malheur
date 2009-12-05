@@ -27,6 +27,9 @@ typedef struct {
     char *str;          /**< String of configuration (or NULL) */
 } config_default_t;
 
+/* Empty value for floating value */
+#define FLT_NONE	-0.1234567890123456789
+
 /* Functions */
 void config_print(config_t *cfg);
 void config_check(config_t *cfg);

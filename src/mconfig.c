@@ -29,22 +29,22 @@ extern int verbose;
 /* Default configuration */
 static config_default_t defaults[] = {
     /* Input */
-    {"input", "format", 0, NAN, "raw"},
-    {"input", "mist_level", 2, NAN, NULL},
-    {"input", "mist_rlen", 0, NAN, NULL},
-    {"input", "mist_tlen", 0, NAN, NULL},
+    {"input", "format", 0, FLT_NONE, "raw"},
+    {"input", "mist_level", 2, FLT_NONE, NULL},
+    {"input", "mist_rlen", 0, FLT_NONE, NULL},
+    {"input", "mist_tlen", 0, FLT_NONE, NULL},
     /* Features */
-    {"features", "ngram_len", 2, NAN, NULL},
-    {"features", "ngram_delim", 0, NAN, "%20%0a%0d"},
-    {"features", "vect_embed", 0, NAN, "bin"},
-    {"features", "lookup_table", 0, NAN, NULL},
+    {"features", "ngram_len", 2, FLT_NONE, NULL},
+    {"features", "ngram_delim", 0, FLT_NONE, "%20%0a%0d"},
+    {"features", "vect_embed", 0, FLT_NONE, "bin"},
+    {"features", "lookup_table", 0, FLT_NONE, NULL},
     /* Prototypes */
     {"prototypes", "max_dist", 0, 0.65, NULL},
-    {"prototypes", "max_num", 0, NAN, NULL},
+    {"prototypes", "max_num", 0, FLT_NONE, NULL},
     /* Clustering */
     {"cluster", "min_dist", 0, 0.95, NULL},
-    {"cluster", "reject_num", 10, NAN, NULL},
-    {"cluster", "link_mode", 0, NAN, "complete"},
+    {"cluster", "reject_num", 10, FLT_NONE, NULL},
+    {"cluster", "link_mode", 0, FLT_NONE, "complete"},
     /* Classification */
     {"classify", "max_dist", 0, 0.68, NULL},
     /* Terminating entry */
@@ -135,17 +135,17 @@ void config_check(config_t *cfg)
             cs = config_setting_add(config_root_setting(cfg),
                                     defaults[i].group, CONFIG_TYPE_GROUP);
 
-        /* Lookup variable */
+        /* (1) Check for string */
         if (defaults[i].str) {
-            /* Check for string */
             if (config_setting_lookup_string(cs, defaults[i].name, &s))
                 continue;
 
             /* Add default value */
             vs = config_setting_add(cs, defaults[i].name, CONFIG_TYPE_STRING);
             config_setting_set_string(vs, defaults[i].str);
-        } else if (!isnan(defaults[i].fnum)) {
-            /* Check for float */
+            
+        /* (2) Check for float */            
+        } else if (defaults[i].fnum != FLT_NONE) {
             if (config_setting_lookup_float(cs, defaults[i].name, &f))
                 continue;
 
@@ -160,8 +160,8 @@ void config_check(config_t *cfg)
             /* Add default value */
             vs = config_setting_add(cs, defaults[i].name, CONFIG_TYPE_FLOAT);
             config_setting_set_float(vs, defaults[i].fnum);
+        /* (3) Check for integer */            
         } else {
-            /* Check for integer */
             if (config_setting_lookup_int(cs, defaults[i].name, &j))
                 continue;
 

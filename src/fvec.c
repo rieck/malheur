@@ -128,7 +128,7 @@ fvec_t *fvec_zero()
 fvec_t *fvec_extract(char *x, int l, char *s)
 {
     fvec_t *fv;
-    int nlen;
+    long nlen;
     const char *dlm_str, *cfg_str;
     assert(x && l >= 0);
 

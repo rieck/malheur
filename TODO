@@ -5,7 +5,5 @@
  --
 
  TODO  
- ! Seed for hash function in feature extraction
  * Debian/Ubuntu package generation?
  * Fix for strange gzclose issue (valgrind)
- * Clustering with and without prototypes

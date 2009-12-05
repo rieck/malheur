@@ -19,6 +19,13 @@
 #include "common.h"
 #include "md5.h"
 
+/* External variables */
+extern config_t cfg;
+
+/* Global variables for seed */
+static uint32_t seed1 = MD5_SEED_NONE;
+static uint32_t seed2 = MD5_SEED_NONE;
+
 /*
  * Wrapper for MD5 function compatible to OpenSSL interface.
  * 'buf' needs to provide an allocated array of 16 bytes for 
@@ -61,8 +68,17 @@ void byteReverse(unsigned char *buf, unsigned uint32_t longs)
  */
 void MD5Init(struct MD5Context *ctx)
 {
-    ctx->buf[0] = 0x67452301;
-    ctx->buf[1] = 0xefcdab89;
+    /* Initialize with selected seed values */
+    if (seed1 == MD5_SEED_NONE) {
+        long l;
+        config_lookup_int(&cfg, "features.hash_seed1", (long *) &l); 
+        seed1 = (uint32_t) l;
+        config_lookup_int(&cfg, "features.hash_seed2", (long *) &l);    
+        seed2 = (uint32_t) l;
+    }
+
+    ctx->buf[0] = seed1;
+    ctx->buf[1] = seed2;
     ctx->buf[2] = 0x98badcfe;
     ctx->buf[3] = 0x10325476;
 

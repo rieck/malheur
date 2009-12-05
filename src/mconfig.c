@@ -38,6 +38,8 @@ static config_default_t defaults[] = {
     {"features", "ngram_delim", 0, FLT_NONE, "%20%0a%0d"},
     {"features", "vect_embed", 0, FLT_NONE, "bin"},
     {"features", "lookup_table", 0, FLT_NONE, NULL},
+    {"features", "hash_seed1", 0xc0cac01a, FLT_NONE, NULL},
+    {"features", "hash_seed2", 0xadd511fe, FLT_NONE, NULL},
     /* Prototypes */
     {"prototypes", "max_dist", 0, 0.65, NULL},
     {"prototypes", "max_num", 0, FLT_NONE, NULL},

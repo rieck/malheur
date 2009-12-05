@@ -20,7 +20,8 @@
 
 #include <stdint.h>
 
-#define MD5_DIGEST_LENGTH 16
+#define MD5_DIGEST_LENGTH 	16
+#define MD5_SEED_NONE		-1
 
 struct MD5Context {
     uint32_t buf[4];

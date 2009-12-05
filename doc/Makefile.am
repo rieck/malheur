@@ -10,15 +10,15 @@ EXTRA_DIST = malheur.cfg malheur.pod.in malheur.man malheur.txt malheur.pdf \
              doxygen.cfg modules latex-pre.inc.in latex-post.inc
 
 malheur.man: malheur.pod
-	pod2man -c "User Manual" -s 1 -r "malheur $(VERSION)" $< > $@
+	pod2man -c "User Manual" -s 1 -r "malheur $(VERSION)" malheur.pod > $@
 
 malheur.txt: malheur.pod
-	pod2text -w 70 $< > $@
+	pod2text -w 70 malheur.pod > $@
 
 malheur.pdf: malheur.pod latex-pre.inc latex-post.inc
 	pod2latex -prefile $(top_builddir)/doc/latex-pre.inc \
 	          -postfile $(top_srcdir)/doc/latex-post.inc \
-	          -full -out malheur.tex $<
+	          -full -out malheur.tex malheur.pod
 	pdflatex malheur.tex
 	pdflatex malheur.tex	
 	pdflatex malheur.tex	

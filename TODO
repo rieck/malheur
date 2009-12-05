@@ -5,6 +5,5 @@
  --
 
  TODO  
- * Add documentation for hash seed
  * Debian/Ubuntu package generation?
  * Fix for strange gzclose issue (valgrind)

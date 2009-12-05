@@ -221,6 +221,18 @@ The table can be used during debugging and verbose output for tracing
 dimensions in feature vectors back to events. For performance reasons
 it should be disabled by default.
 
+=item B<hash_seed1 = 0xc0cac01a;>
+
+=item B<hash_seed2 = 0xadd511fe;>
+
+To enable efficient comparison of feature vectors, B<malheur> internally
+represents string features as 64 bit hash values using MD5.  These two
+parameters allow to change the seed of the MD5 hash and should be
+initialized to random values, which protects from targeted collision
+attacks.  The remaining risk of collisions is minimal: (a) the number of
+unique features per report is limited to several thousands, and (b) in
+case of a collision the respective features can not be predicted.
+
 =back
 
 =item B<};>

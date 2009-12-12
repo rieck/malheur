@@ -240,23 +240,29 @@ void farray_dist_tria(farray_t *fa, double *d)
 /** 
  * Distance between two feature vectors (s = ||a-b||). The function 
  * uses a loop or a binary search to sum over all dimensions depending
- * on the size of the considered vectors.
+ * on the size of the considered vectors. The vectors need to be 
+ * normalized, that is, ||a|| = 1.
  * @param fa Feature vector (a)
  * @param fb Feature vector (b)
  * @return s Euclidean distance
  */
 double fvec_dist(fvec_t *fa, fvec_t *fb)
 {
+    if (fa == fb)
+        return 0;
+
     double f = fvec_dot(fa, fb);
     if (f > 1.0)
         f = 1.0;
+        
     return sqrt(2 - 2 * f);
 }
 
 /** 
  * Dot product between two feature vectors (s = <a,b>). The function 
  * uses a loop or a binary search to sum over all dimensions depending
- * on the size of the considered vectors.
+ * on the size of the considered vectors. The vectors need to be 
+ * normalized, that is, ||a|| = 1.
  * @param fa Feature vector (a)
  * @param fb Feature vector (b)
  * @return s Inner product
@@ -265,6 +271,9 @@ double fvec_dot(fvec_t *fa, fvec_t *fb)
 {
     assert(fa && fb);
     double a, b;
+    
+    if (fa == fb)
+        return 1.0;
 
     /* Sort vectors according to size */
     if (fa->len > fb->len) {

@@ -48,7 +48,7 @@ int test_cluster_complete()
 {
     int i, j, k, err = 0;
 
-    test_printf("Linkage clustering (complete)");
+    test_printf("Clustering using prototypes (complete)");
 
     /* Prepare test data */ ;
     farray_t *fa = farray_create("test");
@@ -84,7 +84,7 @@ int test_cluster_single()
 {
     int i, j, k, err = 0;
 
-    test_printf("Linkage clustering (single)");
+    test_printf("Clustering using prototypes (single)");
 
     /* Prepare test data */ ;
     farray_t *fa = farray_create("test");
@@ -120,7 +120,7 @@ int test_cluster_average()
 {
     int i, j, k, err = 0;
 
-    test_printf("Linkage clustering (average)");
+    test_printf("Clustering using prototypes (average)");
 
     /* Prepare test data */ ;
     farray_t *fa = farray_create("test");

@@ -57,7 +57,7 @@ int test_classify()
     int i, k, err = 0;
     fvec_t *f;
 
-    test_printf("Nearest-neighbor classification");
+    test_printf("Classification using prototypes");
 
     /* Prepare training data */
     farray_t *fa1 = farray_create("train");

@@ -4,13 +4,13 @@
 #
  
 # Malheur version
-AC_INIT([malheur], [0.4.1], [rieck@cs.tu-berlin.de])
+AC_INIT([malheur], [0.4.2], [rieck@cs.tu-berlin.de])
 AC_PREFIX_DEFAULT("/usr/local")
 
 # Defines (suitable for loading and saving versioned files)
 AC_DEFINE(MALHEUR_MAJOR, 0, Major version number)
 AC_DEFINE(MALHEUR_MINOR, 4, Minor version number)
-AC_DEFINE(MALHEUR_PATCH, 1, Patch version number)
+AC_DEFINE(MALHEUR_PATCH, 2, Patch version number)
 
 echo
 echo " :: MALHEUR - Automatic Analysis of Malware Behavior"

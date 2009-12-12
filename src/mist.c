@@ -44,7 +44,7 @@ static int mist_read_line(char **ptr, char *buffer)
     for (i = 0; i < BUFFER_SIZE; i++) {
         if ((*ptr)[i] == 0)
             return FALSE;
-        if ((*ptr)[i] == '\n')
+        if ((*ptr)[i] == MIST_INSTR)
             break;
         buffer[i] = (*ptr)[i];
     }
@@ -101,31 +101,26 @@ char *mist_preproc(char *report)
 
     /* Process MIST file */
     while (mist_read_line(&read_ptr, line)) {
-        switch (line[0]) {
-
-        /* Instruction in MIST format */
-        case MIST_INSTRUCT:
+        if (line[0] == MIST_COMMENT) {
+            /* Reset thread counter on new thread */
+            if (strstr(line, MIST_THREAD))
+                ti = 0;
+        } else if (isalnum(line[0])) {
+            /* Check for thread length */
             if (tlen == 0 || ti < tlen) {
                 write_ptr = mist_copy_instr(write_ptr, line, level);
                 ri++;
                 ti++;
             }
-            break;
-
-        /* Comment in MIST format */
-        case MIST_COMMENT:
-            /* Reset thread counter on new thread */
-            if (strstr(line, MIST_THREAD))
-                ti = 0;
-            break;
-        }
-
+        } 
+        
+        /* Check for report length */
         if (rlen > 0 && ri >= rlen)
             break;
     }
 
     /* Terminate string */
-    *write_ptr = 0;
+    *write_ptr = 0;    
     return report;
 }
 

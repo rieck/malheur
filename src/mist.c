@@ -103,7 +103,7 @@ char *mist_preproc(char *report)
     while (mist_read_line(&read_ptr, line)) {
         switch (line[0]) {
 
-            /* Instruction in MIST format */
+        /* Instruction in MIST format */
         case MIST_INSTRUCT:
             if (tlen == 0 || ti < tlen) {
                 write_ptr = mist_copy_instr(write_ptr, line, level);
@@ -112,9 +112,9 @@ char *mist_preproc(char *report)
             }
             break;
 
-            /* Comment in MIST format */
+        /* Comment in MIST format */
         case MIST_COMMENT:
-            /* Reset threat counter on new thread */
+            /* Reset thread counter on new thread */
             if (strstr(line, MIST_THREAD))
                 ti = 0;
             break;

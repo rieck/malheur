@@ -13,7 +13,7 @@ libmalheur_a_SOURCES	= md5.c md5.h common.h util.c util.h fvec.c \
                           mist.h fmath.c fmath.h export.c export.h \
                           farray.c farray.h proto.c proto.h mconfig.c \
                           mconfig.h cluster.c cluster.h quality.c \
-                          quality.h class.c class.h malheur.h
+                          quality.h class.c class.h
 
 bin_PROGRAMS            = malheur 
 malheur_SOURCES    	= $(libmalheur_a_SOURCES) malheur.c
@@ -25,7 +25,7 @@ malheur.h: malheur.h.in
         	$(top_srcdir)/src/malheur.h.in > malheur.h
          
 clean-local:
-	rm -f malheur.h
+	rm -f 		malheur.h
 
 beautify:               $(libmalheur_a_SOURCES) $(malheur_SOURCES)
 			gnuindent -i4 -kr -l77 -lc77 --no-tabs -cs \

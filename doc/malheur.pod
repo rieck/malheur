@@ -315,7 +315,7 @@ prototype.
 
 =over 4
 
-=item F<__SYSCONFDIR__/malheur.cfg> 
+=item F</etc/malheur.cfg> 
 
 The system wide configuration file of B<malheur>. See
 L<"CONFIGURATION"> for further details.

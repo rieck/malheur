@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-B<malheur> - Automatic analysis of malware behavior
+B<malheur> - automatic analysis of malware behavior
 
 =head1 SYNOPSIS
 
@@ -10,22 +10,65 @@ B<malheur> [B<-hrvV>] [B<-m> I<maldir>] [B<-o> I<outfile>] I<action> I<dataset>
 
 =head1 DESCRIPTION
 
-B<malheur> is a tool for analysis of malware behavior recorded in a
-sandbox environment.  In particular, B<malheur> provides functionality
-for automatic analysis, classification and clustering of textual
-reports containing recorded behavior.  In the clustering task a set of
-reports is analyzed for determining groups of similar behavior
-(clusters) likely originating from the same malware family.  Clusters
-with too few members are rejected. In the classification task reports
-of unknown behavior are automatically assigned to known
-clusters. Reports strongly deviating from known clusters are also
-rejected.
+B<malheur> is a tool for automatic analysis of program behavior recorded
+from malicious software (malware).  The tool has been designed to support
+the regular analysis of malicious software and the development of detection
+and defense measures.  B<malheur> allows for identifying novel classes of
+malware with similar behavior and assigning unknown malware to discovered
+classes.  It supports four basic actions for analysis which can be applied
+to reports of recorded behavior:
 
-B<malheur> has been written with effectivity and efficiency in mind.
-The classification and clustering routines both provide
-state-of-the-art performance in terms of accuracy, while the
-respective functions make use of multi-processing and thus run
-significantly faster on multi-core architectures.
+=over 4
+
+=item I<Extraction of prototypes>. 
+
+From a given set of reports, B<malheur> identifies a subset of prototypes
+representative for the full data set.  The prototypes provide a quick
+overview of recorded behavior and can be used to guide manual inspection.
+
+=item I<Clustering of behavior>. 
+
+B<malheur> automatically identifies groups (clusters) of reports containing
+similar behavior.  Clustering allows for discovering novel classes of
+malware and provides the basis for crafting specific detection and defense
+mechanisms, such as anti-virus signatures.
+
+=item I<Classification of behavior>. 
+
+Based on a set of previously clustered reports, B<malheur> is able to assign
+unknown behavior to known groups of malware.  Classification enables
+identifying novel and unknown variants of malware and can be used to filter
+program behavior prior to manual inspection.
+
+=item I<Incremental analysis>.  
+
+B<malheur> can be applied incrementally for analysis of large data
+sets. By processing reports in chunks, the run-time as well as memory
+requirements can be significantly reduced. This renders long-term
+application of B<malheur> feasible, for example for daily analysis 
+of incoming malware programs.
+
+=back
+
+A detailed description of these techniques as well as technical 
+background on analysis of malicious software is provided in the 
+following articles:
+
+=over 4
+
+=item 
+
+I<Automatic Analysis of Malware Behavior using Machine Learning>.
+Konrad Rieck, Philipp Trinius, Carsten Willems, and Thorsten Holz
+Technical report 18-2009, Berlin Institute of Technology, 2009
+
+=item 
+
+I<A Malware Instruction Set for Behavior-Based Analysis>.
+Philipp Trinius, Carsten Willems, Thorsten Holz, and Konrad Rieck
+Technical report TR-2009-07, University of Mannheim, 2009
+
+=back
 
 The input of B<malheur> is a I<dataset> containing reports of malware
 behavior. The F<dataset> is provided either as a directory or a
@@ -340,27 +383,36 @@ analysis. See L<"ACTIONS & OPTIONS"> for further details.
 
 =head1 EXAMPLES
 
-B<Distance computation.> The following example shows how a distance
-matrix is computed for the archive "dataset.zip".  The resulting
-matrix is written to the file "out.txt"
+B<Distance computation.> The following example demonstrartes how a
+distance matrix is computed for the archive "dataset.zip". The matrix
+reflects the dissimilarity of behavior for each report, where low
+values indicate similar behavior and large values correspond to
+deviating behavior. The matrix is written to the file "out.txt"
 
     malheur -o out.txt -v distance dataset.zip
 
-B<Clustering and classification.> This example demonstrates how first
-the reports in the archive "dataset1.zip" are clustered into groups
-and then how the reports in "dataset2.zip" are classified to the
-determined clusters. The clustering results are written to the file
-"out1.txt", the classification results to "out2.txt"
+B<Clustering and classification.> This example demonstrates how
+clustering and classification techniques can be applied. First,
+reports in the archive "dataset1.zip" are clustered into groups. Each
+group contains reports with similar behavior, such as behavior of
+malware from the same class or origin. The groups are written to the
+file "out1.txt" for further analysis. Second, the reports in
+"dataset2.zip" are assigned to the discovered groups. This
+classification can be used to filter out malware already contained in
+"dataset1.zip". The classification results are written to "out2.txt"
 
     malheur -o out1.txt -v cluster dataset1.zip 
     malheur -o out2.txt -v classify dataset2.zip
 
-B<Incremental analysis.> In the last example B<malheur> is applied for
-incremental analysis. First, the archive "dataset1.zip" is analyzed
-where the internal state is reset using the option "-r". Then the files
-"dataset2.zip" and "dataset3.zip" are analyzed and the incremental
-state is updated accordingly. The incremental results are written to
-the files "out1.txt", "out2.txt" and "out3.txt".
+B<Incremental analysis.> In the last example, B<malheur> is applied
+for incremental analysis. First, the archive "dataset1.zip" is
+analyzed where the internal state is reset using the option "-r".  The
+data set is automatically analysed using clustering and classification
+techniques and intermediate results are stored in the internal
+directory I<maldir>. Then, the files "dataset2.zip" and "dataset3.zip"
+are analyzed and the incremental state is updated accordingly. The
+clustering and classification results are written to the files
+"out1.txt", "out2.txt" and "out3.txt" for each data set respectively.
 
     malheur -o out1.txt -v -r increment dataset1.zip
     malheur -o out2.txt -v increment dataset2.zip
@@ -373,29 +425,9 @@ non-printable characters may be contained in the report files, no
 occurrences of the NUL character (0x00) are allowed. The behavior of
 B<malheur> is undefined in this case.
 
-The vectorial analysis underlying B<malheur> does not handle null vectors,
-as they can not be scaled to a fixed norm. Consequently, empty files are
-discarded during extraction of feature vectors.
-
-=head1 DEPENDENCIES
-
-For building B<malheur> from source the following library dependencies need
-to be satisfied. Depending on the particular operating system, further 
-development tools and packages need to be installed.
-
-=over 4
-
-=item F<libconfig> E<gt>=1.3.2
-
-Debian package F<libconfig6-dev>, SuSE package F<libconfig>, 
-Macports port F<libconfig-hr>, OpenBSD port F<devel/libconfig>.
-
-=item F<libarchive> E<gt>=2.70  
-
-Debian package F<libarchive-dev>, SuSE package F<libarchive>,
-Macports port F<libarchive>, OpenBSD port F<archivers/libarchive>.
-
-=back
+The vectorial analysis underlying B<malheur> does not handle null
+vectors, as they can not be scaled to a fixed norm. Consequently,
+empty files are discarded during extraction of feature vectors.
 
 =head1 COPYRIGHT
 

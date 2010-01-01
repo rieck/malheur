@@ -32,7 +32,7 @@
      enables identifying novel and unknown variants of malware and can be
      used to filter program behavior prior to manual inspection.
 
- 3. Incremental analysis
+ 4. Incremental analysis
      Malheur can be applied incrementally for analysis of large data
      sets. By processing reports in chunks, the run-time as well as
      memory requirements can be significantly reduced. This renders

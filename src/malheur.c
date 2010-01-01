@@ -119,10 +119,6 @@ static void parse_options(int argc, char **argv)
     /* Assign input files */
     input_files = argv + 1;
     input_len = argc - 1;
-
-    /* Check for output fle */
-    if (action == CLASSIFY && access(mcfg.proto_file, R_OK))
-        fatal("No prototype file for classifcation available");
 }
 
 
@@ -183,7 +179,6 @@ static void malheur_init(int argc, char **argv)
         unlink(mcfg.state_file);
     }
 }
-
 
 
 /**
@@ -337,6 +332,10 @@ static void malheur_classify()
 {
     assign_t *as;
     farray_t *fa, *pr, *re;
+
+    /* Check for prototype file */
+    if (access(mcfg.proto_file, R_OK))
+        fatal("No prototype file for classifcation available");
 
     /* Load data */
     fa = malheur_load();

@@ -73,7 +73,7 @@ Technical report TR-2009-07, University of Mannheim, 2009
 The input of B<malheur> is a I<dataset> containing reports of malware
 behavior. The F<dataset> is provided either as a directory or a
 compressed archive containing the reports. B<malheur> supports the
-following formats for compressed archives: zip, tar.gz, pax and cpio.
+following formats for compressed archives: tar.gz, zip, pax and cpio.
 A I<report> is a textual document describing the recorded activity of
 a malware program, where individual events are separated by delimiter
 characters, such as white space or carriage return.  The events in a
@@ -235,7 +235,7 @@ ignored in all cases.
 
 =over 4
 
-=item B<ngram_delim = "%20%0a%0d";>
+=item B<ngram_delim = "%0a%0d";>
 
 This parameter defines characters for delimiting events in report
 files. The characters can be either specified as regular bytes or as
@@ -383,40 +383,89 @@ analysis. See L<"ACTIONS & OPTIONS"> for further details.
 
 =head1 EXAMPLES
 
-B<Distance computation.> The following example demonstrartes how a
-distance matrix is computed for the archive "dataset.zip". The matrix
-reflects the dissimilarity of behavior for each report, where low
-values indicate similar behavior and large values correspond to
-deviating behavior. The matrix is written to the file "out.txt"
+B<Distances of program behavior.> The first example demonstrates how a
+distance matrix is computed for the archive F<dataset.zip> containing
+reports of program behavior. The matrix is written to the file
+F<out.txt>.
 
     malheur -o out.txt -v distance dataset.zip
 
+The distance matrix reflects the dissimilarity of behavior for each
+report in the archive. The entries of the matrix range from 0 to
+sqrt(2), where small values indicate similar behavior and larger
+values deviating behavior. The matrix can be used as the basis for
+several analysis and data mining techniques, such as hierarchical
+clustering, nearest-neighbor classification or multi-dimensional
+scaling. It is a generic starting point for research on analysis of
+malware behavior.
+
+B<Extraction of prototypes.> Manual inspection of several behavior
+reports is tedious and annoying. The second example illustrates how
+prototypical reports are extracted from the dataset
+F<dataset.zip>. The prototypes are written to the file F<out.txt>.
+
+    malheur -o out.txt -v prototype dataset.zip
+
+From all the reports of program behavior, a small subset is selected
+which is representative for the full data set. The elements of this
+subset are referred to as prototypes. Prior to further analysis of a
+large data set, a quick inspection of prototypes enables an overview
+of contained behavior and shows patterns typical for the data set.
+
 B<Clustering and classification.> This example demonstrates how
-clustering and classification techniques can be applied. First,
-reports in the archive "dataset1.zip" are clustered into groups. Each
-group contains reports with similar behavior, such as behavior of
-malware from the same class or origin. The groups are written to the
-file "out1.txt" for further analysis. Second, the reports in
-"dataset2.zip" are assigned to the discovered groups. This
-classification can be used to filter out malware already contained in
-"dataset1.zip". The classification results are written to "out2.txt"
+clustering and classification are applied for analysis of two data
+sets, F<dataset1.zip> and F<dataset2.zip>. The clustering and
+classification results are written to F<out1.txt> and F<out2.txt>
+respectively.
 
     malheur -o out1.txt -v cluster dataset1.zip 
     malheur -o out2.txt -v classify dataset2.zip
 
-B<Incremental analysis.> In the last example, B<malheur> is applied
-for incremental analysis. First, the archive "dataset1.zip" is
-analyzed where the internal state is reset using the option "-r".  The
-data set is automatically analysed using clustering and classification
-techniques and intermediate results are stored in the internal
-directory I<maldir>. Then, the files "dataset2.zip" and "dataset3.zip"
-are analyzed and the incremental state is updated accordingly. The
-clustering and classification results are written to the files
-"out1.txt", "out2.txt" and "out3.txt" for each data set respectively.
+First, reports in the archive F<dataset1.zip> are clustered into
+groups of similar behavior. The groups can be used to discover novel
+malware classes or identify behavioral patterns shared by several
+malware instances. Each cluster is represented by a small set of
+prototypical reports, such that manual inspectation can usually be
+restricted to prototypes. Second, the reports in F<dataset2.zip> are
+assigned to the discovered groups. This classification can be used to
+filter out variants of classes contained in F<dataset1.zip>, such that
+novel malware in F<dataset2.zip> can be identified.
+
+B<Incremental analysis.> In the next example, Malheur is applied for
+incremental analysis of a larger data set split into three archives,
+namely F<dataset1.zip>, F<dataset2.zip> and F<dataset3.zip>. Results
+of this analysis are written to the files F<out1.txt>, F<out2.txt> and
+F<out3.txt>.
 
     malheur -o out1.txt -v -r increment dataset1.zip
     malheur -o out2.txt -v increment dataset2.zip
     malheur -o out3.txt -v increment dataset2.zip
+
+First, the archive F<dataset1.zip> is processed using incremental
+analysis. The extra option B<-r> is used to reset the internal state
+of Malheur, such that results from previous incremental runs are
+discarded. Then, the files F<dataset2.zip> and F<dataset3.zip> are
+analyzed where for each archive first known behavior is identified
+using classification and novel groups of malware are discovered using
+clustering. The intermediate results for each archive are stored in
+the Malheur home directory, by default F<~/.malheur>. The incremental
+analysis allows to process large data sets efficiently, where run-time
+and memory requirements are significantly reduced in comparison to
+batch analysis.
+
+B<Debugging.> The reports of malware behavior are embedded in a vector
+space where each report is represented by a sparse feature vector. To
+understand this representation and trace down problems, a lookup table
+can be enabled in the features setting of F<malheur.cfg>.
+
+    malheur -o /dev/null -vvv prototype dataset.zip
+
+The above command extracts prototypes from the provided data
+set. However, it also present a lot of verbose information on the
+reports and extracted prototypes. In particular, for each prototype
+the corresponding feature vector is displayed. If the lookup table is
+enabled, the dimensions of this vector are printed with respective
+instruction n-grams (substrings composed of n).
 
 =head1 BUGS
 
@@ -428,6 +477,11 @@ B<malheur> is undefined in this case.
 The vectorial analysis underlying B<malheur> does not handle null
 vectors, as they can not be scaled to a fixed norm. Consequently,
 empty files are discarded during extraction of feature vectors.
+
+Depending on the linked version of libarchive, B<malheur> may support
+different types of archive formats. For example, zip archives of
+version 2 are not generally supported by libarchive. As a fallback,
+the use of tar archives is recommended.
 
 =head1 COPYRIGHT
 

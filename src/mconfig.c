@@ -30,9 +30,14 @@ extern int verbose;
 static config_default_t defaults[] = {
     /* Input */
     {"input", "format", 0, FLT_NONE, "raw"},
-    {"input", "mist_level", 2, FLT_NONE, NULL},
-    {"input", "mist_rlen", 0, FLT_NONE, NULL},
-    {"input", "mist_tlen", 0, FLT_NONE, NULL},
+    /* MIST format */
+    {"mist", "level", 2, FLT_NONE, NULL},
+    {"mist", "report_len", 0, FLT_NONE, NULL},
+    {"mist", "thread_len", 0, FLT_NONE, NULL},
+    {"mist", "level_char", '|', FLT_NONE, NULL},    
+    {"mist", "comment_char", '#', FLT_NONE, NULL},    
+    {"mist", "instr_char", '\n', FLT_NONE, NULL},    
+    {"mist", "thread_str", 0, FLT_NONE, "thread"},
     /* Features */
     {"features", "ngram_len", 2, FLT_NONE, NULL},
     {"features", "ngram_delim", 0, FLT_NONE, "%20%0a%0d"},

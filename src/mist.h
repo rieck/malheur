@@ -14,14 +14,6 @@
 #ifndef MIST_H
 #define MIST_H
 
-/* 
- * Definitions for MIST parsing
- */
-#define MIST_LEVEL      '|'       /* Delimiter for MIST levels */
-#define MIST_INSTR      '\n'      /* Delimiter for MIST instructions */
-#define MIST_COMMENT    '#'       /* Prefix for comments */
-#define MIST_THREAD     "thread"  /* Comment string indicating new thread */
-
 /* Functions */
 char *mist_preproc(char *report);
 char *mist_trunc_report(char *, int);

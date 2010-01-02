@@ -201,31 +201,11 @@ five groups of settings which are described in the following.
 
 =over 4
 
-=item B<format = "mist";>
+=item B<format = "text";>
 
 This parameter specifies the input format. Supported values are "text"
 for textual and XML reports, and "mist" for reports using the malware
 instruction set (MIST).
-
-=item B<mist_level = 2;>
-
-This parameter specifies the MIST level. If the input format is set to
-"mist", this parameter controls the analysis level of MIST
-instructions, otherwise it is ignored.
-
-=item B<mist_rlen = 0;>
-
-This parameter specifies the report truncation length. If the input
-format is set to "mist", this parameter controls the truncation of
-MIST reports, otherwise it is ignored. If set to 0 the parameter is
-ignored in all cases.
-
-=item B<mist_tlen = 0;>
-
-This parameter specifies the thread truncation length. If the input
-format is set to "mist", this parameter controls the truncation of
-MIST threads, otherwise it is ignored. If set to 0 the parameter is
-ignored in all cases.
 
 =back
 

@@ -14,8 +14,14 @@
 #ifndef QUALITY_H
 #define QUALITY_H
 
-#include "uthash.h"
 #include "util.h"
+
+#ifdef HAVE_UTHASH_UTHASH_H
+#include <uthash/uthash.h>
+#endif
+#ifdef HAVE_UTHASH_H
+#include <uthash.h>
+#endif
 
 /* Definitions of quality measures */
 #define Q_PRECISION     0       /* Precision */

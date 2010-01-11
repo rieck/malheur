@@ -14,7 +14,6 @@
 #ifndef CLUSTER_H
 #define CLUSTER_H
 
-#include "uthash.h"
 #include "farray.h"
 #include "proto.h"
 

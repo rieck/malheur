@@ -14,6 +14,16 @@
 #ifndef MCONFIG_H
 #define MCONFIG_H
 
+#ifdef HAVE_LIBCONFIG_H
+#include <libconfig.h>
+#endif
+#ifdef HAVE_UTHASH_UTHASH_H
+#include <uthash/uthash.h>
+#endif
+#ifdef HAVE_UTHASH_H
+#include <uthash.h>
+#endif
+
 /** 
  * Default configuration. This structure is used to define a default
  * configuration. The type can be determined by first testing for a 

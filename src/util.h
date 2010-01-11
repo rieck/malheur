@@ -15,7 +15,13 @@
 #define UTIL_H
 
 #include "config.h"
-#include "uthash.h"
+
+#ifdef HAVE_UTHASH_UTHASH_H
+#include <uthash/uthash.h>
+#endif
+#ifdef HAVE_UTHASH_H
+#include <uthash.h>
+#endif
 
 /* Progress bar stuff */
 #define PROGBAR_LEN     52

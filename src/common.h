@@ -44,10 +44,12 @@
 #ifdef HAVE_STRING_H
 #include <string.h>
 #endif
-
-#include <pthread.h>
+#ifdef HAVE_ZLIB_H
 #include <zlib.h>
+#endif
+#ifdef HAVE_LIBCONFIG_H
 #include <libconfig.h>
+#endif
 
 /* Some useful definitions */
 #ifndef TRUE

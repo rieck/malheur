@@ -15,8 +15,14 @@
 #define FARRAY_H
 
 #include "zlib.h"
-#include "uthash.h"
 #include "fvec.h"
+
+#ifdef HAVE_UTHASH_UTHASH_H
+#include <uthash/uthash.h>
+#endif
+#ifdef HAVE_UTHASH_H
+#include <uthash.h>
+#endif
 
 /* Allocate memory in blocks of this size */
 #define BLOCK_SIZE          (4096 / sizeof(farray_t))

@@ -17,11 +17,13 @@
 #ifdef HAVE_LIBCONFIG_H
 #include <libconfig.h>
 #endif
+
 #ifdef HAVE_UTHASH_UTHASH_H
 #include <uthash/uthash.h>
-#endif
-#ifdef HAVE_UTHASH_H
+#elif HAVE_UTHASH_H
 #include <uthash.h>
+#else
+#include "uthash.h"
 #endif
 
 /** 

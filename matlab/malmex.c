@@ -21,7 +21,6 @@
 
 #include "mist.h"
 #include "mconfig.h"
-#include "uthash.h"
 #include "util.h"
 #include "malmex.h"
 

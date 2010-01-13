@@ -65,9 +65,9 @@ fi
 
 # uthash
 AC_CHECK_HEADERS([uthash.h uthash/uthash.h], HEADER_UTHASH="yes")
-if test "x$HEADER_UTHASH" = "x" ; then
-    AC_MSG_ERROR([The header uthash.h is required for compilation])
-fi
+#if test "x$HEADER_UTHASH" = "x" ; then
+#    AC_MSG_ERROR([The header uthash.h is required for compilation])
+#fi
 
 # libconfig
 PKG_CHECK_MODULES([PKGCONFIG], [libconfig >= 1.3.2])

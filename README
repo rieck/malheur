@@ -53,7 +53,6 @@
 
  Dependencies
  --
-      >= uthash-1.7
       >= libconfig-1.3.2
       >= libarchive-2.70
 

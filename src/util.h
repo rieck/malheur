@@ -18,10 +18,12 @@
 
 #ifdef HAVE_UTHASH_UTHASH_H
 #include <uthash/uthash.h>
-#elif HAVE_UTHASH_H
+#else 
+#ifdef HAVE_UTHASH_H
 #include <uthash.h>
 #else
 #include "uthash.h"
+#endif
 #endif
 
 /* Progress bar stuff */
@@ -66,7 +68,7 @@ typedef struct {
 
 /* Utility functions functions */
 void err_msg(char *, const char *, char *, ...);
-void prog_bar(double, double, double);
+void prog_bar(long, long, long);
 double time_stamp();
 int decode_string(char *);
 char *file_suffix(char *file);

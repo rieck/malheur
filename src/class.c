@@ -129,7 +129,7 @@ assign_t *class_assign(farray_t *fa, farray_t *p)
     }
 
     if (verbose > 0)
-        printf("  Done. Classified %ld feature vectors to %ld prototypes.\n",
+        printf("  Done. Classified %lu feature vectors to %lu prototypes.\n",
                fa->len, p->len);
 
     return c;

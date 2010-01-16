@@ -152,12 +152,12 @@ void hist_print(hist_t * h)
     count_t *ai;
 
     for (hi = h; hi != NULL; hi = hi->hh.next) {
-        printf("Label: %d\n", hi->label);
+        printf("Label: %u\n", hi->label);
         printf("Total: %f\n", hi->total);
 
         printf("countments: ");
         for (ai = hi->count; ai != NULL; ai = ai->hh.next)
-            printf("%d (%f) ", ai->label, ai->count);
+            printf("%u (%f) ", ai->label, ai->count);
         printf("\n");
     }
 }

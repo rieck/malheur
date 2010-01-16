@@ -55,7 +55,7 @@ void export_dist(double *d, farray_t *fa, char *file)
 
     /* Print distance header */
     fprintf(f, "# ---\n# Distance matrix for %s\n", fa->src);
-    fprintf(f, "# Matrix size: %ld x %ld\n# ---\n", fa->len, fa->len);
+    fprintf(f, "# Matrix size: %lu x %lu\n# ---\n", fa->len, fa->len);
     fprintf(f, "# <report> <dist1> <dist2> ... <distn>\n");
 
     /* Print matrix */
@@ -98,7 +98,7 @@ void export_proto(farray_t *pr, farray_t *fa, assign_t *as, char *file)
 
     /* Print prototype header */
     fprintf(f, "# ---\n# Prototypes for %s\n", fa->src);
-    fprintf(f, "# Number of prototypes: %ld (%3.1f%%)\n", pr->len,
+    fprintf(f, "# Number of prototypes: %lu (%3.1f%%)\n", pr->len,
             pr->len * 100.0 / (double) fa->len);
     fprintf(f, "# Precision of prototypes: %4.1f%%\n",
             e[Q_PRECISION] * 100.0);
@@ -143,7 +143,7 @@ void export_cluster(cluster_t *c, farray_t *p, farray_t *fa, assign_t *a,
 
     /* Print prototype header */
     fprintf(f, "# ---\n# Clusters for %s\n", fa->src);
-    fprintf(f, "# Number of cluster: %ld\n", c->num);
+    fprintf(f, "# Number of cluster: %lu\n", c->num);
     fprintf(f, "# Precision of clusters: %4.1f%%\n", e[Q_PRECISION] * 100.0);
     fprintf(f, "# Recall of clusters: %4.1f%%\n", e[Q_RECALL] * 100.0);
     fprintf(f, "# F-measure of clusters: %4.1f%%\n", e[Q_FMEASURE] * 100.0);

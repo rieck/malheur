@@ -485,7 +485,7 @@ the use of tar archives is recommended.
 
 =head1 COPYRIGHT
 
-Copyright (c) 2009 Konrad Rieck,
+Copyright (c) 2009-2010 Konrad Rieck,
 Berlin Institute of Technology.
 
 This program is free software; you can redistribute it and/or modify

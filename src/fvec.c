@@ -88,7 +88,7 @@ static void fvec_condense(fvec_t *fv, embed_t e)
                 n += fv->val[i];
                 break;
             case EMBED_BIN:
-                n = fmax(n, fv->val[i]);
+                n = (float) fmax(n, fv->val[i]);
                 break;
             }
         } else {
@@ -374,7 +374,7 @@ static void extract_wgrams(fvec_t *fv, char *x, int l, int nlen)
         if (delim[(unsigned char) x[i]]) {
             if (j == 0 || delim[(unsigned char) t[j - 1]])
                 continue;
-            t[j++] = d;
+            t[j++] = (char) d;
         } else {
             t[j++] = x[i];
         }
@@ -382,7 +382,7 @@ static void extract_wgrams(fvec_t *fv, char *x, int l, int nlen)
 
     /* Add trailing delimiter */
     if (t[j - 1] != d)
-        t[j++] = d;
+        t[j++] = (char) d;
 
     /* Extract n-grams */
     for (k = i = 0; i < j; i++) {

@@ -171,7 +171,7 @@ void config_check(config_t *cfg)
             if (config_setting_lookup_float(cs, defaults[i].name, &f)) {
                 config_setting_remove(cs, defaults[i].name);
                 vs = config_setting_add(cs, defaults[i].name, CONFIG_TYPE_INT);
-                config_setting_set_float(vs, (long) round(f));
+                config_setting_set_int(vs, (long) round(f));
                 continue;
             }
 

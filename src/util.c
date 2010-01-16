@@ -28,7 +28,7 @@
 /** Progress bar (with NULL) */
 static char pb_string[PROGBAR_LEN + 1];
 /** Start timestamp measured */
-static double pb_start = 0;
+static double pb_start = -1;
 
 /**
  * Compares two index structures.
@@ -125,22 +125,26 @@ void err_msg(char *p, const char *f, char *m, ...)
 
 /**
  * Print a progress bar in a given range.
- * @param min Minimum value 
- * @param max Maximum value
- * @param in Current value
+ * @param a Minimum value 
+ * @param b Maximum value
+ * @param c Current value
  */
-void prog_bar(double min, double max, double in)
+void prog_bar(long a, long b, long c)
 {
     int i, first, last;
-    double perc, ptime = 0;
+    double perc, ptime = 0, min, max, in;
     char *descr = "";
+    
+    min = (double) a;
+    max = (double) b;
+    in = (double) c;
 
     perc = (in - min) / (max - min);
     first = fabs(in - min) < 1e-10;
     last = fabs(in - max) < 1e-10;
 
     /* Start of progress */
-    if (pb_start == 0 || (first && !last)) {
+    if (pb_start < 0 || (first && !last)) {
         pb_start = time_stamp();
         for (i = 0; i < PROGBAR_LEN; i++)
             pb_string[i] = PROGBAR_EMPTY;
@@ -155,12 +159,12 @@ void prog_bar(double min, double max, double in)
         ptime = time_stamp() - pb_start;
         descr = "total";
         perc = 1.0;
-        pb_start = 0;
+        pb_start = -1;
     }
 
     /* Middle of progress */
     if (!first && !last) {
-        int len = round(perc * PROGBAR_LEN);
+        int len = (int) round(perc * PROGBAR_LEN);
         for (i = 0; i < len; i++)
             if (i < len - 1)
                 pb_string[i] = PROGBAR_DONE;
@@ -170,8 +174,8 @@ void prog_bar(double min, double max, double in)
         descr = "   in";
     }
 
-    int mins = floor(ptime / 60);
-    int secs = floor(ptime - mins * 60);
+    int mins = (int) floor(ptime / 60);
+    int secs = (int) floor(ptime - mins * 60);
     pb_string[PROGBAR_LEN] = 0;
 
     printf("\r  [%s] %5.1f%%  %s %.2dm %.2ds ", pb_string,
@@ -360,7 +364,7 @@ int decode_string(char *str)
             hex[2] = str[++j];
             hex[3] = str[++j];
             sscanf(hex, "%x", (unsigned int *) &r);
-            str[k] = r;
+            str[k] = (char) r;
         }
     }
 

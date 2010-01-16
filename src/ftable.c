@@ -153,7 +153,7 @@ void ftable_print()
     fentry_t *f;
     int i;
 
-    printf("feature table [size: %ld, puts: %ld, colls: %ld (%g%%), %p]\n",
+    printf("feature table [size: %lu, puts: %lu, colls: %lu (%g%%), %p]\n",
            ftable_size(), insertions, collisions,
            (collisions * 100.0) / insertions, (void *) feature_table);
 

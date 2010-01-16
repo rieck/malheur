@@ -20,10 +20,12 @@
 
 #ifdef HAVE_UTHASH_UTHASH_H
 #include <uthash/uthash.h>
-#elif HAVE_UTHASH_H
+#else 
+#ifdef HAVE_UTHASH_H
 #include <uthash.h>
 #else
 #include "uthash.h"
+#endif
 #endif
 
 /** 

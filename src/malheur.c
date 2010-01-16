@@ -41,7 +41,7 @@ static malheur_cfg_t mcfg;
  * @param argc Number of arguments
  * @param argv Argument values
  */
-static void print_usage(int argc, char **argv)
+static void print_usage(void)
 {
     printf("Usage: malheur [options] <action> <dataset>\n"
            "actions:\n"
@@ -89,7 +89,7 @@ static void parse_options(int argc, char **argv)
             break;
         case 'h':
         case '?':
-            print_usage(argc, argv);
+            print_usage();
             exit(EXIT_SUCCESS);
             break;
         }

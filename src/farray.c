@@ -186,7 +186,7 @@ farray_t *farray_extract(char *path)
         error("Unsupported file type of input '%s'", path);
 
     if (verbose > 0)
-        printf("  Done. %ld feature vectors using %.2fMb extracted.\n",
+        printf("  Done. %lu feature vectors using %.2fMb extracted.\n",
                fa->len, fa->mem / 1e6);
 
     return fa;
@@ -358,7 +358,7 @@ void farray_print(farray_t *fa)
     int i;
     label_t *entry;
 
-    printf("feature array\n  len: %lu, labels: %d, mem: %.2fMb\n",
+    printf("feature array\n  len: %lu, labels: %u, mem: %.2fMb\n",
            fa->len, HASH_CNT(hn, fa->label_name), fa->mem / 1e6);
 
     if (fa->src)
@@ -501,7 +501,7 @@ void farray_save_file(farray_t *fa, char *f)
     gzFile *z;
 
     if (verbose > 0)
-        printf("Saving %ld feature vectors to '%s'.\n", fa->len, f);
+        printf("Saving %lu feature vectors to '%s'.\n", fa->len, f);
 
     /* Open file */
     z = gzopen(f, "wb");
@@ -526,7 +526,7 @@ void farray_append_file(farray_t *fa, char *f)
     gzFile *z;
 
     if (verbose > 0)
-        printf("Appending %ld feature vectors to '%s'.\n", fa->len, f);
+        printf("Appending %lu feature vectors to '%s'.\n", fa->len, f);
 
     /* Open file and merge */
     if ((z = gzopen(f, "rb"))) {

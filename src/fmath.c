@@ -44,12 +44,12 @@ void fvec_normalize(fvec_t *f, norm_t n)
     case NORM_L1:
         s = fvec_norm1(f);
         for (i = 0; i < f->len; i++)
-            f->val[i] /= s;
+            f->val[i] = (float) (f->val[i] / s);
         break;
     case NORM_L2:
         s = fvec_norm2(f);
         for (i = 0; i < f->len; i++)
-            f->val[i] /= s;
+            f->val[i] = (float) (f->val[i] / s);
         break;
     }
 }
@@ -79,7 +79,7 @@ void fvec_mul(fvec_t *f, double s)
     assert(f);
 
     for (i = 0; i < f->len; i++)
-        f->val[i] *= s;
+        f->val[i] = (float) (f->val[i] * s);
 }
 
 /**
@@ -203,7 +203,7 @@ void farray_dist(farray_t *fa, farray_t *fb, double *d)
     }
 
     if (verbose > 0)
-        printf("  Done. %ld distances computed.\n", fa->len * fb->len);
+        printf("  Done. %lu distances computed.\n", fa->len * fb->len);
 }
 
 /** 
@@ -217,7 +217,7 @@ void farray_dist_tria(farray_t *fa, double *d)
     long i, r = 0, n = tria_size(fa->len);
 
     if (verbose > 0) {
-        printf("Computing distances (%lu distance pairs, %.2fMb).\n", n,
+        printf("Computing distances (%ld distance pairs, %.2fMb).\n", n,
                n * sizeof(double) / 1e6);
         prog_bar(0, 1, 0);
     }
@@ -277,9 +277,9 @@ double fvec_dot(fvec_t *fa, fvec_t *fb)
 
     /* Sort vectors according to size */
     if (fa->len > fb->len) {
-        a = fa->len, b = fb->len;
+        a = (double) fa->len, b = (double) fb->len;
     } else {
-        b = fa->len, a = fb->len;
+        b = (double) fa->len, a = (double) fb->len;
     }
 
     /* Choose dot functions */
@@ -326,20 +326,20 @@ fvec_t *fvec_adds(fvec_t *fa, fvec_t *fb, double s)
     while (i < fa->len && j < fb->len) {
         if (fa->dim[i] > fb->dim[j]) {
             f->dim[len] = fb->dim[j];
-            f->val[len++] = fb->val[j++] * s;
+            f->val[len++] = (float) (fb->val[j++] * s);
         } else if (fa->dim[i] < fb->dim[j]) {
             f->dim[len] = fa->dim[i];
             f->val[len++] = fa->val[i++];
         } else {
             f->dim[len] = fa->dim[i];
-            f->val[len++] = fa->val[i++] + fb->val[j++] * s;
+            f->val[len++] = (float) (fa->val[i++] + fb->val[j++] * s);
         }
     }
 
     /* Loop over remaining features  */
     while (j < fb->len) {
         f->dim[len] = fb->dim[j];
-        f->val[len++] = fb->val[j++] * s;
+        f->val[len++] = (float) (fb->val[j++] * s);
     }
     while (i < fa->len) {
         f->dim[len] = fa->dim[i];

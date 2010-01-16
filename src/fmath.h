@@ -30,7 +30,7 @@ typedef enum {
 
 /* Functions */
 void fvec_mul(fvec_t *, double);
-void fved_div(fvec_t *, double);
+void fvec_div(fvec_t *, double);
 fvec_t *fvec_adds(fvec_t *, fvec_t *, double);
 fvec_t *fvec_add(fvec_t *, fvec_t *);
 fvec_t *fvec_sub(fvec_t *, fvec_t *);

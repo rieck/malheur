@@ -124,7 +124,7 @@ farray_t *proto_extract(farray_t *fa, assign_t **as)
     p = proto_gonzalez(fa, *as, maxnum, maxdist);
 
     if (verbose > 0)
-        printf("  Done. %ld prototypes using %.2fMb extracted.\n",
+        printf("  Done. %lu prototypes using %.2fMb extracted.\n",
                p->len, p->mem / 1e6);
 
     return p;
@@ -169,7 +169,7 @@ assign_t *proto_assign(farray_t *fa, farray_t *p)
     }
 
     if (verbose > 0)
-        printf("  Done. Assigened %ld feature vectors to %ld prototypes.\n",
+        printf("  Done. Assigened %lu feature vectors to %lu prototypes.\n",
                fa->len, p->len);
 
     return c;

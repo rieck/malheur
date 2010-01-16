@@ -44,6 +44,12 @@ case $arg in
        CFLAGS="-g -pedantic -pipe -O3 -mcpu=v9 -m64" \
        ./configure 
        ;;
+   icc)    
+       echo "# Configuration: ICC"
+       CC="icc" \
+       CFLAGS="-O3"\
+       ./configure --enable-openmp
+       ;;
    debug)
        echo "# Configuration: Debug"
        CC="/usr/bin/gcc" \

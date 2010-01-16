@@ -185,7 +185,7 @@ void farray_dist(farray_t *fa, farray_t *fb, double *d)
 #pragma omp critical
             if (verbose > 0) {
                 r += fb->len - i;
-                prog_bar(0, (fa->len * fa->len + fa->len) / 2.0 + 1, r);
+                prog_bar(0, (fa->len * fa->len + fa->len) / 2.0, r);
             }
         }
     } else {

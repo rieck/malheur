@@ -33,6 +33,7 @@ static char malheur_dir[MAX_PATH_LEN];
 static char **input_files = NULL;
 static int input_len = 0;
 static int reset = FALSE;
+static int save = TRUE;
 static malheur_action_t action = PROTOTYPE;
 static malheur_cfg_t mcfg;
 
@@ -54,6 +55,7 @@ static void print_usage(void)
            "  -m <maldir>    Set malheur directory. [%s]\n"
            "  -o <outfile>   Set output file for analysis. [%s]\n"
            "  -r             Reset internal state of Malheur.\n"
+           "  -n             Don't save internal state of Malher.\n"
            "  -v             Increase verbosity.\n"
            "  -V             Print version and copyright.\n"
            "  -h             Print this help screen.\n",
@@ -68,8 +70,11 @@ static void print_usage(void)
 static void parse_options(int argc, char **argv)
 {
     int ch;
-    while ((ch = getopt(argc, argv, "rs:o:m:hvV")) != -1) {
+    while ((ch = getopt(argc, argv, "nrs:o:m:hvV")) != -1) {
         switch (ch) {
+        case 'n': 
+            save = FALSE;
+            break;
         case 'r':
             reset = TRUE;
             break;
@@ -275,7 +280,8 @@ static void malheur_prototype()
         farray_print(pr);
 
     /* Save prototypes */
-    farray_save_file(pr, mcfg.proto_file);
+    if (save)
+        farray_save_file(pr, mcfg.proto_file);
 
     /* Export prototypes */
     export_proto(pr, fa, as, output_file);
@@ -307,12 +313,14 @@ static void malheur_cluster()
 
     /* Save prototypes */
     pn = cluster_get_prototypes(c, as, pr);
-    farray_save_file(pn, mcfg.proto_file);
+    if (save)
+        farray_save_file(pn, mcfg.proto_file);
     farray_destroy(pn);
 
     /* Save rejected feature vectors */
     re = cluster_get_rejected(c, fa);
-    farray_save_file(re, mcfg.reject_file);
+    if (save)
+        farray_save_file(re, mcfg.reject_file);
     farray_destroy(re);
 
     /* Export clustering */
@@ -348,7 +356,8 @@ static void malheur_classify()
 
     /* Save rejected feature vectors */
     re = class_get_rejected(as, fa);
-    farray_save_file(re, mcfg.reject_file);
+    if (save)
+        farray_save_file(re, mcfg.reject_file);
     farray_destroy(re);
 
     /* Export classification */
@@ -407,14 +416,19 @@ static void malheur_increment()
     cluster_extrapolate(c, as);
     cluster_trim(c);
 
-    /* Save prototypes and rejected feature vectors */
+    /* Save prototypes vectors */
     pn = cluster_get_prototypes(c, as, pr);
-    farray_append_file(pn, mcfg.proto_file);
+    if (save)
+        farray_append_file(pn, mcfg.proto_file);
+
+    /* Save rejeted feature vectors */
     re = cluster_get_rejected(c, fa);
-    farray_save_file(re, mcfg.reject_file);
+    if (save)
+        farray_save_file(re, mcfg.reject_file);
 
     /* Save state */
-    malheur_save_state(run + 1, pn->len, re->len);
+    if (save)
+        malheur_save_state(run + 1, pn->len, re->len);
 
     /* Export results */
     export_increment2(c, pr, fa, as, output_file);

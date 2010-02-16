@@ -1,6 +1,6 @@
 /*
  * MALHEUR - Automatic Analysis of Malware Behavior
- * Copyright (c) 2009 Konrad Rieck (rieck@cs.tu-berlin.de)
+ * Copyright (c) 2009,2010 Konrad Rieck (rieck@cs.tu-berlin.de)
  * Berlin Institute of Technology (TU Berlin).
  * --
  * This program is free software; you can redistribute it and/or modify it
@@ -402,6 +402,38 @@ farray_t *farray_merge(farray_t *x, farray_t *y)
     return x;
 }
 
+
+/**
+ * Returns the index for a fixed vector regardless of the order. The fixed
+ * vector is determined by comparing the source, label and memory of each
+ * vector and picking the smallest.
+ * @param fa Array of feature vectors 
+ */
+int farray_get_fixed(farray_t *fa)
+{
+    int i, j = 0, c;
+ 
+    for (i = 0; i < fa->len; i++) { 
+
+        /* Some obscure comparisons */
+        c = 0;
+        if (fa->x[i]->src && fa->x[j]->src)
+            c = strcmp(fa->x[i]->src, fa->x[j]->src);
+        if (c == 0)
+            c = fa->y[i] - fa->y[j];
+        if (c == 0)
+            c = fa->x[i]->total - fa->x[j]->total;
+        if (c == 0)
+            c = fa->x[i]->mem - fa->x[j]->mem;
+            
+        /* Get "smallest" element */
+        if (c < 0)
+            j = i;
+    }
+    
+    return j;    
+}
+
 /**
  * Saves an array of feature vectors to a file 
  * @param fa Array of feature vectors
@@ -572,5 +604,6 @@ farray_t *farray_load_file(char *f)
 
     return fa;
 }
+
 
 /** @} */

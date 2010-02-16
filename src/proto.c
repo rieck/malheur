@@ -1,6 +1,6 @@
 /*
  * MALHEUR - Automatic Analysis of Malware Behavior
- * Copyright (c) 2009 Konrad Rieck (rieck@cs.tu-berlin.de)
+ * Copyright (c) 2009,2010 Konrad Rieck (rieck@cs.tu-berlin.de)
  * Berlin Institute of Technology (TU Berlin).
  * --
  * This program is free software; you can redistribute it and/or modify it
@@ -55,14 +55,17 @@ static farray_t *proto_gonzalez(farray_t *fa, assign_t *as, long n, double m)
     /* Check for maximum number of protos */
     if (n == 0)
         n = as->len;
-
+        
+    /* Get a fixed first element */
+    int fixed = farray_get_fixed(fa);
+    
     /* Loop over feature vectors. First prototype: j = 0. */
     for (i = 0; i < n; i++) {
         /* Determine largest distance */
         if (i > 0)
             j = array_max(as->dist, as->len);
-        else
-            j = 0;
+        else 
+            j = fixed;
 
         /* Check for minimum distance between prototypes */
         if (as->dist[j] < m)

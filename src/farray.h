@@ -1,6 +1,6 @@
 /*
  * MALHEUR - Automatic Analysis of Malware Behavior
- * Copyright (c) 2009 Konrad Rieck (rieck@cs.tu-berlin.de)
+ * Copyright (c) 2009,2010 Konrad Rieck (rieck@cs.tu-berlin.de)
  * Berlin Institute of Technology (TU Berlin).
  * --
  * This program is free software; you can redistribute it and/or modify it
@@ -61,6 +61,7 @@ void farray_destroy(farray_t *);
 void farray_print(farray_t *);
 farray_t *farray_merge(farray_t *, farray_t *);
 char *farray_get_label(farray_t *fa, int i);
+int farray_get_fixed(farray_t *fa);
 
 /* Extract function */
 farray_t *farray_extract(char *);

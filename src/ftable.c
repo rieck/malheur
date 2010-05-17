@@ -164,7 +164,7 @@ void ftable_print()
         printf("  0x%.16llx: ", (long long unsigned int) f->key);
 
         for (i = 0; i < f->len; i++) {
-            if (isprint(f->data[i]) || f->data[i] == '%')
+            if (isprint(f->data[i]) && f->data[i] != '%')
                 printf("%c", f->data[i]);
             else
                 printf("%%%.2x", f->data[i]);

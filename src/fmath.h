@@ -46,5 +46,6 @@ void fvec_sparsify(fvec_t *);
 void farray_dist(farray_t *fa, farray_t *fb, double *d);
 void farray_dist_tria(farray_t *fa, double *d);
 void farray_normalize(farray_t *f, norm_t n);
+void fvec_bin(fvec_t *f);
 
 #endif                          /* FMATH_H */

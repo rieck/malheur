@@ -92,6 +92,19 @@ void fvec_div(fvec_t *f, double s)
     fvec_mul(f, 1 / s);
 }
 
+/**
+ * Binaries the values in a vector.
+ * @param f Feature vector 
+ */
+void fvec_bin(fvec_t *f)
+{
+    int i = 0;
+    assert(f);
+
+    for (i = 0; i < f->len; i++)
+        f->val[i] = 1.0;
+}
+
 
 /** 
  * Dot product between two feature vectors (s = <a,b>). The function 

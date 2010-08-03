@@ -26,6 +26,7 @@
 #include "util.h"
 #include "cluster.h"
 #include "fmath.h"
+#include "ftable.h"
 #include "proto.h"
 
 /* External variables */
@@ -144,6 +145,68 @@ static void cluster_murtagh(cluster_t *c, double *d, double dm, char m)
     free(done);
     free(nn);
     free(dnn);
+}
+
+/**
+ * Print shared n-grams for each cluster
+ * @param c Clustering structure
+ * @param fa Array of feature vectors
+ * @param sratio Minimum ratio of shared n-grams
+ */
+static void cluster_print_sngrams(cluster_t *c, farray_t *fa, double sratio)
+{
+    assert(c && fa && sratio > 0);
+
+    int i, j, k;
+    
+    for (i = 0; i < c->num; i++) {
+        fvec_t *s = fvec_zero();
+        
+        for (j = 0, k = 0; j < c->len; j++) {
+            if (c->cluster[j] != i)
+                continue;
+        
+            fvec_t *x = fvec_clone(fa->x[j]);
+            fvec_bin(x);
+            
+            if (k == 0) 
+                printf("\nCluster %s\n", cluster_get_name(c, j));
+            
+            fvec_t *y = fvec_add(s, x);
+            fvec_destroy(s);            
+            fvec_destroy(x);
+            s = y;
+            k++;
+        }
+        
+        fvec_div(s, k);
+        
+        for (j = 0; j < s->len; j++) {
+            if (s->val[j] < sratio)
+                continue;
+        
+            printf("  %6.4f %.16llx ", s->val[j],
+                   (long long unsigned int) s->dim[j]);
+
+            /* Lookup feature */
+            fentry_t *fe = ftable_get(s->dim[j]);
+            if (!fe) {
+                printf("\n");
+                continue;
+            }
+
+            /* Print feature string */
+            printf("\"");
+            for (k = 0; k < fe->len; k++) {
+                if (isprint(fe->data[k]) || fe->data[k] == '%')
+                    printf("%c", fe->data[k]);
+                else
+                    printf("%%%.2x", fe->data[k]);
+            }
+            printf("\"\n");
+        }        
+        fvec_destroy(s);        
+    }
 }
 
 /**
@@ -282,6 +345,7 @@ cluster_t *cluster_linkage(farray_t *fa, int r)
     assert(fa);
     double dmin;
     const char *mode;
+    double sratio;
 
     /* Get cluster configuration */
     config_lookup_float(&cfg, "cluster.min_dist", (double *) &dmin);
@@ -306,6 +370,10 @@ cluster_t *cluster_linkage(farray_t *fa, int r)
 
     /* Run clustering */
     cluster_murtagh(c, dist, dmin, mode[0]);
+    
+    config_lookup_float(&cfg, "cluster.print_ngrams", (double *) &sratio);
+    if (sratio > 0) 
+        cluster_print_sngrams(c, fa, sratio);
 
     free(dist);
     return c;

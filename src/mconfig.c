@@ -47,6 +47,7 @@ static config_default_t defaults[] = {
     {"cluster", "min_dist", 0, 0.95, NULL},
     {"cluster", "reject_num", 10, FLT_NONE, NULL},
     {"cluster", "link_mode", 0, FLT_NONE, "complete"},
+    {"cluster", "print_ngrams", 0, 0.0, NULL},
     /* Classification */
     {"classify", "max_dist", 0, 0.68, NULL},
     /* Terminating entry */

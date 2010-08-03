@@ -4,7 +4,7 @@
 #
  
 # Malheur version
-AC_INIT([malheur], [0.4.7], [rieck@cs.tu-berlin.de])
+AC_INIT([malheur], [0.4.7-sng], [rieck@cs.tu-berlin.de])
 AC_PREFIX_DEFAULT("/usr/local")
 
 # Defines (suitable for loading and saving versioned files)

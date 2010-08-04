@@ -135,6 +135,7 @@ static void parse_options(int argc, char **argv)
 static void malheur_init(int argc, char **argv)
 {
     long lookup;
+    double shared;
 
     /* Prepare dir */
     snprintf(malheur_dir, MAX_PATH_LEN, "%s/%s", getenv("HOME"), MALHEUR_DIR);
@@ -173,7 +174,8 @@ static void malheur_init(int argc, char **argv)
 
     /* Init feature lookup table */
     config_lookup_int(&cfg, "features.lookup_table", &lookup);
-    if (lookup) {
+    config_lookup_float(&cfg, "cluster.shared_ngrams", &shared);
+    if (lookup || shared > 0.0) {
         ftable_init();
     }
     
@@ -299,6 +301,7 @@ static void malheur_cluster()
 {
     assign_t *as;
     farray_t *fa, *pr, *pn, *re;
+    double shared;
 
     /* Load data */
     fa = malheur_load();
@@ -325,6 +328,9 @@ static void malheur_cluster()
 
     /* Export clustering */
     export_cluster(c, pr, fa, as, output_file);
+    
+    /* Export shared n-grams */
+    export_shared_ngrams(c, fa, output_file);
 
     /* Clean up */
     cluster_destroy(c);

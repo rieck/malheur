@@ -358,10 +358,8 @@ void export_shared_ngrams(cluster_t *c, farray_t *fa, char *file)
             
             /* Lookup feature */
             fentry_t *fe = ftable_get(s->dim[j]);
-            if (!fe) {
-                fprintf(f, "(missing)\n");
-                continue;
-            }
+            if (!fe) 
+                error("Oops. Feature not in lookup table."); 
             
             /* Print feature */
             fprintf(f, "\"");

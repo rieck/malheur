@@ -10,13 +10,13 @@ B<malheur> [B<-hrvV>] [B<-m> I<maldir>] [B<-o> I<outfile>] I<action> I<dataset>
 
 =head1 DESCRIPTION
 
-B<malheur> is a tool for automatic analysis of program behavior recorded
-from malicious software (malware).  The tool has been designed to support
-the regular analysis of malicious software and the development of detection
-and defense measures.  B<malheur> allows for identifying novel classes of
-malware with similar behavior and assigning unknown malware to discovered
-classes.  It supports four basic actions for analysis which can be applied
-to reports of recorded behavior:
+B<malheur> is a tool for the automatic analysis of malware behavior (program
+behavior recorded from malicious software in a sandbox environment).  The
+tool has been designed to support the regular analysis of malicious software
+and the development of detection and defense measures.  B<malheur> allows
+for identifying novel classes of malware with similar behavior and assigning
+unknown malware to discovered classes.  It supports four basic actions for
+analysis which can be applied to reports of recorded behavior:
 
 =over 4
 
@@ -83,7 +83,7 @@ malware instruction set (MIST) further options may be selected.
 
 The result of an analysis is written to I<outfile>, a textual file
 containing columns corresponding to particular analysis results.  By
-default F<outfile> is set to F<malheur.out>.
+default I<outfile> is set to F<malheur.out>.
 
 The configuration and internal state of B<malheur> are stored in the
 directory I<maldir>. If this directory does not exist, it is created
@@ -328,7 +328,16 @@ pair of clusters is above this value. The parameters lies in the range
 This parameter specifies the minimum number of members in a clusters.
 Small clusters containing less members than this value are rejected.
 The corresponds reports are assigned to a global rejection cluster.
-If set 0 no all clusters are accepted.
+If set to 0, all clusters are accepted.
+
+
+=item B<shared_ngrams   = 0.0;>
+
+This parameter allows to extract shared n-grams for each clusters. 
+The shared n-grams are determined by merging the members in each 
+cluster and identifying all n-grams shared by at least the given 
+ratio of members.  The resulting list of shared n-grams is appended
+to I<outfile>. If set to 0.0, this feature is disabled.
 
 =back
 
@@ -465,7 +474,7 @@ set. However, it also present a lot of verbose information on the
 reports and extracted prototypes. In particular, for each prototype
 the corresponding feature vector is displayed. If the lookup table is
 enabled, the dimensions of this vector are printed with respective
-instruction n-grams (substrings composed of n).
+instruction n-grams (substrings composed of n instructions).
 
 =head1 BUGS
 

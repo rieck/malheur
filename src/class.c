@@ -1,6 +1,6 @@
 /*
  * MALHEUR - Automatic Analysis of Malware Behavior
- * Copyright (c) 2009 Konrad Rieck (rieck@cs.tu-berlin.de)
+ * Copyright (c) 2009 Konrad Rieck (konrad.rieck@tu-berlin.de)
  * Berlin Institute of Technology (TU Berlin).
  * --
  * This program is free software; you can redistribute it and/or modify it
@@ -16,7 +16,7 @@
  * The module contains functions for assigning and classifying feature 
  * vectors to known clusters. Clusters and classes are both represented
  * by appropriate prototype vectors.
- * @author Konrad Rieck (rieck@cs.tu-berlin.de)
+ * @author Konrad Rieck (konrad.rieck@tu-berlin.de)
  * @{
  */
 #include "config.h"

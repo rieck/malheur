@@ -1,6 +1,6 @@
 /*
  * MALHEUR - Automatic Analysis of Malware Behavior
- * Copyright (c) 2009 Konrad Rieck (rieck@cs.tu-berlin.de)
+ * Copyright (c) 2009 Konrad Rieck (konrad.rieck@tu-berlin.de)
  * Berlin Institute of Technology (TU Berlin).
  * --
  * This program is free software; you can redistribute it and/or modify it
@@ -16,7 +16,7 @@
  * This module contains standard mathematical functions defined over
  * sparse feature vectors. In favor of a generic interface, only assorted
  * functions are implemented that provide linear-time processing.
- * @author Konrad Rieck (rieck@cs.tu-berlin.de)
+ * @author Konrad Rieck (konrad.rieck@tu-berlin.de)
  * @{
  */
 

@@ -1,6 +1,6 @@
 #
 # MALHEUR - Automatic Analysis of Malware Behavior
-# Copyright (c) 2009 Konrad Rieck (rieck@cs.tu-berlin.de)
+# Copyright (c) 2009 Konrad Rieck (konrad.rieck@tu-berlin.de)
 # Berlin Institute of Technology (TU Berlin).
 #
 

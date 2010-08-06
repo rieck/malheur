@@ -1,6 +1,6 @@
 /*
  * MALHEUR - Automatic Analysis of Malware Behavior
- * Copyright (c) 2009 Konrad Rieck (rieck@cs.tu-berlin.de)
+ * Copyright (c) 2009 Konrad Rieck (konrad.rieck@tu-berlin.de)
  * Berlin Institute of Technology (TU Berlin).
  * --
  * This program is free software; you can redistribute it and/or modify it
@@ -15,7 +15,7 @@
  * @defgroup export Export functions
  * The module contains functions for exporting data computed by 
  * Malheur to external format such as plain text and HTML documents.
- * @author Konrad Rieck (rieck@cs.tu-berlin.de)
+ * @author Konrad Rieck (konrad.rieck@tu-berlin.de)
  * @{
  */
 #include "config.h"

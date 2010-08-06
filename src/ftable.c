@@ -1,6 +1,6 @@
 /*
  * MALHEUR - Automatic Analysis of Malware Behavior
- * Copyright (c) 2009 Konrad Rieck (rieck@cs.tu-berlin.de)
+ * Copyright (c) 2009 Konrad Rieck (konrad.rieck@tu-berlin.de)
  * Berlin Institute of Technology (TU Berlin).
  * --
  * This program is free software; you can redistribute it and/or modify it
@@ -21,7 +21,7 @@
  * the quality of the hashing can be assessed. Maintaining a global hash 
  * table impacts performance when using OpenMP, thus it is adviced to 
  * disable the table if not required. 
- * @author Konrad Rieck (rieck@cs.tu-berlin.de)
+ * @author Konrad Rieck (konrad.rieck@tu-berlin.de)
  * @{
  */
 

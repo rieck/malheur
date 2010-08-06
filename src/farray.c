@@ -1,6 +1,6 @@
 /*
  * MALHEUR - Automatic Analysis of Malware Behavior
- * Copyright (c) 2009,2010 Konrad Rieck (rieck@cs.tu-berlin.de)
+ * Copyright (c) 2009,2010 Konrad Rieck (konrad.rieck@tu-berlin.de)
  * Berlin Institute of Technology (TU Berlin).
  * --
  * This program is free software; you can redistribute it and/or modify it
@@ -18,7 +18,7 @@
  * textual labels, such as AV labels. Moreover, functionality is provided
  * for extraction of feature vectors from directories and compressed
  * archives of malware reports.
- * @author Konrad Rieck (rieck@cs.tu-berlin.de)
+ * @author Konrad Rieck (konrad.rieck@tu-berlin.de)
  * @{
  */
 

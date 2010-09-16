@@ -134,7 +134,7 @@ static void parse_options(int argc, char **argv)
  */
 static void malheur_init(int argc, char **argv)
 {
-    long lookup;
+    int lookup;
     double shared;
 
     /* Prepare dir */
@@ -301,7 +301,6 @@ static void malheur_cluster()
 {
     assign_t *as;
     farray_t *fa, *pr, *pn, *re;
-    double shared;
 
     /* Load data */
     fa = malheur_load();
@@ -480,7 +479,7 @@ static void malheur_distance()
  */
 static void malheur_exit()
 {
-    long lookup;
+    int lookup;
 
     /* Destroy feature lookup table */
     config_lookup_int(&cfg, "features.lookup_table", &lookup);

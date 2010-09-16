@@ -195,7 +195,7 @@ void cluster_trim(cluster_t *c)
     assert(c);
     count_t *counts = NULL, *entry;
     unsigned int i, j;
-    long rej;
+    int rej;
 
     config_lookup_int(&cfg, "cluster.reject_num", &rej);
 

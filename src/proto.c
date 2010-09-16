@@ -109,12 +109,12 @@ farray_t *proto_extract(farray_t *fa, assign_t **as)
 {
     assert(fa);
     farray_t *p;
-    long maxnum;
+    int maxnum;
     double maxdist;
 
     /* Get configuration */
     config_lookup_float(&cfg, "prototypes.max_dist", (double *) &maxdist);
-    config_lookup_int(&cfg, "prototypes.max_num", (long *) &maxnum);
+    config_lookup_int(&cfg, "prototypes.max_num", (int *) &maxnum);
 
     if (verbose > 0)
         printf("Extracting prototypes with maximum distance %4.2f.\n",

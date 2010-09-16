@@ -36,7 +36,7 @@
 typedef struct {
     char *group;        /**< Configuration group */
     char *name;         /**< Configuration name */
-    long inum;          /**< Integer value of configuration (or 0) */
+    int inum;           /**< Integer value of configuration (or 0) */
     double fnum;        /**< Float value of configuraiton (or NAN) */
     char *str;          /**< String of configuration (or NULL) */
 } config_default_t;

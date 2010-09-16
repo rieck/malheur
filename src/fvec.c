@@ -128,7 +128,7 @@ fvec_t *fvec_zero()
 fvec_t *fvec_extract(char *x, int l, char *s)
 {
     fvec_t *fv;
-    long nlen;
+    int nlen;
     const char *dlm_str, *cfg_str;
     assert(x && l >= 0);
 
@@ -163,7 +163,7 @@ fvec_t *fvec_extract(char *x, int l, char *s)
     }
 
     /* Get n-gram length */
-    config_lookup_int(&cfg, "features.ngram_len", (long *) &nlen);
+    config_lookup_int(&cfg, "features.ngram_len", (int *) &nlen);
 
     /* Construct delimiter lookup table */
     config_lookup_string(&cfg, "features.ngram_delim", &dlm_str);

@@ -4,13 +4,13 @@
 #
  
 # Malheur version
-AC_INIT([malheur], [0.4.8], [konrad.rieck@tu-berlin.de])
+AC_INIT([malheur], [0.4.9], [konrad.rieck@tu-berlin.de])
 AC_PREFIX_DEFAULT("/usr/local")
 
 # Defines (suitable for loading and saving versioned files)
 AC_DEFINE(MALHEUR_MAJOR, 0, Major version number)
 AC_DEFINE(MALHEUR_MINOR, 4, Minor version number)
-AC_DEFINE(MALHEUR_PATCH, 8, Patch version number)
+AC_DEFINE(MALHEUR_PATCH, 9, Patch version number)
 
 echo
 echo " :: MALHEUR - Automatic Analysis of Malware Behavior"
@@ -70,7 +70,7 @@ AC_CHECK_HEADERS([uthash.h uthash/uthash.h], HEADER_UTHASH="yes")
 #fi
 
 # libconfig
-PKG_CHECK_MODULES([PKGCONFIG], [libconfig >= 1.3.2])
+PKG_CHECK_MODULES([PKGCONFIG], [libconfig >= 1.4])
 CFLAGS="$CFLAGS $PKGCONFIG_CFLAGS"
 LIBS="$LIBS $PKGCONFIG_LIBS"
 INCLUDES="$INCLUDES `pkg-config --cflags-only-I libconfig`"

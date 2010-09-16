@@ -91,7 +91,7 @@ static void config_setting_fprint(FILE *f, config_setting_t * cs, int d)
         fprintf(f, "%s\t= %7.5f;\n", n, config_setting_get_float(cs));
         break;
     case CONFIG_TYPE_INT:
-        fprintf(f, "%s\t= %ld;\n", n, config_setting_get_int(cs));
+        fprintf(f, "%s\t= %d;\n", n, config_setting_get_int(cs));
         break;
     default:
         error("Unsupported type for configuration setting '%s'", n);
@@ -125,8 +125,7 @@ void config_fprint(FILE *f, config_t *cfg)
  */
 void config_check(config_t *cfg)
 {
-    int i;
-    long j;
+    int i, j;
     const char *s;
     double f;
     config_setting_t *cs, *vs;

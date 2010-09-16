@@ -70,10 +70,10 @@ void MD5Init(struct MD5Context *ctx)
 {
     /* Initialize with selected seed values */
     if (seed1 == MD5_SEED_NONE) {
-        long l;
-        config_lookup_int(&cfg, "features.hash_seed1", (long *) &l); 
+        long long l;
+        config_lookup_int64(&cfg, "features.hash_seed1", (long long *) &l); 
         seed1 = (uint32_t) l;
-        config_lookup_int(&cfg, "features.hash_seed2", (long *) &l);    
+        config_lookup_int64(&cfg, "features.hash_seed2", (long long *) &l);    
         seed2 = (uint32_t) l;
     }
 
@@ -201,7 +201,7 @@ void MD5Final(unsigned char digest[16], struct MD5Context *ctx)
 
 /*
  * The core of the MD5 algorithm, this alters an existing MD5 hash to
- * reflect the addition of 16 longwords of new data.  MD5Update blocks
+ * reflect the addition of 16 long words of new data.  MD5Update blocks
  * the data and converts bytes into longwords for this routine.
  */
 void MD5Transform(uint32_t buf[4], uint32_t const in[16])

@@ -90,14 +90,14 @@ char *mist_preproc(char *report)
 {
     assert(report);
 
-    long level, rlen, tlen, ti = 0, ri = 0;
+    int level, rlen, tlen, ti = 0, ri = 0;
     char *read_ptr = report, *write_ptr = report;
     char line[BUFFER_SIZE];
 
     /* Get MIST configuration */
-    config_lookup_int(&cfg, "input.mist_level", (long *) &level);
-    config_lookup_int(&cfg, "input.mist_rlen", (long *) &rlen);
-    config_lookup_int(&cfg, "input.mist_tlen", (long *) &tlen);
+    config_lookup_int(&cfg, "input.mist_level", (int *) &level);
+    config_lookup_int(&cfg, "input.mist_rlen", (int *) &rlen);
+    config_lookup_int(&cfg, "input.mist_tlen", (int *) &tlen);
 
     /* Process MIST file */
     while (mist_read_line(&read_ptr, line)) {

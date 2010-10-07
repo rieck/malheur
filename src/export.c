@@ -316,7 +316,8 @@ void export_shared_ngrams(cluster_t *c, farray_t *fa, char *file)
     
     /* Print incremental header */
     fprintf(f, "# ---\n# Shared n-grams for %s\n", fa->src);
-    fprintf(f, "# Minimum ratio: %4.2f\n", shared);
+    fprintf(f, "# Minimum ratio of shared n-grams: %4.2f (%2.0f%%)\n", shared, 
+            shared * 100);
     fprintf(f, "# ---\n# <cluster> <ratio> <hash> <ngram>\n");
     
     /* Compute shared n-grams per cluster */
@@ -376,6 +377,5 @@ void export_shared_ngrams(cluster_t *c, farray_t *fa, char *file)
     
     fclose(f);
 }
-
 
 /** @} */

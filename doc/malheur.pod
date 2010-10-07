@@ -337,7 +337,9 @@ This parameter allows to extract shared n-grams for each clusters.
 The shared n-grams are determined by merging the members in each 
 cluster and identifying all n-grams shared by at least the given 
 ratio of members.  The resulting list of shared n-grams is appended
-to I<outfile>. If set to 0.0, this feature is disabled.
+to I<outfile>. If set to 0.0, this feature is disabled. Note that
+if shared n-grams are enabled, a feature lookup table is 
+maintained which consumes extra memory. 
 
 =back
 

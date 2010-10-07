@@ -1,0 +1,1403 @@
+2010-10-07  Konrad Rieck <konrad.rieck@tu-berlin.de>
+
+  * doc/malheur.pod, src/export.c: improved output of shared n-grams
+
+  * doc/malheur.pod: updated refernce (though the publication date is just a
+  wild guess)
+
+2010-09-16  Konrad Rieck <rieck@node16.ml.tu-berlin.de>
+
+  * configure.in, src/cluster.c, src/fvec.c, src/malheur.c, src/mconfig.c,
+  src/mconfig.h, src/md5.c, src/mist.c, src/proto.c: switched to libconfig
+  1.4.x
+
+2010-08-06  Konrad Rieck <konrad.rieck@tu-berlin.de>
+
+  * doc/malheur.cfg, doc/malheur.pod: updated man page
+
+  * Makefile.am, README, TODO, bootstrap, compile, configure.in,
+  doc/Makefile.am, doc/malheur.cfg, matlab/Makefile.am, matlab/mal_distance.m,
+  matlab/malheur.c, matlab/malheur.m, matlab/malmex.c, matlab/malmex.h,
+  src/Makefile.am, src/class.c, src/class.h, src/cluster.c, src/cluster.h,
+  src/common.h, src/export.c, src/export.h, src/farray.c, src/farray.h,
+  src/fmath.c, src/fmath.h, src/ftable.c, src/ftable.h, src/fvec.c, src/fvec.h,
+  src/malheur.c, src/malheur.h.in, src/mconfig.c, src/mconfig.h, src/mist.c,
+  src/mist.h, src/proto.c, src/proto.h, src/quality.c, src/quality.h,
+  src/util.c, src/util.h, tests/Makefile.am, tests/test_class.c,
+  tests/test_cluster.c, tests/test_farray.c, tests/test_fmath.c,
+  tests/test_ftable.c, tests/test_fvec.c, tests/test_proto.c,
+  tests/test_quality.c, tests/tests.c, tests/tests.h: changed email address
+
+  * configure.in: prepare new release
+
+2010-08-04  Konrad Rieck <konrad.rieck@tu-berlin.de>
+
+  * src/export.c: added check for lookup table
+
+  * doc/malheur.cfg, src/cluster.c, src/export.c, src/export.h, src/malheur.c,
+  src/mconfig.c: improved computation of shared n-grams
+
+2010-08-03  Konrad Rieck <konrad.rieck@tu-berlin.de>
+
+  * configure.in: patched version number
+
+  * src/cluster.c, src/fmath.c, src/fmath.h, src/mconfig.c: support for shared
+  ngrams
+
+2010-05-17  Konrad Rieck <konrad.rieck@tu-berlin.de>
+
+  * src/ftable.c: fixed problem with encoding
+
+2010-02-16  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * configure.in, src/farray.c, src/farray.h, src/proto.c, src/util.c: fixed
+  bug with non-deterministic selection of first prototype
+
+2010-02-03  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * configure.in, src/malheur.c: added support to disable saving
+
+2010-01-16  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * src/fmath.c: off-by-one in progress bar of distance computation
+
+  * compile, configure.in, doc/malheur.pod, src/class.c, src/export.c,
+  src/farray.c, src/farray.h, src/fmath.c, src/fmath.h, src/ftable.c,
+  src/ftable.h, src/fvec.c, src/malheur.c, src/mconfig.c, src/mconfig.h,
+  src/proto.c, src/quality.c, src/quality.h, src/util.c, src/util.h: general
+  code clean-up (casting, printf formats, etc)
+
+2010-01-13  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * README, configure.in, matlab/malmex.c, src/Makefile.am, src/farray.h,
+  src/ftable.h, src/mconfig.h, src/quality.h, src/uthash.h, src/util.h: added
+  local uthash version as fallback
+
+2010-01-11  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * README: added note about uthash dependency
+
+  * configure.in, src/Makefile.am, src/cluster.h, src/common.h, src/farray.h,
+  src/ftable.h, src/mconfig.h, src/quality.h, src/uthash.h, src/util.h: removed
+  internal uthash
+
+2010-01-07  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * doc/doxygen.cfg: changed doxygen config to inline code
+
+2010-01-02  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * doc/malheur.pod: extended examples and added note about libarchive and zip
+  v2
+
+  * doc/malheur.cfg: removed white space from default config
+
+2010-01-01  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * README: fixed typo
+
+  * configure.in, src/malheur.c: fixed bug in classification mode
+
+2009-12-28  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * README, configure.in, doc/malheur.pod: improved documentation and examples
+
+2009-12-16  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * configure.in, doc/Makefile.am, doc/malheur.pod, doc/malheur.pod.in,
+  src/Makefile.am: fixed installation problems
+
+2009-12-12  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * configure.in: support for hash seeds, new MIST format, minor math fixes
+
+  * src/fmath.c, tests/test_class.c, tests/test_cluster.c: minor fixes to math.
+  normalized vectors are mandatory
+
+  * src/mist.c, src/mist.h: changed MIST format to latest
+
+  * src/mist.c, src/mist.h: minor fixes
+
+2009-12-05  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * TODO, doc/malheur.cfg, doc/malheur.pod.in: added documenation for hash_seed
+  parameters
+
+2009-12-05  Konrad Rieck <rieck@fluffy.my.domain>
+
+  * TODO, doc/malheur.cfg, src/mconfig.c, src/md5.c, src/md5.h: support
+  changing the seed of MD5 in feature extraction
+
+  * Makefile.am, TODO, compile, doc/malheur.cfg, src/cluster.c, src/fvec.c,
+  src/mconfig.c, src/mconfig.h: fixes for OpenBSD (including annoying FLT_NONE
+  hack)
+
+  * doc/Makefile.am: fixed usage of $< to support BSD make
+
+  * TODO, matlab/malheur.c, matlab/malheur.m: fixed minimalistic  matlab
+  interface
+
+2009-11-22  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * TODO: Yet another TODO
+
+2009-11-21  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * TODO: added todos
+
+2009-11-09  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * .gitignore: added lines for ignoring manual by git
+
+2009-11-07  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * configure.in, doc/malheur.pod.in: extension and spell fixes to manual
+
+2009-11-07  Konrad Rieck <rieck@node04.ml.tu-berlin.de>
+
+  * README, compile, doc/Makefile.am, doc/malheur.pod.in: openmp enabled by
+  default
+
+2009-11-07  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * doc/malheur.pod.in: fixed manual
+
+2009-11-06  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * doc/malheur.pod.in: more fixes
+
+  * doc/Makefile.am, doc/malheur.pod, doc/malheur.pod.in, src/Makefile.am:
+  improved manpage egenration
+
+2009-10-30  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * configure.in: support for incremental update and documentation
+
+  * doc/Makefile.am, doc/latex-pre.inc.in, src/malheur.c: fixes for
+  distribution
+
+  * doc/latex-pre.inc, doc/latex-pre.inc.in: support to write version in latex
+
+  * doc/Makefile.am, doc/latex-post.inc, doc/latex-pre.inc, doc/malheur.pod,
+  src/malheur.c: added nice output for pod file
+
+  * doc/Makefile.am, doc/malheur.man.in, doc/malheur.pod: added pod infavor of
+  man.in
+
+  * doc/malheur.man.in, src/malheur.c, src/malheur.h.in: fixes to documentation
+
+  * doc/malheur.man.in: sync
+
+  * doc/malheur.man, doc/malheur.man.in: changed creation of man page
+
+  * doc/Makefile.am, doc/malheur.man: first paragraph
+
+  * Makefile.am, README, TODO, bootstrap, compile, configure.in,
+  doc/Makefile.am, doc/malheur.cfg, doc/malheur.man, matlab/Makefile.am,
+  matlab/mal_distance.m, matlab/malheur.c, matlab/malheur.m, matlab/malmex.c,
+  matlab/malmex.h, src/Makefile.am, src/class.c, src/class.h, src/cluster.c,
+  src/cluster.h, src/common.h, src/export.c, src/export.h, src/farray.c,
+  src/farray.h, src/fmath.c, src/fmath.h, src/ftable.c, src/ftable.h,
+  src/fvec.c, src/fvec.h, src/malheur.c, src/malheur.h.in, src/mconfig.c,
+  src/mconfig.h, src/mist.c, src/mist.h, src/proto.c, src/proto.h,
+  src/quality.c, src/quality.h, src/util.c, src/util.h, tests/Makefile.am,
+  tests/test_class.c, tests/test_cluster.c, tests/test_farray.c,
+  tests/test_fmath.c, tests/test_ftable.c, tests/test_fvec.c,
+  tests/test_proto.c, tests/test_quality.c, tests/tests.c, tests/tests.h: fixed
+  copyright notice
+
+  * doc/malheur.cfg, src/malheur.c: minor fixes
+
+2009-10-22  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * doc/malheur.cfg: added calibration results
+
+2009-10-16  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * doc/Makefile.am, doc/doxygen.cfg, doc/modules, src/class.c, src/class.h,
+  src/cluster.c, src/cluster.h, src/export.c, src/fmath.h, src/ftable.c,
+  src/ftable.h, src/fvec.c, src/malheur.c, src/mconfig.c, src/mconfig.h,
+  src/mist.c, src/proto.c, src/quality.h, src/util.c, src/util.h,
+  tests/test_class.c, tests/test_cluster.c, tests/tests.h: several improvements
+  of doxygen documentation
+
+  * configure.in: release with classification and clustering
+
+2009-10-15  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * src/class.c, src/class.h, src/export.c, src/malheur.c, src/proto.c,
+  src/proto.h: improved layout wrt assignments vs. classification using
+  prototyes
+
+  * src/Makefile.am, src/class.c, src/class.h, src/classify.c, src/classify.h,
+  src/malheur.c, tests/Makefile.am, tests/test_class.c, tests/test_classify.c:
+  changed file names
+
+  * src/malheur.c, src/proto.c, src/proto.h, tests/test_proto.c: improved
+  run-time of prototype extraction
+
+  * compile, src/farray.c: minor speed improvements
+
+2009-10-14  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * matlab/malheur.c, src/malheur.c: linux and matlab fixes
+
+  * src/export.c, src/export.h, src/malheur.c: improved incremental output
+
+  * doc/Makefile.am, src/Makefile.am, src/cluster.c, src/cluster.h,
+  src/farray.h, src/malheur.c, src/malheur.h.in, src/util.c, src/util.h,
+  tests/test_cluster.c: first version of incremental analysis
+
+  * src/cluster.c: fixed bug in cluster routine
+
+2009-10-13  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * src/Makefile.am: fixed annoying dependendy on malheur.h
+
+  * src/classify.c, src/cluster.c, src/cluster.h, src/common.h, src/export.c,
+  src/export.h, src/farray.c, src/farray.h, src/fmath.c, src/fmath.h,
+  src/ftable.c, src/ftable.h, src/fvec.c, src/fvec.h, src/malheur.c,
+  src/mconfig.c, src/mist.c, src/proto.c, src/quality.c, src/quality.h,
+  src/uthash.h, src/util.c, src/util.h, tests/Makefile.am,
+  tests/test_classify.c, tests/test_cluster.c, tests/test_farray.c,
+  tests/test_fmath.c, tests/test_ftable.c, tests/test_fvec.c,
+  tests/test_proto.c, tests/test_quality.c, tests/tests.c: long overdue code
+  formating
+
+  * Makefile.am, src/Makefile.am: fix to automake
+
+  * src/Makefile.am, tests/test_classify.c, tests/test_cluster.c,
+  tests/test_proto.c: minor fixes
+
+  * src/Makefile.am, src/class.c, src/class.h, src/classify.c, src/classify.h,
+  src/malheur.c, tests/Makefile.am, tests/test_classify.c: added classification
+  test case
+
+  * tests/Makefile.am, tests/test_cluster.c: added clustering test case
+
+  * src/malheur.c, src/malheur.h.in, tests/Makefile.am, tests/test_proto.c:
+  added test case for prototype extraction
+
+  * TODO, src/class.c, src/class.h, src/cluster.c, src/cluster.h, src/farray.c,
+  src/farray.h, src/malheur.c: minor fixes in code layout
+
+2009-10-12  Konrad Rieck <rieck@ubuntu.(none)>
+
+  * Makefile.am, configure.in, src/Makefile.am, src/malheur.h.in: fixed
+  configuration script
+
+2009-10-12  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * src/class.c, src/class.h: forgot class files. ooops.
+
+  * src/quality.c: more doxygen fixes
+
+  * src/cluster.h, src/quality.c: more doxygen fixes
+
+  * src/cluster.c, src/cluster.h, src/export.c, src/farray.c, src/fmath.c,
+  src/quality.c: fixed comments
+
+  * src/Makefile.am, src/cluster.c, src/malheur.c, src/proto.c, src/proto.h:
+  improved classification routines
+
+  * src/cluster.c, src/cluster.h, src/export.c, src/export.h, src/farray.c,
+  src/farray.h, src/malheur.c, src/proto.c: sync
+
+  * src/cluster.c, src/cluster.h, src/malheur.c, src/proto.c, src/quality.h,
+  src/util.h: working on cleaner design of clustering/classificaion/prototype
+  stuff
+
+  * src/farray.c, src/farray.h, src/malheur.c, src/proto.c, src/proto.h:
+  changed load and save function for prototypes
+
+2009-10-10  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * Makefile.am, configure.in: first version with clustering, classification
+  and prototypes
+
+  * doc/malheur.cfg, src/export.c, src/malheur.c, src/mconfig.c, src/proto.c:
+  added support for rejection class in classification
+
+  * TODO, configure.in, src/Makefile.am, src/class.c, src/class.h,
+  src/export.c, src/export.h, src/malheur.c, src/malheur.h.in: added support
+  for standard prototype and reject files
+
+2009-10-09  Konrad Rieck <rieck@ubuntu.(none)>
+
+  * TODO, src/util.c, tests/test_fvec.c: fixed bug in matrix access (thanks to
+  valgrind)
+
+2009-10-09  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * TODO, src/cluster.c, src/cluster.h, src/export.c, src/export.h,
+  src/malheur.c, src/proto.c: more fixes to prototypes and export function
+
+  * TODO, doc/malheur.cfg, src/cluster.c, src/fmath.c, src/proto.c,
+  src/quality.c, src/util.c, src/util.h: radical clean up of unused functions
+
+  * tests/test_fmath.c: fixed broken test scripts
+
+  * matlab/Makefile.am, matlab/mal_dot_product.m, matlab/mal_load_mist.m,
+  matlab/malheur.c, matlab/malheur.m: simplified matlab cruft
+
+  * doc/malheur.cfg, src/cluster.c, src/fmath.c, src/fmath.h, src/mconfig.c,
+  src/proto.c, src/util.c, src/util.h: further improvements of clustering and
+  prototype computation
+
+  * doc/malheur.cfg, src/mconfig.c, src/proto.c, src/util.c, src/util.h:
+  slimmed down prototype extraction
+
+  * src/export.c, src/malheur.c, src/malheur.h.in, src/util.c, src/util.h:
+  sanitized text output
+
+  * src/export.c, src/export.h, src/malheur.c: removed annoying HTML and
+  sandbox dependencies
+
+  * compile, src/export.c: fixes for OSX 10.6
+
+2009-10-08  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * TODO: added new todos
+
+  * TODO: added note about stat bug
+
+  * doc/malheur.cfg, src/cluster.c, src/cluster.h, src/farray.c, src/malheur.c:
+  first version of clustering (Murtagh's algorithm)
+
+  * doc/malheur.cfg, src/cluster.c, src/farray.c, src/mconfig.c, src/proto.c,
+  src/util.c: minor fixes to configuration
+
+2009-10-07  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * matlab/malheur.c: improved timestamps
+
+2009-09-28  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * src/fmath.c: minor typo
+
+2009-09-23  Konrad Rieck <rieck@node15.ml.tu-berlin.de>
+
+  * matlab/malheur.c: and minor bugfixes
+
+  * matlab/malheur.c: minor bugfixes
+
+  * matlab/mal_distance.m, matlab/malheur.c: minor bugfixes
+
+2009-09-23  Konrad Rieck <rieck@node02.ml.tu-berlin.de>
+
+  * matlab/malheur.c: added routines for timing
+
+2009-09-21  Konrad Rieck <rieck@node08.ml.tu-berlin.de>
+
+  * matlab/malheur.c, src/proto.c: fixed bug in orientation of matrices
+
+2009-09-21  Konrad Rieck <rieck@ubuntu.(none)>
+
+  * src/farray.c: fixed missing null-termination when reading compressed files
+
+2009-09-21  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * matlab/mal_distance.m, matlab/malheur.c: added support for distance between
+  report sets
+
+  * src/mist.c: added assertion to MIST parsing
+
+  * src/fvec.c, src/malheur.c: fixed bugs in loading routine
+
+  * src/farray.c, src/malheur.c: added support for reading multiple archives
+
+  * src/farray.c, src/farray.h: added support to merge arrays
+
+  * src/malheur.c, src/malheur.h.in: added first classification hooks in
+  malheur.c
+
+  * TODO: added new TODO items
+
+2009-09-11  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * src/export.c: improved prototype export
+
+2009-09-09  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * src/proto.c: fixed bug in openmp loop of prototype assignment
+
+  * src/proto.c: refined prototype extraction
+
+  * src/class.c, src/class.h, src/export.c, src/proto.c, src/proto.h,
+  src/quality.c, src/quality.h: unified prototype extraction and classification
+  code
+
+  * matlab/Makefile.am, matlab/mal_prototype.m, matlab/malheur.c,
+  matlab/malheur.m, matlab/malmex.c, matlab/malmex.h: adapted matlab code to
+  new prototypes
+
+  * src/class.c, src/export.c: adapted export functions to simple prototypes
+
+  * src/class.c, src/class.h, src/export.c, src/export.h, src/malheur.c,
+  src/proto.c, src/proto.h: simplified prototype structure
+
+  * doc/malheur.cfg: added missing semicolon
+
+  * doc/malheur.cfg, src/Makefile.am, src/class.c, src/class.h, src/fmath.c,
+  src/fmath.h, src/mconfig.c, src/proto.c: added first classification routines!
+
+  * matlab/Makefile.am, matlab/mal_distance.m, matlab/mal_dot_product.m,
+  matlab/mal_kernel.m, matlab/malheur.c, matlab/malheur.m, src/export.c,
+  src/export.h, src/malheur.c, src/malheur.h.in: changed kernel to dot product
+
+  * doc/malheur.cfg, src/export.c, src/export.h, src/fmath.c, src/fmath.h,
+  src/fvec.c, src/malheur.c, src/malheur.h.in, src/mconfig.c, src/proto.c:
+  removed support for arbitary norms and added plain/html output
+
+2009-09-07  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * doc/malheur.cfg, src/farray.c, src/proto.c: improved output
+
+  * src/proto.c: minor fixes
+
+  * CHANGES, matlab/malheur.c, src/proto.c: removed reference to quantile
+  prototypes
+
+  * doc/malheur.cfg, src/fvec.c, src/mconfig.c, src/proto.c: removed quantile
+  prototypes
+
+  * bootstrap, src/farray.c, src/farray.h, src/malheur.c, src/malheur.h.in,
+  src/proto.c, src/proto.h: improved prototype interface
+
+2009-08-31  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * configure.in: new version
+
+  * README: changed README again
+
+  * README: improved README
+
+  * doc/malheur.cfg, src/export.c, src/util.c, src/util.h: added support to
+  sort prototypes
+
+  * doc/malheur.cfg, src/farray.c: fixed bug in progress bar
+
+  * src/mconfig.c: minor beautifications
+
+  * src/farray.c: added fix for empty fvec
+
+2009-08-27  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * doc/malheur.cfg, src/mconfig.c, src/proto.c, src/util.c: changed loop
+  conditions of prototype extraction
+
+  * src/proto.c: added fix for broken quantile computation
+
+2009-08-19  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * src/Makefile.am, src/eval.c, src/eval.h, src/export.c, src/quality.c,
+  src/quality.h, tests/Makefile.am, tests/test_eval.c, tests/test_quality.c:
+  beautification
+
+  * doc/malheur.cfg, src/eval.c, src/eval.h, src/export.c, src/proto.c,
+  src/proto.h, tests/test_eval.c: added support for computing several quality
+  measures
+
+2009-08-18  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * doc/malheur.cfg, src/export.h: minor fixes in output and configuration
+
+  * src/util.c: added DEBUG hack
+
+  * tests/test_eval.c: added missing test file
+
+  * doc/malheur.cfg, src/Makefile.am, src/eval.c, src/eval.h, src/export.c,
+  src/export.h, src/proto.c, src/util.c, src/util.h, tests/Makefile.am: started
+  new evaluation code and added sorting with indices
+
+2009-08-17  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * doc/malheur.cfg, src/export.c, src/mconfig.c, src/proto.c, src/proto.h,
+  src/util.c: added support for repeats of prototype extraction
+
+2009-08-14  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * compile, matlab/mal_prototype.m, matlab/malheur.c, src/proto.c: minor fixes
+  to prototype extraction
+
+  * compile, matlab/malheur.c, matlab/malmex.c, matlab/malmex.h, tests/tests.h:
+  improved matlab interface for prototypes
+
+2009-08-13  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * README: fixed line break
+
+  * README, configure.in: added note about state of Malheur
+
+  * CHANGES: first version of prototype extraction
+
+2009-10-30  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * configure.in: changed version number
+
+  * doc/Makefile.am, doc/latex-pre.inc.in, src/malheur.c: fixes for
+  distribution
+
+  * doc/latex-pre.inc, doc/latex-pre.inc.in: support to write version in latex
+
+  * doc/Makefile.am, doc/latex-post.inc, doc/latex-pre.inc, doc/malheur.pod,
+  src/malheur.c: added nice output for pod file
+
+  * doc/Makefile.am, doc/malheur.man.in, doc/malheur.pod: added pod infavor of
+  man.in
+
+  * doc/malheur.man.in, src/malheur.c, src/malheur.h.in: fixes to documentation
+
+  * doc/malheur.man.in: sync
+
+  * doc/malheur.man, doc/malheur.man.in: changed creation of man page
+
+  * doc/Makefile.am, doc/malheur.man: first paragraph
+
+  * Makefile.am, README, TODO, bootstrap, compile, configure.in,
+  doc/Makefile.am, doc/malheur.cfg, doc/malheur.man, matlab/Makefile.am,
+  matlab/mal_distance.m, matlab/malheur.c, matlab/malheur.m, matlab/malmex.c,
+  matlab/malmex.h, src/Makefile.am, src/class.c, src/class.h, src/cluster.c,
+  src/cluster.h, src/common.h, src/export.c, src/export.h, src/farray.c,
+  src/farray.h, src/fmath.c, src/fmath.h, src/ftable.c, src/ftable.h,
+  src/fvec.c, src/fvec.h, src/malheur.c, src/malheur.h.in, src/mconfig.c,
+  src/mconfig.h, src/mist.c, src/mist.h, src/proto.c, src/proto.h,
+  src/quality.c, src/quality.h, src/util.c, src/util.h, tests/Makefile.am,
+  tests/test_class.c, tests/test_cluster.c, tests/test_farray.c,
+  tests/test_fmath.c, tests/test_ftable.c, tests/test_fvec.c,
+  tests/test_proto.c, tests/test_quality.c, tests/tests.c, tests/tests.h: fixed
+  copyright notice
+
+  * doc/malheur.cfg, src/malheur.c: minor fixes
+
+2009-10-22  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * doc/malheur.cfg: added calibration results
+
+2009-10-16  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * doc/Makefile.am, doc/doxygen.cfg, doc/modules, src/class.c, src/class.h,
+  src/cluster.c, src/cluster.h, src/export.c, src/fmath.h, src/ftable.c,
+  src/ftable.h, src/fvec.c, src/malheur.c, src/mconfig.c, src/mconfig.h,
+  src/mist.c, src/proto.c, src/quality.h, src/util.c, src/util.h,
+  tests/test_class.c, tests/test_cluster.c, tests/tests.h: several improvements
+  of doxygen documentation
+
+  * configure.in: new version
+
+2009-10-15  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * src/class.c, src/class.h, src/export.c, src/malheur.c, src/proto.c,
+  src/proto.h: improved layout wrt assignments vs. classification using
+  prototyes
+
+  * src/Makefile.am, src/class.c, src/class.h, src/classify.c, src/classify.h,
+  src/malheur.c, tests/Makefile.am, tests/test_class.c, tests/test_classify.c:
+  changed file names
+
+  * src/malheur.c, src/proto.c, src/proto.h, tests/test_proto.c: improved
+  run-time of prototype extraction
+
+  * compile, src/farray.c: minor speed improvements
+
+2009-10-14  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * matlab/malheur.c, src/malheur.c: linux and matlab fixes
+
+  * src/export.c, src/export.h, src/malheur.c: improved incremental output
+
+  * doc/Makefile.am, src/Makefile.am, src/cluster.c, src/cluster.h,
+  src/farray.h, src/malheur.c, src/malheur.h.in, src/util.c, src/util.h,
+  tests/test_cluster.c: first version of incremental analysis
+
+  * src/cluster.c: fixed bug in cluster routine
+
+2009-10-13  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * src/Makefile.am: fixed annoying dependendy on malheur.h
+
+  * src/classify.c, src/cluster.c, src/cluster.h, src/common.h, src/export.c,
+  src/export.h, src/farray.c, src/farray.h, src/fmath.c, src/fmath.h,
+  src/ftable.c, src/ftable.h, src/fvec.c, src/fvec.h, src/malheur.c,
+  src/mconfig.c, src/mist.c, src/proto.c, src/quality.c, src/quality.h,
+  src/uthash.h, src/util.c, src/util.h, tests/Makefile.am,
+  tests/test_classify.c, tests/test_cluster.c, tests/test_farray.c,
+  tests/test_fmath.c, tests/test_ftable.c, tests/test_fvec.c,
+  tests/test_proto.c, tests/test_quality.c, tests/tests.c: long overdue code
+  formating
+
+  * Makefile.am, src/Makefile.am: fix to automake
+
+  * src/Makefile.am, tests/test_classify.c, tests/test_cluster.c,
+  tests/test_proto.c: minor fixes
+
+  * src/Makefile.am, src/class.c, src/class.h, src/classify.c, src/classify.h,
+  src/malheur.c, tests/Makefile.am, tests/test_classify.c: added classification
+  test case
+
+  * tests/Makefile.am, tests/test_cluster.c: added clustering test case
+
+  * src/malheur.c, src/malheur.h.in, tests/Makefile.am, tests/test_proto.c:
+  added test case for prototype extraction
+
+  * TODO, src/class.c, src/class.h, src/cluster.c, src/cluster.h, src/farray.c,
+  src/farray.h, src/malheur.c: minor fixes in code layout
+
+2009-10-12  Konrad Rieck <rieck@ubuntu.(none)>
+
+  * Makefile.am, configure.in, src/Makefile.am, src/malheur.h.in: fixed
+  configuration script
+
+2009-10-12  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * src/class.c, src/class.h: forgot class files. ooops.
+
+  * src/quality.c: more doxygen fixes
+
+  * src/cluster.h, src/quality.c: more doxygen fixes
+
+  * src/cluster.c, src/cluster.h, src/export.c, src/farray.c, src/fmath.c,
+  src/quality.c: fixed comments
+
+  * src/Makefile.am, src/cluster.c, src/malheur.c, src/proto.c, src/proto.h:
+  improved classification routines
+
+  * src/cluster.c, src/cluster.h, src/export.c, src/export.h, src/farray.c,
+  src/farray.h, src/malheur.c, src/proto.c: sync
+
+  * src/cluster.c, src/cluster.h, src/malheur.c, src/proto.c, src/quality.h,
+  src/util.h: working on cleaner design of clustering/classificaion/prototype
+  stuff
+
+  * src/farray.c, src/farray.h, src/malheur.c, src/proto.c, src/proto.h:
+  changed load and save function for prototypes
+
+2009-10-10  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * Makefile.am, configure.in: first version with clustering, classification
+  and prototypes
+
+  * doc/malheur.cfg, src/export.c, src/malheur.c, src/mconfig.c, src/proto.c:
+  added support for rejection class in classification
+
+  * TODO, configure.in, src/Makefile.am, src/class.c, src/class.h,
+  src/export.c, src/export.h, src/malheur.c, src/malheur.h.in: added support
+  for standard prototype and reject files
+
+2009-10-09  Konrad Rieck <rieck@ubuntu.(none)>
+
+  * TODO, src/util.c, tests/test_fvec.c: fixed bug in matrix access (thanks to
+  valgrind)
+
+2009-10-09  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * TODO, src/cluster.c, src/cluster.h, src/export.c, src/export.h,
+  src/malheur.c, src/proto.c: more fixes to prototypes and export function
+
+  * TODO, doc/malheur.cfg, src/cluster.c, src/fmath.c, src/proto.c,
+  src/quality.c, src/util.c, src/util.h: radical clean up of unused functions
+
+  * tests/test_fmath.c: fixed broken test scripts
+
+  * matlab/Makefile.am, matlab/mal_dot_product.m, matlab/mal_load_mist.m,
+  matlab/malheur.c, matlab/malheur.m: simplified matlab cruft
+
+  * doc/malheur.cfg, src/cluster.c, src/fmath.c, src/fmath.h, src/mconfig.c,
+  src/proto.c, src/util.c, src/util.h: further improvements of clustering and
+  prototype computation
+
+  * doc/malheur.cfg, src/mconfig.c, src/proto.c, src/util.c, src/util.h:
+  slimmed down prototype extraction
+
+  * src/export.c, src/malheur.c, src/malheur.h.in, src/util.c, src/util.h:
+  sanitized text output
+
+  * src/export.c, src/export.h, src/malheur.c: removed annoying HTML and
+  sandbox dependencies
+
+  * compile, src/export.c: fixes for OSX 10.6
+
+2009-10-08  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * TODO: added new todos
+
+  * TODO: added note about stat bug
+
+  * doc/malheur.cfg, src/cluster.c, src/cluster.h, src/farray.c, src/malheur.c:
+  first version of clustering (Murtagh's algorithm)
+
+  * doc/malheur.cfg, src/cluster.c, src/farray.c, src/mconfig.c, src/proto.c,
+  src/util.c: minor fixes to configuration
+
+2009-10-07  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * matlab/malheur.c: improved timestamps
+
+2009-09-28  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * src/fmath.c: minor typo
+
+2009-09-23  Konrad Rieck <rieck@node15.ml.tu-berlin.de>
+
+  * matlab/malheur.c: and minor bugfixes
+
+  * matlab/malheur.c: minor bugfixes
+
+  * matlab/mal_distance.m, matlab/malheur.c: minor bugfixes
+
+2009-09-23  Konrad Rieck <rieck@node02.ml.tu-berlin.de>
+
+  * matlab/malheur.c: added routines for timing
+
+2009-09-21  Konrad Rieck <rieck@node08.ml.tu-berlin.de>
+
+  * matlab/malheur.c, src/proto.c: fixed bug in orientation of matrices
+
+2009-09-21  Konrad Rieck <rieck@ubuntu.(none)>
+
+  * src/farray.c: fixed missing null-termination when reading compressed files
+
+2009-09-21  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * matlab/mal_distance.m, matlab/malheur.c: added support for distance between
+  report sets
+
+  * src/mist.c: added assertion to MIST parsing
+
+  * src/fvec.c, src/malheur.c: fixed bugs in loading routine
+
+  * src/farray.c, src/malheur.c: added support for reading multiple archives
+
+  * src/farray.c, src/farray.h: added support to merge arrays
+
+  * src/malheur.c, src/malheur.h.in: added first classification hooks in
+  malheur.c
+
+  * TODO: added new TODO items
+
+2009-09-11  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * src/export.c: improved prototype export
+
+2009-09-09  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * src/proto.c: fixed bug in openmp loop of prototype assignment
+
+  * doc/malheur.cfg: added missing semicolon
+
+  * doc/malheur.cfg, src/proto.c: refined prototype extraction
+
+  * src/class.c, src/class.h, src/export.c, src/proto.c, src/proto.h,
+  src/quality.c, src/quality.h: unified prototype extraction and classification
+  code
+
+  * matlab/Makefile.am, matlab/mal_prototype.m, matlab/malheur.c,
+  matlab/malheur.m, matlab/malmex.c, matlab/malmex.h: adapted matlab code to
+  new prototypes
+
+  * src/class.c, src/export.c: adapted export functions to simple prototypes
+
+  * src/class.c, src/class.h, src/export.c, src/export.h, src/malheur.c,
+  src/proto.c, src/proto.h: simplified prototype structure
+
+  * doc/malheur.cfg, src/Makefile.am, src/class.c, src/class.h, src/fmath.c,
+  src/fmath.h, src/mconfig.c, src/proto.c: added first classification routines!
+
+  * doc/malheur.cfg, src/Makefile.am, src/fmath.c, src/fmath.h, src/mconfig.c,
+  src/proto.c: added first classification routines!
+
+  * matlab/Makefile.am, matlab/mal_distance.m, matlab/mal_dot_product.m,
+  matlab/mal_kernel.m, matlab/malheur.c, matlab/malheur.m, src/export.c,
+  src/export.h, src/malheur.c, src/malheur.h.in: changed kernel to dot product
+
+  * doc/malheur.cfg, src/export.c, src/export.h, src/fmath.c, src/fmath.h,
+  src/fvec.c, src/malheur.c, src/malheur.h.in, src/mconfig.c, src/proto.c:
+  removed support for arbitary norms and added plain/html output
+
+2009-09-07  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * doc/malheur.cfg, src/farray.c, src/proto.c: improved output
+
+  * src/proto.c: minor fixes
+
+  * CHANGES, matlab/malheur.c, src/proto.c: removed reference to quantile
+  prototypes
+
+  * doc/malheur.cfg, src/fvec.c, src/mconfig.c, src/proto.c: removed quantile
+  prototypes
+
+  * bootstrap, src/farray.c, src/farray.h, src/malheur.c, src/malheur.h.in,
+  src/proto.c, src/proto.h: improved prototype interface
+
+2009-08-31  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * configure.in: new version
+
+  * README: changed README again
+
+  * README: improved README
+
+  * doc/malheur.cfg, src/export.c, src/util.c, src/util.h: added support to
+  sort prototypes
+
+  * doc/malheur.cfg, src/farray.c: fixed bug in progress bar
+
+  * src/mconfig.c: minor beautifications
+
+  * src/farray.c: added fix for empty fvec
+
+2009-08-27  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * doc/malheur.cfg, src/mconfig.c, src/proto.c, src/util.c: changed loop
+  conditions of prototype extraction
+
+  * src/proto.c: added fix for broken quantile computation
+
+2009-08-19  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * src/Makefile.am, src/eval.c, src/eval.h, src/export.c, src/quality.c,
+  src/quality.h, tests/Makefile.am, tests/test_eval.c, tests/test_quality.c:
+  beautification
+
+  * doc/malheur.cfg, src/eval.c, src/eval.h, src/export.c, src/proto.c,
+  src/proto.h, tests/test_eval.c: added support for computing several quality
+  measures
+
+2009-08-18  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * doc/malheur.cfg, src/export.h: minor fixes in output and configuration
+
+  * src/util.c: added DEBUG hack
+
+  * tests/test_eval.c: added missing test file
+
+  * doc/malheur.cfg, src/Makefile.am, src/eval.c, src/eval.h, src/export.c,
+  src/export.h, src/proto.c, src/util.c, src/util.h, tests/Makefile.am: started
+  new evaluation code and added sorting with indices
+
+2009-08-17  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * doc/malheur.cfg, src/export.c, src/mconfig.c, src/proto.c, src/proto.h,
+  src/util.c: added support for repeats of prototype extraction
+
+2009-08-14  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * compile, matlab/mal_prototype.m, matlab/malheur.c, src/proto.c: minor fixes
+  to prototype extraction
+
+  * compile, matlab/malheur.c, matlab/malmex.c, matlab/malmex.h, tests/tests.h:
+  improved matlab interface for prototypes
+
+2009-08-13  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * README: fixed line break
+
+  * README, configure.in: added note about state of Malheur
+
+  * CHANGES: changelog fixed
+
+  * src/export.c, src/export.h, src/mconfig.c: improved HTML output for
+  prototypes
+
+  * matlab/malheur.c, matlab/malmex.c, src/Makefile.am, src/export.c,
+  src/export.h, src/farray.c, src/fvec.c, src/fvec.h, src/io.c, src/io.h,
+  src/malheur.c, src/util.c, src/util.h: solved file layout problem
+
+  * matlab/malheur.c, src/Makefile.am, src/data.c, src/data.h, src/farray.c,
+  src/io.c, src/io.h, src/malheur.c: rearranged files. still not happy :(
+
+  * src/data.c, src/data.h, src/mconfig.c, src/mconfig.h, src/proto.c: added
+  HTML output of prototypes. Sucks big time.
+
+2009-08-12  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * doc/malheur.cfg, src/malheur.c, src/mconfig.c, src/proto.c: added check for
+  maximum distance
+
+  * matlab/malheur.c, matlab/malmex.c, src/cluster.h, src/data.c, src/data.h,
+  src/fmath.c, src/fmath.h, src/malheur.c, src/proto.c, src/proto.h,
+  src/util.c, src/util.h, tests/test_fmath.c: changed back to double
+  representation
+
+  * matlab/mal_prototype.m, matlab/malmex.c, src/data.h, src/malheur.c,
+  src/proto.c, src/proto.h: simplified prototype structure
+
+  * src/data.c, src/data.h, src/malheur.c, src/proto.c, src/proto.h,
+  src/util.c, src/util.h: added range check and new templates for export
+
+2009-08-11  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * src/proto.c, src/proto.h: added placeholders
+
+  * src/mconfig.c: fixed confusion between integers and floats in config files
+
+2009-08-11  Konrad Rieck <rieck@vnc.ml.tu-berlin.de>
+
+  * src/proto.c: changed parameter setting for prototypes
+
+2009-08-11  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * matlab/malmex.c: fixed bug in matlab interface
+
+2009-08-10  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * matlab/Makefile.am, matlab/mal_dot_product.m, matlab/mal_kernel.m,
+  matlab/mal_prototype.m, matlab/malheur.c, matlab/malheur.m, matlab/malmex.c,
+  matlab/malmex.h, src/proto.c, src/proto.h: added matlab functions for
+  prototypes
+
+2009-08-09  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * .gitignore: added test file
+
+  * src/mist.c: fixed performance bottleneck in MIST processing
+
+  * doc/malheur.cfg: new default configuration
+
+2009-08-08  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * compile, src/farray.c, src/fmath.c, src/mist.c, src/proto.c, src/util.c,
+  tests/test_fmath.c: improved debugging support
+
+  * compile, tests/test_fmath.c: added sse flags and improved fmath test
+
+  * src/cluster.h, src/fvec.c, src/proto.h: fixed missing double values
+
+2009-08-07  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * compile: changed default path
+
+2009-08-04  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * matlab/malheur.c, src/data.c, src/data.h, src/fmath.c, src/fmath.h,
+  src/malheur.c, src/proto.c, src/util.c, src/util.h, tests/test_fmath.c,
+  tests/test_fvec.c: more use of single precision math
+
+2009-07-30  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * src/malheur.h.in: fixed missing enums in malheur.h.in
+
+  * CHANGES: added notes about tags
+
+2009-07-28  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * src/malheur.c, src/proto.c: improved output
+
+  * doc/malheur.cfg, matlab/malheur.c, src/common.h, src/farray.c,
+  src/farray.h, src/fvec.c, src/malheur.c, src/mconfig.c, src/proto.c,
+  src/proto.h, src/util.c, src/util.h: first version of prototype code
+
+2009-07-26  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * src/cluster.c, src/cluster.h: forgot new files
+
+  * src/malheur.c: added further placeholders for prototype and clustering code
+
+  * src/Makefile.am: added templates for clustering
+
+2009-07-25  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * src/farray.c, src/ftable.h, src/fvec.c, src/mconfig.c, src/util.h: minor
+  code beautification
+
+  * src/Makefile.am, src/data.c, src/farray.c, src/farray.h, src/fmath.c,
+  src/fmath.h, src/ftable.c, src/ftable.h, src/fvec.c, src/fvec.h, src/fvect.c,
+  src/fvect.h, tests/Makefile.am, tests/test_farray.c, tests/test_fmath.c,
+  tests/test_ftable.c, tests/test_fvec.c, tests/tfarray.c, tests/tfmath.c,
+  tests/tftable.c, tests/tfvect.c: changed name for feature vector
+
+  * src/util.h: bubble progress bar?
+
+2009-07-11  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * compile: removed distclean in bootstrap process
+
+  * src/mconfig.c, src/mconfig.h: new config setup
+
+2009-07-04  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * doc/malheur.cfg, matlab/malheur.c, src/Makefile.am, src/fvect.c,
+  src/malheur.c, src/mist.c, src/proto.c, src/util.c, src/util.h,
+  tests/tfarray.c, tests/tfmath.c, tests/tfvect.c: improved support for
+  configuration files (default values, generic printing, ...)
+
+  * src/malheur.c: added print option for config
+
+2009-07-02  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * configure.in, doc/malheur.cfg, src/fmath.c, src/fmath.h, src/fvect.c,
+  src/malheur.c, src/util.c, tests/tfarray.c, tests/tfmath.c, tests/tfvect.c:
+  separated embedding and normalization of feature vectors
+
+  * configure.in: new version
+
+2009-06-30  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * bootstrap, m4/pkg.m4, matlab/Makefile.am: fixed annoying automake
+  compilation of matlab
+
+  * compile, matlab/Makefile.am: fixes for matlab on amd64
+
+2009-06-29  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * src/mist.c: removed debug code
+
+  * src/malheur.c: fixed path name
+
+  * src/mist.c: removed run-time of MIST parsing
+
+  * src/malheur.c, src/mist.c, src/mist.h: new MIST processing
+
+  * src/mist.c: removed debug code
+
+2009-06-16  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * src/malheur.c, src/mist.c, src/mist.h: improved mist parsing
+
+2009-06-15  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * src/farray.c, src/farray.h: fixed signs of labels
+
+2009-06-11  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * src/proto.c, src/proto.h: prototype structure defined
+
+2009-06-10  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * matlab/mal_dot_product.m, matlab/malheur.c: option to output feature
+  sources
+
+  * README, TODO, configure.in, src/data.h, src/malheur.c, src/malheur.h.in:
+  release 0.1.1 (pre-alpha)
+
+  * src/data.c, src/data.h, src/fmath.c, src/fmath.h, src/malheur.c: support
+  for exporting kernel matrixes
+
+2009-06-09  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * src/data.c, src/farray.c: fixed access to stat members, i.e., S_IS*
+
+  * doc/malheur.cfg, src/util.c: removed bool type from configuration
+
+  * TODO, matlab/mal_dot_product.m, matlab/mal_load_mist.m, matlab/malheur.c,
+  src/farray.h: improved matlab interface
+
+2009-06-08  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * matlab/mal_dot_product.m: matlab script for dot product
+
+  * TODO: added todo notice
+
+  * compile, matlab/Makefile.am, matlab/malheur.c, src/farray.c, src/fmath.c,
+  src/fmath.h, src/fvect.h, src/util.c, src/util.h, tests/tfmath.c: support for
+  dot product from matlab
+
+  * src/fmath.c, src/fmath.h, src/fvect.c, src/fvect.h, tests/tfarray.c,
+  tests/tfmath.c: added math functions for feature vector arrays (sum, mean,
+  dodot)
+
+  * src/fmath.c, src/fmath.h, src/fvect.c, src/fvect.h, tests/Makefile.am,
+  tests/tfmath.c: fixed math functions (added dot product)
+
+2009-06-06  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * src/malheur.c: fixed bug in task definition
+
+  * matlab/malheur.c, src/malheur.c: fixed memory leaks in matlab code
+
+  * matlab/malheur.c, src/data.c, src/data.h, src/malheur.c, src/mist.c,
+  src/util.c, src/util.h: added support for libconfig under matlab
+
+  * matlab/mal_load_mist.m, matlab/mal_mist_load.m: fixed wrong filename
+
+2009-06-06  rieck <rieck@node02.ml.tu-berlin.de>
+
+  * matlab/Makefile.am: fixed missing files
+
+  * .gitignore, compile, configure.in, matlab/Makefile.am,
+  matlab/mal_mist_load.m, matlab/malheur.c, matlab/malheur_load.m: further
+  fixes for amd64 linux systems
+
+  * compile, m4/matlabver.m4: fixes for new matlab version
+
+2009-06-05  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * src/Makefile.am, src/data.c, src/data.h, src/farray.c, src/farray.h,
+  src/fio.c, src/fio.h, src/fmath.c, src/fmath.h, src/ftable.c, src/ftable.h,
+  src/fvec.c, src/fvec.h, src/fvect.c, src/fvect.h, tests/Makefile.am,
+  tests/tests.h, tests/tfarray.c, tests/tfvec.c, tests/tfvect.c: improved
+  naming of files
+
+2009-06-03  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * matlab/Makefile.am, matlab/malheur.c: added placeholder for libconfig to
+  mex files
+
+  * src/common.h, src/mist.c: minor fixes
+
+2009-06-02  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * doc/malheur.cfg, src/fio.c, src/mist.c, src/mist.h: added support to
+  truncate MIST reports (untested)
+
+2009-05-30  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * doc/malheur.cfg, src/Makefile.am, src/farray.c, src/farray.h, src/fmath.c,
+  src/fvec.c, src/malheur.c, src/proto.c, src/proto.h, src/util.c, src/util.h:
+  finetuning of output and configuration
+
+  * src/farray.c, src/farray.h, src/fvec.c, src/fvec.h, tests/tfarray.c,
+  tests/tfvec.c: extended feature vector and arrays with new fields (source,
+  total, ...)
+
+  * doc/malheur.cfg, src/malheur.c: minor fixes in configuration
+
+  * .gitignore, configure.in, src/Makefile.am, src/malheur.c, src/malheur.h,
+  src/malheur.h.in: added support for sysconfdir
+
+  * doc/malheur.cfg, src/malheur.c, src/malheur.h: changed layout of main file
+
+  * README.textile: textile sucks.
+
+  * README, README.textile: fixed documentation
+
+  * README.textile: added new README
+
+2009-05-28  Konrad Rieck <rieck@caesar.(none)>
+
+  * src/common.h: fixed linux headers
+
+2009-05-28  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * doc/malheur.cfg, src/malheur.c: minor fixes
+
+  * src/farray.c: added OpenMP for reading archive contents
+
+  * src/farray.c, src/fio.c, src/malheur.c: fixed bug with incorrect buffer end
+
+  * src/farray.c, src/fio.c, src/malheur.c: added missing NULL to loaded
+  archive data
+
+  * src/farray.c, src/fio.c, src/fio.h: fixed naming of functions listing
+  file/archive entries
+
+  * src/farray.c, src/farray.h, src/fio.c, src/fio.h, src/malheur.c: added
+  support to read from archives (gz,zip,...)
+
+  * src/farray.c, src/farray.h, src/util.c, src/util.h, tests/tfarray.c:
+  improved hash function for label indices
+
+  * src/farray.h, tests/Makefile.am, tests/tfarray.c: added test case for
+  feature array
+
+  * README: added ASCII art logo
+
+2009-05-28  Konrad Rieck <rieck@ubuntu.(none)>
+
+  * compile, src/farray.c: fixed memory leak in parallel reading
+
+2009-05-28  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * src/farray.c, src/fio.c, src/malheur.c: added parallel loading and
+  processing of feature vectors (did you know that osx' snprintf is not
+  thread-safe?)
+
+  * src/fio.c, src/fio.h: simplified counting of dir entries
+
+  * doc/Makefile.am, doc/doxygen.cfg, src/farray.c, src/farray.h, src/fio.c,
+  src/fmath.c, src/fmath.h, src/ftable.c, src/ftable.h, src/fvec.c, src/fvec.h,
+  src/mist.c: added doxygen support
+
+2009-05-28  Konrad Rieck <rieck@ubuntu.(none)>
+
+  * src/farray.c, src/farray.h: fixed memory leak in destructor of label hash
+  tables
+
+2009-05-28  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * src/farray.c, src/farray.h, src/fvec.h, src/util.c, src/util.h: improved
+  layout of array functions
+
+2009-05-27  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * README: note about two major configuration switches
+
+2009-05-27  Konrad Rieck <rieck@ubuntu.(none)>
+
+  * src/farray.c: fixed off-by-one memory corruption
+
+2009-05-27  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * src/farray.c, src/farray.h, src/ftable.h, src/fvec.c, src/fvec.h,
+  src/malheur.c: added load/save functions for arrays of feature vectors
+
+  * src/farray.c, src/farray.h, src/fmath.c, src/fmath.h, src/fvec.c,
+  src/fvec.h, src/malheur.c, tests/tftable.c, tests/tfvec.c: added math
+  functionality and sanitized function names
+
+  * doc/malheur.cfg, src/farray.c, src/farray.h, src/fio.c, src/fio.h,
+  src/fvec.c, src/fvec.h, src/malheur.c: fixed loading of files and added MIST
+  preprocessing
+
+2009-05-26  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * src/fvec.c: fixed memory leak. realloc() does not always shrink allocated
+  blocks on osx, hence added manual reallocation.
+
+  * matlab/malheur_load.m: pivot section is optinal in matlab routines
+
+2009-05-26  Konrad Rieck <rieck@ubuntu.(none)>
+
+  * .gitignore, src/common.h, src/farray.c: minor fixes related to linux
+
+  * src/fio.c: added missing fclose (leak in osx)
+
+  * tests/tftable.c, tests/tfvec.c: smaller test run for valgrind (no leaks in
+  here)
+
+2009-05-26  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * doc/malheur.cfg, src/farray.c, src/farray.h, src/fio.c, src/fio.h,
+  src/fvec.c, src/malheur.c: finished reading directory contents and loading of
+  files (though with leak somewhere in fvec extraction)
+
+2009-05-25  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * compile, src/ftable.c, src/fvec.c, src/util.h: added comments and improved
+  feature table
+
+  * compile, src/common.h, src/ftable.c, src/ftable.h, src/fvec.c,
+  tests/tftable.c, tests/tfvec.c: improved performance of feature table
+
+  * compile: enabled optimization again.
+
+  * tests/tftable.c: unified test case
+
+2009-05-24  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * matlab/malheur.c, src/ftable.c, src/ftable.h, src/util.c, src/util.h,
+  tests/Makefile.am, tests/tests.c, tests/tests.h, tests/tftable.c,
+  tests/tfvec.c: added several test cases (load/save, openmp)
+
+  * src/ftable.c, src/ftable.h, src/malheur.c, tests/Makefile.am,
+  tests/ftable.c, tests/fvec.c, tests/tftable.c, tests/tfvec.c: fixed locking
+  in feature table
+
+  * .gitignore, compile, src/Makefile.am, src/farray.c, src/farray.h,
+  src/ftable.c, src/malheur.c, tests/Makefile.am: added functions for data
+  arrays and improved testing framework
+
+2009-05-20  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * compile, configure.in, m4/matlabarch.m4, m4/matlabver.m4, m4/mexext.m4,
+  matlab/Makefile.am, src/common.h, src/fvec.c, src/mist.c, tests/ftable.c:
+  fixed issues related to matlab on amd64
+
+  * src/ftable.c: fixed deadlock in hash table
+
+  * src/fio.c, src/fio.h: simplified loading function
+
+  * src/mist.c: minor fixes and comments for MIST parsing
+
+2009-05-18  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * src/Makefile.am, src/fio.c, src/fio.h: added first IO function
+
+  * compile, matlab/malheur.c, src/common.h, src/ftable.c, src/fvec.c: refined
+  openmp support
+
+  * .gitignore, src/Makefile.am, src/fhash.c, src/fhash.h, src/ftable.c,
+  src/ftable.h, src/fvec.c, src/fvec.h, tests/Makefile.am, tests/fhash.c,
+  tests/ftable.c, tests/fvec.c, tests/tests.h: added test cases for feature
+  vectors. fixed minor issues in print and load/save functions
+
+  * netbeans/malheur-Makefile.mk, netbeans/nbproject/Makefile-Default.mk,
+  netbeans/nbproject/Makefile-impl.mk, netbeans/nbproject/Package-Default.bash,
+  netbeans/nbproject/configurations.xml,
+  netbeans/nbproject/private/configurations.xml,
+  netbeans/nbproject/project.xml: removed netbeans project files (will add
+  later when layout is more mature)
+
+2009-05-16  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * README: better readme intro
+
+  * README: better readme intro
+
+  * README, configure.in: added check for libarchive
+
+2009-05-15  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * .gitignore, Makefile.am, TODO, compile, configure.in, matlab/Makefile.am,
+  src/Makefile.am, src/common.h, src/fhash.c, src/fhash.h, src/fvec.c,
+  test/Makefile.am, test/fhash.c, tests/Makefile.am, tests/fhash.c: extended
+  feature table and added test cases
+
+  * TODO, configure.in, src/common.h, src/fmath.c, src/fmath.h, src/fvec.c,
+  src/fvec.h: added first math functions for feature vectors (add,sub,mul,div)
+
+  * src/Makefile.am, src/fmath.c, src/fmath.h, src/fvec.c, src/fvec.h: moved
+  math functions to individual file
+
+  * matlab/malheur.c: minor modification of printing functions
+
+  * src/mist.c: fixed bug in parsing of section numbers
+
+2009-05-14  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * src/mist.c: fixed identification of pivot section
+
+  * compile, netbeans/malheur-Makefile.mk,
+  netbeans/nbproject/Makefile-Default.mk, netbeans/nbproject/Makefile-impl.mk,
+  netbeans/nbproject/Package-Default.bash,
+  netbeans/nbproject/configurations.xml,
+  netbeans/nbproject/private/configurations.xml,
+  netbeans/nbproject/project.xml: netbeans folder
+
+  * .gitignore, matlab/malheur.c, matlab/malheur_load.m, src/common.h,
+  src/mist.c, src/mist.h: first version of pivot section
+
+  * compile, matlab/malheur.c, matlab/malheur.m, matlab/malheur_load.m:
+  disabled openmp support (until matlab code is thread safe -- if ever)
+
+  * Makefile.am, configure.in, matlab/Makefile.am, matlab/malheur.c,
+  matlab/malheur.m, matlab/malheur_load.m, src/Makefile.am, src/mist.c,
+  src/mist.h: added old matlab interface for mist reports
+
+  * README: note about new libconfig
+
+2009-05-07  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * README: Extend readme again
+
+2009-05-06  Konrad Rieck <rieck@cs.tu-berlin.de>
+
+  * README: Extend readme
+
+  * .gitignore, Makefile.am, configure.in, src/fhash.h, test/Makefile.am,
+  test/fhash.c: added autoconf check/test target
+
+  * doc/malheur.cfg, src/Makefile.am, src/common.h, src/fhash.c, src/fhash.h,
+  src/fvec.c, src/fvec.h, src/malheur.c: started hash code for features
+
+  * src/fhash.c, src/fhash.h, src/uthash.h: started hash code for features
+
+  * doc/malheur.cfg, src/Makefile.am, src/fvec.c, src/fvec.h, src/malheur.c,
+  src/util.h: added feature vector functions
+
+  * configure.in, src/Makefile.am, src/common.h, src/malheur.c, src/malheur.h,
+  src/util.c, src/util.h: added libconfig init and destroy code
+
+  * .gitignore, Makefile.am, configure.in, doc/Makefile.am, doc/malheur.cfg:
+  added sample configuration file
+
+  * .gitignore, configure.in: adapted configure and ignore file accordingly
+
+  * .gitignore, src/Makefile.am, src/common.h, src/malheur.c, src/malheur.h,
+  src/md5.c, src/md5.h: added typical application templates
+
+  * Makefile.am, README, bootstrap, compile, configure.in, m4/ac_openmp.m4,
+  m4/matlab.m4, m4/matlabarch.m4, m4/matlabdir.m4, m4/matlabver.m4, m4/mex.m4,
+  m4/mexext.m4, m4/mexopt.m4, pedantic: Added basic autoconf/automake files
+
+  * CHANGES, COPYING, INSTALL: Added standard distribution files

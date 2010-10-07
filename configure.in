@@ -1,5 +1,5 @@
 # MALHEUR - Automatic Analysis of Malware Behavior
-# Copyright (c) 2009,2010 Konrad Rieck (konrad.rieck@tu-berlin.de)
+# Copyright (c) 2009-2010 Konrad Rieck (konrad.rieck@tu-berlin.de)
 # Berlin Institute of Technology (TU Berlin).
 #
  
@@ -14,7 +14,7 @@ AC_DEFINE(MALHEUR_PATCH, 9, Patch version number)
 
 echo
 echo " :: MALHEUR - Automatic Analysis of Malware Behavior"
-echo "    Copyright (c) 2009,2010 Konrad Rieck (konrad.rieck@tu-berlin.de)"
+echo "    Copyright (c) 2009-2010 Konrad Rieck (konrad.rieck@tu-berlin.de)"
 echo "    Berlin Institute of Technology (TU Berlin)."
 echo
 

@@ -1,18 +1,18 @@
 
  MALHEUR - Automatic Analysis of Malware Behavior
- Copyright (c) 2009 Konrad Rieck (konrad.rieck@tu-berlin.de)
+ Copyright (c) 2009-2010 Konrad Rieck (konrad.rieck@tu-berlin.de)
  Berlin Institute of Technology (TU Berlin).
 
  Introduction 
  --
 
- Malheur is a tool for automatic analysis of program behavior recorded from
- malicious software (malware).  The tool has been designed to support the
- regular analysis of malicious software and the development of detection and
- defense measures. Malheur allows for identifying novel classes of malware
- with similar behavior and assigning unknown malware to discovered classes. 
- It supports four basic actions for analysis which can be applied to reports
- of recorded behavior:
+ Malheur is a tool for the automatic analysis of malware behavior (program
+ behavior recorded from malicious software in a sandbox environment).  It
+ has been designed to support the regular analysis of malicious software and
+ the development of detection and defense measures.  Malheur allows for
+ identifying novel classes of malware with similar behavior and assigning
+ unknown malware to discovered classes.  It supports four basic actions for
+ analysis which can be applied to reports of recorded behavior:
 
  1. Extraction of prototypes
      From a given set of reports, malheur identifies a subset of
@@ -53,7 +53,7 @@
 
  Dependencies
  --
-      >= libconfig-1.3.2
+      >= libconfig-1.4.0
       >= libarchive-2.70
 
  Compilation & Installation

@@ -60,7 +60,7 @@ following articles:
 
 I<Automatic Analysis of Malware Behavior using Machine Learning>.
 Konrad Rieck, Philipp Trinius, Carsten Willems, and Thorsten Holz
-Technical report 18-2009, Berlin Institute of Technology, 2009
+Journal of Computer Security, December 2010
 
 =item 
 

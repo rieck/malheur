@@ -1,3 +1,8 @@
+2010-10-08  Konrad Rieck <konrad.rieck@tu-berlin.de>
+
+  * CHANGES, src/export.c, src/malheur.c, src/malheur.h.in: support for
+  computing prototype distances
+
 2010-10-07  Konrad Rieck <konrad.rieck@tu-berlin.de>
 
   * configure.in: preparing for new major release

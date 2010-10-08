@@ -148,6 +148,15 @@ written to the internal state of B<malheur> for further incremental
 analysis. The classification and clustering of I<dataset> are written
 to I<outfile>.
 
+=item B<protodist>
+
+If this action is specified, B<malheur> computes a distance matrix for
+prototypes.  The entry (i,j) of this matrix reflects the distance
+(dissimilarity) of the prototypes i and j.  The distance values lie in the
+range 0 to sqrt(2).  This action requires that either a prototype
+extraction, a clustering or an incremental analysis has been performed
+beforehand.  The distance matrix is written to I<outfile>.
+
 =back
 
 B<malheur> also supports the following command-line I<options> which

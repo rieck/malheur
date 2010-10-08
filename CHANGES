@@ -1,5 +1,11 @@
 2010-10-07  Konrad Rieck <konrad.rieck@tu-berlin.de>
 
+  * configure.in: preparing for new major release
+
+  * CHANGES, Makefile.am, README, configure.in, doc/Makefile.am,
+  doc/git2changes.py, src/export.c, src/farray.c, src/farray.h, src/proto.c,
+  src/util.c: updated documentation and added changes file
+
   * doc/malheur.pod, src/export.c: improved output of shared n-grams
 
   * doc/malheur.pod: updated refernce (though the publication date is just a

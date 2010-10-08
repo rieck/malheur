@@ -16,7 +16,7 @@
 
 /* Operation actions of Malheur  */
 typedef enum {
-    DISTANCE, PROTOTYPE, CLUSTER, CLASSIFY, INCREMENT
+    DISTANCE, PROTOTYPE, CLUSTER, CLASSIFY, INCREMENT, PROTODIST
 } malheur_action_t;
 
 /* Malheur directory */

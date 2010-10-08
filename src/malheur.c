@@ -46,11 +46,12 @@ static void print_usage(void)
 {
     printf("Usage: malheur [options] <action> <dataset>\n"
            "actions:\n"
-           "  distance       Compute a distance matrix from malware reports\n"
+           "  distance       Compute distance matrix for malware reports\n"
            "  prototype      Extract prototypes from malware reports\n"
            "  cluster        Cluster malware reports into similar groups\n"
            "  classify       Classify malware reports using labeled prototypes\n"
            "  increment      Incremental analysis of malware reports\n"
+           "  protodist      Compute distance matrix for prototypes\n"
            "Options:\n"
            "  -m <maldir>    Set malheur directory. [%s]\n"
            "  -o <outfile>   Set output file for analysis. [%s]\n"
@@ -103,8 +104,8 @@ static void parse_options(int argc, char **argv)
     argc -= optind;
     argv += optind;
 
-    if (argc < 2)
-        fatal("<action> and <dataset> arguments are required");
+    if (argc < 1)
+        fatal("the <action> argument is required");
 
     /* Argument: action */
     if (!strcasecmp(argv[0], "prototype")) {
@@ -117,9 +118,14 @@ static void parse_options(int argc, char **argv)
         action = CLASSIFY;
     } else if (!strcasecmp(argv[0], "increment")) {
         action = INCREMENT;
+    } else if (!strcasecmp(argv[0], "protodist")) {
+        action = PROTODIST;
     } else {
         fatal("Unknown analysis action '%s'", argv[0]);
     }
+    
+    if (argc < 2 && action != PROTODIST) 
+        fatal("the <dataset> argument is required");
 
     /* Assign input files */
     input_files = argv + 1;
@@ -473,6 +479,37 @@ static void malheur_distance()
     farray_destroy(fa);
 }
 
+/**
+ * Computes a distance matrix for the prototypes and saves the result to a file
+ */
+static void malheur_protodist()
+{
+    farray_t *pr;
+
+    /* Check for prototype file */
+    if (access(mcfg.proto_file, R_OK)) 
+        fatal("No prototype file for classifcation available");
+    
+    /* Load prototypes */
+    pr = farray_load_file(mcfg.proto_file);
+    if (verbose > 1)
+        farray_print(pr);
+    
+    /* Allocate distance matrix */
+    double *d = malloc(pr->len * pr->len * sizeof(double));
+    if (!d)
+        fatal("Could not allocate similarity matrix");
+
+    /* Compute distance matrix */
+    farray_dist(pr, pr, d);
+
+    /* Save distance matrix */
+    export_dist(d, pr, output_file);
+
+    /* Clean up */
+    free(d);
+    farray_destroy(pr);
+}
 
 /**
  * Exits the malheur tool.
@@ -519,6 +556,9 @@ int main(int argc, char **argv)
         break;
     case INCREMENT:
         malheur_increment();
+        break;
+    case PROTODIST:
+        malheur_protodist();
         break;
     }
 

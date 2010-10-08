@@ -58,11 +58,11 @@ void export_dist(double *d, farray_t *fa, char *file)
     /* Print distance header */
     fprintf(f, "# ---\n# Distance matrix for %s\n", fa->src);
     fprintf(f, "# Matrix size: %lu x %lu\n# ---\n", fa->len, fa->len);
-    fprintf(f, "# <report> <dist1> <dist2> ... <distn>\n");
+    fprintf(f, "# <report> <cluster> <dist1> <dist2> ... <distn>\n");
     
     /* Print matrix */
     for (i = 0; i < fa->len; i++) {
-        fprintf(f, "%s ", fa->x[i]->src);
+        fprintf(f, "%s %s ", fa->x[i]->src, farray_get_label(fa, i));
         for (j = 0; j < fa->len; j++)
             fprintf(f, "%g ", d[i * fa->len + j]);
         fprintf(f, "\n");

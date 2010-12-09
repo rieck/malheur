@@ -1,5 +1,7 @@
 2010-10-08  Konrad Rieck <konrad.rieck@tu-berlin.de>
 
+  * CHANGES, doc/malheur.pod: updated documentaiton
+
   * CHANGES, src/export.c, src/malheur.c, src/malheur.h.in: support for
   computing prototype distances
 

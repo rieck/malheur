@@ -1,6 +1,6 @@
 /*
  * MALHEUR - Automatic Analysis of Malware Behavior
- * Copyright (c) 2009 Konrad Rieck (konrad.rieck@tu-berlin.de)
+ * Copyright (c) 2009-2011 Konrad Rieck (konrad.rieck@tu-berlin.de)
  * Berlin Institute of Technology (TU Berlin).
  * --
  * This program is free software; you can redistribute it and/or modify it
@@ -37,6 +37,23 @@ static int save = TRUE;
 static malheur_action_t action = PROTOTYPE;
 static malheur_cfg_t mcfg;
 
+/* Option string */
+#define OPTSTRING       "nro:m:hvV"
+
+/**
+ * Array of options of getopt_long()
+ */
+static struct option longopts[] = {
+   { "maldir",          1, NULL, 'm' },
+   { "outfile",         1, NULL, 'o' },
+   { "reset",           0, NULL, 'r' },
+   { "nostate",         0, NULL, 'n' },
+   { "verbose",         0, NULL, 'v' }, 
+   { "version",         0, NULL, 'V' },
+   { "help",            0, NULL, 'h' },
+   { NULL,              0, NULL, 0 }
+};
+
 /**
  * Print usage of command line tool
  * @param argc Number of arguments
@@ -71,7 +88,7 @@ static void print_usage(void)
 static void parse_options(int argc, char **argv)
 {
     int ch;
-    while ((ch = getopt(argc, argv, "nrs:o:m:hvV")) != -1) {
+    while ((ch = getopt_long(argc, argv, OPTSTRING, longopts, NULL)) != -1) {
         switch (ch) {
         case 'n': 
             save = FALSE;

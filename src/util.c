@@ -399,7 +399,7 @@ void malheur_version(FILE *f)
 {
     fprintf(f,
             "# MALHEUR (%d.%d.%d) - Automatic Analysis of Malware Behavior\n"
-            "# Copyright (c) 2009,2010 Konrad Rieck (konrad.rieck@tu-berlin.de)\n"
+            "# Copyright (c) 2009-2011 Konrad Rieck (konrad.rieck@tu-berlin.de)\n"
             "# Berlin Institute of Technology (TU Berlin).\n", MALHEUR_MAJOR,
             MALHEUR_MINOR, MALHEUR_PATCH);
 }

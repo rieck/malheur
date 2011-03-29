@@ -51,6 +51,25 @@ static struct option longopts[] = {
    { "verbose",         0, NULL, 'v' }, 
    { "version",         0, NULL, 'V' },
    { "help",            0, NULL, 'h' },
+   /* start of config options */   
+   { "input.format",           1, NULL, 1001 },
+   { "input.mist_level",       1, NULL, 1002 },   
+   { "input.mist_rlen",        1, NULL, 1003 },   
+   { "input.mist_tlen",        1, NULL, 1004 },   
+   { "features.ngram_delim",   1, NULL, 1005 },   
+   { "features.ngram_len",     1, NULL, 1006 },
+   { "features.vect_embed",    1, NULL, 1007 },
+   { "features.lookup_table",  1, NULL, 1008 },
+   { "features.hash_seed1",    1, NULL, 1009 },   
+   { "features.hash_seed2",    1, NULL, 1010 },
+   { "prototypes.max_dist",    1, NULL, 1011 },   
+   { "prototypes.max_num",     1, NULL, 1012 },   
+   { "classify.max_dist",      1, NULL, 1013 },   
+   { "cluster.link_mode",      1, NULL, 1014 },   
+   { "cluster.min_dist",       1, NULL, 1015 },   
+   { "cluster.reject_num",     1, NULL, 1016 },
+   { "cluster.shared_ngrams",  1, NULL, 1017 },
+   /* end of config options */
    { NULL,              0, NULL, 0 }
 };
 
@@ -88,6 +107,10 @@ static void print_usage(void)
 static void parse_options(int argc, char **argv)
 {
     int ch;
+    
+    /* reset getopt */
+    optind = 0;
+    
     while ((ch = getopt_long(argc, argv, OPTSTRING, longopts, NULL)) != -1) {
         switch (ch) {
         case 'n': 
@@ -100,8 +123,7 @@ static void parse_options(int argc, char **argv)
             verbose++;
             break;
         case 'm':
-            strncpy(malheur_dir, optarg, MAX_PATH_LEN);
-            malheur_dir[MAX_PATH_LEN - 1] = 0;
+            /* Empty. See load_config() */
             break;
         case 'o':
             output_file = optarg;
@@ -149,6 +171,60 @@ static void parse_options(int argc, char **argv)
     input_len = argc - 1;
 }
 
+/**
+ * Load configuration
+ * @param argc Number of arguments
+ * @param argv Argument values
+ */
+static void load_config(int argc, char **argv)
+{
+    char cfg_path[MAX_PATH_LEN];
+    int ch;
+
+    /* Prepare dir */
+    snprintf(malheur_dir, MAX_PATH_LEN, "%s/%s", getenv("HOME"), MALHEUR_DIR);
+
+    /* Check for config file in command line */
+    while ((ch = getopt_long(argc, argv, OPTSTRING, longopts, NULL)) != -1) {
+        switch (ch) {
+            case 'm':
+                strncpy(malheur_dir, optarg, MAX_PATH_LEN);
+                malheur_dir[MAX_PATH_LEN - 1] = 0;
+                break;
+            case '?':
+            default:
+                /* empty */
+                break;
+        }
+    }
+
+    /* Prepare malheur files */
+    snprintf(cfg_path, MAX_PATH_LEN, "%s/%s", malheur_dir, CONFIG_FILE);
+
+    /* Check for directories and files */
+    if (access(malheur_dir, F_OK))
+        if(mkdir(malheur_dir, 0700)) 
+            fatal("Could not create directory '%s'.", malheur_dir);
+                    
+    /* Copy configuration file */
+    if (access(cfg_path, R_OK)) {
+        if (verbose > 0)
+            printf("Copying configuration to '%s'.\n", cfg_path);
+        copy_file(GLOBAL_CONFIG_FILE, cfg_path);
+    }
+
+    /* Init and load configuration */
+    config_init(&cfg);
+    if (config_read_file(&cfg, cfg_path) != CONFIG_TRUE)
+        fatal("Could not read configuration (%s in line %d)",
+              config_error_text(&cfg), config_error_line(&cfg));
+
+    /* Check configuration */
+    config_check(&cfg);
+    if (verbose > 1)
+        config_print(&cfg);
+}
+
 
 /**
  * Initialize malheur tool
@@ -160,8 +236,8 @@ static void malheur_init(int argc, char **argv)
     int lookup;
     double shared;
 
-    /* Prepare dir */
-    snprintf(malheur_dir, MAX_PATH_LEN, "%s/%s", getenv("HOME"), MALHEUR_DIR);
+    /* Load configuration */
+    load_config(argc, argv);
 
     /* Parse options */
     parse_options(argc, argv);
@@ -171,29 +247,6 @@ static void malheur_init(int argc, char **argv)
     snprintf(mcfg.config_file, MAX_PATH_LEN,"%s/%s", malheur_dir, CONFIG_FILE);
     snprintf(mcfg.proto_file, MAX_PATH_LEN, "%s/%s", malheur_dir, PROTO_FILE);
     snprintf(mcfg.state_file, MAX_PATH_LEN, "%s/%s", malheur_dir, STATE_FILE);
-
-    /* Check for directories and files */
-    if (access(malheur_dir, F_OK))
-        if(mkdir(malheur_dir, 0700)) 
-            fatal("Could not create directory '%s'.", malheur_dir);
-                    
-    /* Copy configuration file */
-    if (access(mcfg.config_file, R_OK)) {
-        if (verbose > 0)
-            printf("Copying configuration to '%s'.\n", mcfg.config_file);
-        copy_file(GLOBAL_CONFIG_FILE, mcfg.config_file);
-    }
-
-    /* Init and load configuration */
-    config_init(&cfg);
-    if (config_read_file(&cfg, mcfg.config_file) != CONFIG_TRUE)
-        fatal("Could not read configuration (%s in line %d)",
-              config_error_text(&cfg), config_error_line(&cfg));
-
-    /* Check configuration */
-    config_check(&cfg);
-    if (verbose > 1)
-        config_print(&cfg);
 
     /* Init feature lookup table */
     config_lookup_int(&cfg, "features.lookup_table", &lookup);

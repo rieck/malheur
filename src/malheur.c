@@ -60,15 +60,13 @@ static struct option longopts[] = {
    { "features.ngram_len",     1, NULL, 1006 },
    { "features.vect_embed",    1, NULL, 1007 },
    { "features.lookup_table",  1, NULL, 1008 },
-   { "features.hash_seed1",    1, NULL, 1009 },   
-   { "features.hash_seed2",    1, NULL, 1010 },
-   { "prototypes.max_dist",    1, NULL, 1011 },   
-   { "prototypes.max_num",     1, NULL, 1012 },   
-   { "classify.max_dist",      1, NULL, 1013 },   
-   { "cluster.link_mode",      1, NULL, 1014 },   
-   { "cluster.min_dist",       1, NULL, 1015 },   
-   { "cluster.reject_num",     1, NULL, 1016 },
-   { "cluster.shared_ngrams",  1, NULL, 1017 },
+   { "prototypes.max_dist",    1, NULL, 1009 },   
+   { "prototypes.max_num",     1, NULL, 1010 },   
+   { "classify.max_dist",      1, NULL, 1011 },   
+   { "cluster.link_mode",      1, NULL, 1012 },   
+   { "cluster.min_dist",       1, NULL, 1013 },   
+   { "cluster.reject_num",     1, NULL, 1014 },
+   { "cluster.shared_ngrams",  1, NULL, 1015 },
    /* end of config options */
    { NULL,              0, NULL, 0 }
 };
@@ -137,8 +135,58 @@ static void parse_options(int argc, char **argv)
             print_usage();
             exit(EXIT_SUCCESS);
             break;
+
+        /* long options */
+        case 1001:
+            config_set_string(&cfg, "input.format", optarg);    
+            break;
+        case 1002:
+            config_set_int(&cfg, "input.mist_level", atoi(optarg));    
+            break;
+        case 1003:
+            config_set_int(&cfg, "input.mist_rlen", atoi(optarg));    
+            break;
+        case 1004:
+            config_set_int(&cfg, "input.mist_tlen", atoi(optarg));    
+            break;
+        case 1005:
+            config_set_string(&cfg, "features.ngram_delim", optarg);    
+            break;
+        case 1006:
+            config_set_int(&cfg, "features.ngram_len", atoi(optarg));    
+            break;
+        case 1007:
+            config_set_string(&cfg, "features.vect_embed", optarg);    
+            break;
+        case 1008:
+            config_set_int(&cfg, "features.lookup_table", atoi(optarg));    
+            break;
+        case 1009:
+            config_set_float(&cfg, "prototypes.max_dist", atof(optarg));    
+            break;
+        case 1010:
+            config_set_int(&cfg, "prototypes.max_num", atoi(optarg));    
+            break;
+        case 1011:
+            config_set_float(&cfg, "classify.max_dist", atof(optarg));    
+            break;
+        case 1012:
+            config_set_string(&cfg, "cluster.link_mode", optarg);    
+            break;
+        case 1013:
+            config_set_float(&cfg, "classify.min_dist", atof(optarg));    
+            break;
+        case 1014:
+            config_set_int(&cfg, "classify.reject_num", atoi(optarg));    
+            break;
+        case 1015:
+            config_set_int(&cfg, "classify.shared_ngrams", atoi(optarg));    
+            break;
         }
     }
+
+    /* Check configuration */
+    config_check(&cfg);
 
     argc -= optind;
     argv += optind;

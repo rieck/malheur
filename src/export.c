@@ -100,9 +100,10 @@ void export_proto(farray_t *pr, farray_t *fa, assign_t *as, char *file)
     
     /* Print prototype header */
     fprintf(f, "# ---\n# Prototypes for %s\n", fa->src);
-    fprintf(f, "# Number of prototypes: %lu (%3.1f%%)\n", pr->len,
+    fprintf(f, "# Number of prototypes: %lu\n", pr->len);
+    fprintf(f, "# Compression of prototypes: %4.1f %%\n", 
             pr->len * 100.0 / (double) fa->len);
-    fprintf(f, "# Precision of prototypes: %4.1f%%\n",
+    fprintf(f, "# Precision of prototypes: %4.1f %%\n",
             e[Q_PRECISION] * 100.0);
     fprintf(f, "# ---\n# <report> <prototype> <distance>\n");
     
@@ -146,9 +147,9 @@ void export_cluster(cluster_t *c, farray_t *p, farray_t *fa, assign_t *a,
     /* Print prototype header */
     fprintf(f, "# ---\n# Clusters for %s\n", fa->src);
     fprintf(f, "# Number of cluster: %lu\n", c->num);
-    fprintf(f, "# Precision of clusters: %4.1f%%\n", e[Q_PRECISION] * 100.0);
-    fprintf(f, "# Recall of clusters: %4.1f%%\n", e[Q_RECALL] * 100.0);
-    fprintf(f, "# F-measure of clusters: %4.1f%%\n", e[Q_FMEASURE] * 100.0);
+    fprintf(f, "# Precision of clusters: %4.1f %%\n", e[Q_PRECISION] * 100.0);
+    fprintf(f, "# Recall of clusters: %4.1f %%\n", e[Q_RECALL] * 100.0);
+    fprintf(f, "# F-measure of clusters: %4.1f %%\n", e[Q_FMEASURE] * 100.0);
     fprintf(f, "# ---\n# <report> <cluster> <prototype> <distance>\n");
     
     for (i = 0; i < fa->len; i++) {
@@ -191,11 +192,11 @@ void export_class(farray_t *p, farray_t *fa, assign_t *as, char *file)
     
     /* Print prototype header */
     fprintf(f, "# ---\n# Classification for %s\n", fa->src);
-    fprintf(f, "# Precision of classification: %4.1f%%\n",
+    fprintf(f, "# Precision of classification: %4.1f %%\n",
             e[Q_PRECISION] * 100.0);
-    fprintf(f, "# Recall of classification: %4.1f%%\n", 
+    fprintf(f, "# Recall of classification: %4.1f %%\n", 
             e[Q_RECALL] * 100.0);
-    fprintf(f, "# F-measure of classification: %4.1f%%\n", 
+    fprintf(f, "# F-measure of classification: %4.1f %%\n", 
             e[Q_FMEASURE] * 100.0);
     fprintf(f, "# ---\n# <report> <label> <prototype> <distance>\n");
     

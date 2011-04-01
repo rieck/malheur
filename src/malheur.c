@@ -174,13 +174,13 @@ static void parse_options(int argc, char **argv)
             config_set_string(&cfg, "cluster.link_mode", optarg);    
             break;
         case 1013:
-            config_set_float(&cfg, "classify.min_dist", atof(optarg));    
+            config_set_float(&cfg, "cluster.min_dist", atof(optarg));    
             break;
         case 1014:
-            config_set_int(&cfg, "classify.reject_num", atoi(optarg));    
+            config_set_int(&cfg, "cluster.reject_num", atoi(optarg));    
             break;
         case 1015:
-            config_set_int(&cfg, "classify.shared_ngrams", atoi(optarg));    
+            config_set_int(&cfg, "cluster.shared_ngrams", atoi(optarg));    
             break;
         }
     }

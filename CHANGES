@@ -1,3 +1,22 @@
+2011-04-01  Konrad Rieck <konrad.rieck@tu-berlin.de>
+
+  * src/malheur.c: fixed wrong assignment
+
+2011-03-29  Konrad Rieck <konrad.rieck@tu-berlin.de>
+
+  * src/export.c: slightly changed export for better parsing
+
+  * src/malheur.c: support for changing config from command line, e.g.
+  --classiy.min_dist=0.4
+
+  * src/malheur.c: config is now loaded before getopt parsing
+
+  * README, configure.in, src/malheur.c, src/util.c: added support for longopts
+
+2010-12-09  Konrad Rieck <konrad.rieck@tu-berlin.de>
+
+  * CHANGES, TODO: some new todos
+
 2010-10-08  Konrad Rieck <konrad.rieck@tu-berlin.de>
 
   * CHANGES, doc/malheur.pod: updated documentaiton

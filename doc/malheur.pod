@@ -60,7 +60,7 @@ following articles:
 
 I<Automatic Analysis of Malware Behavior using Machine Learning>.
 Konrad Rieck, Philipp Trinius, Carsten Willems, and Thorsten Holz
-Journal of Computer Security, December 2010
+Journal of Computer Security, 19(3), 2011
 
 =item 
 
@@ -90,7 +90,6 @@ directory I<maldir>. If this directory does not exist, it is created
 and the system wide configuration is copied. A detailed description of
 the malheur configuration is provided in L<"CONFIGURATION">. By
 default I<maldir> is set to F<~/.malheur>.
-
 
 =head1 ACTIONS & OPTIONS
 
@@ -203,6 +202,11 @@ This option prints a version and copyright string.
 The configuration file F<malheur.cfg> in I<maldir> determines how the
 malware behavior in a data set is analysis. The configuration contains
 five groups of settings which are described in the following.
+
+All parameters of the configuration can be also specified on the
+command line.  That is, if a parameter is defined in the configuration as
+B<xx = "yy";> in the group B<zz>, it can be alternatively supplied as a
+command-line option by B<--zz.xx "yy"> to B<malheur>.
 
 =over 4
 
@@ -505,7 +509,7 @@ the use of tar archives is recommended.
 
 =head1 COPYRIGHT
 
-Copyright (c) 2009-2010 Konrad Rieck,
+Copyright (c) 2009-2011 Konrad Rieck,
 Berlin Institute of Technology.
 
 This program is free software; you can redistribute it and/or modify

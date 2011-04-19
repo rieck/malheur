@@ -79,7 +79,7 @@ static struct option longopts[] = {
 static void print_usage(void)
 {
     printf("Usage: malheur [options] <action> <dataset>\n"
-           "actions:\n"
+           "Actions:\n"
            "  distance       Compute distance matrix for malware reports\n"
            "  prototype      Extract prototypes from malware reports\n"
            "  cluster        Cluster malware reports into similar groups\n"
@@ -93,7 +93,8 @@ static void print_usage(void)
            "  -n             Don't save internal state of Malher.\n"
            "  -v             Increase verbosity.\n"
            "  -V             Print version and copyright.\n"
-           "  -h             Print this help screen.\n",
+           "  -h             Print this help screen.\n"
+           "See manual page malheur(1) for more information.\n",
            malheur_dir, output_file);
 }
 

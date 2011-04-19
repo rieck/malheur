@@ -1,3 +1,9 @@
+2011-04-19  Konrad Rieck <konrad.rieck@tu-berlin.de>
+
+  * doc/malheur.pod, src/malheur.c: updated manual page
+
+  * CHANGES: sync
+
 2011-04-12  Konrad Rieck <konrad.rieck@tu-berlin.de>
 
   * src/malheur.h.in: added missing macros

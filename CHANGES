@@ -1,3 +1,10 @@
+2011-04-12  Konrad Rieck <konrad.rieck@tu-berlin.de>
+
+  * src/malheur.h.in: added missing macros
+
+  * CHANGES, configure.in: missed one release, so back to previous version
+  number
+
 2011-04-01  Konrad Rieck <konrad.rieck@tu-berlin.de>
 
   * src/malheur.c: fixed wrong assignment

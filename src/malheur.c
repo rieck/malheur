@@ -119,8 +119,6 @@ static void parse_options(int argc, char **argv)
             reset = TRUE;
             break;
         case 'v':
-            verbose++;
-            break;
         case 'm':
             /* Empty. See load_config() */
             break;
@@ -239,6 +237,9 @@ static void load_config(int argc, char **argv)
             case 'm':
                 strncpy(malheur_dir, optarg, MAX_PATH_LEN);
                 malheur_dir[MAX_PATH_LEN - 1] = 0;
+                break;
+            case 'v':
+                verbose++;
                 break;
             case '?':
             default:

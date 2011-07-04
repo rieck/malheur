@@ -36,7 +36,7 @@ case $arg in
        echo "# Configuration: Twoface/Rieck/GWLan"
        CC="gcc-mp-4.4" \
        CFLAGS="-DDEBUG -g -pedantic -pipe -O2" \
-       ./configure --enable-openmp --prefix=/opt/rieck
+       ./configure --prefix=/opt/rieck --enable-openmp
        ;;
    fluffy*)    
        echo "# Configuration: Fluffy"

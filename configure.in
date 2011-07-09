@@ -13,9 +13,9 @@ AC_DEFINE(MALHEUR_MINOR, 5, Minor version number)
 AC_DEFINE(MALHEUR_PATCH, 0, Patch version number)
 
 echo
-echo " :: MALHEUR - Automatic Analysis of Malware Behavior"
-echo "    Copyright (c) 2009-2011 Konrad Rieck (konrad.rieck@tu-berlin.de)"
-echo "    Berlin Institute of Technology (TU Berlin)."
+echo " > MALHEUR - Automatic Analysis of Malware Behavior"
+echo "   Copyright (c) 2009-2011 Konrad Rieck (konrad.rieck@tu-berlin.de)"
+echo "   Berlin Institute of Technology (TU Berlin)."
 echo
 
 # Init automake & config.h
@@ -160,11 +160,11 @@ AC_OUTPUT_COMMANDS([],[
 AC_OUTPUT
 
 echo
-echo " :: Environment: "
-echo "    CC:              '$CC'"
-echo "    CFLAGS:          '$CFLAGS'"
-echo "    LD:              '$LD'"
-echo "    LDFLAGS:         '$LDFLAGS'"
-echo " :: Features:"
-echo "    Matlab tools:    $MATLAB_TOOLS "
-echo "    OpenMP support:  $MALHEUR_OPENMP "
+echo " > Environment"
+echo "   CC:              '$CC'"
+echo "   CFLAGS:          '$CFLAGS'"
+echo "   LD:              '$LD'"
+echo "   LDFLAGS:         '$LDFLAGS'"
+echo " > Features"
+echo "   Matlab tools:    $MATLAB_TOOLS "
+echo "   OpenMP support:  $MALHEUR_OPENMP "

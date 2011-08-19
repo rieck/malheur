@@ -12,6 +12,6 @@
 %     cmd:      Command to execute
 %        
 %          'mal_distance'   -  See help of mal_distance.m
-%          'version'        -  Print Mindy version
+%          'version'        -  Print Malheur version
 %          'verbose'        -  Increase verbosity
 %

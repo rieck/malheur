@@ -1,4 +1,33 @@
+2011-08-24  Konrad Rieck <konrad.rieck@tu-berlin.de>
+
+  * configure.in: new release
+
+  * src/mconfig.c, src/mconfig.h: fixed problem with FLT_NONE constant. it is
+  not simply NAN
+
+2011-08-19  Konrad Rieck <konrad.rieck@tu-berlin.de>
+
+  * matlab/malheur.m: fixed some old bug
+
+2011-07-09  Konrad Rieck <konrad.rieck@tu-berlin.de>
+
+  * .gitignore, malheur.komodoproject: sync
+
+  * malheur.komodoproject, matlab/mal_analyse.m: missing files
+
+  * configure.in: xcode support again. another try
+
+2011-07-07  Konrad Rieck <konrad.rieck@tu-berlin.de>
+
+  * .gitignore: komodo file ignored
+
+2011-07-04  Konrad Rieck <konrad.rieck@tu-berlin.de>
+
+  * compile, src/malheur.c: fixed printing of configuration
+
 2011-04-19  Konrad Rieck <konrad.rieck@tu-berlin.de>
+
+  * CHANGES: final fix
 
   * doc/malheur.pod, src/malheur.c: updated manual page
 

@@ -71,11 +71,13 @@ void MD5Init(struct MD5Context *ctx)
     /* Initialize with selected seed values */
     if (seed1 == MD5_SEED_NONE) {
         long long l;
-        config_lookup_int64(&cfg, "features.hash_seed1", (long long *) &l); 
+        config_lookup_int(&cfg, "features.hash_seed1", (int *) &l); 
         seed1 = (uint32_t) l;
-        config_lookup_int64(&cfg, "features.hash_seed2", (long long *) &l);    
+        config_lookup_int(&cfg, "features.hash_seed2", (int *) &l);    
         seed2 = (uint32_t) l;
     }
+    
+    printf("%x\n", seed1);
 
     ctx->buf[0] = seed1;
     ctx->buf[1] = seed2;

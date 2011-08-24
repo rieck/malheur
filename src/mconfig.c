@@ -147,7 +147,7 @@ void config_check(config_t *cfg)
             config_setting_set_string(vs, defaults[i].str);
             
         /* (2) Check for float */            
-        } else if (defaults[i].fnum != FLT_NONE) {
+        } else if (!isnan(defaults[i].fnum)) {
             if (config_setting_lookup_float(cs, defaults[i].name, &f))
                 continue;
 

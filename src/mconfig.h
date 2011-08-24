@@ -42,7 +42,7 @@ typedef struct {
 } config_default_t;
 
 /* Empty value for floating value */
-#define FLT_NONE	-0.1234567890123456789
+#define FLT_NONE	(0.0/0.0)
 
 /* Functions */
 void config_print(config_t *cfg);

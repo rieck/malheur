@@ -77,8 +77,6 @@ void MD5Init(struct MD5Context *ctx)
         seed2 = (uint32_t) l;
     }
     
-    printf("%x\n", seed1);
-
     ctx->buf[0] = seed1;
     ctx->buf[1] = seed2;
     ctx->buf[2] = 0x98badcfe;

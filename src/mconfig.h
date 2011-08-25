@@ -34,15 +34,11 @@
  * string and then for a float argument.
  */
 typedef struct {
-    char *group;        /**< Configuration group */
-    char *name;         /**< Configuration name */
-    int inum;           /**< Integer value of configuration (or 0) */
-    double fnum;        /**< Float value of configuraiton (or NAN) */
-    char *str;          /**< String of configuration (or NULL) */
+    char *group;        	/**< Configuration group */
+    char *name;         	/**< Configuration name */
+    config_value_t val;		/**< Value */
+    short type;			/**< Value type */
 } config_default_t;
-
-/* Empty value for floating value */
-#define FLT_NONE	(0.0/0.0)
 
 /* Functions */
 void config_print(config_t *cfg);

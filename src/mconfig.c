@@ -29,29 +29,34 @@ extern int verbose;
 /* Default configuration */
 static config_default_t defaults[] = {
     /* Input */
-    {"input", "format", 0, FLT_NONE, "raw"},
-    {"input", "mist_level", 2, FLT_NONE, NULL},
-    {"input", "mist_rlen", 0, FLT_NONE, NULL},
-    {"input", "mist_tlen", 0, FLT_NONE, NULL},
+    {"input", "format", { .sval = "text" }, CONFIG_TYPE_STRING},
+    {"input", "mist_level", { .ival = 0 }, CONFIG_TYPE_INT},
+    {"input", "mist_rlen", { .ival = 0 }, CONFIG_TYPE_INT},
+    {"input", "mist_tlen", { .ival = 0 }, CONFIG_TYPE_INT},
+
     /* Features */
-    {"features", "ngram_len", 2, FLT_NONE, NULL},
-    {"features", "ngram_delim", 0, FLT_NONE, "%20%0a%0d"},
-    {"features", "vect_embed", 0, FLT_NONE, "bin"},
-    {"features", "lookup_table", 0, FLT_NONE, NULL},
-    {"features", "hash_seed1", 0xc0cac01a, FLT_NONE, NULL},
-    {"features", "hash_seed2", 0xadd511fe, FLT_NONE, NULL},
+    {"features", "ngram_len", { .ival = 2 }, CONFIG_TYPE_INT},
+    {"features", "ngram_delim", { .sval = "%20%0a%0d" }, CONFIG_TYPE_STRING},
+    {"features", "vect_embed", { .sval = "bin" }, CONFIG_TYPE_STRING},
+    {"features", "lookup_table", { .ival = 0 }, CONFIG_TYPE_INT},
+    {"features", "hash_seed1", { .ival = 0x1ea4501a }, CONFIG_TYPE_INT},
+    {"features", "hash_seed2", { .ival = 0x75f3da43 }, CONFIG_TYPE_INT},
+
     /* Prototypes */
-    {"prototypes", "max_dist", 0, 0.65, NULL},
-    {"prototypes", "max_num", 0, FLT_NONE, NULL},
-    /* Clustering */
-    {"cluster", "min_dist", 0, 0.95, NULL},
-    {"cluster", "reject_num", 10, FLT_NONE, NULL},
-    {"cluster", "link_mode", 0, FLT_NONE, "complete"},
-    {"cluster", "shared_ngrams", 0, 0.0, NULL},
+    {"prototypes", "max_dist", { .fval = 0.65 }, CONFIG_TYPE_FLOAT},
+    {"prototypes", "max_num", { .ival = 0 }, CONFIG_TYPE_INT},
+
     /* Classification */
-    {"classify", "max_dist", 0, 0.68, NULL},
+    {"classify", "max_dist", { .fval = 0.68 }, CONFIG_TYPE_FLOAT},
+
+    /* Clustering */
+    {"cluster", "link_mode", { .sval = "complete" }, CONFIG_TYPE_STRING},    
+    {"cluster", "min_dist", { .fval = 0.95 }, CONFIG_TYPE_FLOAT},
+    {"cluster", "reject_num", { .ival = 10 }, CONFIG_TYPE_INT},
+    {"cluster", "shared_ngrams", { .fval = 0.0 }, CONFIG_TYPE_FLOAT},
+
     /* Terminating entry */
-    {NULL, NULL, 0, 0, NULL}
+    {NULL, NULL, { .ival = 0 }, 0}
 };
 
 /**
@@ -138,16 +143,15 @@ void config_check(config_t *cfg)
                                     defaults[i].group, CONFIG_TYPE_GROUP);
 
         /* (1) Check for string */
-        if (defaults[i].str) {
+        if (defaults[i].type == CONFIG_TYPE_STRING) {
             if (config_setting_lookup_string(cs, defaults[i].name, &s))
                 continue;
 
             /* Add default value */
             vs = config_setting_add(cs, defaults[i].name, CONFIG_TYPE_STRING);
-            config_setting_set_string(vs, defaults[i].str);
-            
+            config_setting_set_string(vs, defaults[i].val.sval);
         /* (2) Check for float */            
-        } else if (!isnan(defaults[i].fnum)) {
+        } else if (defaults[i].type == CONFIG_TYPE_FLOAT) {
             if (config_setting_lookup_float(cs, defaults[i].name, &f))
                 continue;
 
@@ -161,9 +165,9 @@ void config_check(config_t *cfg)
 
             /* Add default value */
             vs = config_setting_add(cs, defaults[i].name, CONFIG_TYPE_FLOAT);
-            config_setting_set_float(vs, defaults[i].fnum);
+            config_setting_set_float(vs, defaults[i].val.fval);
         /* (3) Check for integer */            
-        } else {
+        } else if (defaults[i].type == CONFIG_TYPE_INT) {
             if (config_setting_lookup_int(cs, defaults[i].name, &j))
                 continue;
 
@@ -177,7 +181,9 @@ void config_check(config_t *cfg)
 
             /* Add default value */
             vs = config_setting_add(cs, defaults[i].name, CONFIG_TYPE_INT);
-            config_setting_set_int(vs, defaults[i].inum);
+            config_setting_set_int(vs, defaults[i].val.ival);
+        } else {
+            error("Unknown configuration type");
         }
     }
 }

@@ -1,3 +1,8 @@
+2011-08-25  Konrad Rieck <konrad.rieck@tu-berlin.de>
+
+  * CHANGES, doc/malheur.cfg, src/mconfig.c, src/mconfig.h: rewrote default
+  configuration code
+
 2011-08-24  Konrad Rieck <konrad.rieck@tu-berlin.de>
 
   * configure.in: a new release is on its way

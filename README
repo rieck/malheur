@@ -45,7 +45,7 @@
 
      "Automatic Analysis of Malware Behavior using Machine Learning"
      Konrad Rieck, Philipp Trinius, Carsten Willems, and Thorsten Holz
-     Technical report 18-2009, Berlin Institute of Technology, 2009
+     Journal of Computer Security (JCS), 19 (4) 639-668, 2011.
 
      "A Malware Instruction Set for Behavior-Based Analysis" 
      Philipp Trinius, Carsten Willems, Thorsten Holz, and Konrad Rieck 
@@ -53,7 +53,7 @@
 
  Dependencies
  --
-      >= libconfig-1.4.0
+      >= libconfig-1.4
       >= libarchive-2.70
 
  Compilation & Installation

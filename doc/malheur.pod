@@ -59,13 +59,13 @@ following articles:
 =item 
 
 I<Automatic Analysis of Malware Behavior using Machine Learning>.
-Konrad Rieck, Philipp Trinius, Carsten Willems, and Thorsten Holz
-Journal of Computer Security, 19(3), 2011
+Konrad Rieck, Philipp Trinius, Carsten Willems, and Thorsten Holz.
+Journal of Computer Security (JCS), 19(4) 639-668, 2011.
 
 =item 
 
 I<A Malware Instruction Set for Behavior-Based Analysis>.
-Philipp Trinius, Carsten Willems, Thorsten Holz, and Konrad Rieck
+Philipp Trinius, Carsten Willems, Thorsten Holz, and Konrad Rieck.
 Technical report TR-2009-07, University of Mannheim, 2009
 
 =back

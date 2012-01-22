@@ -84,7 +84,6 @@ int test_static()
 int test_stress()
 {
     int i, j, err = 0;
-    fentry_t *f;
     feat_t key;
     char buf[STR_LENGTH + 1];
 
@@ -107,7 +106,7 @@ int test_stress()
             break;
         case 1:
             /* Query for string */
-            f = ftable_get(key);
+            ftable_get(key);
             break;
         }
     }

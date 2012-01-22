@@ -13,15 +13,6 @@ fi
 
 # Apply configuration
 case $arg in
-   # Cluster nodes at Fraunhofer FIRST
-   bot*|vnc*)
-       echo "# Configuration: VNC/Bot"
-       PKG_CONFIG_PATH="$HOME/usr/lib/pkgconfig" \
-       CC="gcc-4.3" \
-       CFLAGS="-fomit-frame-pointer -pedantic -pipe -O3 -march=opteron" \
-       ./configure --enable-matlab --with-matlab=/home/matrix/matlab \
-                   --prefix=$HOME/usr
-       ;;   
    # Cluster nodes at Berlin Institute of Technology        
    node*)
        echo "# Configuration: Node"
@@ -32,17 +23,11 @@ case $arg in
        ./configure --enable-matlab -with-matlab=/usr/local/matlab2009a \
                    --enable-openmp --prefix=$HOME/usr
        ;;       
-   twoface*|rieck*|gwlan*)
+   twoface*|ltrieck*)
        echo "# Configuration: Twoface/Rieck/GWLan"
-       CC="gcc-mp-4.4" \
+       CC="gcc" \
        CFLAGS="-DDEBUG -g -pedantic -pipe -O2" \
        ./configure --prefix=/opt/rieck --enable-openmp
-       ;;
-   fluffy*)    
-       echo "# Configuration: Fluffy"
-       CC="gcc" \
-       CFLAGS="-g -pedantic -pipe -O3 -mcpu=v9 -m64" \
-       ./configure 
        ;;
    icc)    
        echo "# Configuration: ICC"
@@ -59,7 +44,7 @@ case $arg in
    *)    
        echo "# Configuration: Standard"
        CFLAGS="-g -pedantic -pipe -O3" \
-       ./configure --enable-openmp
+       ./configure 
        ;;
 esac
 

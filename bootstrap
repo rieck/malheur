@@ -4,13 +4,11 @@
 # Berlin Institute of Technology (TU Berlin).
 #
 
-export PATH=/opt/local/bin:$PATH:/usr/local/bin
-
 ACLOCAL=aclocal
 AUTOHEADER=autoheader
 AUTOMAKE=automake
 AUTOCONF=autoconf
-LIBTOOLIZE=glibtoolize
+LIBTOOLIZE=libtoolize
 
 rm -f aclocal.m4
 rm -f m4/lib* m4/lt*

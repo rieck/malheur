@@ -369,18 +369,18 @@ static void malheur_save_state()
  * Loads the internal Malheur state. The state is used during incremental
  * analysis to distinguig clusters obtained during different runs
  */
-static void malheur_load_state()
+static int malheur_load_state()
 {
     FILE *f;
-    int ret, run, proto, rej;
+    int ret;
     
     if (access(mcfg.state_file, R_OK))
-        return;
+        return FALSE;
     
     f = fopen(mcfg.state_file, "r");
     if (!f) {
         error("Could not open state file '%s'.", mcfg.state_file);
-        return;
+        return FALSE;
     }
         
     ret = fscanf(f, "run = %u\nprototypes = %u\nrejected = %u\n", 
@@ -388,10 +388,11 @@ static void malheur_load_state()
     
     if (ret != 3) {
         error("Could not parse state file '%s'.", mcfg.state_file);
-        return;
+        return FALSE;
     }
     
     fclose(f);
+    return TRUE;
 }
 
 /**
@@ -588,7 +589,16 @@ static void malheur_increment()
 static void malheur_info()
 {
     /* Load internal state */
-    malheur_load_state();
+    if (!malheur_load_state()) {
+        printf("No internal state stored in %s\n", malheur_dir);
+        return;
+    }
+
+    printf("Internal state from %s\n", mcfg.state_file);
+    printf("       Malheur run: %u\n", mstate.run);
+    printf(" Stored prototypes: %u\n", mstate.num_proto);
+    printf("  Rejected reports: %u\n", mstate.num_reject);
+
 }
 
 /**

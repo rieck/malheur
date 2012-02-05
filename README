@@ -58,10 +58,19 @@
 
  Compilation & Installation
  --
+ 
+ From GIT repository first run
+
+      $ ./bootstrap
+
+ From tarball run
+
       $ ./configure [options]
       $ make
       $ make check
       $ make install
+
+ Options for configure
 
       --prefix=PATH           Set directory prefix for installation
 

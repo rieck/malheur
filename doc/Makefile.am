@@ -1,7 +1,6 @@
-#
 # MALHEUR - Automatic Analysis of Malware Behavior
-# Copyright (c) 2009 Konrad Rieck (konrad.rieck@tu-berlin.de)
-# Berlin Institute of Technology (TU Berlin).
+# Copyright (c) 2009-2012 Konrad Rieck (konrad@mlsec.org)          
+# University of Goettingen, Berlin Institute of Technology
 #
 
 sysconf_DATA = malheur.cfg

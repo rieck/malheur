@@ -1,9 +1,7 @@
-#
 # MALHEUR - Automatic Analysis of Malware Behavior
-# Copyright (c) 2009 Konrad Rieck (konrad.rieck@tu-berlin.de)
-# Berlin Institute of Technology (TU Berlin).
+# Copyright (c) 2009-2012 Konrad Rieck (konrad@mlsec.org)
+# University of Goettingen, Berlin Institute of Technology
 # --
-#
 
 INCLUDES                = @INCLUDES@ -I$(top_srcdir)/src 
 TESTS                   = test_ftable test_fvec test_farray test_fmath \

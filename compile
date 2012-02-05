@@ -1,7 +1,7 @@
 #!/bin/sh
 # MALHEUR - Automatic Analysis of Malware Behavior
-# Copyright (c) 2009 Konrad Rieck (konrad.rieck@tu-berlin.de)
-# Berlin Institute of Technology (TU Berlin).
+# Copyright (c) 2009-2012 Konrad Rieck (konrad@mlsec.org)          
+# University of Goettingen, Berlin Institute of Technology
 #
 
 # Get requested configuration
@@ -13,7 +13,7 @@ fi
 
 # Apply configuration
 case $arg in
-   # Cluster nodes at Berlin Institute of Technology        
+   # Cluster nodes at Berlin 
    node*)
        echo "# Configuration: Node"
        PKG_CONFIG_PATH="$HOME/usr/lib/pkgconfig" \
@@ -22,18 +22,13 @@ case $arg in
        CFLAGS="-fomit-frame-pointer -pedantic -pipe -O3 -march=native" \
        ./configure --enable-matlab -with-matlab=/usr/local/matlab2009a \
                    --enable-openmp --prefix=$HOME/usr
-       ;;       
+       ;;  
+   # My slow laptop      
    twoface*|ltrieck*)
        echo "# Configuration: Twoface/Rieck/GWLan"
        CC="gcc" \
        CFLAGS="-DDEBUG -g -pedantic -pipe -O2" \
        ./configure --prefix=/opt/rieck --enable-openmp
-       ;;
-   icc)    
-       echo "# Configuration: ICC"
-       CC="icc" \
-       CFLAGS="-O3"\
-       ./configure --enable-openmp
        ;;
    debug)
        echo "# Configuration: Debug"

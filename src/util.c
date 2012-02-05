@@ -1,7 +1,7 @@
 /*
  * MALHEUR - Automatic Analysis of Malware Behavior
- * Copyright (c) 2009-2010 Konrad Rieck (konrad.rieck@tu-berlin.de)
- * Berlin Institute of Technology (TU Berlin).
+ * Copyright (c) 2009-2012 Konrad Rieck (konrad@mlsec.org)
+ * University of Goettingen, Berlin Institute of Technology 
  * --
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,7 +13,7 @@
 /**
  * @defgroup util Utility functions
  * The module contains utility functions.
- * @author Konrad Rieck (konrad.rieck@tu-berlin.de)
+ * @author Konrad Rieck
  * @{
  */
  
@@ -399,9 +399,9 @@ void malheur_version(FILE *f)
 {
     fprintf(f,
             "# MALHEUR (%d.%d.%d) - Automatic Analysis of Malware Behavior\n"
-            "# Copyright (c) 2009-2011 Konrad Rieck (konrad.rieck@tu-berlin.de)\n"
-            "# Berlin Institute of Technology (TU Berlin).\n", MALHEUR_MAJOR,
-            MALHEUR_MINOR, MALHEUR_PATCH);
+            "# Copyright (c) 2009-2012 Konrad Rieck (konrad@mlsec.org)\n"
+            "# University of Goettingen, Berlin Institute of Technology\n",
+            MALHEUR_MAJOR, MALHEUR_MINOR, MALHEUR_PATCH);
 }
 
 /** 

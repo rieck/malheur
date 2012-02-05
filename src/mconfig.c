@@ -1,7 +1,7 @@
 /*
  * MALHEUR - Automatic Analysis of Malware Behavior
- * Copyright (c) 2009 Konrad Rieck (konrad.rieck@tu-berlin.de)
- * Berlin Institute of Technology (TU Berlin).
+ * Copyright (c) 2009-2012 Konrad Rieck (konrad@mlsec.org)
+ * University of Goettingen, Berlin Institute of Technology 
  * --
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,7 +15,7 @@
  * @defgroup mconfig Configuration functions
  * Functions for configuration of the Malheur tool. Additionally default
  * values for each configruation parameter are specified in this module. 
- * @author Konrad Rieck (konrad.rieck@tu-berlin.de)
+ * @author Konrad Rieck
  * @{
  */
 

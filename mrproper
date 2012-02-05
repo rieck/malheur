@@ -1,0 +1,11 @@
+#!/bin/sh
+
+# Do the Mr. Proper!
+rm -f configure depcomp install-sh missing ltmain.sh
+rm -f aclocal.m4 m4/lib* m4/lt*
+rm -f config.*
+rm -rf a.out.dSYM autom4te.cache
+
+find . -name Makefile.in -delete
+
+echo "All clean now."

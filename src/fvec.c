@@ -1,7 +1,7 @@
 /*
  * MALHEUR - Automatic Analysis of Malware Behavior
- * Copyright (c) 2009 Konrad Rieck (konrad.rieck@tu-berlin.de)
- * Berlin Institute of Technology (TU Berlin).
+ * Copyright (c) 2009-2012 Konrad Rieck (konrad@mlsec.org)
+ * University of Goettingen, Berlin Institute of Technology
  * --
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,7 +20,7 @@
  * non-zero values is sparse. The dimensions are indexed by 64bit hash 
  * values (MD5) and sorted to allow for efficiently processing and 
  * comparing vectors.  
- * @author Konrad Rieck (konrad.rieck@tu-berlin.de)
+ * @author Konrad Rieck
  * @{
  */
 

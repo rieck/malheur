@@ -36,6 +36,7 @@ static int reset = FALSE;
 static int save = TRUE;
 static malheur_action_t action = PROTOTYPE;
 static malheur_cfg_t mcfg;
+static malheur_state_t mstate;
 
 /* Option string */
 #define OPTSTRING       "nro:m:hvV"
@@ -79,23 +80,24 @@ static struct option longopts[] = {
 static void print_usage(void)
 {
     printf("Usage: malheur [options] <action> <dataset>\n"
-           "Actions:\n"
-           "  distance       Compute distance matrix for malware reports\n"
-           "  prototype      Extract prototypes from malware reports\n"
-           "  cluster        Cluster malware reports into similar groups\n"
-           "  classify       Classify malware reports using labeled prototypes\n"
-           "  increment      Incremental analysis of malware reports\n"
-           "  protodist      Compute distance matrix for prototypes\n"
-           "Options:\n"
-           "  -m <maldir>    Set malheur directory. [%s]\n"
-           "  -o <outfile>   Set output file for analysis. [%s]\n"
-           "  -r             Reset internal state of Malheur.\n"
-           "  -n             Don't save internal state of Malher.\n"
-           "  -v             Increase verbosity.\n"
-           "  -V             Print version and copyright.\n"
-           "  -h             Print this help screen.\n"
-           "See manual page malheur(1) for more information.\n",
-           malheur_dir, output_file);
+        "Actions:\n"
+        "  distance      Compute distance matrix for malware reports\n"
+        "  prototype     Extract prototypes from malware reports\n"
+        "  protodist     Compute distance matrix for prototypes\n"        
+        "  cluster       Cluster malware reports into similar groups\n"
+        "  classify      Classify malware reports using labeled prototypes\n"
+        "  increment     Incremental analysis of malware reports\n"
+        "  info          Print information about internal state of Malheur\n"
+        "Options:\n"
+        "  -m <maldir>   Set malheur directory. [%s]\n"
+        "  -o <outfile>  Set output file for analysis. [%s]\n"
+        "  -r            Reset internal state of Malheur.\n"
+        "  -n            Don't save internal state of Malher.\n"
+        "  -v            Increase verbosity.\n"
+        "  -V            Print version and copyright.\n"
+        "  -h            Print this help screen.\n"
+        "See manual page malheur(1) for more information.\n",
+       malheur_dir, output_file);
 }
 
 /**
@@ -206,11 +208,13 @@ static void parse_options(int argc, char **argv)
         action = INCREMENT;
     } else if (!strcasecmp(argv[0], "protodist")) {
         action = PROTODIST;
+    } else if (!strcasecmp(argv[0], "info")) {
+        action = INFO;
     } else {
         fatal("Unknown analysis action '%s'", argv[0]);
     }
     
-    if (argc < 2 && action != PROTODIST) 
+    if (argc < 2 && action != PROTODIST && action != INFO) 
         fatal("the <dataset> argument is required");
 
     /* Assign input files */
@@ -310,6 +314,8 @@ static void malheur_init(int argc, char **argv)
         unlink(mcfg.proto_file);
         unlink(mcfg.state_file);
     }
+
+    memset(&mstate, 0, sizeof(mstate));
 }
 
 
@@ -340,7 +346,7 @@ static farray_t *malheur_load()
  * @param proto Number of prototypes
  * @param rej Number of rejected reports
  */
-static void malheur_save_state(int run, int proto, int rej)
+static void malheur_save_state()
 {
     FILE *f;
 
@@ -353,8 +359,8 @@ static void malheur_save_state(int run, int proto, int rej)
         return;
     }
         
-    fprintf(f, "run = %d\nprototypes = %d\nrejected = %d\n", 
-            run, proto, rej);
+    fprintf(f, "run = %u\nprototypes = %u\nrejected = %u\n", 
+            mstate.run, mstate.num_proto, mstate.num_reject);
     
     fclose(f);
 }
@@ -362,32 +368,30 @@ static void malheur_save_state(int run, int proto, int rej)
 /**
  * Loads the internal Malheur state. The state is used during incremental
  * analysis to distinguig clusters obtained during different runs
- * @return previous number of run
  */
-static int malheur_load_state()
+static void malheur_load_state()
 {
     FILE *f;
     int ret, run, proto, rej;
     
     if (access(mcfg.state_file, R_OK))
-        return 0;
+        return;
     
     f = fopen(mcfg.state_file, "r");
     if (!f) {
         error("Could not open state file '%s'.", mcfg.state_file);
-        return 0;
+        return;
     }
         
-    ret = fscanf(f, "run = %d\nprototypes = %d\nrejected = %d\n", 
-                &run, &proto, &rej);
+    ret = fscanf(f, "run = %u\nprototypes = %u\nrejected = %u\n", 
+                &mstate.run, &mstate.num_proto, &mstate.num_reject);
     
     if (ret != 3) {
         error("Could not parse state file '%s'.", mcfg.state_file);
-        return 0;
+        return;
     }
     
     fclose(f);
-    return run;
 }
 
 /**
@@ -508,7 +512,7 @@ static void malheur_increment()
     assign_t *as; 
 
     /* Load internal state */
-    int run = malheur_load_state();
+    malheur_load_state();
 
     /* Load data including rejected stuff */
     farray_t *fa = malheur_load();
@@ -542,7 +546,7 @@ static void malheur_increment()
     pr = proto_extract(fa, &as);
     
     /* Cluster prototypes and extrapolate */
-    cluster_t *c = cluster_linkage(pr, run + 1);
+    cluster_t *c = cluster_linkage(pr, mstate.run + 1);
     cluster_extrapolate(c, as);
     cluster_trim(c);
 
@@ -556,10 +560,15 @@ static void malheur_increment()
     if (save)
         farray_save_file(re, mcfg.reject_file);
 
-    /* Save state */
-    if (save)
-        malheur_save_state(run + 1, pn->len, re->len);
+    /* Update state */
+    mstate.run++;
+    mstate.num_proto = pn->len;
+    mstate.num_reject = re->len;
 
+    /* Save state */
+    if (save) 
+        malheur_save_state();
+    
     /* Export results */
     export_increment2(c, pr, fa, as, output_file);
 
@@ -573,6 +582,14 @@ static void malheur_increment()
     farray_destroy(fa);
 }
 
+/**
+ * Display information about internal state of Malheur
+ */
+static void malheur_info()
+{
+    /* Load internal state */
+    malheur_load_state();
+}
 
 /**
  * Computes a distance matrix and saves the result to a file
@@ -679,6 +696,8 @@ int main(int argc, char **argv)
     case PROTODIST:
         malheur_protodist();
         break;
+    case INFO:
+        malheur_info();
     }
 
     malheur_exit();

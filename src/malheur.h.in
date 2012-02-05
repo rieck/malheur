@@ -16,9 +16,8 @@
 
 /* Operation actions of Malheur  */
 typedef enum {
-    DISTANCE, PROTOTYPE, CLUSTER, CLASSIFY, INCREMENT, PROTODIST
+    DISTANCE, PROTOTYPE, CLUSTER, CLASSIFY, INCREMENT, PROTODIST, INFO
 } malheur_action_t;
-
 
 /* Output file */
 #define OUTPUT_FILE         "malheur.out"
@@ -45,6 +44,12 @@ typedef struct {
     char config_file[MAX_PATH_LEN];      /* File for configuration */
     char state_file[MAX_PATH_LEN];       /* File for internal state */
 } malheur_cfg_t;
+
+typedef struct {
+    unsigned int run;                    /* Current run */
+    unsigned int num_proto;              /* Number of prototype reports */
+    unsigned int num_reject;             /* Number of rejected reports */
+} malheur_state_t;
 
 /* Libconfig macros */
 #define config_set_string(c,x,s) \

@@ -19,11 +19,12 @@ typedef enum {
     DISTANCE, PROTOTYPE, CLUSTER, CLASSIFY, INCREMENT, PROTODIST
 } malheur_action_t;
 
-/* Malheur directory */
-#define MALHEUR_DIR         ".malheur"
 
 /* Output file */
 #define OUTPUT_FILE         "malheur.out"
+
+/* Malheur directory and config */
+#define MALHEUR_DIR         "__LOCALSTATEDIR__/malheur"
 
 /* Global malheur files */
 #define GLOBAL_CONFIG_FILE  "__SYSCONFDIR__/malheur.cfg"
@@ -52,7 +53,6 @@ typedef struct {
       config_setting_set_int(config_lookup(c,x),s)
 #define config_set_float(c,x,s) \
       config_setting_set_float(config_lookup(c,x),s)
-
 
 #endif                          /* MALHEUR_H */
 

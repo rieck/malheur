@@ -2,6 +2,7 @@
 *.mex*
 *.o
 .deps
+/a.out.dSYM
 /aclocal.m4
 /autom4te.cache
 /build

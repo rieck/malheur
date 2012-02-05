@@ -19,8 +19,10 @@ malheur_DEPENDENCIES	= malheur.h
 malheur_LDFLAGS         = -static
 
 malheur.h: malheur.h.in
-	sed -e 's|__SYSCONFDIR__|$(sysconfdir)|' \
-        	$(top_srcdir)/src/malheur.h.in > malheur.h
+	cat $(top_srcdir)/src/malheur.h.in \
+	| sed -e 's|__SYSCONFDIR__|$(sysconfdir)|' \
+	| sed -e 's|__LOCALSTATEDIR__|$(localstatedir)|' \
+        > malheur.h
          
 clean-local:
 	rm -f 		malheur.h

@@ -229,7 +229,7 @@ static void load_config(int argc, char **argv)
     int ch;
 
     /* Prepare dir */
-    snprintf(malheur_dir, MAX_PATH_LEN, "%s/%s", getenv("HOME"), MALHEUR_DIR);
+    snprintf(malheur_dir, MAX_PATH_LEN, "%s", MALHEUR_DIR);
 
     /* Check for config file in command line */
     while ((ch = getopt_long(argc, argv, OPTSTRING, longopts, NULL)) != -1) {
@@ -253,9 +253,8 @@ static void load_config(int argc, char **argv)
 
     /* Check for directories and files */
     if (access(malheur_dir, F_OK))
-        if(mkdir(malheur_dir, 0700)) 
-            fatal("Could not create directory '%s'.", malheur_dir);
-                    
+        fatal("Malheur directory '%s'", malheur_dir);
+
     /* Copy configuration file */
     if (access(cfg_path, R_OK)) {
         if (verbose > 0)

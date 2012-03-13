@@ -24,7 +24,7 @@ case $arg in
                    --enable-openmp --prefix=$HOME/usr
        ;;  
    # My slow laptop      
-   twoface*|ltrieck*)
+   scarecrow*|twoface*|ltrieck*)
        echo "# Configuration: Twoface/Rieck/GWLan"
        CC="gcc" \
        CFLAGS="-DDEBUG -g -pedantic -pipe -O2" \

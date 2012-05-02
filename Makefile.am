@@ -11,3 +11,5 @@ EXTRA_DIST = README INSTALL COPYING CHANGES
 clean-local:
 	rm -f *~
 	        
+install-data-local:
+	$(mkinstalldirs) $(DESTDIR)$(localstatedir)/malheur

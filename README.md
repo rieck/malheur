@@ -14,6 +14,7 @@ unknown malware to discovered classes.  It supports four basic actions for
 analysis which can be applied to reports of recorded behavior:
 
 1. *Extraction of prototypes* 
+
     From a given set of reports, malheur identifies a subset of
     prototypes representative for the full data set. The prototypes
     provide a quick overview of recorded behavior and can be used to

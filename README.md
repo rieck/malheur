@@ -13,29 +13,25 @@ identifying novel classes of malware with similar behavior and assigning
 unknown malware to discovered classes.  It supports four basic actions for
 analysis which can be applied to reports of recorded behavior:
 
-1. *Extraction of prototypes* 
-
+1. *Extraction of prototypes:*
     From a given set of reports, malheur identifies a subset of
     prototypes representative for the full data set. The prototypes
     provide a quick overview of recorded behavior and can be used to
     guide manual inspection.
 
 2. *Clustering of behavior* 
-
     Malheur automatically identifies groups (clusters) of reports
     containing similar behavior. Clustering allows for discovering novel
     classes of malware and provides the basis for crafting specific
     detection and defense mechanisms, such as anti-virus signatures.
 
-3. *Classification of behavior* 
-
+3. *Classification of behavior:* 
     Based on a set of previously clustered reports, malheur is able to
     assign unknown behavior to known groups of malware. Classification
     enables identifying novel and unknown variants of malware and can be
     used to filter program behavior prior to manual inspection.
 
-4. *Incremental analysis* 
-
+4. *Incremental analysis:* 
     Malheur can be applied incrementally for analysis of large data
     sets. By processing reports in chunks, the run-time as well as
     memory requirements can be significantly reduced. This renders
@@ -46,11 +42,11 @@ A detailed description of these techniques as well as technical
 background on analysis of malicious software is provided in the
 following articles:
 
-  > "Automatic Analysis of Malware Behavior using Machine Learning."
++ "Automatic Analysis of Malware Behavior using Machine Learning."
   Konrad Rieck, Philipp Trinius, Carsten Willems, and Thorsten Holz
   Journal of Computer Security (JCS), 19 (4) 639-668, 2011.
 
-  > "A Malware Instruction Set for Behavior-Based Analysis."
++ "A Malware Instruction Set for Behavior-Based Analysis."
   Philipp Trinius, Carsten Willems, Thorsten Holz, and Konrad Rieck 
   Technical report TR-2009-07, University of Mannheim, 2009
 

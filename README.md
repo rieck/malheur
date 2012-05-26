@@ -1,0 +1,111 @@
+
+MALHEUR - Automatic Analysis of Malware Behavior
+==
+ 
+Introduction 
+--
+
+Malheur is a tool for the automatic analysis of malware behavior (program
+behavior recorded from malicious software in a sandbox environment).  It
+has been designed to support the regular analysis of malicious software and
+the development of detection and defense measures.  Malheur allows for
+identifying novel classes of malware with similar behavior and assigning
+unknown malware to discovered classes.  It supports four basic actions for
+analysis which can be applied to reports of recorded behavior:
+
+1. *Extraction of prototypes* 
+    From a given set of reports, malheur identifies a subset of
+    prototypes representative for the full data set. The prototypes
+    provide a quick overview of recorded behavior and can be used to
+    guide manual inspection.
+
+2. *Clustering of behavior* 
+
+    Malheur automatically identifies groups (clusters) of reports
+    containing similar behavior. Clustering allows for discovering novel
+    classes of malware and provides the basis for crafting specific
+    detection and defense mechanisms, such as anti-virus signatures.
+
+3. *Classification of behavior* 
+
+    Based on a set of previously clustered reports, malheur is able to
+    assign unknown behavior to known groups of malware. Classification
+    enables identifying novel and unknown variants of malware and can be
+    used to filter program behavior prior to manual inspection.
+
+4. *Incremental analysis* 
+
+    Malheur can be applied incrementally for analysis of large data
+    sets. By processing reports in chunks, the run-time as well as
+    memory requirements can be significantly reduced. This renders
+    long-term application of malheur feasible, for example for daily
+    analysis of incoming malware programs.
+
+A detailed description of these techniques as well as technical
+background on analysis of malicious software is provided in the
+following articles:
+
+  > "Automatic Analysis of Malware Behavior using Machine Learning."
+  Konrad Rieck, Philipp Trinius, Carsten Willems, and Thorsten Holz
+  Journal of Computer Security (JCS), 19 (4) 639-668, 2011.
+
+  > "A Malware Instruction Set for Behavior-Based Analysis."
+  Philipp Trinius, Carsten Willems, Thorsten Holz, and Konrad Rieck 
+  Technical report TR-2009-07, University of Mannheim, 2009
+
+Dependencies
+--
+    >= libconfig-1.4
+    >= libarchive-2.70
+
+Compilation & Installation
+--
+
+From GIT repository first run
+
+    $ ./bootstrap
+
+From tarball run
+
+    $ ./configure [options]
+    $ make
+    $ make check
+    $ make install
+
+Options for configure
+
+    --prefix=PATH           Set directory prefix for installation
+
+By default Malheur is installed into /usr/local. If you prefer
+a different location, use this option to select an installation
+directory.
+
+    --enable-openmp         Enable support for OpenMP (experimental)
+    
+This option enables support for OpenMP in Malheur. Several
+functions of the malware analysis have been enhanced using
+OpenMP directives, such that they execute in parallel and
+benefit from multi-core architectures.
+
+    --enable-matlab         Enable optional Matlab tools
+    --with-matlab-dir=PATH  Set directory prefix of matlab installation
+
+Some functions of Malheur are also available in form of Matlab
+.mex files which allows for using implemented analysis
+methods directly from within a Matlab environment.
+
+License
+--
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 3 of the License, or
+(at your option) any later version.  This program is distributed
+without any warranty. See the GNU General Public License for more
+details.
+
+Copyright
+--
+
+Copyright (c) 2009-2012 Konrad Rieck (konrad@mlsec.org)   
+University of Goettingen, Berlin Institute of Technology

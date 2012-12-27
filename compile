@@ -13,15 +13,12 @@ fi
 
 # Apply configuration
 case $arg in
-   # Cluster nodes at Berlin 
-   node*)
-       echo "# Configuration: Node"
-       PKG_CONFIG_PATH="$HOME/usr/lib/pkgconfig" \
+   # Cluster nodes at Goettingen
+   schulle*)
+       echo "# Configuration: Schulle"
        CC="gcc" \
-       CPPFLAGS="-I $HOME/usr/include" \
        CFLAGS="-fomit-frame-pointer -pedantic -pipe -O3 -march=native" \
-       ./configure --enable-matlab -with-matlab=/usr/local/matlab2009a \
-                   --enable-openmp --prefix=$HOME/usr
+       ./configure --enable-openmp
        ;;  
    # My slow laptop      
    scarecrow*|twoface*|ltrieck*)

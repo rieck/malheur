@@ -73,7 +73,7 @@ AC_CHECK_HEADERS([uthash.h uthash/uthash.h], HEADER_UTHASH="yes")
 PKG_CHECK_MODULES([PKGCONFIG], [libconfig >= 1.4])
 CFLAGS="$CFLAGS $PKGCONFIG_CFLAGS"
 LIBS="$LIBS $PKGCONFIG_LIBS"
-INCLUDES="$INCLUDES `pkg-config --cflags-only-I libconfig`"
+AM_CPPFLAGS="$AM_CPPFLAGS `pkg-config --cflags-only-I libconfig`"
 AC_CHECK_HEADERS([libconfig.h], HEADER_LIBCONFIG="yes")
 
 # libm
@@ -144,7 +144,7 @@ if test "x$MATLAB_TOOLS" = "xyes" && test "x$HAVE_MATLAB" = "xno" ; then
 fi 
 AM_CONDITIONAL(MATLAB_TOOLS, test "x$MATLAB_TOOLS" = "xyes")
 
-AC_SUBST([INCLUDES])
+AC_SUBST([AM_CPPFLAGS])
 AC_CONFIG_FILES([ 
    Makefile \
    src/Makefile \

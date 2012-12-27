@@ -3,7 +3,7 @@
 # University of Goettingen, Berlin Institute of Technology
 # --
 
-INCLUDES                = @INCLUDES@ -I$(top_srcdir)/src 
+AM_CPPFLAGS             = @AM_CPPFLAGS@ -I$(top_srcdir)/src 
 TESTS                   = test_ftable test_fvec test_farray test_fmath \
                           test_quality test_proto test_cluster \
                           test_class

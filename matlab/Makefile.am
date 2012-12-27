@@ -3,8 +3,8 @@
 # University of Goettingen, Berlin Institute of Technology
 # --
 
-INCLUDES 		= @INCLUDES@ -I$(top_srcdir)/src -I$(top_srcdir)
-MEXFLAGS 		= @MEXFLAGS@ -inline $(INCLUDES) -v \
+AM_CPPFLAGS 		= @AM_CPPFLAGS@ -I$(top_srcdir)/src -I$(top_srcdir)
+MEXFLAGS 		= @MEXFLAGS@ -inline $(AM_CPPFLAGS) -v \
            	 	  CC='$(CC)' LD='$(CC) -fPIC $(CFLAGS)' \
               		  CFLAGS='-fPIC -D_GNU_SOURCE -pthread $(CFLAGS)'
 MEXLDADD		= $(top_builddir)/src/libmalheur.a $(LIBS)

@@ -16,12 +16,13 @@
  * @author Konrad Rieck
  * @{
  */
+
+#include "config.h"
+#include "common.h"
  
 #include <archive.h>
 #include <archive_entry.h>
 
-#include "config.h"
-#include "common.h"
 #include "fvec.h"
 #include "util.h"
 

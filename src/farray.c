@@ -22,11 +22,12 @@
  * @{
  */
 
+#include "config.h"
+#include "common.h"
+
 #include <archive.h>
 #include <archive_entry.h>
 
-#include "config.h"
-#include "common.h"
 #include "farray.h"
 #include "fvec.h"
 #include "md5.h"

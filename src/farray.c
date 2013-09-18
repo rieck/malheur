@@ -217,7 +217,7 @@ farray_t *farray_extract_archive(char *arc)
 
     /* Open archive */
     a = archive_read_new();
-    archive_read_support_compression_all(a);
+    archive_read_support_filter_all(a);
     archive_read_support_format_all(a);
     archive_read_open_filename(a, arc, 4096);
 
@@ -268,7 +268,7 @@ farray_t *farray_extract_archive(char *arc)
     }
 
     /* Close archive */
-    archive_read_finish(a);
+    archive_read_close(a);
     return fa;
 }
 

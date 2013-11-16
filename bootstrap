@@ -4,6 +4,9 @@
 # University of Goettingen, Berlin Institute of Technology
 #
 
+export AUTOCONF_VERSION=2.69
+export AUTOMAKE_VERSION=1.13
+
 ACLOCAL=aclocal
 AUTOHEADER=autoheader
 AUTOMAKE=automake

@@ -20,6 +20,14 @@ case $arg in
        CFLAGS="-fomit-frame-pointer -pedantic -pipe -O3 -march=native" \
        ./configure --enable-openmp
        ;;  
+   kindl*)    
+       echo "# Configuration: Kindl"
+       CC="gcc" \
+       LDFLAGS="-L/usr/local/lib" \
+       CPPFLAGS="-I/usr/local/include" \
+       CFLAGS="-DDEBUG -g -pedantic -pipe -O2" \
+       ./configure --prefix=/opt/rieck 
+       ;;
    # My slow laptop      
    scarecrow*|twoface*)
        echo "# Configuration: Twoface/Rieck/GWLan"

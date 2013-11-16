@@ -11,6 +11,7 @@ AC_PREFIX_DEFAULT("/usr/local")
 AC_DEFINE(MALHEUR_MAJOR, 0, Major version number)
 AC_DEFINE(MALHEUR_MINOR, 5, Minor version number)
 AC_DEFINE(MALHEUR_PATCH, 3, Patch version number)
+AC_CONFIG_HEADER([config.h])
 
 echo
 echo " > MALHEUR - Automatic Analysis of Malware Behavior"
@@ -18,9 +19,8 @@ echo "   Copyright (c) 2009-2012 Konrad Rieck (konrad@mlsec.org)"
 echo "   University of Goettingen, Berlin Institute of Technology"
 echo
 
-# Init automake & config.h
+# Init automake 
 AM_INIT_AUTOMAKE
-AM_CONFIG_HEADER([config.h])
 
 # Check for important programs
 AC_PROG_CC

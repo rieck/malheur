@@ -52,8 +52,51 @@ following articles:
 
 Dependencies
 --
-    >= libconfig-1.4
-    >= libarchive-2.70
+
++   libconfig >= 1.4, <http://www.hyperrealm.com/libconfig/>
++   libarchive >= 2.70,  <http://libarchive.github.com/>
+
+#### Debian & Ubuntu Linux
+
+The following packages need to be installed for compiling Malheur on Debian
+and Ubuntu Linux
+
+    gcc
+    libconfig9-dev
+    libarchive-dev
+
+For bootstrapping Malheur from the GIT repository or manipulating the
+automake/autoconf configuration, the following additional packages are
+necessary.
+
+    automake
+    autoconf
+    libtool
+
+#### Mac OS X
+
+For compiling Malheur on Mac OS X a working installation of Xcode is required
+including `gcc`.  Additionally, the following packages need to be installed
+via Homebrew
+
+    libconfig
+    libarchive (from homebrew-alt)
+
+#### OpenBSD
+
+For compiling Malheur on OpenBSD the following packages are required. Note
+that you need to use `gmake` instead of `make` for building Malheur.
+
+    gmake
+    libconfig
+    libarchive
+
+For bootstrapping Malheur from the GIT repository, the following packages
+need be additionally installed
+
+    autoconf
+    automake
+    libtool
 
 Compilation & Installation
 --

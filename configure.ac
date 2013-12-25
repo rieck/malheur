@@ -4,18 +4,18 @@
 #
  
 # Malheur version
-AC_INIT([malheur], [0.5.3], [konrad@mlsec.org])
+AC_INIT([malheur], [0.5.4], [konrad@mlsec.org])
 AC_PREFIX_DEFAULT("/usr/local")
 
 # Defines (suitable for loading and saving versioned files)
 AC_DEFINE(MALHEUR_MAJOR, 0, Major version number)
 AC_DEFINE(MALHEUR_MINOR, 5, Minor version number)
-AC_DEFINE(MALHEUR_PATCH, 3, Patch version number)
+AC_DEFINE(MALHEUR_PATCH, 4, Patch version number)
 AC_CONFIG_HEADER([config.h])
 
 echo
 echo " > MALHEUR - Automatic Analysis of Malware Behavior"
-echo "   Copyright (c) 2009-2012 Konrad Rieck (konrad@mlsec.org)"
+echo "   Copyright (c) 2009-2013 Konrad Rieck (konrad@mlsec.org)"
 echo "   University of Goettingen, Berlin Institute of Technology"
 echo
 

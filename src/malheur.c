@@ -329,13 +329,17 @@ static farray_t *malheur_load()
     for (int i = 0; i < input_len; i++) {
         /* Argument: Input */
         if (access(input_files[i], R_OK)) {
-            warning("Could not access '%s'. Skipping", input_files[i]);
+            warning("Could not access '%s'", input_files[i]);
             continue;
         }
 
         farray_t *f = farray_extract(input_files[i]);
         fa = farray_merge(fa, f);
     }
+    
+    if (!fa) 
+        fatal("No data available.");
+    
     return fa;
 }
 

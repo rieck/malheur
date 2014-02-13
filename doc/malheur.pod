@@ -6,7 +6,7 @@ B<malheur> - automatic analysis of malware behavior
 
 =head1 SYNOPSIS
 
-B<malheur> [B<-hrvV>] [B<-m> I<maldir>] [B<-o> I<outfile>] I<action> I<dataset>
+B<malheur> [B<-hrvV>] [B<-m> I<maldir>] [B<-o> I<outfile>] [B<-d> I<dumpfile>] I<action> I<dataset>
 
 =head1 DESCRIPTION
 
@@ -161,7 +161,7 @@ beforehand.  The distance matrix is written to I<outfile>.
 B<malheur> also supports the following command-line I<options> which
 are used to further control the analysis process
 
-=over 12
+=over 14
 
 =item B<-m> I<maldir>
 
@@ -174,6 +174,12 @@ not exist, it is created and the system wide configuration is copied.
 This option specifies the output file I<outfile> for analysis. The
 file is created during analysis and the results are stored in textual
 form.
+
+=item B<-d> I<dumpfile>
+
+If this option is set, B<malheur> dumps the extracted feature vectors to
+I<dumpfile> in libsvm format.  Note that the output is not fully compatible
+with all libsvm loaders and might need some manual refinement.
 
 =item B<-r>
 

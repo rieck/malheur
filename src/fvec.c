@@ -536,6 +536,27 @@ void fvec_save(fvec_t *f, gzFile * z)
 }
 
 
+
+/**
+ * Saves a feature vector in libsvm format to a file stream
+ * @param f Feature vector
+ * @param z Stream pointer
+ * @param l Label for vector
+ */
+void fvec_save_libsvm(fvec_t *f, gzFile *z, int l)
+{
+    assert(f && z);
+    int i;
+
+    gzprintf(z, "%d", l);
+    for (i = 0; i < f->len; i++) {
+        /* This might leed to collisions */
+        uint32_t dim = (uint32_t) (f->dim[i] + 1);
+        gzprintf(z, "  %u:%g", dim, (float) f->val[i]);
+    }
+    gzprintf(z, " # %s\n", f->src);
+}
+
 /**
  * Loads a feature vector form a file stream
  * @param z Stream point

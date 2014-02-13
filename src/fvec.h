@@ -46,6 +46,7 @@ void fvec_destroy(fvec_t *);
 fvec_t *fvec_clone(fvec_t *);
 void fvec_print(fvec_t *);
 void fvec_save(fvec_t *, gzFile *);
+void fvec_save_libsvm(fvec_t *, gzFile *, int);
 fvec_t *fvec_load(gzFile *);
 void fvec_reset_delim();
 void fvec_realloc(fvec_t *);

@@ -32,6 +32,7 @@
 #include "fvec.h"
 #include "md5.h"
 #include "util.h"
+#include "murmur.h"
 
 /* External variables */
 extern int verbose;
@@ -455,6 +456,24 @@ void farray_save(farray_t *fa, gzFile * z)
 }
 
 /**
+ * Saves an array of feature vectors ib libsvm format to a file 
+ * @param fa Array of feature vectors
+ * @param z Stream pointer
+ */
+void farray_save_libsvm(farray_t *fa, gzFile * z)
+{
+    assert(fa && z);
+    int i;
+
+    for (i = 0; i < fa->len; i++) {
+        char *label = farray_get_label(fa, i);
+        int lnum = MurmurHash2(label, strlen(label), 0xc0deb4be);
+        fvec_save_libsvm(fa->x[i], z, lnum);
+    }
+}
+
+
+/**
  * Returns the textual label for the i-th feature vector
  * @param fa Array of feature vectors
  * @param i index
@@ -547,6 +566,33 @@ void farray_save_file(farray_t *fa, char *f)
     farray_save(fa, z);
     gzclose(z);
 }
+
+/**
+ * Save feature vectors in libsvm format to a file
+ * @param fa Array of feature vectors
+ * @param f File name
+ */
+void farray_save_libsvm_file(farray_t *fa, char *f)
+{
+    assert(fa && f);
+    gzFile *z;
+
+    if (verbose > 0)
+        printf("Saving %lu feature vectors in libsvm format to '%s'.\n", 
+               fa->len, f);
+
+    /* Open file */
+    z = gzopen(f, "wb");
+    if (!z) {
+        error("Could not open '%s' for writing", f);
+        return;
+    }
+
+    /* Save data */
+    farray_save_libsvm(fa, z);
+    gzclose(z);
+}
+
 
 /**
  * Append feature vectors to a file

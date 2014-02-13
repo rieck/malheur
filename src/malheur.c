@@ -34,12 +34,13 @@ static char **input_files = NULL;
 static int input_len = 0;
 static int reset = FALSE;
 static int save = TRUE;
+static char *fvec_dump = NULL;
 static malheur_action_t action = PROTOTYPE;
 static malheur_cfg_t mcfg;
 static malheur_state_t mstate;
 
 /* Option string */
-#define OPTSTRING       "nro:m:hvV"
+#define OPTSTRING       "nro:m:hvVd:"
 
 /**
  * Array of options of getopt_long()
@@ -52,6 +53,7 @@ static struct option longopts[] = {
    { "verbose",         0, NULL, 'v' }, 
    { "version",         0, NULL, 'V' },
    { "help",            0, NULL, 'h' },
+   { "dump",            1, NULL, 'd' },
    /* start of config options */   
    { "input.format",           1, NULL, 1001 },
    { "input.mist_level",       1, NULL, 1002 },   
@@ -91,6 +93,7 @@ static void print_usage(void)
         "Options:\n"
         "  -m <maldir>   Set malheur directory. [%s]\n"
         "  -o <outfile>  Set output file for analysis. [%s]\n"
+        "  -d <file>     Dump feature vectors to file in libsvm format.\n"
         "  -r            Reset internal state of Malheur.\n"
         "  -n            Don't save internal state of Malher.\n"
         "  -v            Increase verbosity.\n"
@@ -130,6 +133,9 @@ static void parse_options(int argc, char **argv)
         case 'V':
             malheur_version(stdout);
             exit(EXIT_SUCCESS);
+            break;
+        case 'd':
+            fvec_dump = optarg;
             break;
         case 'h':
         case '?':
@@ -340,6 +346,10 @@ static farray_t *malheur_load()
     if (!fa) 
         fatal("No data available.");
     
+    /* Dump feature vectors to file */
+    if (fvec_dump)
+        farray_save_libsvm_file(fa, fvec_dump);
+
     return fa;
 }
 

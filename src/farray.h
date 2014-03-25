@@ -77,4 +77,7 @@ void farray_append_file(farray_t *, char *);
 farray_t *farray_load(gzFile *);
 farray_t *farray_load_file(char *);
 
+/* Misc */
+void farray_fix_fields(farray_t *);
+
 #endif                          /* FARRAY_H */

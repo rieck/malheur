@@ -38,6 +38,32 @@
 extern int verbose;
 
 /**
+ * Attempt to re-compute missing fields in struct
+ * @param fa Feature array
+ */
+void farray_fix_fields(farray_t *fa)
+{
+    int i;
+
+    if (fa->mem == 0) {
+        fa->mem = sizeof(farray_t);
+
+        /* label array */
+        fa->mem += fa->len * sizeof(int);
+
+        /* fvec array */
+        for (i = 0; i < fa->len; i++) {
+            fvec_fix_fields(fa->x[i]);
+            fa->mem += fa->x[i]->mem;
+        }
+
+        if (fa->src)
+            fa->mem += strlen(fa->src) + 1;
+    }
+}
+
+
+/**
  * Adds a label to the table of labels.
  * @param a Feature array
  * @param name label name

@@ -45,6 +45,33 @@ static void extract_ngrams(fvec_t *, char *x, int l, int n);
 static void decode_delim(const char *s);
 static char delim[256] = { DELIM_NOT_INIT };
 
+
+/**
+ * Attempt to re-compute missing fields in struct
+ * @param fv Feature vector
+ */
+void fvec_fix_fields(fvec_t *fv)
+{
+    int i;
+
+    /* Hack to fix missing memory field */
+    if (fv->mem == 0) {
+        fv->mem = sizeof(fvec_t);
+        fv->mem += fv->len * (sizeof(feat_t) * sizeof(float));
+        if (fv->src)
+            fv->mem += strlen(fv->src) + 1;
+    }
+
+    /* Hack to fix missing total num field */
+    if (fv->total == 0) {
+        for (i = 0; i < fv->len; i++)
+            fv->total += fv->val[i];
+
+        if (fv->total < fv->len)
+            fv->total = fv->len;
+    }
+}
+
 /**
  * Preprocess input format according to configuration. The function takes 
  * a raw string and formats it according to the given configuration. 

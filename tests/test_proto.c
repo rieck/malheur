@@ -29,9 +29,9 @@ int verbose = 0;
 /* Number of vector */
 #define NUM_VECTORS             500
 /* Number of elements in test data */
-#define DATA_LEN    15
+#define DATA_LEN    		15
 /* Number of correct prototypes */
-#define DATA_PROTO  5
+#define DATA_PROTO  		5
 
 /* Data set for prototype extraction */
 static char *test_data[] = {
@@ -133,6 +133,7 @@ int main(int argc, char **argv)
     /* Create config */
     config_init(&cfg);
     config_check(&cfg);
+    config_set_string(&cfg, "features.vect_embed", "cnt");    
 
     ftable_init();
 

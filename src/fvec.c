@@ -69,7 +69,7 @@ char *fvec_preproc(char *x)
  * Condense a feature vector by counting duplicate features.
  * @param fv Feature vector
  */
-static void fvec_condense(fvec_t *fv, embed_t e)
+static void fvec_condense(fvec_t *fv)
 {
     feat_t *p_dim = fv->dim;
     float n = 0, *p_val = fv->val;
@@ -83,14 +83,7 @@ static void fvec_condense(fvec_t *fv, embed_t e)
 
         /* Check for duplicate dims */
         if (i < fv->len - 1 && fv->dim[i] == fv->dim[i + 1]) {
-            switch (e) {
-            case EMBED_CNT:
-                n += fv->val[i];
-                break;
-            case EMBED_BIN:
-                n = (float) fmax(n, fv->val[i]);
-                break;
-            }
+            n += fv->val[i];
         } else {
             *(p_dim++) = fv->dim[i];
             *(p_val++) = fv->val[i] + n;
@@ -188,13 +181,14 @@ fvec_t *fvec_extract(char *x, int l, char *s)
 
     /* Compute embedding and condense */
     config_lookup_string(&cfg, "features.vect_embed", &cfg_str);
+    fvec_condense(fv);
+    
     if (!strcasecmp(cfg_str, "cnt")) {
-        fvec_condense(fv, EMBED_CNT);
+        /* Do nothing */
     } else if (!strcasecmp(cfg_str, "bin")) {
-        fvec_condense(fv, EMBED_BIN);
+        fvec_bin(fv);
     } else {
         warning("Unknown embedding '%s', using 'cnt'.", cfg_str);
-        fvec_condense(fv, EMBED_CNT);
     }
 
     /* Compute l2 normalization */

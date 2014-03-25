@@ -22,12 +22,6 @@ typedef enum {
     NORM_L1, NORM_L2
 } norm_t;
 
-/** 
- * Embedding types for feature vectors */
-typedef enum {
-    EMBED_BIN, EMBED_CNT
-} embed_t;
-
 /* Functions */
 void fvec_mul(fvec_t *, double);
 void fvec_div(fvec_t *, double);

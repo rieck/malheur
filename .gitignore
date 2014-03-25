@@ -30,3 +30,5 @@ Makefile
 Makefile.in
 src/malheur.h
 malheur.komodoproject
+test-driver
+tests/*.log

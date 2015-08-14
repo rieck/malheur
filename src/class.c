@@ -115,11 +115,13 @@ assign_t *class_assign(farray_t *fa, farray_t *p)
             }
         }
 
-        /* Compute assignments */
-        c->proto[i] = j;
-        c->dist[i] = min;
-        c->label[i] = p->y[j];
-
+        if (p->len) {
+            /* Compute assignments */
+            c->proto[i] = j;
+            c->dist[i] = min;
+            c->label[i] = p->y[j];
+        }
+        
         if (c->dist[i] > maxdist)
             c->label[i] = 0;
 

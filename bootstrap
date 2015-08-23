@@ -1,27 +1,12 @@
 #!/bin/sh
-# MALHEUR - Automatic Analysis of Malware Behavior
-# Copyright (c) 2009-2012 Konrad Rieck (konrad@mlsec.org)          
-# University of Goettingen, Berlin Institute of Technology
-#
 
-export AUTOCONF_VERSION=2.69
-export AUTOMAKE_VERSION=1.13
+# OpenBSD setup
+export AUTOCONF_VERSION=2.69 AUTOMAKE_VERSION=1.13
 
-ACLOCAL=aclocal
-AUTOHEADER=autoheader
-AUTOMAKE=automake
-AUTOCONF=autoconf
-LIBTOOLIZE=libtoolize
-
+# Remove auto-generated m4 files
 rm -f aclocal.m4
 rm -f m4/lib* m4/lt*
 
-echo "Autotools"
-echo " + aclocal..."     && $ACLOCAL -I m4 && \
-echo " + libtoolize..."  && $LIBTOOLIZE --force --copy && \
-echo " + autoheader..."  && $AUTOHEADER -f  && \
-echo " + automake..."    && $AUTOMAKE --foreign --add-missing --copy && \
-echo " + autoconf..."    && $AUTOCONF
+# Setup autotools elegantly
+autoreconf --install --force --symlink
 
-echo "Bootstrap complete"
-exit

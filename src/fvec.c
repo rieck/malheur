@@ -53,12 +53,12 @@ static char delim[256] = { DELIM_NOT_INIT };
  */
 char *fvec_preproc(char *x)
 {
-    const char *fm_str;
+    const char *fmt_str;
 
-    config_lookup_string(&cfg, "input.format", &fm_str);
+    config_lookup_string(&cfg, "input.format", &fmt_str);
 
     /* MIST transformation */
-    if (!strcasecmp(fm_str, "mist")) {
+    if (!strcasecmp(fmt_str, "mist")) {
         x = mist_preproc(x);
     }
 
@@ -122,7 +122,7 @@ fvec_t *fvec_extract(char *x, int l, char *s)
 {
     fvec_t *fv;
     int nlen;
-    const char *dlm_str, *cfg_str;
+    const char *dlm_str, *cfg_str, *fmt_str;
     assert(x && l >= 0);
 
     /* Allocate feature vector */
@@ -159,7 +159,12 @@ fvec_t *fvec_extract(char *x, int l, char *s)
     config_lookup_int(&cfg, "features.ngram_len", (int *) &nlen);
 
     /* Construct delimiter lookup table */
-    config_lookup_string(&cfg, "input.event_delim", &dlm_str);
+    config_lookup_string(&cfg, "input.format", &fmt_str);
+    if (!strcasecmp(fmt_str, "mist")) {
+        dlm_str = "%0a%0d";
+    } else {
+        config_lookup_string(&cfg, "input.event_delim", &dlm_str);
+    }
 
     /* N-grams of bytes */
     if (!dlm_str || strlen(dlm_str) == 0) {

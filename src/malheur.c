@@ -27,7 +27,7 @@
 int verbose = 0;
 config_t cfg;
 
-/* Global variables */
+static int print_conf = FALSE;
 static char **input_files = NULL;
 static int input_len = 0;
 static int reset = FALSE;
@@ -37,7 +37,7 @@ static malheur_action_t action = PROTOTYPE;
 static malheur_state_t mstate;
 
 /* Option string */
-#define OPTSTRING       "nro:c:s:hvVd:"
+#define OPTSTRING       "nro:c:s:hvVd:DC"
 
 /**
  * Array of options of getopt_long()
@@ -49,6 +49,8 @@ static struct option longopts[] = {
     {"version", 0, NULL, 'V'},
     {"help", 0, NULL, 'h'},
     {"dump", 1, NULL, 'd'},
+    {"print_config", 0, NULL, 'C'},
+    {"print_defaults", 0, NULL, 'D'},    
     /* start of config options */
     {"generic.input_format", 1, NULL, 1001},
     {"generic.event_delim", 1, NULL, 1005},
@@ -97,6 +99,18 @@ static void print_usage(void)
 }
 
 /**
+ * Print configuration
+ * @param msg Text to add to output
+ */
+static void print_config(char *msg)
+{
+    malheur_version(stderr);
+    fprintf(stderr, "# ---\n# %s\n", msg);
+    config_fprint(stderr, &cfg);
+}
+
+
+/**
  * Parse command line options
  * @param argc Number of arguments
  * @param argv Argument values
@@ -135,6 +149,13 @@ static void malheur_parse_options(int argc, char **argv)
         case 'd':
             fvec_dump = optarg;
             break;
+        case 'D':
+            print_config("Default configuration");
+            exit(EXIT_SUCCESS);
+            break;
+        case 'C':
+            print_conf = TRUE;
+            break;            
         case 'h':
         case '?':
             print_usage();
@@ -181,6 +202,17 @@ static void malheur_parse_options(int argc, char **argv)
         }
     }
 
+    /* Check configuration */
+    if (!config_check(&cfg)) {
+        exit(EXIT_FAILURE);
+    }
+
+    /* We are through with parsing. Print the config if requested */
+    if (print_conf) {
+        print_config("Current configuration");
+        exit(EXIT_SUCCESS);
+    } 
+
     argc -= optind;
     argv += optind;
 
@@ -206,17 +238,13 @@ static void malheur_parse_options(int argc, char **argv)
         fatal("Unknown analysis action '%s'", argv[0]);
     }
 
+
     if (argc < 2 && action != PROTODIST && action != INFO)
         fatal("the <dataset> argument is required");
 
     /* Assign input files */
     input_files = argv + 1;
     input_len = argc - 1;
-
-    /* Check configuration */
-    if (!config_check(&cfg)) {
-        exit(EXIT_FAILURE);
-    }
 }
 
 /**

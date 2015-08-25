@@ -1,13 +1,13 @@
 /*
  * MALHEUR - Automatic Analysis of Malware Behavior
- * Copyright (c) 2009-2012 Konrad Rieck (konrad@mlsec.org)
- * University of Goettingen, Berlin Institute of Technology 
+ * Copyright (c) 2009-2015 Konrad Rieck (konrad@mlsec.org)
+ * University of Goettingen, Berlin Institute of Technology
  * --
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.  This program is distributed without any
- * warranty. See the GNU General Public License for more details. 
+ * warranty. See the GNU General Public License for more details.
  * --
  */
 
@@ -15,7 +15,7 @@
  * @defgroup cluster Clustering using prototypes
  * The module contains functions for grouping feature vectors using
  * linkage clustering. Besides an implementation of linkage clustering
- * the module also contains functions for extrapolating results to 
+ * the module also contains functions for extrapolating results to
  * further feature vectors and for triming of small clusters.
  * @author Konrad Rieck
  * @{
@@ -37,9 +37,9 @@ extern config_t cfg;
 #define D(x,y)  d[tria_pos(x,y,c->len)]
 
 /**
- * Simple linkage clustering algorithm by Mutargh. The algorithm has a 
- * worst-case run-time of O(n^3) but usually runs in O(n^2). Note that in 
- * the generic case linkage clustering has a worst-case time complexity 
+ * Simple linkage clustering algorithm by Mutargh. The algorithm has a
+ * worst-case run-time of O(n^3) but usually runs in O(n^2). Note that in
+ * the generic case linkage clustering has a worst-case time complexity
  * of O(n^2 log n).
  * @param c Clustering structure
  * @param d Minimum distance
@@ -274,7 +274,7 @@ void cluster_extrapolate(cluster_t *c, assign_t *a)
 
 /**
  * Cluster feature vectors using linkage clustering. The function uses
- * the feature vectors for computing a linkage clustering  
+ * the feature vectors for computing a linkage clustering
  * @param fa Array of prototypes
  * @param r Run of clustering
  * @return clustering structure
@@ -351,7 +351,7 @@ farray_t *cluster_get_rejected(cluster_t *c, farray_t *f)
  * Return an array of prototypes labeled with cluster numbers
  * @param c cluster structure
  * @param a assignment of prototypes
- * @param p prototypes 
+ * @param p prototypes
  * @return rejected feature vectors
  */
 farray_t *cluster_get_prototypes(cluster_t *c, assign_t *a, farray_t *p)
@@ -391,8 +391,8 @@ farray_t *cluster_get_prototypes(cluster_t *c, assign_t *a, farray_t *p)
 }
 
 /**
- * Return name of cluster containing report i. The cluster name is 
- * constructed from the run XX and the cluster number YYYY and has 
+ * Return name of cluster containing report i. The cluster name is
+ * constructed from the run XX and the cluster number YYYY and has
  * the form CXX-YYYY. Rejected reports are assigned to a cluster with the
  * name "rejected". The returned string is static and must not be free'd.
  * @param c Clustering structure

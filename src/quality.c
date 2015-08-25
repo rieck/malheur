@@ -1,19 +1,19 @@
 /*
  * MALHEUR - Automatic Analysis of Malware Behavior
- * Copyright (c) 2009-2012 Konrad Rieck (konrad@mlsec.org)
- * University of Goettingen, Berlin Institute of Technology 
+ * Copyright (c) 2009-2015 Konrad Rieck (konrad@mlsec.org)
+ * University of Goettingen, Berlin Institute of Technology
  * --
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.  This program is distributed without any
- * warranty. See the GNU General Public License for more details. 
+ * warranty. See the GNU General Public License for more details.
  * --
  */
 
 /**
  * @defgroup quality Quality functions
- * The module contains functions for evaluating the quality of 
+ * The module contains functions for evaluating the quality of
  * classification and clustering methods.
  * @author Konrad Rieck
  * @{
@@ -28,7 +28,7 @@ extern int verbose;
 extern config_t cfg;
 
 /**
- * Computes quality measures for the label countment. 
+ * Computes quality measures for the label countment.
  * The function returns a static array. The code is not thread-safe.
  * @param y Labels of data points
  * @param a Assignments to clusters or classes

@@ -1,25 +1,25 @@
 /*
  * MALHEUR - Automatic Analysis of Malware Behavior
- * Copyright (c) 2009-2012 Konrad Rieck (konrad@mlsec.org)
+ * Copyright (c) 2009-2015 Konrad Rieck (konrad@mlsec.org)
  * University of Goettingen, Berlin Institute of Technology
  * --
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.  This program is distributed without any
- * warranty. See the GNU General Public License for more details. 
+ * warranty. See the GNU General Public License for more details.
  * --
  */
 
-/** 
+/**
  * @defgroup fvec Sparse feature vector
- * Generic implementation of a feature vector. A feature vector contains 
- * a sparse representation of non-zero dimensions in the feature space. 
- * This allows for operating with vectors of high and even infinite 
- * dimensionality, as long as the association between dimensions and 
- * non-zero values is sparse. The dimensions are indexed by 64bit hash 
- * values (MD5) and sorted to allow for efficiently processing and 
- * comparing vectors.  
+ * Generic implementation of a feature vector. A feature vector contains
+ * a sparse representation of non-zero dimensions in the feature space.
+ * This allows for operating with vectors of high and even infinite
+ * dimensionality, as long as the association between dimensions and
+ * non-zero values is sparse. The dimensions are indexed by 64bit hash
+ * values (MD5) and sorted to allow for efficiently processing and
+ * comparing vectors.
  * @author Konrad Rieck
  * @{
  */
@@ -46,8 +46,8 @@ static void decode_delim(const char *s);
 static char delim[256] = { DELIM_NOT_INIT };
 
 /**
- * Preprocess input format according to configuration. The function takes 
- * a raw string and formats it according to the given configuration. 
+ * Preprocess input format according to configuration. The function takes
+ * a raw string and formats it according to the given configuration.
  * @param x Raw string
  * @return Preprocessed output.
  */
@@ -65,7 +65,7 @@ char *fvec_preproc(char *x)
     return x;
 }
 
-/** 
+/**
  * Condense a feature vector by counting duplicate features.
  * @param fv Feature vector
  */
@@ -110,10 +110,10 @@ fvec_t *fvec_zero()
 
 /**
  * Allocate and extract a feature vector from a sequence.
- * There is a global table of delimiter symbols which is only 
- * initialized once the first sequence is processed. 
+ * There is a global table of delimiter symbols which is only
+ * initialized once the first sequence is processed.
  * See fvec_reset_delim();
- * @param x Sequence of bytes 
+ * @param x Sequence of bytes
  * @param l Length of sequence
  * @param s Source of features, e.g. file name
  * @return feature vector
@@ -212,9 +212,9 @@ void fvec_realloc(fvec_t *fv)
     float *p_val;
 
     /*
-     * Explicit reallocation. Don't use realloc(). On some platforms 
+     * Explicit reallocation. Don't use realloc(). On some platforms
      * realloc() will not shrink memory blocks or copy to smaller sizes.
-     * Consequently, realloc() here results in a huge memory leak. 
+     * Consequently, realloc() here results in a huge memory leak.
      */
     p_dim = malloc(fv->len * sizeof(feat_t));
     p_val = malloc(fv->len * sizeof(float));
@@ -238,7 +238,7 @@ void fvec_realloc(fvec_t *fv)
 }
 
 /**
- * Destroys a feature vector 
+ * Destroys a feature vector
  * @param fv Feature vector
  */
 void fvec_destroy(fvec_t *fv)
@@ -345,11 +345,11 @@ void fvec_print(fvec_t *fv)
 /**
  * Extract n-grams from a sequence using the provided configuration.
  * The features (n-grams) are represented by 64 bit hash values.
- * Optionally, the features are stored in a global table. To improve 
+ * Optionally, the features are stored in a global table. To improve
  * concurrent processing, the features are first collected in a cache
  * and later flushed into the global feature table.
  * @param fv Feature vector
- * @param x Byte sequence 
+ * @param x Byte sequence
  * @param l Length of sequence
  * @param nlen N-gram length
  */
@@ -432,12 +432,12 @@ static void extract_wgrams(fvec_t *fv, char *x, int l, int nlen)
 
 /**
  * Extract n-grams from a sequence using the provided configuration.
- * The features (n-grams) are represented by 64 bit hash values. 
- * Optionally, the features are stored in a global table. To improve 
+ * The features (n-grams) are represented by 64 bit hash values.
+ * Optionally, the features are stored in a global table. To improve
  * concurrent processing, the features are first collected in a cache
  * and later flushed into the global feature table.
  * @param fv Feature vector
- * @param x Byte sequence 
+ * @param x Byte sequence
  * @param l Length of sequence
  * @param nlen N-gram length
  */
@@ -620,8 +620,8 @@ fvec_t *fvec_load(gzFile * z)
 }
 
 /**
- * Resets delimiters table. There is a global table of delimiter 
- * symbols which is only initialized once the first sequence is 
+ * Resets delimiters table. There is a global table of delimiter
+ * symbols which is only initialized once the first sequence is
  * processed. This functions is used to trigger a re-initialization.
  */
 void fvec_reset_delim()

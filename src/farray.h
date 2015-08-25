@@ -1,13 +1,13 @@
 /*
  * MALHEUR - Automatic Analysis of Malware Behavior
- * Copyright (c) 2009-2012 Konrad Rieck (konrad@mlsec.org)
- * University of Goettingen, Berlin Institute of Technology 
+ * Copyright (c) 2009-2015 Konrad Rieck (konrad@mlsec.org)
+ * University of Goettingen, Berlin Institute of Technology
  * --
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.  This program is distributed without any
- * warranty. See the GNU General Public License for more details. 
+ * warranty. See the GNU General Public License for more details.
  * --
  */
 
@@ -31,7 +31,7 @@
 #define BLOCK_SIZE          (4096 / sizeof(farray_t))
 
 /**
- * Entry for label hash table. 
+ * Entry for label hash table.
  */
 typedef struct {
     char name[64];               /**< Label name (key 1)*/

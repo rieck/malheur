@@ -133,5 +133,5 @@ details.
 Copyright
 --
 
-Copyright (c) 2009-2012 Konrad Rieck (konrad@mlsec.org)   
+Copyright (c) 2009-2015 Konrad Rieck (konrad@mlsec.org)
 University of Goettingen, Berlin Institute of Technology

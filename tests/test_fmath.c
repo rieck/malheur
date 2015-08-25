@@ -1,13 +1,13 @@
 /*
  * MALHEUR - Automatic Analysis of Malware Behavior
- * Copyright (c) 2009-2012 Konrad Rieck (konrad@mlsec.org)
- * University of Goettingen, Berlin Institute of Technology 
+ * Copyright (c) 2009-2015 Konrad Rieck (konrad@mlsec.org)
+ * University of Goettingen, Berlin Institute of Technology
  * --
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.  This program is distributed without any
- * warranty. See the GNU General Public License for more details. 
+ * warranty. See the GNU General Public License for more details.
  */
 
 #include "tests.h"
@@ -58,7 +58,7 @@ test_t test_dot[] = {
     {NULL, NULL, 0}
 };
 
-/* 
+/*
  * A simple static test for the addition of feature vectors
  */
 int test_static_add()
@@ -86,7 +86,7 @@ int test_static_add()
     return err;
 }
 
-/* 
+/*
  * A simple static test for the dot-product of feature vectors
  */
 int test_static_dot()
@@ -113,7 +113,7 @@ int test_static_dot()
     return err;
 }
 
-/* 
+/*
  * A stres test for the addition of feature vectors
  */
 int test_stress_add()
@@ -156,7 +156,7 @@ int test_stress_add()
     return err;
 }
 
-/* 
+/*
  * A stres test for the addition of feature vectors
  */
 int test_stress_dot()

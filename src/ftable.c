@@ -1,26 +1,26 @@
 /*
  * MALHEUR - Automatic Analysis of Malware Behavior
- * Copyright (c) 2009-2012 Konrad Rieck (konrad@mlsec.org)
- * University of Goettingen, Berlin Institute of Technology 
+ * Copyright (c) 2009-2015 Konrad Rieck (konrad@mlsec.org)
+ * University of Goettingen, Berlin Institute of Technology
  * --
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.  This program is distributed without any
- * warranty. See the GNU General Public License for more details. 
+ * warranty. See the GNU General Public License for more details.
  * --
  */
 
-/** 
+/**
  * @defgroup ftable Lookup table for features
  * Lookup table for extracted features. The extracted feature, such as
  * substrings and n-grams, a stored in sparse feature vectors with each
  * feature represented by hash value. This global hash table is used
  * to efficiently lookup the original feature for a given hash. The table
- * keeps also track of counting insertions and collisions, such that 
- * the quality of the hashing can be assessed. Maintaining a global hash 
- * table impacts performance when using OpenMP, thus it is adviced to 
- * disable the table if not required. 
+ * keeps also track of counting insertions and collisions, such that
+ * the quality of the hashing can be assessed. Maintaining a global hash
+ * table impacts performance when using OpenMP, thus it is adviced to
+ * disable the table if not required.
  * @author Konrad Rieck
  * @{
  */
@@ -42,8 +42,8 @@ extern int verbose;
 extern config_t cfg;
 
 /**
- * Add a feature and its key to the lookup table. The function clones 
- * all input arguments, that is new memory is allocated and the data 
+ * Add a feature and its key to the lookup table. The function clones
+ * all input arguments, that is new memory is allocated and the data
  * is copied. This memory is free'd when destroy the feature table.
  * @param k Key for feature
  * @param x Data of feature
@@ -83,7 +83,7 @@ void ftable_put(feat_t k, char *x, int l)
 }
 
 /**
- * Gets an entry from the lookup table. The returned memory must not 
+ * Gets an entry from the lookup table. The returned memory must not
  * be free'd.
  * @param key Feature key
  * @return feature table entry
@@ -109,7 +109,7 @@ void ftable_init()
 }
 
 /**
- * Destroy the feature lookup table. 
+ * Destroy the feature lookup table.
  */
 void ftable_destroy()
 {
@@ -131,7 +131,7 @@ void ftable_destroy()
 }
 
 /**
- * Removes an element from the lookup hash. 
+ * Removes an element from the lookup hash.
  * @param key Feature to remove
  */
 void ftable_remove(feat_t key)
@@ -149,7 +149,7 @@ void ftable_remove(feat_t key)
 
 
 /**
- * Print the feature lookup table. 
+ * Print the feature lookup table.
  */
 void ftable_print()
 {

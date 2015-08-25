@@ -1,17 +1,17 @@
 /*
  * MALHEUR - Automatic Analysis of Malware Behavior
- * Copyright (c) 2009-2012 Konrad Rieck (konrad@mlsec.org)
- * University of Goettingen, Berlin Institute of Technology 
+ * Copyright (c) 2009-2015 Konrad Rieck (konrad@mlsec.org)
+ * University of Goettingen, Berlin Institute of Technology
  * --
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.  This program is distributed without any
- * warranty. See the GNU General Public License for more details. 
+ * warranty. See the GNU General Public License for more details.
  * --
  */
 
-/** 
+/**
  * @defgroup fmath Math for feature vectors
  * This module contains standard mathematical functions defined over
  * sparse feature vectors. In favor of a generic interface, only assorted
@@ -31,7 +31,7 @@ extern int verbose;
 
 /**
  * Normalize a feature vector to a norm.
- * @param f Feature vector 
+ * @param f Feature vector
  * @param n Normalization
  */
 void fvec_normalize(fvec_t *f, norm_t n)
@@ -70,7 +70,7 @@ void farray_normalize(farray_t *f, norm_t n)
 
 /**
  * Multiplies vector with a scalar (f = s * f)
- * @param f Feature vector 
+ * @param f Feature vector
  * @param s Scalar value
  */
 void fvec_mul(fvec_t *f, double s)
@@ -84,7 +84,7 @@ void fvec_mul(fvec_t *f, double s)
 
 /**
  * Divides vector by a scalar (f = 1/s * f)
- * @param f Feature vector 
+ * @param f Feature vector
  * @param s Scalar value
  */
 void fvec_div(fvec_t *f, double s)
@@ -94,7 +94,7 @@ void fvec_div(fvec_t *f, double s)
 
 /**
  * Binaries the values in a vector.
- * @param f Feature vector 
+ * @param f Feature vector
  */
 void fvec_bin(fvec_t *f)
 {
@@ -106,8 +106,8 @@ void fvec_bin(fvec_t *f)
 }
 
 
-/** 
- * Dot product between two feature vectors (s = <a,b>). The function 
+/**
+ * Dot product between two feature vectors (s = <a,b>). The function
  * uses a loop to sum over all dimensions.
  * @param fa Feature vector (a)
  * @param fb Feature vector (b)
@@ -132,8 +132,8 @@ static double fvec_dot_loop(fvec_t *fa, fvec_t *fb)
     return s;
 }
 
-/** 
- * Dot product between two feature vectors (s = <a,b>). The function 
+/**
+ * Dot product between two feature vectors (s = <a,b>). The function
  * uses a binary search to sum over all dimensions.
  * @param fa Feature vector (a)
  * @param fb Feature vector (b)
@@ -170,8 +170,8 @@ static double fvec_dot_bsearch(fvec_t *fa, fvec_t *fb)
     return s;
 }
 
-/** 
- * Compute distances between arrays of feature vectors (s = ||a - b||). 
+/**
+ * Compute distances between arrays of feature vectors (s = ||a - b||).
  * @param fa Array of feature vectors (a)
  * @param fb Array of feature vectors (b)
  * @param d matrix of distances (a_len * b_len)
@@ -219,8 +219,8 @@ void farray_dist(farray_t *fa, farray_t *fb, double *d)
         printf("  Done. %lu distances computed.\n", fa->len * fb->len);
 }
 
-/** 
- * Compute distances for an array of feature vectors (s = ||a - b||). 
+/**
+ * Compute distances for an array of feature vectors (s = ||a - b||).
  * @param fa Array of feature vectors (a)
  * @param d upper triangle of distance matrix
  */
@@ -250,10 +250,10 @@ void farray_dist_tria(farray_t *fa, double *d)
         printf("  Done. %ld distances computed.\n", n);
 }
 
-/** 
- * Distance between two feature vectors (s = ||a-b||). The function 
+/**
+ * Distance between two feature vectors (s = ||a-b||). The function
  * uses a loop or a binary search to sum over all dimensions depending
- * on the size of the considered vectors. The vectors need to be 
+ * on the size of the considered vectors. The vectors need to be
  * normalized, that is, ||a|| = 1.
  * @param fa Feature vector (a)
  * @param fb Feature vector (b)
@@ -271,10 +271,10 @@ double fvec_dist(fvec_t *fa, fvec_t *fb)
     return sqrt(2 - 2 * f);
 }
 
-/** 
- * Dot product between two feature vectors (s = <a,b>). The function 
+/**
+ * Dot product between two feature vectors (s = <a,b>). The function
  * uses a loop or a binary search to sum over all dimensions depending
- * on the size of the considered vectors. The vectors need to be 
+ * on the size of the considered vectors. The vectors need to be
  * normalized, that is, ||a|| = 1.
  * @param fa Feature vector (a)
  * @param fb Feature vector (b)
@@ -302,7 +302,7 @@ double fvec_dot(fvec_t *fa, fvec_t *fb)
         return fvec_dot_loop(fa, fb);
 }
 
-/** 
+/**
  * Adds two feature vectors and create a new one (c = a + b * s)
  * @param fa Feature vector (a)
  * @param fb Feature vector (b)
@@ -369,7 +369,7 @@ fvec_t *fvec_adds(fvec_t *fa, fvec_t *fb, double s)
     return f;
 }
 
-/** 
+/**
  * Adds two feature vectors and create a new one (c = a + b)
  * @param fa Feature vector (a)
  * @param fb Feature vector (b)
@@ -381,7 +381,7 @@ fvec_t *fvec_add(fvec_t *fa, fvec_t *fb)
 }
 
 
-/** 
+/**
  * Substractes two feature vectors and create a new one (c = a - b)
  * @param fa Feature vector (a)
  * @param fb Feature vector (b)
@@ -457,8 +457,8 @@ fvec_t *farray_mean(farray_t *fa)
 
 /**
  * Computes the l1-norm of the feature vector (n = ||f||_1)
- * @param f Feature vector 
- * @return sum of values 
+ * @param f Feature vector
+ * @return sum of values
  */
 double fvec_norm1(fvec_t *f)
 {
@@ -474,8 +474,8 @@ double fvec_norm1(fvec_t *f)
 
 /**
  * Computes the l2-norm of the feature vector (n = ||f||_2)
- * @param f Feature vector 
- * @return sum of values 
+ * @param f Feature vector
+ * @return sum of values
  */
 double fvec_norm2(fvec_t *f)
 {
@@ -490,7 +490,7 @@ double fvec_norm2(fvec_t *f)
 }
 
 /**
- * Sparsifies a feature vector by removing zero dimensions 
+ * Sparsifies a feature vector by removing zero dimensions
  * @param f Feature vectore
  */
 void fvec_sparsify(fvec_t *f)

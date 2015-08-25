@@ -28,7 +28,7 @@ static uint32_t seed2 = MD5_SEED_NONE;
 
 /*
  * Wrapper for MD5 function compatible to OpenSSL interface.
- * 'buf' needs to provide an allocated array of 16 bytes for 
+ * 'buf' needs to provide an allocated array of 16 bytes for
  * the digest.
  */
 void MD5(unsigned char *x, unsigned l, unsigned char *buf)
@@ -136,7 +136,7 @@ void MD5Update(struct MD5Context *ctx, unsigned char const *buf,
 }
 
 /*
- * Final wrapup - pad to 64-byte boundary with the bit pattern 
+ * Final wrapup - pad to 64-byte boundary with the bit pattern
  * 1 0* (64-bit count of bits processed, MSB-first)
  */
 void MD5Final(unsigned char digest[16], struct MD5Context *ctx)

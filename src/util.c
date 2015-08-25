@@ -1,13 +1,13 @@
 /*
  * MALHEUR - Automatic Analysis of Malware Behavior
- * Copyright (c) 2009-2012 Konrad Rieck (konrad@mlsec.org)
- * University of Goettingen, Berlin Institute of Technology 
+ * Copyright (c) 2009-2015 Konrad Rieck (konrad@mlsec.org)
+ * University of Goettingen, Berlin Institute of Technology
  * --
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.  This program is distributed without any
- * warranty. See the GNU General Public License for more details. 
+ * warranty. See the GNU General Public License for more details.
  * --
  */
 /**
@@ -103,7 +103,7 @@ int *qsort_idx(void *b, size_t n, size_t w,
 }
 
 /**
- * Print a formated error/warning message. See the macros error and 
+ * Print a formated error/warning message. See the macros error and
  * warning in util.h
  * @param p Prefix string, e.g. "Error"
  * @param f Function name
@@ -128,7 +128,7 @@ void err_msg(char *p, const char *f, char *m, ...)
 
 /**
  * Print a progress bar in a given range.
- * @param a Minimum value 
+ * @param a Minimum value
  * @param b Maximum value
  * @param c Current value
  */
@@ -193,11 +193,11 @@ void prog_bar(long a, long b, long c)
 
 
 /**
- * Loads a textual file into a string. The string is allocated 
+ * Loads a textual file into a string. The string is allocated
  * and need to be free'd later by the caller.
  * @param path Path to file
  * @param name file name or NULL
- * @return string 
+ * @return string
  */
 char *load_file(char *path, char *name)
 {
@@ -242,7 +242,7 @@ char *load_file(char *path, char *name)
 }
 
 /**
- * Simple copy function. This function is likely inefficient and 
+ * Simple copy function. This function is likely inefficient and
  * should only be used to copy small files, e.g. stuff from /etc
  * @param src Name of source file
  * @param dst Name of destination fie
@@ -276,7 +276,7 @@ int copy_file(char *src, char *dst)
 
 
 /**
- * Returns the number of entries in a directory. 
+ * Returns the number of entries in a directory.
  * @param dir Directory to analyse
  * @param fnum Return pointer for number of regular files
  * @param total Return pointer for number of total files
@@ -345,7 +345,7 @@ double time_stamp()
 }
 
 /**
- * Decode a string with URI encoding. The function operates 
+ * Decode a string with URI encoding. The function operates
  * in-place. A trailing NULL character is appended to the string.
  * @param str Stirng to escape.
  * @return length of decoded sequence
@@ -377,7 +377,7 @@ int decode_string(char *str)
 
 /**
  * Extracts the suffix from a file name. If the file does not
- * have a suffix, the function returns "unknown". 
+ * have a suffix, the function returns "unknown".
  */
 char *file_suffix(char *file)
 {
@@ -403,12 +403,12 @@ void malheur_version(FILE *f)
 {
     fprintf(f,
             "# MALHEUR (%d.%d.%d) - Automatic Analysis of Malware Behavior\n"
-            "# Copyright (c) 2009-2012 Konrad Rieck (konrad@mlsec.org)\n"
+            "# Copyright (c) 2009-2015 Konrad Rieck (konrad@mlsec.org)\n"
             "# University of Goettingen, Berlin Institute of Technology\n",
             MALHEUR_MAJOR, MALHEUR_MINOR, MALHEUR_PATCH);
 }
 
-/** 
+/**
  * Size of upper triangle of a symmatrix matrix
  * @param n length of one dimension
  * @return size of triangle
@@ -418,11 +418,11 @@ long tria_size(long n)
     return n * (n + 1) / 2;
 }
 
-/** 
+/**
  * Index of point in the upper triangle of a symmetric matrix
  * @param x coordinate in x axis
  * @param y coordinate in y axis
- * @param n length of one dimension 
+ * @param n length of one dimension
  */
 long tria_pos(long x, long y, long n)
 {
@@ -435,7 +435,7 @@ long tria_pos(long x, long y, long n)
 /**
  * Determine the maximum of an array
  * @param a array
- * @param l length of array 
+ * @param l length of array
  * @return index to maximum value
  */
 int array_max(double *a, int l)
@@ -456,7 +456,7 @@ int array_max(double *a, int l)
 /**
  * Determine the minimum of an array
  * @param a array
- * @param l length of array 
+ * @param l length of array
  * @return index to minimum value
  */
 int array_min(double *a, int l)

@@ -509,7 +509,7 @@ the use of tar archives is recommended.
 
 =head1 COPYRIGHT
 
-Copyright (c) 2009-2012 Konrad Rieck (konrad@mlsec.org)
+Copyright (c) 2009-2015 Konrad Rieck (konrad@mlsec.org)
 University of Goettingen, Berlin Institute of Technology
 
 This program is free software; you can redistribute it and/or modify

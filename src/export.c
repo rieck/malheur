@@ -1,19 +1,19 @@
 /*
  * MALHEUR - Automatic Analysis of Malware Behavior
- * Copyright (c) 2009-2012 Konrad Rieck (konrad@mlsec.org)
- * University of Goettingen, Berlin Institute of Technology 
+ * Copyright (c) 2009-2015 Konrad Rieck (konrad@mlsec.org)
+ * University of Goettingen, Berlin Institute of Technology
  * --
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.  This program is distributed without any
- * warranty. See the GNU General Public License for more details. 
+ * warranty. See the GNU General Public License for more details.
  * --
  */
 
 /**
  * @defgroup export Export functions
- * The module contains functions for exporting data computed by 
+ * The module contains functions for exporting data computed by
  * Malheur to external format such as plain text and HTML documents.
  * @author Konrad Rieck
  * @{
@@ -36,7 +36,7 @@ extern config_t cfg;
  * Exports a distance matrix to a text file
  * @param d Pointer to matrix
  * @param fa Feature vector array
- * @param file File name 
+ * @param file File name
  */
 void export_dist(double *d, farray_t *fa, char *file)
 {
@@ -259,7 +259,7 @@ void export_increment1(farray_t *p, farray_t *fa, assign_t *as, char *file)
 /**
  * Exports results from the incremental analysis (phase 2). The results are
  * obtained by first classifying and then clustering reports. The function
- * appends the output of clustering to an existing file from phase 1. 
+ * appends the output of clustering to an existing file from phase 1.
  * @param c Clustering structure
  * @param p Prototype struture
  * @param fa Feature vector array

@@ -1,19 +1,19 @@
 /*
  * MALHEUR - Automatic Analysis of Malware Behavior
- * Copyright (c) 2009-2012 Konrad Rieck (konrad@mlsec.org)
+ * Copyright (c) 2009-2015 Konrad Rieck (konrad@mlsec.org)
  * University of Goettingen, Berlin Institute of Technology
  * --
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.  This program is distributed without any
- * warranty. See the GNU General Public License for more details. 
+ * warranty. See the GNU General Public License for more details.
  * --
  */
 
 /**
  * @defgroup class Classification using prototypes
- * The module contains functions for assigning and classifying feature 
+ * The module contains functions for assigning and classifying feature
  * vectors to known clusters. Clusters and classes are both represented
  * by appropriate prototype vectors.
  * @author Konrad Rieck
@@ -30,8 +30,8 @@ extern int verbose;
 extern config_t cfg;
 
 /**
- * Creates an empty structure of assignments. The assignments can be 
- * either computed for matching prototypes against feature vectors or 
+ * Creates an empty structure of assignments. The assignments can be
+ * either computed for matching prototypes against feature vectors or
  * for classification of feature vectors.
  * @param fa Array of feature vectors
  * @return assignment structure
@@ -83,8 +83,8 @@ void assign_destroy(assign_t *c)
 
 /**
  * Classify feature vectors using labeled prototypes. The function assigns
- * the given feature vectors to the given prototypes and predicts labels. 
- * Feature vectors with a too large distance are rejected from the 
+ * the given feature vectors to the given prototypes and predicts labels.
+ * Feature vectors with a too large distance are rejected from the
  * classification by setting their label to 0.
  * @param fa Array of feature vectors
  * @param p Array of prototypes

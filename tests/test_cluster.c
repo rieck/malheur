@@ -1,13 +1,13 @@
 /*
  * MALHEUR - Automatic Analysis of Malware Behavior
- * Copyright (c) 2009-2012 Konrad Rieck (konrad@mlsec.org)
- * University of Goettingen, Berlin Institute of Technology 
+ * Copyright (c) 2009-2015 Konrad Rieck (konrad@mlsec.org)
+ * University of Goettingen, Berlin Institute of Technology
  * --
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.  This program is distributed without any
- * warranty. See the GNU General Public License for more details. 
+ * warranty. See the GNU General Public License for more details.
  */
 
 #include "tests.h"
@@ -149,7 +149,7 @@ int test_cluster_average()
     return err;
 }
 
-/* 
+/*
  * A simple stress test for clustering
  */
 int test_stress()
@@ -201,7 +201,7 @@ int main(int argc, char **argv)
     config_init(&cfg);
     config_check(&cfg);
     config_set_string(&cfg, "input.event_delim", " ");
-    config_set_string(&cfg, "features.vect_embed", "cnt");    
+    config_set_string(&cfg, "features.vect_embed", "cnt");
 
     ftable_init();
 

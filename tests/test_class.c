@@ -1,13 +1,13 @@
 /*
- * MALHEUR - Automatic Analysis of Malware Behavior 
- * Copyright (c) 2009-2012 Konrad Rieck (konrad@mlsec.org)
- * University of Goettingen, Berlin Institute of Technology 
+ * MALHEUR - Automatic Analysis of Malware Behavior
+ * Copyright (c) 2009-2015 Konrad Rieck (konrad@mlsec.org)
+ * University of Goettingen, Berlin Institute of Technology
  * --
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.  This program is distributed without any
- * warranty. See the GNU General Public License for more details. 
+ * warranty. See the GNU General Public License for more details.
  */
 
 #include "tests.h"
@@ -76,7 +76,7 @@ int test_classify()
     /* Classification of test data */
     config_set_float(&cfg, "classify.max_dist", 1.41);
     assign_t *a = class_assign(fa2, fa1);
-    
+
     /* Check predicted labels */
     for (k = 0; test_data[k].str; k++) {
         char *l = farray_get_label(fa1, a->proto[k]);
@@ -85,14 +85,14 @@ int test_classify()
 
     /* Clean up */
     assign_destroy(a);
-    farray_destroy(fa1); 
+    farray_destroy(fa1);
     farray_destroy(fa2);
 
     test_return(err, i);
     return err;
 }
 
-/* 
+/*
  * A simple stress test for classification
  */
 int test_stress()

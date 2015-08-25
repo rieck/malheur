@@ -1,20 +1,20 @@
 /*
  * MALHEUR - Automatic Analysis of Malware Behavior
- * Copyright (c) 2009-2012 Konrad Rieck (konrad@mlsec.org)
- * University of Goettingen, Berlin Institute of Technology 
+ * Copyright (c) 2009-2015 Konrad Rieck (konrad@mlsec.org)
+ * University of Goettingen, Berlin Institute of Technology
  * --
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.  This program is distributed without any
- * warranty. See the GNU General Public License for more details. 
+ * warranty. See the GNU General Public License for more details.
  * --
  */
 
-/** 
+/**
  * @defgroup farray Array of feature vectors
  * Generic array of feature vectors. This module contains functions for
- * maintenance of feature vectors in an array along with a set of 
+ * maintenance of feature vectors in an array along with a set of
  * textual labels, such as AV labels. Moreover, functionality is provided
  * for extraction of feature vectors from directories and compressed
  * archives of malware reports.
@@ -43,7 +43,7 @@ extern int verbose;
  * Adds a label to the table of labels.
  * @param a Feature array
  * @param name label name
- * @return index of label 
+ * @return index of label
  */
 static unsigned int label_add(farray_t *fa, char *name)
 {
@@ -136,8 +136,8 @@ void farray_destroy(farray_t *fa)
 /**
  * Adds a feature vector to the array
  * @param fa Feature array
- * @param fv Feature vector 
- * @param label Label of feature vector 
+ * @param fv Feature vector
+ * @param label Label of feature vector
  */
 void farray_add(farray_t *fa, fvec_t *fv, char *label)
 {
@@ -200,7 +200,7 @@ farray_t *farray_extract(char *path)
 
 #ifdef HAVE_LIBARCHIVE
 /**
- * Extracts an array of feature vectors from an archive. The function 
+ * Extracts an array of feature vectors from an archive. The function
  * loads and converts files from the given archive. It does not process
  * subdirectories recursively.
  * @param arc archive containing files.
@@ -280,7 +280,7 @@ farray_t *farray_extract_archive(char *arc)
 #endif
 
 /**
- * Extracts an array of feature vectors from a directory. The function 
+ * Extracts an array of feature vectors from a directory. The function
  * loads and converts files from the given directory. It does not process
  * subdirectories recursively.
  * @param dir directory containing file.
@@ -306,8 +306,8 @@ farray_t *farray_extract_dir(char *dir)
 
 
     /*
-     * Prepare concurrent readdir_r(). There is a race condition in the 
-     * following code. The maximum  length 'maxlen' could have changed 
+     * Prepare concurrent readdir_r(). There is a race condition in the
+     * following code. The maximum  length 'maxlen' could have changed
      * between the previous call to opendir() and the following call to
      * pathconf(). I'll take care of this at a later time.
      */
@@ -383,7 +383,7 @@ void farray_print(farray_t *fa)
 }
 
 /**
- * Merges two arrays into one. The second array is destroy and all 
+ * Merges two arrays into one. The second array is destroy and all
  * its memory is free'd.
  * @param x First array of feature vectors
  * @param y Second array of feature vectors
@@ -415,7 +415,7 @@ farray_t *farray_merge(farray_t *x, farray_t *y)
  * Returns the index for a fixed vector regardless of the order. The fixed
  * vector is determined by comparing the source, label and memory of each
  * vector and picking the smallest.
- * @param fa Array of feature vectors 
+ * @param fa Array of feature vectors
  */
 int farray_get_fixed(farray_t *fa)
 {
@@ -443,7 +443,7 @@ int farray_get_fixed(farray_t *fa)
 }
 
 /**
- * Saves an array of feature vectors to a file 
+ * Saves an array of feature vectors to a file
  * @param fa Array of feature vectors
  * @param z Stream pointer
  */
@@ -462,7 +462,7 @@ void farray_save(farray_t *fa, gzFile * z)
 }
 
 /**
- * Saves an array of feature vectors ib libsvm format to a file 
+ * Saves an array of feature vectors ib libsvm format to a file
  * @param fa Array of feature vectors
  * @param z Stream pointer
  */

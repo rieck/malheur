@@ -209,18 +209,13 @@ The configuration file F<malheur.cfg> in I<maldir> determines how the
 malware behavior in a data set is analysis. The configuration contains
 five groups of settings which are described in the following.
 
-All parameters of the configuration can be also specified on the
-command line.  That is, if a parameter is defined in the configuration as
-B<xx = "yy";> in the group B<zz>, it can be alternatively supplied as a
-command-line option by B<--zz.xx "yy"> to B<malheur>.
+=over 4
+
+=item B<generic = {>
 
 =over 4
 
-=item B<input = {>
-
-=over 4
-
-=item B<format = "mist";>
+=item B<input_format = "text";>
 
 This parameter specifies the input format. Supported values are "text"
 for textual and XML reports, and "mist" for reports using the malware
@@ -234,25 +229,6 @@ hexadecimal numbers prefixed by "%". If no characters are specified,
 the reports are analyzed at byte-level, as if each byte would reflect
 one event.
 
-=item B<mist_level = 2;>
-
-This parameter specifies the MIST level. If the input format is set to
-"mist", this parameter controls the analysis level of MIST
-instructions, otherwise it is ignored.
-
-=item B<mist_rlen = 0;>
-
-This parameter specifies the report truncation length. If the input
-format is set to "mist", this parameter controls the truncation of
-MIST reports, otherwise it is ignored. If set to 0 the parameter is
-ignored in all cases.
-
-=item B<mist_tlen = 0;>
-
-This parameter specifies the thread truncation length. If the input
-format is set to "mist", this parameter controls the truncation of
-MIST threads, otherwise it is ignored. If set to 0 the parameter is
-ignored in all cases.
 
 =back
 
@@ -261,7 +237,6 @@ ignored in all cases.
 =item B<features = {>
 
 =over 4
-
 
 =item B<ngram_len = 2;>
 
@@ -276,6 +251,12 @@ This parameter specifies how the feature are embedded in the vector
 space. Support values are "bin" for associating each dimension with a
 binary value or "cnt" for associating each dimension with a count
 value for the occurrences of features.
+
+=item B<mist_level = 2;>
+
+This parameter specifies the MIST level. If the input format is set to
+"mist", this parameter controls the analysis level of MIST
+instructions, otherwise it is ignored.
 
 =item B<hash_seed1 = 0xc0cac01a;>
 

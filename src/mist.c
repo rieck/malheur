@@ -90,14 +90,12 @@ char *mist_preproc(char *report)
 {
     assert(report);
 
-    int level, rlen, tlen, ti = 0, ri = 0;
+    int level, ti = 0, ri = 0;
     char *read_ptr = report, *write_ptr = report;
     char line[BUFFER_SIZE];
 
     /* Get MIST configuration */
-    config_lookup_int(&cfg, "input.mist_level", (int *) &level);
-    config_lookup_int(&cfg, "input.mist_rlen", (int *) &rlen);
-    config_lookup_int(&cfg, "input.mist_tlen", (int *) &tlen);
+    config_lookup_int(&cfg, "features.mist_level", (int *) &level);
 
     /* Process MIST file */
     while (mist_read_line(&read_ptr, line)) {
@@ -106,17 +104,10 @@ char *mist_preproc(char *report)
             if (strstr(line, MIST_THREAD))
                 ti = 0;
         } else if (isalnum(line[0])) {
-            /* Check for thread length */
-            if (tlen == 0 || ti < tlen) {
-                write_ptr = mist_copy_instr(write_ptr, line, level);
-                ri++;
-                ti++;
-            }
+            write_ptr = mist_copy_instr(write_ptr, line, level);
+            ri++;
+            ti++;
         }
-
-        /* Check for report length */
-        if (rlen > 0 && ri >= rlen)
-            break;
     }
 
     /* Terminate string */

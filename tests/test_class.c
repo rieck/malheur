@@ -141,7 +141,7 @@ int main(int argc, char **argv)
     /* Create config */
     config_init(&cfg);
     config_check(&cfg);
-    config_set_string(&cfg, "input.event_delim", " ");
+    config_set_string(&cfg, "generic.event_delim", " ");
 
     ftable_init();
     err |= test_classify();

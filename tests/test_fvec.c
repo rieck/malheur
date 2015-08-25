@@ -61,7 +61,7 @@ int test_static()
 
     for (i = 0; tests[i].str; i++) {
         fvec_reset_delim();
-        config_set_string(&cfg, "input.event_delim", tests[i].dlm);
+        config_set_string(&cfg, "generic.event_delim", tests[i].dlm);
         config_set_int(&cfg, "features.ngram_len", tests[i].nlen);
 
         /* Extract features */
@@ -91,7 +91,7 @@ int test_stress()
 
     test_printf("Stress test for feature vectors");
 
-    config_set_string(&cfg, "input.event_delim", "0");
+    config_set_string(&cfg, "generic.event_delim", "0");
 
     ftable_init();
 
@@ -126,7 +126,7 @@ int test_stress_omp()
 
     test_printf("Stress test for feature vectors (OpenMP)");
 
-    config_set_string(&cfg, "input.event_delim", "0");
+    config_set_string(&cfg, "generic.event_delim", "0");
 
     ftable_init();
 
@@ -164,7 +164,7 @@ int test_load_save()
     test_printf("Loading and saving of feature vectors");
 
     fvec_reset_delim();
-    config_set_string(&cfg, "input.event_delim", " ");
+    config_set_string(&cfg, "generic.event_delim", " ");
     config_set_int(&cfg, "features.ngram_len", 2);
 
     /* Create and save feature vectors */

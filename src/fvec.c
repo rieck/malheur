@@ -55,7 +55,7 @@ char *fvec_preproc(char *x)
 {
     const char *fmt_str;
 
-    config_lookup_string(&cfg, "input.format", &fmt_str);
+    config_lookup_string(&cfg, "generic.input_format", &fmt_str);
 
     /* MIST transformation */
     if (!strcasecmp(fmt_str, "mist")) {
@@ -159,11 +159,11 @@ fvec_t *fvec_extract(char *x, int l, char *s)
     config_lookup_int(&cfg, "features.ngram_len", (int *) &nlen);
 
     /* Construct delimiter lookup table */
-    config_lookup_string(&cfg, "input.format", &fmt_str);
+    config_lookup_string(&cfg, "generic.input_format", &fmt_str);
     if (!strcasecmp(fmt_str, "mist")) {
         dlm_str = "%0a%0d";
     } else {
-        config_lookup_string(&cfg, "input.event_delim", &dlm_str);
+        config_lookup_string(&cfg, "generic.event_delim", &dlm_str);
     }
 
     /* N-grams of bytes */

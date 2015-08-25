@@ -55,12 +55,10 @@ static struct option longopts[] = {
     {"help", 0, NULL, 'h'},
     {"dump", 1, NULL, 'd'},
     /* start of config options */
-    {"input.format", 1, NULL, 1001},
-    {"input.mist_level", 1, NULL, 1002},
-    {"input.mist_rlen", 1, NULL, 1003},
-    {"input.mist_tlen", 1, NULL, 1004},
-    {"input.event_delim", 1, NULL, 1005},
+    {"generic.input_format", 1, NULL, 1001},
+    {"generic.event_delim", 1, NULL, 1005},
     {"features.ngram_len", 1, NULL, 1006},
+    {"features.mist_level", 1, NULL, 1002},
     {"features.vect_embed", 1, NULL, 1007},
     {"prototypes.max_dist", 1, NULL, 1009},
     {"prototypes.max_num", 1, NULL, 1010},
@@ -144,25 +142,19 @@ static void parse_options(int argc, char **argv)
 
             /* long options */
         case 1001:
-            config_set_string(&cfg, "input.format", optarg);
-            break;
-        case 1002:
-            config_set_int(&cfg, "input.mist_level", atoi(optarg));
-            break;
-        case 1003:
-            config_set_int(&cfg, "input.mist_rlen", atoi(optarg));
-            break;
-        case 1004:
-            config_set_int(&cfg, "input.mist_tlen", atoi(optarg));
+            config_set_string(&cfg, "generic.input_format", optarg);
             break;
         case 1005:
-            config_set_string(&cfg, "input.event_delim", optarg);
+            config_set_string(&cfg, "generic.event_delim", optarg);
             break;
         case 1006:
             config_set_int(&cfg, "features.ngram_len", atoi(optarg));
             break;
         case 1007:
             config_set_string(&cfg, "features.vect_embed", optarg);
+            break;
+        case 1002:
+            config_set_int(&cfg, "features.mist_level", atoi(optarg));
             break;
         case 1009:
             config_set_float(&cfg, "prototypes.max_dist", atof(optarg));

@@ -25,7 +25,7 @@
 #include "mconfig.h"
 
 /* Macros to make config lines shorter */
-#define I "input"
+#define G "generic"
 #define F "features"
 #define P "prototypes"
 #define C "cluster"
@@ -34,15 +34,13 @@
 /* Default configuration */
 static config_default_t defaults[] = {
     /* Input */
-    {I, "format", CONFIG_TYPE_STRING, {.str = "text"}},
-    {I, "event_delim", CONFIG_TYPE_STRING, {.str = "%0a%0d"}},
-    {I, "mist_level", CONFIG_TYPE_INT, {.num = 0}},
-    {I, "mist_rlen", CONFIG_TYPE_INT, {.num = 0}},
-    {I, "mist_tlen", CONFIG_TYPE_INT, {.num = 0}},
+    {G, "input_format", CONFIG_TYPE_STRING, {.str = "text"}},
+    {G, "event_delim", CONFIG_TYPE_STRING, {.str = "%0a%0d"}},
 
     /* Features */
     {F, "ngram_len", CONFIG_TYPE_INT, {.num = 2}},
     {F, "vect_embed", CONFIG_TYPE_STRING, {.str = "bin"}},
+    {F, "mist_level", CONFIG_TYPE_INT, {.num = 0}},
     {F, "hash_seed1", CONFIG_TYPE_INT, {.num = 0x1ea4501a}},
     {F, "hash_seed2", CONFIG_TYPE_INT, {.num = 0x75f3da43}},
 

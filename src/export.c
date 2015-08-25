@@ -38,7 +38,7 @@ extern config_t cfg;
  * @param fa Feature vector array
  * @param file File name
  */
-void export_dist(double *d, farray_t *fa, char *file)
+void export_dist(double *d, farray_t *fa, const char *file)
 {
     assert(d && fa && file);
     int i, j;
@@ -78,7 +78,7 @@ void export_dist(double *d, farray_t *fa, char *file)
  * @param as Assignments to protoypes
  * @param file File name
  */
-void export_proto(farray_t *pr, farray_t *fa, assign_t *as, char *file)
+void export_proto(farray_t *pr, farray_t *fa, assign_t *as, const char *file)
 {
     assert(pr && fa && file);
     int i, j;
@@ -124,7 +124,7 @@ void export_proto(farray_t *pr, farray_t *fa, assign_t *as, char *file)
  * @param file File name
  */
 void export_cluster(cluster_t *c, farray_t *p, farray_t *fa, assign_t *a,
-                    char *file)
+                    const char *file)
 {
     assert(c && fa && file);
     FILE *f;
@@ -170,7 +170,7 @@ void export_cluster(cluster_t *c, farray_t *p, farray_t *fa, assign_t *a,
  * @param as Assignments to protoypes
  * @param file File name
  */
-void export_class(farray_t *p, farray_t *fa, assign_t *as, char *file)
+void export_class(farray_t *p, farray_t *fa, assign_t *as, const char *file)
 {
     assert(p && fa && file);
     int i, j;
@@ -220,7 +220,7 @@ void export_class(farray_t *p, farray_t *fa, assign_t *as, char *file)
  * @param as Assignments to prototypes
  * @param file File name
  */
-void export_increment1(farray_t *p, farray_t *fa, assign_t *as, char *file)
+void export_increment1(farray_t *p, farray_t *fa, assign_t *as, const char *file)
 {
     int i, j;
     FILE *f;
@@ -267,7 +267,7 @@ void export_increment1(farray_t *p, farray_t *fa, assign_t *as, char *file)
  * @param file File name
  */
 void export_increment2(cluster_t *c, farray_t *p, farray_t *fa, assign_t *as,
-                       char *file)
+                       const char *file)
 {
     assert(c && p && fa && as && file);
     int i, j;
@@ -296,7 +296,7 @@ void export_increment2(cluster_t *c, farray_t *p, farray_t *fa, assign_t *as,
  * @param fa Array of feature vectors
  * @param file Output file
  */
-void export_shared_ngrams(cluster_t *c, farray_t *fa, char *file)
+void export_shared_ngrams(cluster_t *c, farray_t *fa, const char *file)
 {
     assert(c && fa && file);
     int i, j, k;

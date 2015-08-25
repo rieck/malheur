@@ -28,26 +28,21 @@ int verbose = 0;
 config_t cfg;
 
 /* Global variables */
-static char *output_file = OUTPUT_FILE;
-static char malheur_dir[MAX_PATH_LEN];
 static char **input_files = NULL;
 static int input_len = 0;
 static int reset = FALSE;
 static int save = TRUE;
 static char *fvec_dump = NULL;
 static malheur_action_t action = PROTOTYPE;
-static malheur_cfg_t mcfg;
 static malheur_state_t mstate;
 
 /* Option string */
-#define OPTSTRING       "nro:m:hvVd:"
+#define OPTSTRING       "nro:c:s:hvVd:"
 
 /**
  * Array of options of getopt_long()
  */
 static struct option longopts[] = {
-    {"maldir", 1, NULL, 'm'},
-    {"outfile", 1, NULL, 'o'},
     {"reset", 0, NULL, 'r'},
     {"nostate", 0, NULL, 'n'},
     {"verbose", 0, NULL, 'v'},
@@ -57,6 +52,8 @@ static struct option longopts[] = {
     /* start of config options */
     {"generic.input_format", 1, NULL, 1001},
     {"generic.event_delim", 1, NULL, 1005},
+    {"generic.output_file", 1, NULL, 'o'},
+    {"generic.state_dir", 1, NULL, 's'},
     {"features.ngram_len", 1, NULL, 1006},
     {"features.mist_level", 1, NULL, 1002},
     {"features.vect_embed", 1, NULL, 1007},
@@ -88,16 +85,15 @@ static void print_usage(void)
            "  increment      Incremental analysis of malware reports\n"
            "  info           Print information about internal state of Malheur\n"
            "Options:\n"
-           "  -m <maldir>    Set malheur directory. [%s]\n"
-           "  -o <outfile>   Set output file for analysis. [%s]\n"
-           "  -d <dumpfile>  Dump feature vectors to file in libsvm format.\n"
+           "  -s <dir>       Set directory to internal state of Malheur.\n"
+           "  -o <file>      Set output file for analysis.\n"
+           "  -d <file>      Dump feature vectors to file in libsvm format.\n"
            "  -r             Reset internal state of Malheur.\n"
            "  -n             Don't save internal state of Malher.\n"
            "  -v             Increase verbosity.\n"
            "  -V             Print version and copyright.\n"
            "  -h             Print this help screen.\n"
-           "See manual page malheur(1) for more information.\n",
-           malheur_dir, output_file);
+           "See manual page malheur(1) for more information.\n");
 }
 
 /**
@@ -105,7 +101,7 @@ static void print_usage(void)
  * @param argc Number of arguments
  * @param argv Argument values
  */
-static void parse_options(int argc, char **argv)
+static void malheur_parse_options(int argc, char **argv)
 {
     int ch;
 
@@ -114,6 +110,9 @@ static void parse_options(int argc, char **argv)
 
     while ((ch = getopt_long(argc, argv, OPTSTRING, longopts, NULL)) != -1) {
         switch (ch) {
+        case 'c':
+            /* Empty. See malheur_load_config() */
+            break;
         case 'n':
             save = FALSE;
             break;
@@ -121,11 +120,13 @@ static void parse_options(int argc, char **argv)
             reset = TRUE;
             break;
         case 'v':
-        case 'm':
-            /* Empty. See load_config() */
+            verbose++;
+            break;
+        case 's':
+            config_set_string(&cfg, "generic.state_dir", optarg);
             break;
         case 'o':
-            output_file = optarg;
+            config_set_string(&cfg, "generic.output_file", optarg);
             break;
         case 'V':
             malheur_version(stdout);
@@ -223,86 +224,52 @@ static void parse_options(int argc, char **argv)
  * @param argc Number of arguments
  * @param argv Argument values
  */
-static void load_config(int argc, char **argv)
+static void malheur_load_config(int argc, char **argv)
 {
-    char cfg_path[MAX_PATH_LEN];
+    char *cfg_file = NULL;
     int ch;
-
-    /* Prepare dir */
-    snprintf(malheur_dir, MAX_PATH_LEN, "%s", MALHEUR_DIR);
 
     /* Check for config file in command line */
     while ((ch = getopt_long(argc, argv, OPTSTRING, longopts, NULL)) != -1) {
         switch (ch) {
-        case 'm':
-            strncpy(malheur_dir, optarg, MAX_PATH_LEN);
-            malheur_dir[MAX_PATH_LEN - 1] = 0;
+        case 'c':
+            cfg_file = optarg;
             break;
-        case 'v':
-            verbose++;
-            break;
+        case 'h':
         case '?':
+            print_usage();
+            exit(EXIT_SUCCESS);
+            break;
         default:
             /* empty */
             break;
         }
     }
 
-    /* Prepare malheur files */
-    snprintf(cfg_path, MAX_PATH_LEN, "%s/%s", malheur_dir, CONFIG_FILE);
-
-    /* Check for directories and files */
-    if (access(malheur_dir, F_OK))
-        fatal("Malheur directory '%s'", malheur_dir);
-
-    /* Copy configuration file */
-    if (access(cfg_path, R_OK)) {
-        if (verbose > 0)
-            printf("Copying configuration to '%s'.\n", cfg_path);
-        copy_file(GLOBAL_CONFIG_FILE, cfg_path);
-    }
-
     /* Init and load configuration */
     config_init(&cfg);
-    if (config_read_file(&cfg, cfg_path) != CONFIG_TRUE)
-        fatal("Could not read configuration (%s in line %d)",
-              config_error_text(&cfg), config_error_line(&cfg));
 
+    if (cfg_file != NULL) {
+        if (config_read_file(&cfg, cfg_file) != CONFIG_TRUE)
+            fatal("Could not read configuration (%s in line %d)",
+                  config_error_text(&cfg), config_error_line(&cfg));
+    }
 
     /* Check configuration and set defaults */
     if (!config_check(&cfg)) {
         exit(EXIT_FAILURE);
     }
 
-    if (verbose > 1)
-        config_print(&cfg);
 }
 
 
 /**
  * Initialize malheur tool
- * @param argc Number of arguments
- * @param argv Argument values
  */
-static void malheur_init(int argc, char **argv)
+static void malheur_init()
 {
+    const char *state_dir;
     double shared;
-
-    /* Load configuration */
-    load_config(argc, argv);
-
-    /* Parse options */
-    parse_options(argc, argv);
-
-    /* Prepare malheur files */
-    snprintf(mcfg.reject_file, MAX_PATH_LEN, "%s/%s", malheur_dir,
-             REJECT_FILE);
-    snprintf(mcfg.config_file, MAX_PATH_LEN, "%s/%s", malheur_dir,
-             CONFIG_FILE);
-    snprintf(mcfg.proto_file, MAX_PATH_LEN, "%s/%s", malheur_dir,
-             PROTO_FILE);
-    snprintf(mcfg.state_file, MAX_PATH_LEN, "%s/%s", malheur_dir,
-             STATE_FILE);
 
     /* Init feature lookup table */
     config_lookup_float(&cfg, "cluster.shared_ngrams", &shared);
@@ -310,14 +277,20 @@ static void malheur_init(int argc, char **argv)
         ftable_init();
     }
 
-    /* Reset current state */
-    if (reset) {
-        unlink(mcfg.reject_file);
-        unlink(mcfg.proto_file);
-        unlink(mcfg.state_file);
+    /* Reset internal state */
+    memset(&mstate, 0, sizeof(mstate));
+    config_lookup_string(&cfg, "generic.state_dir", &state_dir);
+
+    /* Create directory if not available */
+    if (access(state_dir, W_OK)) {
+        if (verbose > 0)
+            printf("Creating state directory '%s'\n", state_dir);
+        mkdir(state_dir, 0700);
     }
 
-    memset(&mstate, 0, sizeof(mstate));
+    /* Print configuration */
+    if (verbose > 1)
+        config_print(&cfg);
 }
 
 
@@ -361,13 +334,18 @@ static farray_t *malheur_load()
 static void malheur_save_state()
 {
     FILE *f;
+    const char *state_dir;
+    char state_file[512];
+
+    config_lookup_string(&cfg, "generic.state_dir", &state_dir);
+    snprintf(state_file, 512, "%s/%s", state_dir, STATE_FILE);
 
     if (verbose > 0)
-        printf("Saving internal state to '%s'.\n", mcfg.state_file);
+        printf("Saving internal state to '%s'.\n", state_file);
 
-    f = fopen(mcfg.state_file, "w");
+    f = fopen(state_file, "w");
     if (!f) {
-        error("Could not open state file '%s'.", mcfg.state_file);
+        error("Could not open state file '%s'.", state_file);
         return;
     }
 
@@ -383,18 +361,23 @@ static void malheur_save_state()
  */
 static int malheur_load_state()
 {
+    const char *state_dir;
+    char state_file[512];
     FILE *f;
     int ret;
 
-    if (access(mcfg.state_file, R_OK))
+    config_lookup_string(&cfg, "generic.state_dir", &state_dir);
+    snprintf(state_file, 512, "%s/%s", state_dir, STATE_FILE);
+
+    if (access(state_file, R_OK))
         return FALSE;
 
     if (verbose > 0)
-        printf("Loading internal state to '%s'.\n", mcfg.state_file);
+        printf("Loading internal state to '%s'.\n", state_file);
 
-    f = fopen(mcfg.state_file, "r");
+    f = fopen(state_file, "r");
     if (!f) {
-        error("Could not open state file '%s'.", mcfg.state_file);
+        error("Could not open state file '%s'.", state_file);
         return FALSE;
     }
 
@@ -402,7 +385,7 @@ static int malheur_load_state()
                  &mstate.run, &mstate.num_proto, &mstate.num_reject);
 
     if (ret != 3) {
-        error("Could not parse state file '%s'.", mcfg.state_file);
+        error("Could not parse state file '%s'.", state_file);
         return FALSE;
     }
 
@@ -417,6 +400,12 @@ static void malheur_prototype()
 {
     assign_t *as;
     farray_t *fa, *pr;
+    const char *state_dir, *output_file;
+    char proto_file[512];
+
+    config_lookup_string(&cfg, "generic.output_file", &output_file);
+    config_lookup_string(&cfg, "generic.state_dir", &state_dir);
+    snprintf(proto_file, 512, "%s/%s", state_dir, PROTO_FILE);
 
     /* Load data */
     fa = malheur_load();
@@ -428,7 +417,7 @@ static void malheur_prototype()
 
     /* Save prototypes */
     if (save)
-        farray_save_file(pr, mcfg.proto_file);
+        farray_save_file(pr, proto_file);
 
     /* Export prototypes */
     export_proto(pr, fa, as, output_file);
@@ -446,6 +435,13 @@ static void malheur_cluster()
 {
     assign_t *as;
     farray_t *fa, *pr, *pn, *re;
+    const char *state_dir, *output_file;
+    char proto_file[512], reject_file[512];
+
+    config_lookup_string(&cfg, "generic.output_file", &output_file);
+    config_lookup_string(&cfg, "generic.state_dir", &state_dir);
+    snprintf(proto_file, 512, "%s/%s", state_dir, PROTO_FILE);
+    snprintf(reject_file, 512, "%s/%s", state_dir, REJECT_FILE);
 
     /* Load data */
     fa = malheur_load();
@@ -461,13 +457,13 @@ static void malheur_cluster()
     /* Save prototypes */
     pn = cluster_get_prototypes(c, as, pr);
     if (save)
-        farray_save_file(pn, mcfg.proto_file);
+        farray_save_file(pn, proto_file);
     farray_destroy(pn);
 
     /* Save rejected feature vectors */
     re = cluster_get_rejected(c, fa);
     if (save)
-        farray_save_file(re, mcfg.reject_file);
+        farray_save_file(re, reject_file);
     farray_destroy(re);
 
     /* Export clustering */
@@ -490,16 +486,23 @@ static void malheur_classify()
 {
     assign_t *as;
     farray_t *fa, *pr, *re;
+    const char *state_dir, *output_file;
+    char proto_file[512], reject_file[512];
+
+    config_lookup_string(&cfg, "generic.output_file", &output_file);
+    config_lookup_string(&cfg, "generic.state_dir", &state_dir);
+    snprintf(proto_file, 512, "%s/%s", state_dir, PROTO_FILE);
+    snprintf(reject_file, 512, "%s/%s", state_dir, REJECT_FILE);
 
     /* Check for prototype file */
-    if (access(mcfg.proto_file, R_OK))
+    if (access(proto_file, R_OK))
         fatal("No prototype file for classifcation available");
 
     /* Load data */
     fa = malheur_load();
 
     /* Load prototypes */
-    pr = farray_load_file(mcfg.proto_file);
+    pr = farray_load_file(proto_file);
 
     /* Apply classification */
     as = class_assign(fa, pr);
@@ -507,7 +510,7 @@ static void malheur_classify()
     /* Save rejected feature vectors */
     re = class_get_rejected(as, fa);
     if (save)
-        farray_save_file(re, mcfg.reject_file);
+        farray_save_file(re, reject_file);
     farray_destroy(re);
 
     /* Export classification */
@@ -526,20 +529,27 @@ static void malheur_increment()
 {
     farray_t *pr = NULL, *tmp, *pn, *re;
     assign_t *as;
+    const char *state_dir, *output_file;
+    char proto_file[512], reject_file[512];
+
+    config_lookup_string(&cfg, "generic.output_file", &output_file);
+    config_lookup_string(&cfg, "generic.state_dir", &state_dir);
+    snprintf(proto_file, 512, "%s/%s", state_dir, PROTO_FILE);
+    snprintf(reject_file, 512, "%s/%s", state_dir, REJECT_FILE);
 
     /* Load internal state */
     malheur_load_state();
 
     /* Load data including rejected stuff */
     farray_t *fa = malheur_load();
-    if (!access(mcfg.reject_file, F_OK)) {
-        tmp = farray_load_file(mcfg.reject_file);
+    if (!access(reject_file, F_OK)) {
+        tmp = farray_load_file(reject_file);
         fa = farray_merge(fa, tmp);
     }
 
     /* Classification */
-    if (!access(mcfg.proto_file, R_OK)) {
-        pr = farray_load_file(mcfg.proto_file);
+    if (!access(proto_file, R_OK)) {
+        pr = farray_load_file(proto_file);
 
         /* Apply classification */
         as = class_assign(fa, pr);
@@ -569,12 +579,12 @@ static void malheur_increment()
     /* Save prototypes vectors */
     pn = cluster_get_prototypes(c, as, pr);
     if (save)
-        farray_append_file(pn, mcfg.proto_file);
+        farray_append_file(pn, proto_file);
 
     /* Save rejeted feature vectors */
     re = cluster_get_rejected(c, fa);
     if (save)
-        farray_save_file(re, mcfg.reject_file);
+        farray_save_file(re, reject_file);
 
     /* Update state */
     mstate.run++;
@@ -603,13 +613,19 @@ static void malheur_increment()
  */
 static void malheur_info()
 {
+    const char *state_dir;
+    char state_file[512];
+
+    config_lookup_string(&cfg, "generic.state_dir", &state_dir);
+    snprintf(state_file, 512, "%s/%s", state_dir, STATE_FILE);
+
     /* Load internal state */
     if (!malheur_load_state()) {
-        printf("No internal state stored in %s\n", malheur_dir);
+        printf("No internal state stored in %s\n", state_dir);
         return;
     }
 
-    printf("Internal state from %s\n", mcfg.state_file);
+    printf("Internal state from %s\n", state_file);
     printf("       Malheur run: %u\n", mstate.run);
     printf(" Stored prototypes: %u\n", mstate.num_proto);
     printf("  Rejected reports: %u\n", mstate.num_reject);
@@ -621,6 +637,9 @@ static void malheur_info()
  */
 static void malheur_distance()
 {
+    const char *output_file;
+    config_lookup_string(&cfg, "generic.output_file", &output_file);
+
     /* Load data */
     farray_t *fa = malheur_load();
 
@@ -646,13 +665,19 @@ static void malheur_distance()
 static void malheur_protodist()
 {
     farray_t *pr;
+    const char *state_dir, *output_file;
+    char proto_file[512];
+
+    config_lookup_string(&cfg, "generic.output_file", &output_file);
+    config_lookup_string(&cfg, "generic.state_dir", &state_dir);
+    snprintf(proto_file, 512, "%s/%s", state_dir, PROTO_FILE);
 
     /* Check for prototype file */
-    if (access(mcfg.proto_file, R_OK))
+    if (access(proto_file, R_OK))
         fatal("No prototype file for classifcation available");
 
     /* Load prototypes */
-    pr = farray_load_file(mcfg.proto_file);
+    pr = farray_load_file(proto_file);
     if (verbose > 1)
         farray_print(pr);
 
@@ -694,7 +719,10 @@ static void malheur_exit()
  */
 int main(int argc, char **argv)
 {
-    malheur_init(argc, argv);
+
+    malheur_load_config(argc, argv);
+    malheur_parse_options(argc, argv);
+    malheur_init();
 
     /* Perform action */
     switch (action) {

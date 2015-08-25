@@ -36,6 +36,8 @@ static config_default_t defaults[] = {
     /* Input */
     {G, "input_format", CONFIG_TYPE_STRING, {.str = "text"}},
     {G, "event_delim", CONFIG_TYPE_STRING, {.str = "%0a%0d"}},
+    {G, "state_dir", CONFIG_TYPE_STRING, {.str = "malheur.state"}},
+    {G, "output_file", CONFIG_TYPE_STRING, {.str = "malheur.out"}},
 
     /* Features */
     {F, "ngram_len", CONFIG_TYPE_INT, {.num = 2}},

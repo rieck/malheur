@@ -6,7 +6,7 @@ B<malheur> - Automatic analysis of malware behavior
 
 =head1 SYNOPSIS
 
-B<malheur> [B<-hrvV>] [B<-m> I<maldir>] [B<-o> I<outfile>] [B<-d> I<dumpfile>] I<action> I<dataset>
+B<malheur> [B<options>] I<action> I<dataset> [I<dataset> ...]
 
 =head1 DESCRIPTION
 
@@ -81,16 +81,6 @@ report are expected to be in sequential order if n-grams with S<n
 E<gt> 1> are extracted. If the behavior is represented using the
 malware instruction set (MIST) further options may be selected.
 
-The result of an analysis is written to I<outfile>, a textual file
-containing columns corresponding to particular analysis results.  By
-default I<outfile> is set to F<malheur.out>.
-
-The configuration and internal state of B<malheur> are stored in the
-directory I<maldir>. If this directory does not exist, it is created
-and the system wide configuration is copied. A detailed description of
-the malheur configuration is provided in L<"CONFIGURATION">. By
-default I<maldir> is set to F<~/.malheur>.
-
 =head1 ACTIONS & OPTIONS
 
 B<malheur> supported different I<actions> for analysis of a
@@ -143,7 +133,7 @@ analysis> of the reports. The reports are first classified to known
 clusters as in the action I<classify>. Reports rejected from
 classification are then clustered as in the action I<cluster>. The
 prototypes of the accepted clusters and the rejected reports are
-written to the internal state of B<malheur> for further incremental
+written to the internal state in <statedir> for further incremental
 analysis. The classification and clustering of I<dataset> are written
 to I<outfile>.
 
@@ -158,56 +148,13 @@ beforehand.  The distance matrix is written to I<outfile>.
 
 =back
 
-B<malheur> also supports the following command-line I<options> which
-are used to further control the analysis process
-
-=over 14
-
-=item B<-m> I<maldir>
-
-This option specifies the malheur directory I<maldir> which holds the
-configuration and internal state of B<malheur>. If the directory does
-not exist, it is created and the system wide configuration is copied.
-
-=item B<-o> I<outfile>
-
-This option specifies the output file I<outfile> for analysis. The
-file is created during analysis and the results are stored in textual
-form.
-
-=item B<-d> I<dumpfile>
-
-If this option is set, B<malheur> dumps the extracted feature vectors to
-I<dumpfile> in libsvm format.  Note that the output is not fully compatible
-with all libsvm loaders and might need some manual refinement.
-
-=item B<-r>
-
-This option resets the internal state of B<malheur>. Prototypes of
-clusters and rejected reports from previous runs of B<malheur> are
-removed.
-
-=item B<-v>
-
-This option is used to increase the verbosity of B<malheur> during
-analysis, where the verbosity level corresponds to the number 
-of "-v" options.
-
-=item B<-h>
-
-This option prints a brief help screen.
-
-=item B<-V>
-
-This option prints a version and copyright string.
-
-=back
-
 =head1 CONFIGURATION
 
-The configuration file F<malheur.cfg> in I<maldir> determines how the
-malware behavior in a data set is analysis. The configuration contains
-five groups of settings which are described in the following.
+The configuration of harry is provided by a configuration file.  This file
+is structured into the five sections B<generic>, B<features>, B<prototypes>,
+B<classify> and B<cluster>.  If no configuration file is provided, B<malheur>
+resorts to a default configuration.  This default configuration can be
+printed using the command-line option -D (see OPTIONS).
 
 =over 4
 
@@ -229,6 +176,17 @@ hexadecimal numbers prefixed by "%". If no characters are specified,
 the reports are analyzed at byte-level, as if each byte would reflect
 one event.
 
+=item B<state_dir = "m-state";>
+
+B<malheur> keeps track of its internal state in the directory B<state_dir>. 
+The directory comprises different files, including compressed archives of
+extract prototypes and currently rejected feature vectores.
+
+=item B<output_file = "m-output.txt";>
+
+The output of B<malheur> is written to the file B<output_file>.  The ouput
+is provided in a simple text-based format that can be easily processed with
+other analysis tools.
 
 =back
 
@@ -363,28 +321,12 @@ prototype.
 
 =over 4
 
-=item F</etc/malheur.cfg> 
+=item F<PREFIX/share/doc/malheur/example.cfg>
 
-The system wide configuration file of B<malheur>. See
-L<"CONFIGURATION"> for further details.
-
-=item F<~/.malheur/malheur.cfg>
-
-Per user configuration file of B<malheur>.  See L<"CONFIGURATION"> for
-further details. If this file does not exist, it is automatically
-created using the system wide configuration as template.
-
-=item F<~/.malheur/prototypes.zfa>
-
-=item F<~/.malheur/rejected.zfa>
-
-Internal state files of B<malheur> containing compressed feature
-vector array (zfa) of B<prototypes> and B<rejected reports>. The
-feature vectors are used for classification and incremental
-analysis. See L<"ACTIONS & OPTIONS"> for further details.
+An example configuration file for B<malheur>. See the configuration
+section for further details.
 
 =back
-
 
 =head1 EXAMPLES
 
@@ -409,7 +351,7 @@ reports is tedious and annoying. The second example illustrates how
 prototypical reports are extracted from the dataset
 F<dataset.zip>. The prototypes are written to the file F<out.txt>.
 
-    malheur -o out.txt -v prototype dataset.zip
+    malheur -n -o out.txt -v prototype dataset.zip
 
 From all the reports of program behavior, a small subset is selected
 which is representative for the full data set. The elements of this
@@ -423,8 +365,8 @@ sets, F<dataset1.zip> and F<dataset2.zip>. The clustering and
 classification results are written to F<out1.txt> and F<out2.txt>
 respectively.
 
-    malheur -o out1.txt -v cluster dataset1.zip 
-    malheur -o out2.txt -v classify dataset2.zip
+    malheur -s /tmp/state -o out1.txt -v cluster dataset1.zip 
+    malheur -s /tmp/state -o out2.txt -v classify dataset2.zip
 
 First, reports in the archive F<dataset1.zip> are clustered into
 groups of similar behavior. The groups can be used to discover novel
@@ -442,35 +384,19 @@ namely F<dataset1.zip>, F<dataset2.zip> and F<dataset3.zip>. Results
 of this analysis are written to the files F<out1.txt>, F<out2.txt> and
 F<out3.txt>.
 
-    malheur -o out1.txt -v -r increment dataset1.zip
-    malheur -o out2.txt -v increment dataset2.zip
-    malheur -o out3.txt -v increment dataset2.zip
+    malheur -s /tmp/state -o out1.txt -v -r increment dataset1.zip
+    malheur -s /tmp/state -o out2.txt -v increment dataset2.zip
+    malheur -s /tmp/state -o out3.txt -v increment dataset2.zip
 
-First, the archive F<dataset1.zip> is processed using incremental
-analysis. The extra option B<-r> is used to reset the internal state
-of Malheur, such that results from previous incremental runs are
-discarded. Then, the files F<dataset2.zip> and F<dataset3.zip> are
-analyzed where for each archive first known behavior is identified
-using classification and novel groups of malware are discovered using
-clustering. The intermediate results for each archive are stored in
-the Malheur home directory, by default F<~/.malheur>. The incremental
-analysis allows to process large data sets efficiently, where run-time
-and memory requirements are significantly reduced in comparison to
-batch analysis.
-
-B<Debugging.> The reports of malware behavior are embedded in a vector
-space where each report is represented by a sparse feature vector. To
-understand this representation and trace down problems, a lookup table
-can be enabled in the features setting of F<malheur.cfg>.
-
-    malheur -o /dev/null -vvv prototype dataset.zip
-
-The above command extracts prototypes from the provided data
-set. However, it also present a lot of verbose information on the
-reports and extracted prototypes. In particular, for each prototype
-the corresponding feature vector is displayed. If the lookup table is
-enabled, the dimensions of this vector are printed with respective
-instruction n-grams (substrings composed of n instructions).
+First, the archive F<dataset1.zip> is processed using incremental analysis. 
+The extra option B<-r> is used to reset the internal state of Malheur, such
+that results from previous incremental runs are discarded.  Then, the files
+F<dataset2.zip> and F<dataset3.zip> are analyzed where for each archive
+first known behavior is identified using classification and novel groups of
+malware are discovered using clustering.  The intermediate results for each
+archive are stored in the directory F</tmp/state>.  The incremental analysis
+allows to process large data sets efficiently, where run-time and memory
+requirements are significantly reduced in comparison to batch analysis.
 
 =head1 BUGS
 
@@ -479,7 +405,7 @@ non-printable characters may be contained in the report files, no
 occurrences of the NUL character (0x00) are allowed. The behavior of
 B<malheur> is undefined in this case.
 
-The vectorial analysis underlying B<malheur> does not handle null
+The vectorial analysis underlying B<malheur> does not handle zero
 vectors, as they can not be scaled to a fixed norm. Consequently,
 empty files are discarded during extraction of feature vectors.
 

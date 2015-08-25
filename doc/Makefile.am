@@ -3,10 +3,10 @@
 # University of Goettingen, Berlin Institute of Technology
 #
 
-EXTRA_DIST = malheur.cfg malheur.pod malheur.man malheur.txt malheur.pdf \
+EXTRA_DIST = example.cfg malheur.pod malheur.man malheur.txt malheur.pdf \
              doxygen.cfg modules latex-pre.inc.in latex-post.inc
 
-sysconf_DATA = malheur.cfg
+doc_DATA = example.cfg
 man1_MANS = malheur.man 
 
 malheur.man: malheur.pod

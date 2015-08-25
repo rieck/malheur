@@ -40,8 +40,8 @@ typedef struct
 } config_default_t;
 
 /* Functions */
-void config_print(config_t *cfg);
-void config_check(config_t *cfg);
-void config_fprint(FILE *, config_t *cfg);
+void config_print(config_t *);
+int config_check(config_t *);
+void config_fprint(FILE *, config_t *);
 
 #endif

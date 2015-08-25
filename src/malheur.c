@@ -192,9 +192,6 @@ static void parse_options(int argc, char **argv)
         }
     }
 
-    /* Check configuration */
-    config_check(&cfg);
-
     argc -= optind;
     argv += optind;
 
@@ -226,6 +223,11 @@ static void parse_options(int argc, char **argv)
     /* Assign input files */
     input_files = argv + 1;
     input_len = argc - 1;
+    
+    /* Check configuration */
+    if (!config_check(&cfg)) {
+        exit(EXIT_FAILURE);
+    }
 }
 
 /**
@@ -278,8 +280,12 @@ static void load_config(int argc, char **argv)
         fatal("Could not read configuration (%s in line %d)",
               config_error_text(&cfg), config_error_line(&cfg));
 
-    /* Check configuration */
-    config_check(&cfg);
+
+    /* Check configuration and set defaults */
+    if (!config_check(&cfg)) {
+        exit(EXIT_FAILURE);
+    }
+
     if (verbose > 1)
         config_print(&cfg);
 }

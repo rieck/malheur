@@ -19,6 +19,7 @@
  * @{
  */
 
+#include "config.h"
 #include "common.h"
 #include "util.h"
 #include "mconfig.h"
@@ -75,8 +76,8 @@ static void config_setting_fprint(FILE *f, config_setting_t * cs, int d)
     assert(cs && d >= 0);
 
     int i;
-    for (i = 0; i < d; i++)
-        fprintf(f, "  ");
+    for (i = 0; i < d - 1; i++)
+        fprintf(f, "       ");
 
     char *n = config_setting_name(cs);
 
@@ -89,9 +90,9 @@ static void config_setting_fprint(FILE *f, config_setting_t * cs, int d)
             config_setting_fprint(f, config_setting_get_elem(cs, i), d + 1);
 
         if (d > 0) {
-            for (i = 0; i < d; i++)
-                fprintf(f, "  ");
-            fprintf(f, "};\n");
+            for (i = 0; i < d - 1; i++)
+                fprintf(f, "       ");
+            fprintf(f, "};\n\n");
         }
         break;
     case CONFIG_TYPE_STRING:
@@ -101,96 +102,150 @@ static void config_setting_fprint(FILE *f, config_setting_t * cs, int d)
         fprintf(f, "%s\t= %7.5f;\n", n, config_setting_get_float(cs));
         break;
     case CONFIG_TYPE_INT:
-        fprintf(f, "%s\t= %d;\n", n, config_setting_get_int(cs));
+        fprintf(f, "%s\t= %ld;\n", n, (long) config_setting_get_int(cs));
+        break;
+    case CONFIG_TYPE_BOOL:
+        fprintf(f, "%s\t= %s;\n", n, config_setting_get_bool(cs)
+                ? "true" : "false");
         break;
     default:
         error("Unsupported type for configuration setting '%s'", n);
+        break;
     }
 }
 
 /**
- * Print the Malheur configuration.
+ * Print the configuration.
  * @param cfg configuration
  */
-void config_print(config_t *cfg)
+void config_print(config_t * cfg)
 {
-    printf("Malheur configuration\n");
     config_setting_fprint(stdout, config_root_setting(cfg), 0);
 }
 
 /**
- * Print the Malheur configuration to a file.
+ * Print the configuration to a file.
  * @param f pointer to file stream
  * @param cfg configuration
  */
-void config_fprint(FILE *f, config_t *cfg)
+void config_fprint(FILE *f, config_t * cfg)
 {
     config_setting_fprint(f, config_root_setting(cfg), 0);
 }
 
 /**
- * Checks if the configuration is valid. The function checks if all
- * required parameters are set and adds default values if necessary.
+ * The functions add default values to unspecified parameters.
  * @param cfg configuration
  */
-void config_check(config_t *cfg)
+static void config_default(config_t * cfg)
 {
-    int i, j;
+    int i, b;
+    cfg_int j;
     const char *s;
     double f;
-    config_setting_t *cs, *vs;
+    config_setting_t *cs = NULL, *vs;
+    char *token, *string, *tofree;
 
     for (i = 0; defaults[i].name; i++) {
-        /* Lookup setting group */
-        cs = config_lookup(cfg, defaults[i].group);
-        if (!cs)
-            cs = config_setting_add(config_root_setting(cfg),
-                                    defaults[i].group, CONFIG_TYPE_GROUP);
+        /* Lookup and create setting group */
+        tofree = string = strdup(defaults[i].group);
+        vs = config_root_setting(cfg);
+        while ((token = strsep(&string, ".")) != NULL) {
+            cs = config_setting_get_member(vs, token);
+            if (!cs)
+                cs = config_setting_add(vs, token, CONFIG_TYPE_GROUP);
+            vs = cs;
+        }
+        free(tofree);
 
-        /* (1) Check for string */
-        if (defaults[i].type == CONFIG_TYPE_STRING) {
+        switch (defaults[i].type) {
+        case CONFIG_TYPE_STRING:
             if (config_setting_lookup_string(cs, defaults[i].name, &s))
                 continue;
 
             /* Add default value */
+            config_setting_remove(cs, defaults[i].name);
             vs = config_setting_add(cs, defaults[i].name, CONFIG_TYPE_STRING);
             config_setting_set_string(vs, defaults[i].val.str);
-        /* (2) Check for float */
-        } else if (defaults[i].type == CONFIG_TYPE_FLOAT) {
+            break;
+        case CONFIG_TYPE_FLOAT:
             if (config_setting_lookup_float(cs, defaults[i].name, &f))
                 continue;
 
             /* Check for mis-interpreted integer */
             if (config_setting_lookup_int(cs, defaults[i].name, &j)) {
                 config_setting_remove(cs, defaults[i].name);
-                vs = config_setting_add(cs, defaults[i].name, CONFIG_TYPE_FLOAT);
+                vs = config_setting_add(cs, defaults[i].name,
+                                        CONFIG_TYPE_FLOAT);
                 config_setting_set_float(vs, (double) j);
                 continue;
             }
 
             /* Add default value */
+            config_setting_remove(cs, defaults[i].name);
             vs = config_setting_add(cs, defaults[i].name, CONFIG_TYPE_FLOAT);
             config_setting_set_float(vs, defaults[i].val.flt);
-        /* (3) Check for integer */
-        } else if (defaults[i].type == CONFIG_TYPE_INT) {
+            break;
+        case CONFIG_TYPE_INT:
             if (config_setting_lookup_int(cs, defaults[i].name, &j))
                 continue;
 
             /* Check for mis-interpreted float */
             if (config_setting_lookup_float(cs, defaults[i].name, &f)) {
                 config_setting_remove(cs, defaults[i].name);
-                vs = config_setting_add(cs, defaults[i].name, CONFIG_TYPE_INT);
+                vs = config_setting_add(cs, defaults[i].name,
+                                        CONFIG_TYPE_INT);
                 config_setting_set_int(vs, (long) round(f));
                 continue;
             }
 
             /* Add default value */
+            config_setting_remove(cs, defaults[i].name);
             vs = config_setting_add(cs, defaults[i].name, CONFIG_TYPE_INT);
             config_setting_set_int(vs, defaults[i].val.num);
-        } else {
-            error("Unknown configuration type");
+            break;
+        case CONFIG_TYPE_BOOL:
+            if (config_setting_lookup_bool(cs, defaults[i].name, &b))
+                continue;
+
+            /* Check for mis-interpreted integer */
+            if (config_setting_lookup_int(cs, defaults[i].name, &j)) {
+                config_setting_remove(cs, defaults[i].name);
+                vs = config_setting_add(cs, defaults[i].name,
+                                        CONFIG_TYPE_BOOL);
+                config_setting_set_bool(vs,
+                                        j == 0 ? CONFIG_FALSE : CONFIG_TRUE);
+                continue;
+            }
+
+            /* Add default value */
+            config_setting_remove(cs, defaults[i].name);
+            vs = config_setting_add(cs, defaults[i].name, CONFIG_TYPE_BOOL);
+            config_setting_set_bool(vs, defaults[i].val.num);
+            break;
+
         }
     }
+}
+
+/**
+ * Checks if the configuration is valid and sane.
+ * @return 1 if config is valid, 0 otherwise
+ */
+int config_check(config_t * cfg)
+{
+    int num;
+
+    /* Add default values where missing */
+    config_default(cfg);
+
+    config_lookup_int(cfg, "features.ngram_len", &num);
+    if (num < 1) {
+        error("N-gram length needs to be > 0");
+	return FALSE;
+    }
+
+    return TRUE;
 }
 
 /** @} */

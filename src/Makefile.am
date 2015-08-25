@@ -12,7 +12,7 @@ libmalheur_a_SOURCES	= md5.c md5.h common.h util.c util.h fvec.c \
                           farray.c farray.h proto.c proto.h mconfig.c \
                           mconfig.h cluster.c cluster.h quality.c \
                           quality.h class.c class.h uthash.h \
-                          murmur.c murmur.h
+                          murmur.c murmur.h state.c state.h
 
 bin_PROGRAMS            = malheur 
 malheur_SOURCES    	= $(libmalheur_a_SOURCES) malheur.c

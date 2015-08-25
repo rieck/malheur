@@ -226,6 +226,14 @@ This parameter specifies the input format. Supported values are "text"
 for textual and XML reports, and "mist" for reports using the malware
 instruction set (MIST).
 
+=item B<event_delim = "%0a%0d";>
+
+This parameter defines characters for delimiting events in report
+files. The characters can be either specified as regular bytes or as
+hexadecimal numbers prefixed by "%". If no characters are specified,
+the reports are analyzed at byte-level, as if each byte would reflect
+one event.
+
 =item B<mist_level = 2;>
 
 This parameter specifies the MIST level. If the input format is set to
@@ -254,13 +262,6 @@ ignored in all cases.
 
 =over 4
 
-=item B<ngram_delim = "%0a%0d";>
-
-This parameter defines characters for delimiting events in report
-files. The characters can be either specified as regular bytes or as
-hexadecimal numbers prefixed by "%". If no characters are specified,
-the reports are analyzed at byte-level, as if each byte would reflect
-one event.
 
 =item B<ngram_len = 2;>
 

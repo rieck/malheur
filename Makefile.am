@@ -4,7 +4,7 @@
 # --
 
 AUTOMAKE_OPTIONS = foreign
-SUBDIRS = src doc matlab tests .
+SUBDIRS = src doc tests .
 ACLOCAL_AMFLAGS = -I m4
 EXTRA_DIST = README.md INSTALL COPYING CHANGES
 

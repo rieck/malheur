@@ -194,13 +194,13 @@ hexadecimal numbers prefixed by "%". If no characters are specified,
 the reports are analyzed at byte-level, as if each byte would reflect
 one event.
 
-=item B<state_dir = "m-state";>
+=item B<state_dir = "/var/tmp/malheur";>
 
 B<malheur> keeps track of its internal state in the directory B<state_dir>. 
 The directory comprises different files, including compressed archives of
 extract prototypes and currently rejected feature vectores.
 
-=item B<output_file = "m-output.txt";>
+=item B<output_file = "malheur.out";>
 
 The output of B<malheur> is written to the file B<output_file>.  The ouput
 is provided in a simple text-based format that can be easily processed with

@@ -120,20 +120,6 @@ By default Malheur is installed into /usr/local. If you prefer
 a different location, use this option to select an installation
 directory.
 
-    --enable-openmp         Enable support for OpenMP (experimental)
-    
-This option enables support for OpenMP in Malheur. Several
-functions of the malware analysis have been enhanced using
-OpenMP directives, such that they execute in parallel and
-benefit from multi-core architectures.
-
-    --enable-matlab         Enable optional Matlab tools
-    --with-matlab-dir=PATH  Set directory prefix of matlab installation
-
-Some functions of Malheur are also available in form of Matlab
-.mex files which allows for using implemented analysis
-methods directly from within a Matlab environment.
-
 License
 --
 

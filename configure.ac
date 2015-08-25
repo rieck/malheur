@@ -1,26 +1,27 @@
 # MALHEUR - Automatic Analysis of Malware Behavior
-# Copyright (c) 2009-2012 Konrad Rieck (konrad@mlsec.org)          
+# Copyright (c) 2009-2015 Konrad Rieck (konrad@mlsec.org)
 # University of Goettingen, Berlin Institute of Technology
 #
- 
+
 # Malheur version
-AC_INIT([malheur], [0.5.4], [konrad@mlsec.org])
+AC_INIT([malheur], [0.6.0], [konrad@mlsec.org])
 AC_PREFIX_DEFAULT("/usr/local")
 
 # Defines (suitable for loading and saving versioned files)
 AC_DEFINE(MALHEUR_MAJOR, 0, Major version number)
-AC_DEFINE(MALHEUR_MINOR, 5, Minor version number)
-AC_DEFINE(MALHEUR_PATCH, 4, Patch version number)
-AC_CONFIG_HEADER([config.h])
+AC_DEFINE(MALHEUR_MINOR, 6, Minor version number)
+AC_DEFINE(MALHEUR_PATCH, 0, Patch version number)
+
 
 echo
 echo " > MALHEUR - Automatic Analysis of Malware Behavior"
-echo "   Copyright (c) 2009-2013 Konrad Rieck (konrad@mlsec.org)"
+echo "   Copyright (c) 2009-2015 Konrad Rieck (konrad@mlsec.org)"
 echo "   University of Goettingen, Berlin Institute of Technology"
 echo
 
-# Init automake 
+# Init automake
 AM_INIT_AUTOMAKE
+AC_CONFIG_HEADER([config.h])
 
 # Check for important programs
 AC_PROG_CC
@@ -31,140 +32,101 @@ AC_PROG_INSTALL
 AC_CONFIG_MACRO_DIR(m4)
 AC_PROG_LIBTOOL
 
+# By default remove assert statements
+CFLAGS="$CFLAGS -DNDEBUG"
+
 # Set GCC and C99 flags if present
 if test "$GCC" = "yes" ; then
-   CFLAGS="$CFLAGS -std=c99 -Wall -fPIC"
+   CFLAGS="$CFLAGS -std=c99 -fgnu89-inline -Wall -fPIC"
 fi
 
-AC_ARG_ENABLE(openmp, 
-    [  --enable-openmp         enable support for OpenMP (experimental) ],
-    [ 
-	if test "x$enableval" = "xyes" ; then
-		MALHEUR_OPENMP=yes
-		AC_DEFINE(MALHEUR_OPENMP, 1, [Enable support for OpenMP (experimental)])
-        else
-		MALHEUR_OPENMP=no
-        fi
-    ], [ MALHEUR_OPENMP=no ]
-)
+# Optional packages
+AC_ARG_WITH([libarchive], [AS_HELP_STRING([--with-libarchive],
+            [support for reading archives @<:@default=check@:>@])],
+            [], [with_libarchive=check])
+AC_ARG_WITH([openmp], [AS_HELP_STRING([--with-openmp],
+            [support for multi-processing @<:@default=check@:>@])],
+            [], [with_openmp=check])
 
-# OpenMP support
-AX_OPENMP([
-   HAVE_OPENMP=yes
-   AC_DEFINE(HAVE_OPENMP, 1, [Enable OpenMP support])
-],[
-   HAVE_OPENMP=no
-])
 
-if test "x$MALHEUR_OPENMP" = "xyes" ; then
-   if test "x$HAVE_OPENMP" = "xno" ; then
-      AC_MSG_ERROR([OpenMP support enabled but OpenMP not available])
-   fi
-   CFLAGS="$CFLAGS $OPENMP_CFLAGS"
-fi 
-
-# uthash
-AC_CHECK_HEADERS([uthash.h uthash/uthash.h], HEADER_UTHASH="yes")
-#if test "x$HEADER_UTHASH" = "x" ; then
-#    AC_MSG_ERROR([The header uthash.h is required for compilation])
-#fi
-
-# libconfig
-PKG_CHECK_MODULES([PKGCONFIG], [libconfig >= 1.4])
-CFLAGS="$CFLAGS $PKGCONFIG_CFLAGS"
-LIBS="$LIBS $PKGCONFIG_LIBS"
-AM_CPPFLAGS="$AM_CPPFLAGS `pkg-config --cflags-only-I libconfig`"
-AC_CHECK_HEADERS([libconfig.h], HEADER_LIBCONFIG="yes")
-
-# libm
-AC_CHECK_HEADERS([math.h], HEADER_MATH="yes")
-AC_CHECK_LIB([m], pow, LIBRARY_MATH="yes")
-if test "x$LIBRARY_MATH" != "x" && test "x$HEADER_MATH" != "x" ; then
-    LIBS="-lm $LIBS"    
-else
-    AC_MSG_ERROR([The library libm is required for compilation])
-fi
-
-# libz 
+# Check for zlib (required)
 AC_CHECK_HEADERS([zlib.h], HEADER_ZLIB="yes")
 AC_CHECK_LIB([z], gzopen, LIBRARY_ZLIB="yes")
 if test "x$LIBRARY_ZLIB" != "x" && test "x$HEADER_ZLIB" != "x" ; then
-    LIBS="-lz $LIBS"    
+    LIBS="-lz $LIBS"
+    AC_DEFINE([HAVE_ZLIB], [1], [Define if you have zlib])
+    HAVE_ZLIB=yes
 else
-    AC_MSG_ERROR([The library libz is required for compilation])
+    HAVE_ZLIB=no
+    AC_MSG_FAILURE([libz not found. see README.md])
 fi
 
-# libarchive
+# Check for libarchive (optional)
 AC_CHECK_HEADERS([archive.h], HEADER_LIBARCHIVE="yes")
 AC_CHECK_LIB([archive], archive_read_new, LIBRARY_LIBARCHIVE="yes")
-if test "x$LIBRARY_LIBARCHIVE" != "x" && test "x$HEADER_LIBARCHIVE" != "x" ; then
-    LIBS="-larchive $LIBS"    
+if test "x$LIBRARY_LIBARCHIVE" != "x" && \
+   test "x$HEADER_LIBARCHIVE" != "x" && \
+   test "x$with_libarchive" != "xno" ; then
+    AC_DEFINE([HAVE_LIBARCHIVE], [1], [Define if you have libarchive])
+    LIBS="-larchive $LIBS"
+    HAVE_LIBARCHIVE=yes
 else
-    AC_MSG_ERROR([The library libarchive is required for compilation])
+    HAVE_LIBARCHIVE=no
+    if test "x$with_libarchive" == "xyes" ; then
+        AC_MSG_FAILURE([libarchive not found. see README.md])
+    fi
 fi
 
+# Check for libconfig (required)
+AC_CHECK_HEADERS([libconfig.h], HEADER_LIBCONFIG="yes")
+PKG_CHECK_MODULES([PKGCONFIG], [libconfig >= 1.3.2], LIBRARY_LIBCONFIG="yes")
+if test "x$LIBRARY_LIBCONFIG" != "x" && \
+   test "x$HEADER_LIBCONFIG" != "x" ; then
+    CFLAGS="$CFLAGS $PKGCONFIG_CFLAGS"
+    LIBS="$LIBS $PKGCONFIG_LIBS"
+    AM_CPPFLAGS="$AM_CPPFLAGS `pkg-config --cflags-only-I libconfig`"
+    HAVE_LIBCONFIG=yes
+    AC_DEFINE([HAVE_LIBCONFIG], [1], [Define if you have libconfig])
+else
+    HAVE_LIBCONFIG=no
+    AC_MSG_FAILURE([libconfig not found. see README.md])
+fi
+
+# Check for OpenMP (optional)
+AC_CHECK_HEADERS([omp.h], HEADER_OPENMP="yes")
+AX_OPENMP(LIBRARY_OPENMP="yes")
+if test "x$LIBRARY_OPENMP" != "x" && \
+   test "x$HEADER_OPENMP" != "x" && \
+   test "x$with_openmp" != "xno" ; then
+    CFLAGS="$CFLAGS $OPENMP_CFLAGS"
+    HAVE_OPENMP=yes
+    AC_DEFINE([HAVE_OPENMP], [1], [Define if you have OpenMP])
+else
+    HAVE_OPENMP=no
+    if test "x$with_openmp" == "xyes" ; then
+        AC_MSG_FAILURE([no openmp support. see README.md])
+    fi
+fi
 
 # Check headers
 AC_CHECK_HEADERS([getopt.h string.h strings.h])
+AC_CHECK_HEADERS([uthash.h uthash/uthash.h], HEADER_UTHASH="yes")
 
 # Check functions
-AC_CHECK_FUNC(round, AC_DEFINE(HAVE_FUNC_ROUND, 1, 
+AC_CHECK_FUNC(round, AC_DEFINE(HAVE_FUNC_ROUND, 1,
        [Define to 1 if you have the function round]))
-AC_CHECK_FUNC(log2, AC_DEFINE(HAVE_FUNC_LOG2, 1, 
+AC_CHECK_FUNC(log2, AC_DEFINE(HAVE_FUNC_LOG2, 1,
        [Define to 1 if you have the function log2]))
 
-# Check matlab support
-AC_ARG_ENABLE(matlab,
-    [  --enable-matlab         enable optional Matlab tools],
-    [ 
-        if test "x$enableval" = "xyes" ; then
-                MATLAB_TOOLS=yes
-        else
-                MATLAB_TOOLS=no
-        fi
-    ], [ MATLAB_TOOLS=no ]
-)
-if test $MATLAB_TOOLS = yes ; then
-   AX_MATLAB   
-   AX_MATLAB_ARCH
-   AX_MATLAB_VERSION
-   AX_MATLAB_DIR
-   AX_MEX_OPTIONS
-   AX_PATH_MEX
-   AX_MEXEXT
-   if test x$ax_enable_matlab = xyes ; then
-      HAVE_MATLAB="yes"
-   else
-      HAVE_MATLAB="no"
-   fi
-fi
-
-if test "x$MATLAB_TOOLS" = "xyes" && test "x$HAVE_MATLAB" = "xno" ; then
-   AC_MSG_ERROR([Matlab tools enabled but Matlab not available])
-fi 
-AM_CONDITIONAL(MATLAB_TOOLS, test "x$MATLAB_TOOLS" = "xyes")
-
 AC_SUBST([AM_CPPFLAGS])
-AC_CONFIG_FILES([ 
+AC_CONFIG_FILES([
    Makefile \
    src/Makefile \
    doc/Makefile \
-   matlab/Makefile \
    tests/Makefile \
 ])
-
-AC_OUTPUT_COMMANDS([],[
-   MALHEUR_OPENMP=$MALHEUR_OPENMP
-])
-
 AC_OUTPUT
 
 echo
-echo " > Environment"
-echo "   CC:              '$CC'"
-echo "   CFLAGS:          '$CFLAGS'"
-echo "   LD:              '$LD'"
-echo "   LDFLAGS:         '$LDFLAGS'"
-echo " > Features"
-echo "   Matlab tools:    $MATLAB_TOOLS "
-echo "   OpenMP support:  $MALHEUR_OPENMP "
+echo " > Optional packages"
+echo "   Support for multi-processing (--with-openmp):  $HAVE_OPENMP"

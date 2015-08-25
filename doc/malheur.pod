@@ -277,13 +277,6 @@ space. Support values are "bin" for associating each dimension with a
 binary value or "cnt" for associating each dimension with a count
 value for the occurrences of features.
 
-=item B<lookup_table = 0;>
-
-This parameter is used to enable an optional feature lookup table.
-The table can be used during debugging and verbose output for tracing
-dimensions in feature vectors back to events. For performance reasons
-it should be disabled by default.
-
 =item B<hash_seed1 = 0xc0cac01a;>
 
 =item B<hash_seed2 = 0xadd511fe;>

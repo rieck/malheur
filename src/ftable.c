@@ -100,7 +100,7 @@ fentry_t *ftable_get(feat_t key)
  */
 void ftable_init()
 {
-    if (feature_table)
+    if (table_enabled)
         ftable_destroy();
 
     table_enabled = TRUE;
@@ -113,6 +113,9 @@ void ftable_init()
  */
 void ftable_destroy()
 {
+    if (!feature_table)
+        return;
+
     fentry_t *f;
 
     while (feature_table) {
@@ -152,6 +155,9 @@ void ftable_print()
 {
     fentry_t *f;
     int i;
+
+    if (!table_enabled)
+        return;
 
     printf("feature table [size: %lu, puts: %lu, colls: %lu (%g%%), %p]\n",
            ftable_size(), insertions, collisions,

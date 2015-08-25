@@ -62,7 +62,6 @@ static struct option longopts[] = {
    { "input.event_delim",      1, NULL, 1005 },
    { "features.ngram_len",     1, NULL, 1006 },
    { "features.vect_embed",    1, NULL, 1007 },
-   { "features.lookup_table",  1, NULL, 1008 },
    { "prototypes.max_dist",    1, NULL, 1009 },
    { "prototypes.max_num",     1, NULL, 1010 },
    { "classify.max_dist",      1, NULL, 1011 },
@@ -164,9 +163,6 @@ static void parse_options(int argc, char **argv)
             break;
         case 1007:
             config_set_string(&cfg, "features.vect_embed", optarg);
-            break;
-        case 1008:
-            config_set_int(&cfg, "features.lookup_table", atoi(optarg));
             break;
         case 1009:
             config_set_float(&cfg, "prototypes.max_dist", atof(optarg));
@@ -298,7 +294,6 @@ static void load_config(int argc, char **argv)
  */
 static void malheur_init(int argc, char **argv)
 {
-    int lookup;
     double shared;
 
     /* Load configuration */
@@ -314,9 +309,8 @@ static void malheur_init(int argc, char **argv)
     snprintf(mcfg.state_file, MAX_PATH_LEN, "%s/%s", malheur_dir, STATE_FILE);
 
     /* Init feature lookup table */
-    config_lookup_int(&cfg, "features.lookup_table", &lookup);
     config_lookup_float(&cfg, "cluster.shared_ngrams", &shared);
-    if (lookup || shared > 0.0) {
+    if (shared > 0.0) {
         ftable_init();
     }
 
@@ -682,15 +676,10 @@ static void malheur_protodist()
  */
 static void malheur_exit()
 {
-    int lookup;
-
     /* Destroy feature lookup table */
-    config_lookup_int(&cfg, "features.lookup_table", &lookup);
-    if (lookup) {
-        if (verbose > 0)
-            ftable_print();
-        ftable_destroy();
-    }
+    if (verbose > 0)
+        ftable_print();
+    ftable_destroy();
 
     /* Destroy configuration */
     config_destroy(&cfg);

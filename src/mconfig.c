@@ -43,7 +43,6 @@ static config_default_t defaults[] = {
     /* Features */
     {F, "ngram_len", CONFIG_TYPE_INT, { .num = 2 }},
     {F, "vect_embed", CONFIG_TYPE_STRING, { .str = "bin" }},
-    {F, "lookup_table", CONFIG_TYPE_BOOL, { .num = CONFIG_FALSE }},
     {F, "hash_seed1", CONFIG_TYPE_INT, { .num = 0x1ea4501a }},
     {F, "hash_seed2", CONFIG_TYPE_INT, { .num = 0x75f3da43 }},
 

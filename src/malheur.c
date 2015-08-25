@@ -397,6 +397,9 @@ static int malheur_load_state()
     if (access(mcfg.state_file, R_OK))
         return FALSE;
 
+    if (verbose > 0)
+        printf("Loading internal state to '%s'.\n", mcfg.state_file);
+
     f = fopen(mcfg.state_file, "r");
     if (!f) {
         error("Could not open state file '%s'.", mcfg.state_file);

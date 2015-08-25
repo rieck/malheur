@@ -344,7 +344,9 @@ static farray_t *malheur_load()
         }
 
         farray_t *f = farray_extract(input_files[i]);
-        fa = farray_merge(fa, f);
+        if (f) {
+            fa = farray_merge(fa, f);
+        }
     }
 
     if (!fa)

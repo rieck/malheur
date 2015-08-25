@@ -182,14 +182,16 @@ farray_t *farray_extract(char *path)
     if (verbose > 0)
         printf("Extracting features from '%s'.\n", path);
 
-    if (S_ISDIR(st.st_mode))
+    if (S_ISDIR(st.st_mode)) {
         fa = farray_extract_dir(path);
 #ifdef HAVE_LIBARCHIVE
-    else if (S_ISREG(st.st_mode))
+    } else if (S_ISREG(st.st_mode)) {
         fa = farray_extract_archive(path);
 #endif
-    else
+    } else {
         error("Unsupported file type of input '%s'", path);
+        return NULL;
+    }
 
     if (verbose > 0)
         printf("  Done. %lu feature vectors using %.2fMb extracted.\n",

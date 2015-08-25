@@ -15,15 +15,8 @@ libmalheur_a_SOURCES	= md5.c md5.h common.h util.c util.h fvec.c \
                           murmur.c murmur.h
 
 bin_PROGRAMS            = malheur 
-malheur_SOURCES    	= $(libmalheur_a_SOURCES) malheur.c
-malheur_DEPENDENCIES	= malheur.h
+malheur_SOURCES    	= $(libmalheur_a_SOURCES) malheur.c malheur.h
 malheur_LDFLAGS         = -static
-
-malheur.h: malheur.h.in
-	cat $(top_srcdir)/src/malheur.h.in \
-	| sed -e 's|__SYSCONFDIR__|$(sysconfdir)|' \
-	| sed -e 's|__LOCALSTATEDIR__|$(localstatedir)|' \
-        > malheur.h
          
 clean-local:
 	rm -f 		malheur.h

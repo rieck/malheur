@@ -22,28 +22,10 @@ typedef enum {
 /* Output file */
 #define OUTPUT_FILE         "malheur.out"
 
-/* Malheur directory and config */
-#define MALHEUR_DIR         "__LOCALSTATEDIR__/malheur"
-
-/* Global malheur files */
-#define GLOBAL_CONFIG_FILE  "__SYSCONFDIR__/malheur.cfg"
-
 /* Local malheur files */
 #define REJECT_FILE         "rejected.zfa"
 #define PROTO_FILE          "prototypes.zfa"
 #define STATE_FILE          "malheur.state"
-#define CONFIG_FILE         "malheur.cfg"
-
-/* Maximum length of path names. */
-#define MAX_PATH_LEN    512
-
-/* Structure for files in malheur directory */
-typedef struct {
-    char reject_file[MAX_PATH_LEN];      /* File for rejected reports */
-    char proto_file[MAX_PATH_LEN];       /* File for prototypes */ 
-    char config_file[MAX_PATH_LEN];      /* File for configuration */
-    char state_file[MAX_PATH_LEN];       /* File for internal state */
-} malheur_cfg_t;
 
 typedef struct {
     unsigned int run;                    /* Current run */

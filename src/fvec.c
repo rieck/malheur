@@ -187,7 +187,7 @@ fvec_t *fvec_extract(char *x, int l, char *s)
     /* Compute embedding and condense */
     config_lookup_string(&cfg, "features.vect_embed", &cfg_str);
     fvec_condense(fv);
-    
+
     if (!strcasecmp(cfg_str, "cnt")) {
         /* Do nothing */
     } else if (!strcasecmp(cfg_str, "bin")) {
@@ -542,7 +542,7 @@ void fvec_save(fvec_t *f, gzFile * z)
  * @param z Stream pointer
  * @param l Label for vector
  */
-void fvec_save_libsvm(fvec_t *f, gzFile *z, int l)
+void fvec_save_libsvm(fvec_t *f, gzFile * z, int l)
 {
     assert(f && z);
     int i;

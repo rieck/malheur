@@ -25,7 +25,8 @@ void export_shared_ngrams(cluster_t *, farray_t *, char *);
 void export_dist(double *, farray_t *, char *);
 void export_class(farray_t *, farray_t *, assign_t *, char *);
 void export_increment1(farray_t *, farray_t *, assign_t *, char *);
-void export_increment2(cluster_t *, farray_t *, farray_t *, assign_t *, char *);
+void export_increment2(cluster_t *, farray_t *, farray_t *, assign_t *,
+                       char *);
 
 
 

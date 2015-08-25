@@ -29,7 +29,7 @@ clean-local:
 	rm -f 		malheur.h
 
 beautify:               $(libmalheur_a_SOURCES) $(malheur_SOURCES)
-			gnuindent -i4 -kr -l77 -lc77 --no-tabs -cs \
+			gindent -i4 -kr -l77 -lc77 --no-tabs -cs \
                         -T FILE -T fvec_t -T farray_t -T cluster_t \
                         -T assign_t -T config_t -T config_setting_T \
                         -T DIR -T DIRP $^

@@ -56,7 +56,7 @@ static void cluster_murtagh(cluster_t *c, double *d, double dm, char m)
     char *done = calloc(1, sizeof(char) * c->len);
     long *nn = malloc(sizeof(long) * c->len);
     double *dnn = malloc(sizeof(double) * c->len);
-    
+
     /* Check for memory problems */
     if (!done || !nn || !dnn) {
         error("Could not allocate memory for clustering algorithm.");
@@ -189,7 +189,7 @@ static cluster_t *cluster_create(int n, int r)
  * structure is updated by assigning reports of rejected clusters to the
  * cluster label 0.
  * @param c Clustering structure
- */ 
+ */
 void cluster_trim(cluster_t *c)
 {
     assert(c);

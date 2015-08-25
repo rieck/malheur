@@ -112,15 +112,15 @@ char *mist_preproc(char *report)
                 ri++;
                 ti++;
             }
-        } 
-        
+        }
+
         /* Check for report length */
         if (rlen > 0 && ri >= rlen)
             break;
     }
 
     /* Terminate string */
-    *write_ptr = 0;    
+    *write_ptr = 0;
     return report;
 }
 

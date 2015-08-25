@@ -34,30 +34,30 @@
 /* Default configuration */
 static config_default_t defaults[] = {
     /* Input */
-    {I, "format", CONFIG_TYPE_STRING, { .str = "text" }},
-    {I, "event_delim", CONFIG_TYPE_STRING, { .str = "%0a%0d" }},
-    {I, "mist_level", CONFIG_TYPE_INT, { .num = 0 }},
-    {I, "mist_rlen", CONFIG_TYPE_INT, { .num = 0 }},
-    {I, "mist_tlen", CONFIG_TYPE_INT, { .num = 0 }},
+    {I, "format", CONFIG_TYPE_STRING, {.str = "text"}},
+    {I, "event_delim", CONFIG_TYPE_STRING, {.str = "%0a%0d"}},
+    {I, "mist_level", CONFIG_TYPE_INT, {.num = 0}},
+    {I, "mist_rlen", CONFIG_TYPE_INT, {.num = 0}},
+    {I, "mist_tlen", CONFIG_TYPE_INT, {.num = 0}},
 
     /* Features */
-    {F, "ngram_len", CONFIG_TYPE_INT, { .num = 2 }},
-    {F, "vect_embed", CONFIG_TYPE_STRING, { .str = "bin" }},
-    {F, "hash_seed1", CONFIG_TYPE_INT, { .num = 0x1ea4501a }},
-    {F, "hash_seed2", CONFIG_TYPE_INT, { .num = 0x75f3da43 }},
+    {F, "ngram_len", CONFIG_TYPE_INT, {.num = 2}},
+    {F, "vect_embed", CONFIG_TYPE_STRING, {.str = "bin"}},
+    {F, "hash_seed1", CONFIG_TYPE_INT, {.num = 0x1ea4501a}},
+    {F, "hash_seed2", CONFIG_TYPE_INT, {.num = 0x75f3da43}},
 
     /* Prototypes */
-    {P, "max_dist", CONFIG_TYPE_FLOAT, { .flt = 0.65 }},
-    {P, "max_num", CONFIG_TYPE_INT, { .num = 0 }},
+    {P, "max_dist", CONFIG_TYPE_FLOAT, {.flt = 0.65}},
+    {P, "max_num", CONFIG_TYPE_INT, {.num = 0}},
 
     /* Classification */
-    {Y, "max_dist", CONFIG_TYPE_FLOAT, { .flt = 0.68 }},
+    {Y, "max_dist", CONFIG_TYPE_FLOAT, {.flt = 0.68}},
 
     /* Clustering */
-    {C, "link_mode", CONFIG_TYPE_STRING, { .str = "complete" }},
-    {C, "min_dist", CONFIG_TYPE_FLOAT, { .flt = 0.95 }},
-    {C, "reject_num", CONFIG_TYPE_INT, { .num = 10 }},
-    {C, "shared_ngrams", CONFIG_TYPE_FLOAT, { .flt = 0.0 }},
+    {C, "link_mode", CONFIG_TYPE_STRING, {.str = "complete"}},
+    {C, "min_dist", CONFIG_TYPE_FLOAT, {.flt = 0.95}},
+    {C, "reject_num", CONFIG_TYPE_INT, {.num = 10}},
+    {C, "shared_ngrams", CONFIG_TYPE_FLOAT, {.flt = 0.0}},
 
     /* Terminating entry */
     {NULL}
@@ -116,7 +116,7 @@ static void config_setting_fprint(FILE *f, config_setting_t * cs, int d)
  * Print the configuration.
  * @param cfg configuration
  */
-void config_print(config_t * cfg)
+void config_print(config_t *cfg)
 {
     config_setting_fprint(stdout, config_root_setting(cfg), 0);
 }
@@ -126,7 +126,7 @@ void config_print(config_t * cfg)
  * @param f pointer to file stream
  * @param cfg configuration
  */
-void config_fprint(FILE *f, config_t * cfg)
+void config_fprint(FILE *f, config_t *cfg)
 {
     config_setting_fprint(f, config_root_setting(cfg), 0);
 }
@@ -135,7 +135,7 @@ void config_fprint(FILE *f, config_t * cfg)
  * The functions add default values to unspecified parameters.
  * @param cfg configuration
  */
-static void config_default(config_t * cfg)
+static void config_default(config_t *cfg)
 {
     int i, b;
     cfg_int j;
@@ -163,7 +163,8 @@ static void config_default(config_t * cfg)
 
             /* Add default value */
             config_setting_remove(cs, defaults[i].name);
-            vs = config_setting_add(cs, defaults[i].name, CONFIG_TYPE_STRING);
+            vs = config_setting_add(cs, defaults[i].name,
+                                    CONFIG_TYPE_STRING);
             config_setting_set_string(vs, defaults[i].val.str);
             break;
         case CONFIG_TYPE_FLOAT:
@@ -230,7 +231,7 @@ static void config_default(config_t * cfg)
  * Checks if the configuration is valid and sane.
  * @return 1 if config is valid, 0 otherwise
  */
-int config_check(config_t * cfg)
+int config_check(config_t *cfg)
 {
     int num;
 
@@ -240,7 +241,7 @@ int config_check(config_t * cfg)
     config_lookup_int(cfg, "features.ngram_len", &num);
     if (num < 1) {
         error("N-gram length needs to be > 0");
-	return FALSE;
+        return FALSE;
     }
 
     return TRUE;

@@ -55,16 +55,16 @@ static farray_t *proto_gonzalez(farray_t *fa, assign_t *as, long n, double m)
     /* Check for maximum number of protos */
     if (n == 0)
         n = as->len;
-        
+
     /* Get a fixed first element */
     int fixed = farray_get_fixed(fa);
-    
+
     /* Loop over feature vectors. First prototype: j = 0. */
     for (i = 0; i < n; i++) {
         /* Determine largest distance */
         if (i > 0)
             j = array_max(as->dist, as->len);
-        else 
+        else
             j = fixed;
 
         /* Check for minimum distance between prototypes */

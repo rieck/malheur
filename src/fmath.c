@@ -267,7 +267,7 @@ double fvec_dist(fvec_t *fa, fvec_t *fb)
     double f = fvec_dot(fa, fb);
     if (f > 1.0)
         f = 1.0;
-        
+
     return sqrt(2 - 2 * f);
 }
 
@@ -284,7 +284,7 @@ double fvec_dot(fvec_t *fa, fvec_t *fb)
 {
     assert(fa && fb);
     double a, b;
-    
+
     if (fa == fb)
         return 1.0;
 

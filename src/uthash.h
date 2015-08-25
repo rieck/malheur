@@ -22,11 +22,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #ifndef UTHASH_H
-#define UTHASH_H 
+#define UTHASH_H
 
-#include <string.h>   /* memcmp,strlen */
-#include <stddef.h>   /* ptrdiff_t */
-#include <inttypes.h> /* uint32_t etc */
+#include <string.h>             /* memcmp,strlen */
+#include <stddef.h>             /* ptrdiff_t */
+#include <inttypes.h>           /* uint32_t etc */
 
 #define UTHASH_VERSION 1.6
 
@@ -38,19 +38,19 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 
-#define uthash_fatal(msg) exit(-1)        /* fatal error (out of memory,etc) */
-#define uthash_bkt_malloc(sz) malloc(sz)  /* malloc fcn for UT_hash_bucket's */
-#define uthash_bkt_free(ptr) free(ptr)    /* free fcn for UT_hash_bucket's   */
-#define uthash_tbl_malloc(sz) malloc(sz)  /* malloc fcn for UT_hash_table    */
-#define uthash_tbl_free(ptr) free(ptr)    /* free fcn for UT_hash_table      */
+#define uthash_fatal(msg) exit(-1)      /* fatal error (out of memory,etc) */
+#define uthash_bkt_malloc(sz) malloc(sz)        /* malloc fcn for UT_hash_bucket's */
+#define uthash_bkt_free(ptr) free(ptr)  /* free fcn for UT_hash_bucket's   */
+#define uthash_tbl_malloc(sz) malloc(sz)        /* malloc fcn for UT_hash_table    */
+#define uthash_tbl_free(ptr) free(ptr)  /* free fcn for UT_hash_table      */
 
-#define uthash_noexpand_fyi(tbl)          /* can be defined to log noexpand  */
-#define uthash_expand_fyi(tbl)            /* can be defined to log expands   */
+#define uthash_noexpand_fyi(tbl)        /* can be defined to log noexpand  */
+#define uthash_expand_fyi(tbl)  /* can be defined to log expands   */
 
 /* initial number of buckets */
-#define HASH_INITIAL_NUM_BUCKETS 32      /* initial number of buckets        */
-#define HASH_INITIAL_NUM_BUCKETS_LOG2 5  /* lg2 of initial number of buckets */
-#define HASH_BKT_CAPACITY_THRESH 10      /* expand when bucket count reaches */
+#define HASH_INITIAL_NUM_BUCKETS 32     /* initial number of buckets        */
+#define HASH_INITIAL_NUM_BUCKETS_LOG2 5 /* lg2 of initial number of buckets */
+#define HASH_BKT_CAPACITY_THRESH 10     /* expand when bucket count reaches */
 
 /* calculate the element whose hash handle address is hhe */
 #define ELMT_FROM_HH(tbl,hhp) ((void*)(((char*)hhp) - (tbl)->hho))
@@ -85,7 +85,7 @@ do {                                                                           \
 
 #define HASH_ADD(hh,head,fieldname,keylen_in,add)                              \
         HASH_ADD_KEYPTR(hh,head,&add->fieldname,keylen_in,add)
- 
+
 #define HASH_ADD_KEYPTR(hh,head,keyptr,keylen_in,add)                          \
 do {                                                                           \
  unsigned _ha_bkt;                                                             \
@@ -230,7 +230,7 @@ do {                                                                           \
     }                                                                          \
 } while (0)
 #else
-#define HASH_FSCK(hh,head) 
+#define HASH_FSCK(hh,head)
 #endif
 
 /* When compiled with -DHASH_EMIT_KEYS, length-prefixed keys are emitted to 
@@ -243,12 +243,12 @@ do {                                                                           \
     write(HASH_EMIT_KEYS, &_klen, sizeof(_klen));                              \
     write(HASH_EMIT_KEYS, keyptr, fieldlen);                                   \
 } while (0)
-#else 
-#define HASH_EMIT_KEY(hh,head,keyptr,fieldlen)                    
+#else
+#define HASH_EMIT_KEY(hh,head,keyptr,fieldlen)
 #endif
 
 /* default to Jenkin's hash unless overridden e.g. DHASH_FUNCTION=HASH_SAX */
-#ifdef HASH_FUNCTION 
+#ifdef HASH_FUNCTION
 #define HASH_FCN HASH_FUNCTION
 #else
 #define HASH_FCN HASH_JEN
@@ -286,7 +286,7 @@ do {                                                                           \
       hashv = (hashv * 16777619) ^ _hf_key[_fn_i];                             \
   bkt = hashv & (num_bkts-1);                                                  \
 } while(0);
- 
+
 #define HASH_OAT(key,keylen,num_bkts,hashv,bkt)                                \
 do {                                                                           \
   unsigned _ho_i;                                                              \
@@ -413,7 +413,7 @@ do {                                                                           \
 } while(0);
 
 /* key comparison function; return 0 if keys equal */
-#define HASH_KEYCMP(a,b,len) memcmp(a,b,len) 
+#define HASH_KEYCMP(a,b,len) memcmp(a,b,len)
 
 /* iterate over items in a known bucket to find desired item */
 #define HASH_FIND_IN_BKT(tbl,hh,head,keyptr,keylen_in,out)                     \
@@ -451,7 +451,7 @@ do {                                                                           \
     }                                                                          \
     if (hh_del->hh_next) {                                                     \
         hh_del->hh_next->hh_prev = hh_del->hh_prev;                            \
-    }                                                                
+    }
 
 /* Bucket expansion has the effect of doubling the number of buckets
  * and redistributing the items into the new buckets. Ideally the
@@ -667,66 +667,66 @@ do {                                                                           \
 } while(0)
 
 /* obtain a count of items in the hash */
-#define HASH_COUNT(head) HASH_CNT(hh,head) 
+#define HASH_COUNT(head) HASH_CNT(hh,head)
 #define HASH_CNT(hh,head) (head?(head->hh.tbl->num_items):0)
 
 typedef struct UT_hash_bucket {
-   struct UT_hash_handle *hh_head;
-   unsigned count;
+    struct UT_hash_handle *hh_head;
+    unsigned count;
 
-   /* expand_mult is normally set to 0. In this situation, the max chain length
-    * threshold is enforced at its default value, HASH_BKT_CAPACITY_THRESH. (If
-    * the bucket's chain exceeds this length, bucket expansion is triggered). 
-    * However, setting expand_mult to a non-zero value delays bucket expansion
-    * (that would be triggered by additions to this particular bucket)
-    * until its chain length reaches a *multiple* of HASH_BKT_CAPACITY_THRESH.
-    * (The multiplier is simply expand_mult+1). The whole idea of this
-    * multiplier is to reduce bucket expansions, since they are expensive, in
-    * situations where we know that a particular bucket tends to be overused.
-    * It is better to let its chain length grow to a longer yet-still-bounded
-    * value, than to do an O(n) bucket expansion too often. 
-    */
-   unsigned expand_mult;
+    /* expand_mult is normally set to 0. In this situation, the max chain length
+     * threshold is enforced at its default value, HASH_BKT_CAPACITY_THRESH. (If
+     * the bucket's chain exceeds this length, bucket expansion is triggered). 
+     * However, setting expand_mult to a non-zero value delays bucket expansion
+     * (that would be triggered by additions to this particular bucket)
+     * until its chain length reaches a *multiple* of HASH_BKT_CAPACITY_THRESH.
+     * (The multiplier is simply expand_mult+1). The whole idea of this
+     * multiplier is to reduce bucket expansions, since they are expensive, in
+     * situations where we know that a particular bucket tends to be overused.
+     * It is better to let its chain length grow to a longer yet-still-bounded
+     * value, than to do an O(n) bucket expansion too often. 
+     */
+    unsigned expand_mult;
 
 } UT_hash_bucket;
 
 typedef struct UT_hash_table {
-   UT_hash_bucket *buckets;
-   unsigned num_buckets, log2_num_buckets;
-   unsigned num_items;
-   struct UT_hash_handle *tail; /* tail hh in app order, for fast append    */
-   ptrdiff_t hho; /* hash handle offset (byte pos of hash handle in element */
+    UT_hash_bucket *buckets;
+    unsigned num_buckets, log2_num_buckets;
+    unsigned num_items;
+    struct UT_hash_handle *tail;        /* tail hh in app order, for fast append    */
+    ptrdiff_t hho;              /* hash handle offset (byte pos of hash handle in element */
 
-   /* in an ideal situation (all buckets used equally), no bucket would have
-    * more than ceil(#items/#buckets) items. that's the ideal chain length. */
-   unsigned ideal_chain_maxlen;
+    /* in an ideal situation (all buckets used equally), no bucket would have
+     * more than ceil(#items/#buckets) items. that's the ideal chain length. */
+    unsigned ideal_chain_maxlen;
 
-   /* nonideal_items is the number of items in the hash whose chain position
-    * exceeds the ideal chain maxlen. these items pay the penalty for an uneven
-    * hash distribution; reaching them in a chain traversal takes >ideal steps */
-   unsigned nonideal_items;
+    /* nonideal_items is the number of items in the hash whose chain position
+     * exceeds the ideal chain maxlen. these items pay the penalty for an uneven
+     * hash distribution; reaching them in a chain traversal takes >ideal steps */
+    unsigned nonideal_items;
 
-   /* ineffective expands occur when a bucket doubling was performed, but 
-    * afterward, more than half the items in the hash had nonideal chain
-    * positions. If this happens on two consecutive expansions we inhibit any
-    * further expansion, as it's not helping; this happens when the hash
-    * function isn't a good fit for the key domain. When expansion is inhibited
-    * the hash will still work, albeit no longer in constant time. */
-   unsigned ineff_expands, noexpand;
+    /* ineffective expands occur when a bucket doubling was performed, but 
+     * afterward, more than half the items in the hash had nonideal chain
+     * positions. If this happens on two consecutive expansions we inhibit any
+     * further expansion, as it's not helping; this happens when the hash
+     * function isn't a good fit for the key domain. When expansion is inhibited
+     * the hash will still work, albeit no longer in constant time. */
+    unsigned ineff_expands, noexpand;
 
 
 } UT_hash_table;
 
 
 typedef struct UT_hash_handle {
-   struct UT_hash_table *tbl;
-   void *prev;                       /* prev element in app order      */
-   void *next;                       /* next element in app order      */
-   struct UT_hash_handle *hh_prev;   /* previous hh in bucket order    */
-   struct UT_hash_handle *hh_next;   /* next hh in bucket order        */
-   void *key;                        /* ptr to enclosing struct's key  */
-   unsigned keylen;                  /* enclosing struct's key len     */
-   unsigned hashv;                   /* result of hash-fcn(key)        */
+    struct UT_hash_table *tbl;
+    void *prev;                 /* prev element in app order      */
+    void *next;                 /* next element in app order      */
+    struct UT_hash_handle *hh_prev;     /* previous hh in bucket order    */
+    struct UT_hash_handle *hh_next;     /* next hh in bucket order        */
+    void *key;                  /* ptr to enclosing struct's key  */
+    unsigned keylen;            /* enclosing struct's key len     */
+    unsigned hashv;             /* result of hash-fcn(key)        */
 } UT_hash_handle;
 
-#endif /* UTHASH_H */
+#endif                          /* UTHASH_H */

@@ -19,7 +19,7 @@
 
 #include "config.h"
 #include "common.h"
- 
+
 #include <archive.h>
 #include <archive_entry.h>
 
@@ -135,7 +135,7 @@ void prog_bar(long a, long b, long c)
     int i, first, last;
     double perc, ptime = 0, min, max, in;
     char *descr = "";
-    
+
     min = (double) a;
     max = (double) b;
     in = (double) c;
@@ -245,12 +245,12 @@ char *load_file(char *path, char *name)
  * @param src Name of source file
  * @param dst Name of destination fie
  * @return true on success, false otherwise
- */ 
+ */
 int copy_file(char *src, char *dst)
 {
     FILE *sf, *df;
     int c;
-    
+
     sf = fopen(src, "r");
     if (!sf) {
         error("Could not open file '%s'.", src);
@@ -262,13 +262,13 @@ int copy_file(char *src, char *dst)
         error("Could not open file '%s'.", dst);
         return FALSE;
     }
-    
+
     while ((c = getc(sf)) != EOF)
         putc(c, df);
 
     fclose(sf);
     fclose(df);
-    
+
     return TRUE;
 }
 
@@ -472,4 +472,3 @@ int array_min(double *a, int l)
 }
 
 /** @} */
-

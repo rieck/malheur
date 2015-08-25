@@ -19,13 +19,13 @@
 
 #ifdef HAVE_UTHASH_UTHASH_H
 #include <uthash/uthash.h>
-#else 
+#else
 #ifdef HAVE_UTHASH_H
 #include <uthash.h>
 #else
 #include "uthash.h"
 #endif
-#endif 
+#endif
 
 /** 
  * Entry of lookup table. 

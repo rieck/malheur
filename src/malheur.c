@@ -46,31 +46,31 @@ static malheur_state_t mstate;
  * Array of options of getopt_long()
  */
 static struct option longopts[] = {
-   { "maldir",          1, NULL, 'm' },
-   { "outfile",         1, NULL, 'o' },
-   { "reset",           0, NULL, 'r' },
-   { "nostate",         0, NULL, 'n' },
-   { "verbose",         0, NULL, 'v' },
-   { "version",         0, NULL, 'V' },
-   { "help",            0, NULL, 'h' },
-   { "dump",            1, NULL, 'd' },
-   /* start of config options */
-   { "input.format",           1, NULL, 1001 },
-   { "input.mist_level",       1, NULL, 1002 },
-   { "input.mist_rlen",        1, NULL, 1003 },
-   { "input.mist_tlen",        1, NULL, 1004 },
-   { "input.event_delim",      1, NULL, 1005 },
-   { "features.ngram_len",     1, NULL, 1006 },
-   { "features.vect_embed",    1, NULL, 1007 },
-   { "prototypes.max_dist",    1, NULL, 1009 },
-   { "prototypes.max_num",     1, NULL, 1010 },
-   { "classify.max_dist",      1, NULL, 1011 },
-   { "cluster.link_mode",      1, NULL, 1012 },
-   { "cluster.min_dist",       1, NULL, 1013 },
-   { "cluster.reject_num",     1, NULL, 1014 },
-   { "cluster.shared_ngrams",  1, NULL, 1015 },
-   /* end of config options */
-   { NULL,              0, NULL, 0 }
+    {"maldir", 1, NULL, 'm'},
+    {"outfile", 1, NULL, 'o'},
+    {"reset", 0, NULL, 'r'},
+    {"nostate", 0, NULL, 'n'},
+    {"verbose", 0, NULL, 'v'},
+    {"version", 0, NULL, 'V'},
+    {"help", 0, NULL, 'h'},
+    {"dump", 1, NULL, 'd'},
+    /* start of config options */
+    {"input.format", 1, NULL, 1001},
+    {"input.mist_level", 1, NULL, 1002},
+    {"input.mist_rlen", 1, NULL, 1003},
+    {"input.mist_tlen", 1, NULL, 1004},
+    {"input.event_delim", 1, NULL, 1005},
+    {"features.ngram_len", 1, NULL, 1006},
+    {"features.vect_embed", 1, NULL, 1007},
+    {"prototypes.max_dist", 1, NULL, 1009},
+    {"prototypes.max_num", 1, NULL, 1010},
+    {"classify.max_dist", 1, NULL, 1011},
+    {"cluster.link_mode", 1, NULL, 1012},
+    {"cluster.min_dist", 1, NULL, 1013},
+    {"cluster.reject_num", 1, NULL, 1014},
+    {"cluster.shared_ngrams", 1, NULL, 1015},
+    /* end of config options */
+    {NULL, 0, NULL, 0}
 };
 
 /**
@@ -81,25 +81,25 @@ static struct option longopts[] = {
 static void print_usage(void)
 {
     printf("Usage: malheur [options] <action> <dataset>\n"
-        "Actions:\n"
-        "  distance       Compute distance matrix for malware reports\n"
-        "  prototype      Extract prototypes from malware reports\n"
-        "  protodist      Compute distance matrix for prototypes\n"
-        "  cluster        Cluster malware reports into similar groups\n"
-        "  classify       Classify malware reports using labeled prototypes\n"
-        "  increment      Incremental analysis of malware reports\n"
-        "  info           Print information about internal state of Malheur\n"
-        "Options:\n"
-        "  -m <maldir>    Set malheur directory. [%s]\n"
-        "  -o <outfile>   Set output file for analysis. [%s]\n"
-        "  -d <dumpfile>  Dump feature vectors to file in libsvm format.\n"
-        "  -r             Reset internal state of Malheur.\n"
-        "  -n             Don't save internal state of Malher.\n"
-        "  -v             Increase verbosity.\n"
-        "  -V             Print version and copyright.\n"
-        "  -h             Print this help screen.\n"
-        "See manual page malheur(1) for more information.\n",
-       malheur_dir, output_file);
+           "Actions:\n"
+           "  distance       Compute distance matrix for malware reports\n"
+           "  prototype      Extract prototypes from malware reports\n"
+           "  protodist      Compute distance matrix for prototypes\n"
+           "  cluster        Cluster malware reports into similar groups\n"
+           "  classify       Classify malware reports using labeled prototypes\n"
+           "  increment      Incremental analysis of malware reports\n"
+           "  info           Print information about internal state of Malheur\n"
+           "Options:\n"
+           "  -m <maldir>    Set malheur directory. [%s]\n"
+           "  -o <outfile>   Set output file for analysis. [%s]\n"
+           "  -d <dumpfile>  Dump feature vectors to file in libsvm format.\n"
+           "  -r             Reset internal state of Malheur.\n"
+           "  -n             Don't save internal state of Malher.\n"
+           "  -v             Increase verbosity.\n"
+           "  -V             Print version and copyright.\n"
+           "  -h             Print this help screen.\n"
+           "See manual page malheur(1) for more information.\n",
+           malheur_dir, output_file);
 }
 
 /**
@@ -142,7 +142,7 @@ static void parse_options(int argc, char **argv)
             exit(EXIT_SUCCESS);
             break;
 
-        /* long options */
+            /* long options */
         case 1001:
             config_set_string(&cfg, "input.format", optarg);
             break;
@@ -219,7 +219,7 @@ static void parse_options(int argc, char **argv)
     /* Assign input files */
     input_files = argv + 1;
     input_len = argc - 1;
-    
+
     /* Check configuration */
     if (!config_check(&cfg)) {
         exit(EXIT_FAILURE);
@@ -242,17 +242,17 @@ static void load_config(int argc, char **argv)
     /* Check for config file in command line */
     while ((ch = getopt_long(argc, argv, OPTSTRING, longopts, NULL)) != -1) {
         switch (ch) {
-            case 'm':
-                strncpy(malheur_dir, optarg, MAX_PATH_LEN);
-                malheur_dir[MAX_PATH_LEN - 1] = 0;
-                break;
-            case 'v':
-                verbose++;
-                break;
-            case '?':
-            default:
-                /* empty */
-                break;
+        case 'm':
+            strncpy(malheur_dir, optarg, MAX_PATH_LEN);
+            malheur_dir[MAX_PATH_LEN - 1] = 0;
+            break;
+        case 'v':
+            verbose++;
+            break;
+        case '?':
+        default:
+            /* empty */
+            break;
         }
     }
 
@@ -303,10 +303,14 @@ static void malheur_init(int argc, char **argv)
     parse_options(argc, argv);
 
     /* Prepare malheur files */
-    snprintf(mcfg.reject_file, MAX_PATH_LEN, "%s/%s", malheur_dir, REJECT_FILE);
-    snprintf(mcfg.config_file, MAX_PATH_LEN,"%s/%s", malheur_dir, CONFIG_FILE);
-    snprintf(mcfg.proto_file, MAX_PATH_LEN, "%s/%s", malheur_dir, PROTO_FILE);
-    snprintf(mcfg.state_file, MAX_PATH_LEN, "%s/%s", malheur_dir, STATE_FILE);
+    snprintf(mcfg.reject_file, MAX_PATH_LEN, "%s/%s", malheur_dir,
+             REJECT_FILE);
+    snprintf(mcfg.config_file, MAX_PATH_LEN, "%s/%s", malheur_dir,
+             CONFIG_FILE);
+    snprintf(mcfg.proto_file, MAX_PATH_LEN, "%s/%s", malheur_dir,
+             PROTO_FILE);
+    snprintf(mcfg.state_file, MAX_PATH_LEN, "%s/%s", malheur_dir,
+             STATE_FILE);
 
     /* Init feature lookup table */
     config_lookup_float(&cfg, "cluster.shared_ngrams", &shared);
@@ -398,7 +402,7 @@ static int malheur_load_state()
     }
 
     ret = fscanf(f, "run = %u\nprototypes = %u\nrejected = %u\n",
-                &mstate.run, &mstate.num_proto, &mstate.num_reject);
+                 &mstate.run, &mstate.num_proto, &mstate.num_reject);
 
     if (ret != 3) {
         error("Could not parse state file '%s'.", mcfg.state_file);

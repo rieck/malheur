@@ -414,8 +414,8 @@ farray_t *farray_merge(farray_t *x, farray_t *y)
 int farray_get_fixed(farray_t *fa)
 {
     int i, j = 0, c;
- 
-    for (i = 0; i < fa->len; i++) { 
+
+    for (i = 0; i < fa->len; i++) {
 
         /* Some obscure comparisons */
         c = 0;
@@ -427,13 +427,13 @@ int farray_get_fixed(farray_t *fa)
             c = fa->x[i]->total - fa->x[j]->total;
         if (c == 0)
             c = fa->x[i]->mem - fa->x[j]->mem;
-            
+
         /* Get "smallest" element */
         if (c < 0)
             j = i;
     }
-    
-    return j;    
+
+    return j;
 }
 
 /**
@@ -578,7 +578,7 @@ void farray_save_libsvm_file(farray_t *fa, char *f)
     gzFile *z;
 
     if (verbose > 0)
-        printf("Saving %lu feature vectors in libsvm format to '%s'.\n", 
+        printf("Saving %lu feature vectors in libsvm format to '%s'.\n",
                fa->len, f);
 
     /* Open file */

@@ -220,7 +220,8 @@ void export_class(farray_t *p, farray_t *fa, assign_t *as, const char *file)
  * @param as Assignments to prototypes
  * @param file File name
  */
-void export_increment1(farray_t *p, farray_t *fa, assign_t *as, const char *file)
+void export_increment1(farray_t *p, farray_t *fa, assign_t *as,
+                       const char *file)
 {
     int i, j;
     FILE *f;

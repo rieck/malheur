@@ -1,16 +1,16 @@
 # MALHEUR - Automatic Analysis of Malware Behavior
-# Copyright (c) 2009-2012 Konrad Rieck (konrad@mlsec.org)          
+# Copyright (c) 2009-2015 Konrad Rieck (konrad@mlsec.org)
 # University of Goettingen, Berlin Institute of Technology
 #
 
+EXTRA_DIST = malheur.cfg malheur.pod malheur.man malheur.txt malheur.pdf \
+             doxygen.cfg modules latex-pre.inc.in latex-post.inc
+
 sysconf_DATA = malheur.cfg
 man1_MANS = malheur.man 
-EXTRA_DIST = malheur.cfg malheur.pod malheur.man malheur.txt malheur.pdf \
-             doxygen.cfg modules latex-pre.inc.in latex-post.inc \
-             git2changes.py
 
 malheur.man: malheur.pod
-	pod2man -c "User Manual" -s 1 -r "malheur $(VERSION)" malheur.pod > $@
+	pod2man -c "User Manual" -s 1 -r "Malheur $(VERSION)" malheur.pod > $@
 
 malheur.txt: malheur.pod
 	pod2text -w 70 malheur.pod > $@
@@ -30,15 +30,7 @@ latex-pre.inc: latex-pre.inc.in
         	$(top_srcdir)/doc/latex-pre.inc.in \
         	> $(top_builddir)/doc/latex-pre.inc
 
-changes:
-	./git2changes.py
-
-clean-local:
-	rm -f *.tex *.log *.aux *.toc *.tmp
-	rm -f latex-pre.inc
-	
 distclean-local:
-	rm -f malheur.pdf malheur.man malheur.txt
-		
-dist-hook: distclean-local malheur.pdf malheur.man changes
-	
+	rm -f malheur.pdf malheur.man malheur.txt latex-pre.inc
+
+dist-hook: distclean-local malheur.pdf malheur.man malheur.txt

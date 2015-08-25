@@ -25,8 +25,10 @@
 #include "config.h"
 #include "common.h"
 
+#ifdef HAVE_LIBARCHIVE
 #include <archive.h>
 #include <archive_entry.h>
+#endif
 
 #include "farray.h"
 #include "fvec.h"
@@ -180,10 +182,12 @@ farray_t *farray_extract(char *path)
     if (verbose > 0)
         printf("Extracting features from '%s'.\n", path);
 
-    if (S_ISREG(st.st_mode))
-        fa = farray_extract_archive(path);
-    else if (S_ISDIR(st.st_mode))
+    if (S_ISDIR(st.st_mode))
         fa = farray_extract_dir(path);
+#ifdef HAVE_LIBARCHIVE
+    else if (S_ISREG(st.st_mode))
+        fa = farray_extract_archive(path);
+#endif
     else
         error("Unsupported file type of input '%s'", path);
 
@@ -194,6 +198,7 @@ farray_t *farray_extract(char *path)
     return fa;
 }
 
+#ifdef HAVE_LIBARCHIVE
 /**
  * Extracts an array of feature vectors from an archive. The function 
  * loads and converts files from the given archive. It does not process
@@ -272,6 +277,7 @@ farray_t *farray_extract_archive(char *arc)
     archive_read_close(a);
     return fa;
 }
+#endif
 
 /**
  * Extracts an array of feature vectors from a directory. The function 

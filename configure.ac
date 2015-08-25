@@ -129,4 +129,5 @@ AC_OUTPUT
 
 echo
 echo " > Optional packages"
+echo "   Support reading archives (--with-libarchive):  $HAVE_LIBARCHIVE"
 echo "   Support for multi-processing (--with-openmp):  $HAVE_OPENMP"

@@ -10,6 +10,10 @@ EXTRA_DIST = README.md INSTALL COPYING CHANGES
 
 clean-local:
 	rm -f *~
+	rm -f CHANGES
+
+CHANGES:
+	$(srcdir)/git2changes.py
 	        
 install-data-local:
 	$(mkinstalldirs) $(DESTDIR)$(localstatedir)/malheur

@@ -20,8 +20,10 @@
 #include "config.h"
 #include "common.h"
 
+#ifdef HAVE_LIBARCHIVE
 #include <archive.h>
 #include <archive_entry.h>
+#endif
 
 #include "fvec.h"
 #include "util.h"
@@ -296,6 +298,7 @@ void list_dir_entries(char *dir, int *fnum, int *total)
     closedir(d);
 }
 
+#ifdef HAVE_LIBARCHIVE
 /**
  * Returns the number of file entries in an archive.
  * @param arc archive containing files
@@ -328,7 +331,7 @@ void list_arc_entries(char *arc, int *fnum, int *total)
     }
     archive_read_close(a);
 }
-
+#endif
 
 /**
  * Return a timestamp of the real time

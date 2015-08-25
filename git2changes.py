@@ -7,7 +7,7 @@ import string, re, os
 # Execute git log with the desired command line options.
 fin = os.popen('git log --summary --stat --no-merges --date=short', 'r')
 # Create a ChangeLog file in the current directory.
-fout = open('../CHANGES', 'w')
+fout = open('CHANGES', 'w')
 
 # Set up the loop variables in order to locate the blocks we want
 authorFound = False
@@ -66,7 +66,7 @@ for line in fin:
             else:
                 message = message + " " + line.strip()
     # If this line is hit all of the files have been stored for this commit
-    elif re.search('files changed', line) >= 0:
+    elif re.search('files? changed', line) >= 0:
         filesFound = True
         continue
     # Collect the files for this commit. FIXME: Still need to add +/- to files

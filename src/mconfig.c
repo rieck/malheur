@@ -35,8 +35,7 @@
 static config_default_t defaults[] = {
     /* Input */
     {I, "format", CONFIG_TYPE_STRING, { .str = "text" }},
-    {I, "text_delim", CONFIG_TYPE_STRING, { .str = "%20%0a%0d" }},
-    {I, "mist_delim", CONFIG_TYPE_STRING, { .str = "|" }},
+    {I, "event_delim", CONFIG_TYPE_STRING, { .str = "%0a%0d" }},
     {I, "mist_level", CONFIG_TYPE_INT, { .num = 0 }},
     {I, "mist_rlen", CONFIG_TYPE_INT, { .num = 0 }},
     {I, "mist_tlen", CONFIG_TYPE_INT, { .num = 0 }},

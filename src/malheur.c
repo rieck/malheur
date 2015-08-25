@@ -59,7 +59,7 @@ static struct option longopts[] = {
    { "input.mist_level",       1, NULL, 1002 },
    { "input.mist_rlen",        1, NULL, 1003 },
    { "input.mist_tlen",        1, NULL, 1004 },
-   { "input.text_delim",       1, NULL, 1005 },
+   { "input.event_delim",      1, NULL, 1005 },
    { "features.ngram_len",     1, NULL, 1006 },
    { "features.vect_embed",    1, NULL, 1007 },
    { "features.lookup_table",  1, NULL, 1008 },
@@ -157,7 +157,7 @@ static void parse_options(int argc, char **argv)
             config_set_int(&cfg, "input.mist_tlen", atoi(optarg));
             break;
         case 1005:
-            config_set_string(&cfg, "input.text_delim", optarg);
+            config_set_string(&cfg, "input.event_delim", optarg);
             break;
         case 1006:
             config_set_int(&cfg, "features.ngram_len", atoi(optarg));

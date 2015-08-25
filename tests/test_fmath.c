@@ -210,7 +210,7 @@ int main(int argc, char **argv)
     config_check(&cfg);
 
     config_set_string(&cfg, "features.vect_embed", "cnt");
-    config_set_string(&cfg, "input.text_delim", "0");
+    config_set_string(&cfg, "input.event_delim", "0");
     config_set_int(&cfg, "features.ngram_len", 1);
 
     err |= test_static_add();

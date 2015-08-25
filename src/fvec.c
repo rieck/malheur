@@ -159,7 +159,7 @@ fvec_t *fvec_extract(char *x, int l, char *s)
     config_lookup_int(&cfg, "features.ngram_len", (int *) &nlen);
 
     /* Construct delimiter lookup table */
-    config_lookup_string(&cfg, "features.ngram_delim", &dlm_str);
+    config_lookup_string(&cfg, "input.text_delim", &dlm_str);
 
     /* N-grams of bytes */
     if (!dlm_str || strlen(dlm_str) == 0) {

@@ -7,7 +7,7 @@
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.  This program is distributed without any
- * warranty. See the GNU General Public License for more details. 
+ * warranty. See the GNU General Public License for more details.
  * --
  */
 
@@ -50,24 +50,24 @@ static struct option longopts[] = {
    { "outfile",         1, NULL, 'o' },
    { "reset",           0, NULL, 'r' },
    { "nostate",         0, NULL, 'n' },
-   { "verbose",         0, NULL, 'v' }, 
+   { "verbose",         0, NULL, 'v' },
    { "version",         0, NULL, 'V' },
    { "help",            0, NULL, 'h' },
    { "dump",            1, NULL, 'd' },
-   /* start of config options */   
+   /* start of config options */
    { "input.format",           1, NULL, 1001 },
-   { "input.mist_level",       1, NULL, 1002 },   
-   { "input.mist_rlen",        1, NULL, 1003 },   
-   { "input.mist_tlen",        1, NULL, 1004 },   
-   { "features.ngram_delim",   1, NULL, 1005 },   
+   { "input.mist_level",       1, NULL, 1002 },
+   { "input.mist_rlen",        1, NULL, 1003 },
+   { "input.mist_tlen",        1, NULL, 1004 },
+   { "input.text_delim",       1, NULL, 1005 },
    { "features.ngram_len",     1, NULL, 1006 },
    { "features.vect_embed",    1, NULL, 1007 },
    { "features.lookup_table",  1, NULL, 1008 },
-   { "prototypes.max_dist",    1, NULL, 1009 },   
-   { "prototypes.max_num",     1, NULL, 1010 },   
-   { "classify.max_dist",      1, NULL, 1011 },   
-   { "cluster.link_mode",      1, NULL, 1012 },   
-   { "cluster.min_dist",       1, NULL, 1013 },   
+   { "prototypes.max_dist",    1, NULL, 1009 },
+   { "prototypes.max_num",     1, NULL, 1010 },
+   { "classify.max_dist",      1, NULL, 1011 },
+   { "cluster.link_mode",      1, NULL, 1012 },
+   { "cluster.min_dist",       1, NULL, 1013 },
    { "cluster.reject_num",     1, NULL, 1014 },
    { "cluster.shared_ngrams",  1, NULL, 1015 },
    /* end of config options */
@@ -85,7 +85,7 @@ static void print_usage(void)
         "Actions:\n"
         "  distance       Compute distance matrix for malware reports\n"
         "  prototype      Extract prototypes from malware reports\n"
-        "  protodist      Compute distance matrix for prototypes\n"        
+        "  protodist      Compute distance matrix for prototypes\n"
         "  cluster        Cluster malware reports into similar groups\n"
         "  classify       Classify malware reports using labeled prototypes\n"
         "  increment      Incremental analysis of malware reports\n"
@@ -111,13 +111,13 @@ static void print_usage(void)
 static void parse_options(int argc, char **argv)
 {
     int ch;
-    
+
     /* reset getopt */
     optind = 0;
-    
+
     while ((ch = getopt_long(argc, argv, OPTSTRING, longopts, NULL)) != -1) {
         switch (ch) {
-        case 'n': 
+        case 'n':
             save = FALSE;
             break;
         case 'r':
@@ -145,49 +145,49 @@ static void parse_options(int argc, char **argv)
 
         /* long options */
         case 1001:
-            config_set_string(&cfg, "input.format", optarg);    
+            config_set_string(&cfg, "input.format", optarg);
             break;
         case 1002:
-            config_set_int(&cfg, "input.mist_level", atoi(optarg));    
+            config_set_int(&cfg, "input.mist_level", atoi(optarg));
             break;
         case 1003:
-            config_set_int(&cfg, "input.mist_rlen", atoi(optarg));    
+            config_set_int(&cfg, "input.mist_rlen", atoi(optarg));
             break;
         case 1004:
-            config_set_int(&cfg, "input.mist_tlen", atoi(optarg));    
+            config_set_int(&cfg, "input.mist_tlen", atoi(optarg));
             break;
         case 1005:
-            config_set_string(&cfg, "features.ngram_delim", optarg);    
+            config_set_string(&cfg, "input.text_delim", optarg);
             break;
         case 1006:
-            config_set_int(&cfg, "features.ngram_len", atoi(optarg));    
+            config_set_int(&cfg, "features.ngram_len", atoi(optarg));
             break;
         case 1007:
-            config_set_string(&cfg, "features.vect_embed", optarg);    
+            config_set_string(&cfg, "features.vect_embed", optarg);
             break;
         case 1008:
-            config_set_int(&cfg, "features.lookup_table", atoi(optarg));    
+            config_set_int(&cfg, "features.lookup_table", atoi(optarg));
             break;
         case 1009:
-            config_set_float(&cfg, "prototypes.max_dist", atof(optarg));    
+            config_set_float(&cfg, "prototypes.max_dist", atof(optarg));
             break;
         case 1010:
-            config_set_int(&cfg, "prototypes.max_num", atoi(optarg));    
+            config_set_int(&cfg, "prototypes.max_num", atoi(optarg));
             break;
         case 1011:
-            config_set_float(&cfg, "classify.max_dist", atof(optarg));    
+            config_set_float(&cfg, "classify.max_dist", atof(optarg));
             break;
         case 1012:
-            config_set_string(&cfg, "cluster.link_mode", optarg);    
+            config_set_string(&cfg, "cluster.link_mode", optarg);
             break;
         case 1013:
-            config_set_float(&cfg, "cluster.min_dist", atof(optarg));    
+            config_set_float(&cfg, "cluster.min_dist", atof(optarg));
             break;
         case 1014:
-            config_set_int(&cfg, "cluster.reject_num", atoi(optarg));    
+            config_set_int(&cfg, "cluster.reject_num", atoi(optarg));
             break;
         case 1015:
-            config_set_int(&cfg, "cluster.shared_ngrams", atoi(optarg));    
+            config_set_int(&cfg, "cluster.shared_ngrams", atoi(optarg));
             break;
         }
     }
@@ -219,8 +219,8 @@ static void parse_options(int argc, char **argv)
     } else {
         fatal("Unknown analysis action '%s'", argv[0]);
     }
-    
-    if (argc < 2 && action != PROTODIST && action != INFO) 
+
+    if (argc < 2 && action != PROTODIST && action != INFO)
         fatal("the <dataset> argument is required");
 
     /* Assign input files */
@@ -313,7 +313,7 @@ static void malheur_init(int argc, char **argv)
     if (lookup || shared > 0.0) {
         ftable_init();
     }
-    
+
     /* Reset current state */
     if (reset) {
         unlink(mcfg.reject_file);
@@ -326,7 +326,7 @@ static void malheur_init(int argc, char **argv)
 
 
 /**
- * Loads data from archives/directories into feature vectors 
+ * Loads data from archives/directories into feature vectors
  * @return array of feature vectors
  */
 static farray_t *malheur_load()
@@ -342,10 +342,10 @@ static farray_t *malheur_load()
         farray_t *f = farray_extract(input_files[i]);
         fa = farray_merge(fa, f);
     }
-    
-    if (!fa) 
+
+    if (!fa)
         fatal("No data available.");
-    
+
     /* Dump feature vectors to file */
     if (fvec_dump)
         farray_save_libsvm_file(fa, fvec_dump);
@@ -366,16 +366,16 @@ static void malheur_save_state()
 
     if (verbose > 0)
         printf("Saving internal state to '%s'.\n", mcfg.state_file);
-    
+
     f = fopen(mcfg.state_file, "w");
     if (!f) {
         error("Could not open state file '%s'.", mcfg.state_file);
         return;
     }
-        
-    fprintf(f, "run = %u\nprototypes = %u\nrejected = %u\n", 
+
+    fprintf(f, "run = %u\nprototypes = %u\nrejected = %u\n",
             mstate.run, mstate.num_proto, mstate.num_reject);
-    
+
     fclose(f);
 }
 
@@ -387,24 +387,24 @@ static int malheur_load_state()
 {
     FILE *f;
     int ret;
-    
+
     if (access(mcfg.state_file, R_OK))
         return FALSE;
-    
+
     f = fopen(mcfg.state_file, "r");
     if (!f) {
         error("Could not open state file '%s'.", mcfg.state_file);
         return FALSE;
     }
-        
-    ret = fscanf(f, "run = %u\nprototypes = %u\nrejected = %u\n", 
+
+    ret = fscanf(f, "run = %u\nprototypes = %u\nrejected = %u\n",
                 &mstate.run, &mstate.num_proto, &mstate.num_reject);
-    
+
     if (ret != 3) {
         error("Could not parse state file '%s'.", mcfg.state_file);
         return FALSE;
     }
-    
+
     fclose(f);
     return TRUE;
 }
@@ -416,7 +416,7 @@ static void malheur_prototype()
 {
     assign_t *as;
     farray_t *fa, *pr;
-    
+
     /* Load data */
     fa = malheur_load();
 
@@ -471,7 +471,7 @@ static void malheur_cluster()
 
     /* Export clustering */
     export_cluster(c, pr, fa, as, output_file);
-    
+
     /* Export shared n-grams */
     export_shared_ngrams(c, fa, output_file);
 
@@ -524,7 +524,7 @@ static void malheur_classify()
 static void malheur_increment()
 {
     farray_t *pr = NULL, *tmp, *pn, *re;
-    assign_t *as; 
+    assign_t *as;
 
     /* Load internal state */
     malheur_load_state();
@@ -543,15 +543,15 @@ static void malheur_increment()
         /* Apply classification */
         as = class_assign(fa, pr);
         tmp = class_get_rejected(as, fa);
-        
+
         /* Export results */
         export_increment1(pr, fa, as, output_file);
-        
+
         /* Clean up */
         farray_destroy(fa);
         farray_destroy(pr);
         assign_destroy(as);
-        fa = tmp;        
+        fa = tmp;
     } else {
         /* Export results */
         export_increment1(pr, fa, as, output_file);
@@ -559,7 +559,7 @@ static void malheur_increment()
 
     /* Extract prototypes */
     pr = proto_extract(fa, &as);
-    
+
     /* Cluster prototypes and extrapolate */
     cluster_t *c = cluster_linkage(pr, mstate.run + 1);
     cluster_extrapolate(c, as);
@@ -581,9 +581,9 @@ static void malheur_increment()
     mstate.num_reject = re->len;
 
     /* Save state */
-    if (save) 
+    if (save)
         malheur_save_state();
-    
+
     /* Export results */
     export_increment2(c, pr, fa, as, output_file);
 
@@ -647,14 +647,14 @@ static void malheur_protodist()
     farray_t *pr;
 
     /* Check for prototype file */
-    if (access(mcfg.proto_file, R_OK)) 
+    if (access(mcfg.proto_file, R_OK))
         fatal("No prototype file for classifcation available");
-    
+
     /* Load prototypes */
     pr = farray_load_file(mcfg.proto_file);
     if (verbose > 1)
         farray_print(pr);
-    
+
     /* Allocate distance matrix */
     double *d = malloc(pr->len * pr->len * sizeof(double));
     if (!d)

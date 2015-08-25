@@ -1,20 +1,20 @@
 /*
  * MALHEUR - Automatic Analysis of Malware Behavior
  * Copyright (c) 2009-2012 Konrad Rieck (konrad@mlsec.org)
- * University of Goettingen, Berlin Institute of Technology 
+ * University of Goettingen, Berlin Institute of Technology
  * --
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.  This program is distributed without any
- * warranty. See the GNU General Public License for more details. 
+ * warranty. See the GNU General Public License for more details.
  * --
  */
- 
- /** 
+
+ /**
  * @defgroup mconfig Configuration functions
  * Functions for configuration of the Malheur tool. Additionally default
- * values for each configruation parameter are specified in this module. 
+ * values for each configruation parameter are specified in this module.
  * @author Konrad Rieck
  * @{
  */
@@ -23,44 +23,49 @@
 #include "util.h"
 #include "mconfig.h"
 
-/* External variables */
-extern int verbose;
+/* Macros to make config lines shorter */
+#define I "input"
+#define F "features"
+#define P "prototypes"
+#define C "cluster"
+#define Y "classify"
 
 /* Default configuration */
 static config_default_t defaults[] = {
     /* Input */
-    {"input", "format", { .sval = "text" }, CONFIG_TYPE_STRING},
-    {"input", "mist_level", { .ival = 0 }, CONFIG_TYPE_INT},
-    {"input", "mist_rlen", { .ival = 0 }, CONFIG_TYPE_INT},
-    {"input", "mist_tlen", { .ival = 0 }, CONFIG_TYPE_INT},
+    {I, "format", CONFIG_TYPE_STRING, { .str = "text" }},
+    {I, "text_delim", CONFIG_TYPE_STRING, { .str = "%20%0a%0d" }},
+    {I, "mist_delim", CONFIG_TYPE_STRING, { .str = "|" }},
+    {I, "mist_level", CONFIG_TYPE_INT, { .num = 0 }},
+    {I, "mist_rlen", CONFIG_TYPE_INT, { .num = 0 }},
+    {I, "mist_tlen", CONFIG_TYPE_INT, { .num = 0 }},
 
     /* Features */
-    {"features", "ngram_len", { .ival = 2 }, CONFIG_TYPE_INT},
-    {"features", "ngram_delim", { .sval = "%20%0a%0d" }, CONFIG_TYPE_STRING},
-    {"features", "vect_embed", { .sval = "bin" }, CONFIG_TYPE_STRING},
-    {"features", "lookup_table", { .ival = 0 }, CONFIG_TYPE_INT},
-    {"features", "hash_seed1", { .ival = 0x1ea4501a }, CONFIG_TYPE_INT},
-    {"features", "hash_seed2", { .ival = 0x75f3da43 }, CONFIG_TYPE_INT},
+    {F, "ngram_len", CONFIG_TYPE_INT, { .num = 2 }},
+    {F, "vect_embed", CONFIG_TYPE_STRING, { .str = "bin" }},
+    {F, "lookup_table", CONFIG_TYPE_BOOL, { .num = CONFIG_FALSE }},
+    {F, "hash_seed1", CONFIG_TYPE_INT, { .num = 0x1ea4501a }},
+    {F, "hash_seed2", CONFIG_TYPE_INT, { .num = 0x75f3da43 }},
 
     /* Prototypes */
-    {"prototypes", "max_dist", { .fval = 0.65 }, CONFIG_TYPE_FLOAT},
-    {"prototypes", "max_num", { .ival = 0 }, CONFIG_TYPE_INT},
+    {P, "max_dist", CONFIG_TYPE_FLOAT, { .flt = 0.65 }},
+    {P, "max_num", CONFIG_TYPE_INT, { .num = 0 }},
 
     /* Classification */
-    {"classify", "max_dist", { .fval = 0.68 }, CONFIG_TYPE_FLOAT},
+    {Y, "max_dist", CONFIG_TYPE_FLOAT, { .flt = 0.68 }},
 
     /* Clustering */
-    {"cluster", "link_mode", { .sval = "complete" }, CONFIG_TYPE_STRING},    
-    {"cluster", "min_dist", { .fval = 0.95 }, CONFIG_TYPE_FLOAT},
-    {"cluster", "reject_num", { .ival = 10 }, CONFIG_TYPE_INT},
-    {"cluster", "shared_ngrams", { .fval = 0.0 }, CONFIG_TYPE_FLOAT},
+    {C, "link_mode", CONFIG_TYPE_STRING, { .str = "complete" }},
+    {C, "min_dist", CONFIG_TYPE_FLOAT, { .flt = 0.95 }},
+    {C, "reject_num", CONFIG_TYPE_INT, { .num = 10 }},
+    {C, "shared_ngrams", CONFIG_TYPE_FLOAT, { .flt = 0.0 }},
 
     /* Terminating entry */
-    {NULL, NULL, { .ival = 0 }, 0}
+    {NULL}
 };
 
 /**
- * Print a configuration setting. 
+ * Print a configuration setting.
  * @param f File stream to print to
  * @param cs Configuration setting
  * @param d Current depth.
@@ -114,7 +119,7 @@ void config_print(config_t *cfg)
 }
 
 /**
- * Print the Malheur configuration to a file. 
+ * Print the Malheur configuration to a file.
  * @param f pointer to file stream
  * @param cfg configuration
  */
@@ -124,7 +129,7 @@ void config_fprint(FILE *f, config_t *cfg)
 }
 
 /**
- * Checks if the configuration is valid. The function checks if all 
+ * Checks if the configuration is valid. The function checks if all
  * required parameters are set and adds default values if necessary.
  * @param cfg configuration
  */
@@ -149,8 +154,8 @@ void config_check(config_t *cfg)
 
             /* Add default value */
             vs = config_setting_add(cs, defaults[i].name, CONFIG_TYPE_STRING);
-            config_setting_set_string(vs, defaults[i].val.sval);
-        /* (2) Check for float */            
+            config_setting_set_string(vs, defaults[i].val.str);
+        /* (2) Check for float */
         } else if (defaults[i].type == CONFIG_TYPE_FLOAT) {
             if (config_setting_lookup_float(cs, defaults[i].name, &f))
                 continue;
@@ -165,8 +170,8 @@ void config_check(config_t *cfg)
 
             /* Add default value */
             vs = config_setting_add(cs, defaults[i].name, CONFIG_TYPE_FLOAT);
-            config_setting_set_float(vs, defaults[i].val.fval);
-        /* (3) Check for integer */            
+            config_setting_set_float(vs, defaults[i].val.flt);
+        /* (3) Check for integer */
         } else if (defaults[i].type == CONFIG_TYPE_INT) {
             if (config_setting_lookup_int(cs, defaults[i].name, &j))
                 continue;
@@ -181,7 +186,7 @@ void config_check(config_t *cfg)
 
             /* Add default value */
             vs = config_setting_add(cs, defaults[i].name, CONFIG_TYPE_INT);
-            config_setting_set_int(vs, defaults[i].val.ival);
+            config_setting_set_int(vs, defaults[i].val.num);
         } else {
             error("Unknown configuration type");
         }

@@ -81,7 +81,7 @@ report are expected to be in sequential order if n-grams with S<n
 E<gt> 1> are extracted. If the behavior is represented using the
 malware instruction set (MIST) further options may be selected.
 
-=head1 ACTIONS & OPTIONS
+=head1 ACTIONS 
 
 B<malheur> supported different I<actions> for analysis of a
 F<dataset>.  For all actions the reports are first mapped to a
@@ -97,7 +97,7 @@ assessed geometrically by computing distances and angles.
 If this action is specified, B<malheur> computes a distance matrix for
 I<dataset>. The entry (i,j) of this matrix reflects the distance
 (dissimilarity) of the reports i and j. The distance values lie in the
-range 0 to sqrt(2). The distance matrix is written to I<outfile>.
+range 0 to sqrt(2). The distance matrix is written to I<output_file>.
 
 =item B<prototype>
 
@@ -105,7 +105,7 @@ If this action is specified, B<malheur> determines a set of
 I<prototypes> representing I<dataset>. The prototypes are selected
 from the contained reports, such that the distance from any report to
 its nearest prototype is minimized. The prototype assignment of
-I<dataset> is written to I<outfile>.
+I<dataset> is written to I<output_file>.
 
 =item B<cluster>
 
@@ -115,7 +115,7 @@ propagated to all reports. Small clusters with too few members are
 merged in a I<rejection cluster>. The prototypes representing accepted
 clusters are stored as internal state of B<malheur> for later
 classification and incremental analysis. The clustering of I<dataset>
-is written to I<outfile>.
+is written to I<output_file>.
 
 =item B<classify> 
 
@@ -124,7 +124,7 @@ of I<dataset>. Each report is either assigned to the nearest prototype
 of a known cluster or rejected as unknown. This action requires that a
 clustering has been performed beforehand and an internal state of
 B<malheur> exists. The classification of I<dataset> is written to
-I<outfile>.
+I<output_file>.
 
 =item B<increment>
 
@@ -133,9 +133,9 @@ analysis> of the reports. The reports are first classified to known
 clusters as in the action I<classify>. Reports rejected from
 classification are then clustered as in the action I<cluster>. The
 prototypes of the accepted clusters and the rejected reports are
-written to the internal state in <statedir> for further incremental
+written to the internal state in <state_dir> for further incremental
 analysis. The classification and clustering of I<dataset> are written
-to I<outfile>.
+to I<output_file>.
 
 =item B<protodist>
 
@@ -144,13 +144,31 @@ prototypes.  The entry (i,j) of this matrix reflects the distance
 (dissimilarity) of the prototypes i and j.  The distance values lie in the
 range 0 to sqrt(2).  This action requires that either a prototype
 extraction, a clustering or an incremental analysis has been performed
-beforehand.  The distance matrix is written to I<outfile>.
+beforehand.  The distance matrix is written to I<output_file>.
 
 =back
 
+=head1 OPTIONS
+
+The configuration of B<malheur> can be refined using several command-line
+options.  Moreover, some parameters of the configuration can be overwritten
+on the command line.  Following is the list of options:
+
+  -s,  --state_dir <dir>       Set directory for internal state.
+  -o,  --output_file <file>    Set output file for analysis results.
+  -c,  --config_file <file>    Set configuration file.
+  -n,  --dry                   Dry run. Don't change internal state.
+       --reset                 Reset internal state of Malheur.
+       --fvec_dump <file>      Dump feature vectores in LibSVM format.
+  -C,  --print_config          Print the current configuration.
+  -D,  --print_defaults        Print the default configuration.
+  -v,  --verbose               Increase verbosity.
+  -V,  --version               Print version and copyright.
+  -h,  --help                  Print this help screen.
+
 =head1 CONFIGURATION
 
-The configuration of harry is provided by a configuration file.  This file
+The configuration of B<malheur> is provided by a configuration file.  This file
 is structured into the five sections B<generic>, B<features>, B<prototypes>,
 B<classify> and B<cluster>.  If no configuration file is provided, B<malheur>
 resorts to a default configuration.  This default configuration can be
@@ -289,7 +307,7 @@ This parameter allows to extract shared n-grams for each clusters.
 The shared n-grams are determined by merging the members in each 
 cluster and identifying all n-grams shared by at least the given 
 ratio of members.  The resulting list of shared n-grams is appended
-to I<outfile>. If set to 0.0, this feature is disabled. Note that
+to I<output_file>. If set to 0.0, this feature is disabled. Note that
 if shared n-grams are enabled, a feature lookup table is 
 maintained which consumes extra memory. 
 
@@ -316,6 +334,7 @@ prototype.
 =item B<};>
 
 =back
+
 
 =head1 FILES
 

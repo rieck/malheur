@@ -37,37 +37,24 @@ static malheur_action_t action = PROTOTYPE;
 static malheur_state_t mstate;
 
 /* Option string */
-#define OPTSTRING       "nro:c:s:hvVd:DC"
+#define OPTSTRING       "no:c:s:hvVDC"
 
 /**
  * Array of options of getopt_long()
  */
 static struct option longopts[] = {
-    {"reset", 0, NULL, 'r'},
-    {"nostate", 0, NULL, 'n'},
+    {"reset", 0, NULL, 1001},
+    {"dry", 0, NULL, 'n'},
     {"verbose", 0, NULL, 'v'},
     {"version", 0, NULL, 'V'},
     {"help", 0, NULL, 'h'},
-    {"dump", 1, NULL, 'd'},
+    {"fvec_dump", 1, NULL, 1002},
     {"print_config", 0, NULL, 'C'},
-    {"print_defaults", 0, NULL, 'D'},    
-    /* start of config options */
-    {"generic.input_format", 1, NULL, 1001},
-    {"generic.event_delim", 1, NULL, 1005},
-    {"generic.output_file", 1, NULL, 'o'},
-    {"generic.state_dir", 1, NULL, 's'},
-    {"features.ngram_len", 1, NULL, 1006},
-    {"features.mist_level", 1, NULL, 1002},
-    {"features.vect_embed", 1, NULL, 1007},
-    {"prototypes.max_dist", 1, NULL, 1009},
-    {"prototypes.max_num", 1, NULL, 1010},
-    {"classify.max_dist", 1, NULL, 1011},
-    {"cluster.link_mode", 1, NULL, 1012},
-    {"cluster.min_dist", 1, NULL, 1013},
-    {"cluster.reject_num", 1, NULL, 1014},
-    {"cluster.shared_ngrams", 1, NULL, 1015},
-    /* end of config options */
-    {NULL, 0, NULL, 0}
+    {"print_defaults", 0, NULL, 'D'},
+    {"help", 0, NULL, 'h'},
+    {"output_file", 1, NULL, 'o'},
+    {"state_dir", 1, NULL, 's'},
+    {NULL}
 };
 
 /**
@@ -78,7 +65,7 @@ static struct option longopts[] = {
 static void print_usage(void)
 {
     printf("Usage: malheur [options] <action> <dataset>\n"
-           "Actions:\n"
+           "\nActions:\n"
            "  distance       Compute distance matrix for malware reports\n"
            "  prototype      Extract prototypes from malware reports\n"
            "  protodist      Compute distance matrix for prototypes\n"
@@ -86,16 +73,19 @@ static void print_usage(void)
            "  classify       Classify malware reports using labeled prototypes\n"
            "  increment      Incremental analysis of malware reports\n"
            "  info           Print information about internal state of Malheur\n"
-           "Options:\n"
-           "  -s <dir>       Set directory to internal state of Malheur.\n"
-           "  -o <file>      Set output file for analysis.\n"
-           "  -d <file>      Dump feature vectors to file in libsvm format.\n"
-           "  -r             Reset internal state of Malheur.\n"
-           "  -n             Don't save internal state of Malher.\n"
-           "  -v             Increase verbosity.\n"
-           "  -V             Print version and copyright.\n"
-           "  -h             Print this help screen.\n"
-           "See manual page malheur(1) for more information.\n");
+           "\nOptions:\n"
+           "  -s,  --state_dir <dir>       Set directory for internal state.\n"
+           "  -o,  --output_file <file>    Set output file for analysis results.\n"
+           "  -c,  --config_file <file>    Set configuration file.\n"
+           "  -n,  --dry                   Dry run. Don't change internal state.\n"
+           "       --reset                 Reset internal state of Malheur.\n"
+           "       --fvec_dump <file>      Dump feature vectores in LibSVM format.\n"
+           "  -C,  --print_config          Print the current configuration.\n"
+           "  -D,  --print_defaults        Print the default configuration.\n"
+           "  -v,  --verbose               Increase verbosity.\n"
+           "  -V,  --version               Print version and copyright.\n"
+           "  -h,  --help                  Print this help screen.\n"
+           "\nSee manual page malheur(1) for more information.\n");
 }
 
 /**
@@ -130,7 +120,7 @@ static void malheur_parse_options(int argc, char **argv)
         case 'n':
             save = FALSE;
             break;
-        case 'r':
+        case 1001:
             reset = TRUE;
             break;
         case 'v':
@@ -142,12 +132,12 @@ static void malheur_parse_options(int argc, char **argv)
         case 'o':
             config_set_string(&cfg, "generic.output_file", optarg);
             break;
+        case 1002:
+            fvec_dump = optarg;
+            break;
         case 'V':
             malheur_version(stdout);
             exit(EXIT_SUCCESS);
-            break;
-        case 'd':
-            fvec_dump = optarg;
             break;
         case 'D':
             print_config("Default configuration");
@@ -155,49 +145,11 @@ static void malheur_parse_options(int argc, char **argv)
             break;
         case 'C':
             print_conf = TRUE;
-            break;            
+            break;
         case 'h':
         case '?':
             print_usage();
             exit(EXIT_SUCCESS);
-            break;
-
-            /* long options */
-        case 1001:
-            config_set_string(&cfg, "generic.input_format", optarg);
-            break;
-        case 1005:
-            config_set_string(&cfg, "generic.event_delim", optarg);
-            break;
-        case 1006:
-            config_set_int(&cfg, "features.ngram_len", atoi(optarg));
-            break;
-        case 1007:
-            config_set_string(&cfg, "features.vect_embed", optarg);
-            break;
-        case 1002:
-            config_set_int(&cfg, "features.mist_level", atoi(optarg));
-            break;
-        case 1009:
-            config_set_float(&cfg, "prototypes.max_dist", atof(optarg));
-            break;
-        case 1010:
-            config_set_int(&cfg, "prototypes.max_num", atoi(optarg));
-            break;
-        case 1011:
-            config_set_float(&cfg, "classify.max_dist", atof(optarg));
-            break;
-        case 1012:
-            config_set_string(&cfg, "cluster.link_mode", optarg);
-            break;
-        case 1013:
-            config_set_float(&cfg, "cluster.min_dist", atof(optarg));
-            break;
-        case 1014:
-            config_set_int(&cfg, "cluster.reject_num", atoi(optarg));
-            break;
-        case 1015:
-            config_set_int(&cfg, "cluster.shared_ngrams", atoi(optarg));
             break;
         }
     }
@@ -211,7 +163,7 @@ static void malheur_parse_options(int argc, char **argv)
     if (print_conf) {
         print_config("Current configuration");
         exit(EXIT_SUCCESS);
-    } 
+    }
 
     argc -= optind;
     argv += optind;

@@ -644,7 +644,7 @@ farray_t *farray_load_file(char *f)
     assert(f);
 
     if (verbose > 0)
-        printf("Load feature vectors from '%s'.\n", f);
+        printf("Loading feature vectors from '%s'.\n", f);
 
     /* Open file */
     gzFile *z = gzopen(f, "rb");

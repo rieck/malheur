@@ -35,6 +35,9 @@ AC_PROG_LIBTOOL
 # By default remove assert statements
 CFLAGS="$CFLAGS -DNDEBUG"
 
+# By default we include the math library
+LIBS="$LIBS -lm"
+
 # Set GCC and C99 flags if present
 if test "$GCC" = "yes" ; then
    CFLAGS="$CFLAGS -std=c99 -fgnu89-inline -Wall -fPIC"

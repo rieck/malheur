@@ -244,6 +244,12 @@ int config_check(config_t *cfg)
         return FALSE;
     }
 
+    config_lookup_int(cfg, "features.mist_level", &num);
+    if (num < 1) {
+        error("MIST level needs to be > 0");
+        return FALSE;
+    }
+
     return TRUE;
 }
 

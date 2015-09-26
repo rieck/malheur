@@ -42,7 +42,7 @@ static config_default_t defaults[] = {
     /* Features */
     {F, "ngram_len", CONFIG_TYPE_INT, {.num = 2}},
     {F, "vect_embed", CONFIG_TYPE_STRING, {.str = "bin"}},
-    {F, "mist_level", CONFIG_TYPE_INT, {.num = 0}},
+    {F, "mist_level", CONFIG_TYPE_INT, {.num = 1}},
     {F, "hash_seed1", CONFIG_TYPE_INT, {.num = 0x1ea4501a}},
     {F, "hash_seed2", CONFIG_TYPE_INT, {.num = 0x75f3da43}},
 

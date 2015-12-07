@@ -54,7 +54,7 @@ Dependencies
 --
 
 +   libconfig >= 1.4, <http://www.hyperrealm.com/libconfig/>
-+   libarchive >= 2.70,  <http://libarchive.github.com/>
++   libarchive >= 3.1.2,  <http://libarchive.github.com/>
 
 #### Debian & Ubuntu Linux
 

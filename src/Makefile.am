@@ -2,9 +2,6 @@
 # Copyright (c) 2009-2015 Konrad Rieck (konrad@mlsec.org)
 # University of Goettingen, Berlin Institute of Technology
 
-EXTRA_DIST		= malheur.h.in
-BUILT_SOURCES		= malheur.h
-
 noinst_LIBRARIES        = libmalheur.a			  
 libmalheur_a_SOURCES	= md5.c md5.h common.h util.c util.h fvec.c \
                           fvec.h ftable.c ftable.h mist.c \
@@ -18,9 +15,6 @@ bin_PROGRAMS            = malheur
 malheur_SOURCES    	= $(libmalheur_a_SOURCES) malheur.c malheur.h
 malheur_LDFLAGS         = -static
          
-clean-local:
-	rm -f 		malheur.h
-
 beautify:               $(libmalheur_a_SOURCES) $(malheur_SOURCES)
 			gindent -i4 -kr -l77 -lc77 --no-tabs -cs \
                         -T FILE -T fvec_t -T farray_t -T cluster_t \

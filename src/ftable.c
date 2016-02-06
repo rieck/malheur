@@ -192,7 +192,7 @@ unsigned long ftable_size()
  * Saves a feature table to a file stream.
  * @param z Stream pointer
  */
-void ftable_save(gzFile * z)
+void ftable_save(gzFile z)
 {
     fentry_t *f;
     int i;
@@ -214,7 +214,7 @@ void ftable_save(gzFile * z)
  * Loads a feature table from a file stream (Not synchronized)
  * @param z Stream pointer
  */
-void ftable_load(gzFile * z)
+void ftable_load(gzFile z)
 {
     int i, r;
     unsigned long len;

@@ -449,7 +449,7 @@ int farray_get_fixed(farray_t *fa)
  * @param fa Array of feature vectors
  * @param z Stream pointer
  */
-void farray_save(farray_t *fa, gzFile * z)
+void farray_save(farray_t *fa, gzFile z)
 {
     assert(fa && z);
     int i;
@@ -468,7 +468,7 @@ void farray_save(farray_t *fa, gzFile * z)
  * @param fa Array of feature vectors
  * @param z Stream pointer
  */
-void farray_save_libsvm(farray_t *fa, gzFile * z)
+void farray_save_libsvm(farray_t *fa, gzFile z)
 {
     assert(fa && z);
     int i;
@@ -501,7 +501,7 @@ char *farray_get_label(farray_t *fa, int i)
  * @param z Stream point
  * @return  Array of feature vectors
 */
-farray_t *farray_load(gzFile * z)
+farray_t *farray_load(gzFile z)
 {
     assert(z);
     char buf[512], str[512];
@@ -558,7 +558,7 @@ farray_t *farray_load(gzFile * z)
 void farray_save_file(farray_t *fa, char *f)
 {
     assert(fa && f);
-    gzFile *z;
+    gzFile z;
 
     if (verbose > 0)
         printf("Saving %lu feature vectors to '%s'.\n", fa->len, f);
@@ -583,7 +583,7 @@ void farray_save_file(farray_t *fa, char *f)
 void farray_save_libsvm_file(farray_t *fa, char *f)
 {
     assert(fa && f);
-    gzFile *z;
+    gzFile z;
 
     if (verbose > 0)
         printf("Saving %lu feature vectors in libsvm format to '%s'.\n",
@@ -610,7 +610,7 @@ void farray_save_libsvm_file(farray_t *fa, char *f)
 void farray_append_file(farray_t *fa, char *f)
 {
     assert(fa && f);
-    gzFile *z;
+    gzFile z;
 
     if (verbose > 0)
         printf("Appending %lu feature vectors to '%s'.\n", fa->len, f);
@@ -647,7 +647,7 @@ farray_t *farray_load_file(char *f)
         printf("Loading feature vectors from '%s'.\n", f);
 
     /* Open file */
-    gzFile *z = gzopen(f, "rb");
+    gzFile z = gzopen(f, "rb");
     if (!z) {
         error("Could not open '%s' for reading", f);
         return NULL;

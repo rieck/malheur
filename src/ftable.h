@@ -44,8 +44,8 @@ void ftable_destroy();
 unsigned long ftable_size();
 void ftable_print();
 void ftable_remove(feat_t);
-void ftable_save(gzFile * z);
-void ftable_load(gzFile * z);
+void ftable_save(gzFile);
+void ftable_load(gzFile);
 int ftable_enabled();
 
 #endif                          /* FTABLE_H */

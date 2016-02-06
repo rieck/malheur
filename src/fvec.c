@@ -522,7 +522,7 @@ static void decode_delim(const char *s)
  * @param f Feature vector
  * @param z Stream pointer
  */
-void fvec_save(fvec_t *f, gzFile * z)
+void fvec_save(fvec_t *f, gzFile z)
 {
     assert(f && z);
     int i;
@@ -542,7 +542,7 @@ void fvec_save(fvec_t *f, gzFile * z)
  * @param z Stream pointer
  * @param l Label for vector
  */
-void fvec_save_libsvm(fvec_t *f, gzFile * z, int l)
+void fvec_save_libsvm(fvec_t *f, gzFile z, int l)
 {
     assert(f && z);
     int i;
@@ -561,7 +561,7 @@ void fvec_save_libsvm(fvec_t *f, gzFile * z, int l)
  * @param z Stream point
  * @return Feature vector
  */
-fvec_t *fvec_load(gzFile * z)
+fvec_t *fvec_load(gzFile z)
 {
     assert(z);
     fvec_t *f;

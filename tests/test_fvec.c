@@ -159,7 +159,7 @@ int test_load_save()
 {
     int i, j, err = 0;
     fvec_t *f, *g;
-    gzFile *z;
+    gzFile z;
 
     test_printf("Loading and saving of feature vectors");
 

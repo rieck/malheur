@@ -124,7 +124,7 @@ int test_stress()
 int test_load_save()
 {
     int i, j, err = 0;
-    gzFile *z;
+    gzFile z;
     fentry_t *f;
 
     test_printf("Loading and saving of feature table");

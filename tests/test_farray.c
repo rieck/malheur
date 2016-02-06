@@ -114,7 +114,7 @@ int test_load_save()
 {
     int i, j, k, err = 0;
     char buf[STR_LENGTH + 1], label[32];
-    gzFile *z;
+    gzFile z;
 
     test_printf("Loading and saving of feature arrays");
 

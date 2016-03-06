@@ -238,10 +238,12 @@ farray_t *farray_extract_archive(char *arc)
             /* Perform reading of archive in critical region */
             archive_read_next_header(a, &entry);
             const struct stat *s = archive_entry_stat(entry);
+            x = NULL;
+            l = NULL;
             if (!S_ISREG(s->st_mode)) {
-                x = NULL;
                 archive_read_data_skip(a);
-                l = NULL;
+            } else if (s->st_size == 0 || s->st_size > 1024) {
+                warning("Broken archive entry. Skipping");
             } else {
                 x = malloc((s->st_size + 1) * sizeof(char));
                 archive_read_data(a, x, s->st_size);

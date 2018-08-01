@@ -42,7 +42,8 @@ extern config_t cfg;
  * the generic case linkage clustering has a worst-case time complexity
  * of O(n^2 log n).
  * @param c Clustering structure
- * @param d Minimum distance
+ * @param d Distances
+ * @param dm Minimum distance
  * @param m Clustering mode
  */
 static void cluster_murtagh(cluster_t *c, double *d, double dm, char m)

@@ -1,6 +1,13 @@
 
-MALHEUR - Automatic Analysis of Malware Behavior
+Malheur - Automatic Analysis of Malware Behavior
 ==
+
+This software belongs to the publication
+
+> Konrad Rieck, Philipp Trinius, Carsten Willems, and Thorsten Holz.
+> Automatic Analysis of Malware Behavior using Machine Learning.
+> Journal of Computer Security (JCS), 19 (4), 639–668, June 2011. 
+> [Preprint](doc/2011-jcs.pdf)
  
 Introduction 
 --

@@ -11,8 +11,6 @@
 /configure
 /depcomp
 /doc/latex-pre.inc
-/doc/malheur.man
-/doc/malheur.pdf
 /doc/malheur.pod
 /doc/malheur.txt
 /doc/test.cfg
